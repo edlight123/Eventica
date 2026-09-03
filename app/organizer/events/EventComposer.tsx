@@ -258,7 +258,9 @@ function Toggle({
 const CHIP_ON = 'bg-white text-black'
 const CHIP_OFF = 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
 const chipCls = (on: boolean) =>
-  `rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${on ? CHIP_ON : CHIP_OFF}`
+  // min-h-11 on phones: these were 32px, under the 44px touch floor, and there
+  // are dozens of them down this form.
+  `inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:min-h-0 ${on ? CHIP_ON : CHIP_OFF}`
 
 /**
  * A state read-out that is a DOT plus a label — never a filled status pill
@@ -353,7 +355,7 @@ function SectionTitle({
         <span className="min-w-0 [&_h2]:!text-[clamp(20px,2.6vw,26px)] [&>div]:mb-0">
           <SectionHeader title={children} />
         </span>
-        {info && <InfoPopover label={`${children} — more information`} text={info} />}
+        {info && <InfoPopover label={`${children}, more information`} text={info} />}
       </span>
       {right}
     </div>
@@ -716,7 +718,7 @@ export default function EventComposer({
         type: 'success',
         title: t('composer.toasts.welcomeTitle', { defaultValue: 'Welcome back' }),
         message: t('composer.toasts.welcomeMsg', {
-          defaultValue: 'We kept your event draft — review it and hit Create.',
+          defaultValue: 'We kept your event draft. Review it and hit Create.',
         }),
         duration: 4500,
       })
@@ -733,7 +735,7 @@ export default function EventComposer({
   const [payoutProfileGap, setPayoutProfileGap] = useState<null | 'haiti' | 'stripe_connect'>(null)
   useEffect(() => {
     if (isDemoMode()) return
-    if (guest) return // no organizer yet — nothing to nudge about
+    if (guest) return // no organizer yet, nothing to nudge about
     let cancelled = false
     ;(async () => {
       try {
@@ -1246,7 +1248,7 @@ export default function EventComposer({
         showToast({
           type: 'success',
           title: t('composer.toasts.draftTitle', { defaultValue: 'Draft created' }),
-          message: t('composer.toasts.draftDemoMsg', { defaultValue: 'Demo mode — opening the editor.' }),
+          message: t('composer.toasts.draftDemoMsg', { defaultValue: 'Demo mode. Opening the editor.' }),
           duration: 3000,
         })
         router.push('/organizer/events')
@@ -1447,9 +1449,9 @@ export default function EventComposer({
    * because there a dashed edge around empty space is the meaning.
    * ---------------------------------------------------------------------- */
   const rowCls =
-    'flex w-full items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.06]'
+    'flex min-h-11 w-full items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.06]'
   const field =
-    'w-full rounded-xl bg-white/[0.05] px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 transition-colors focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
+    'min-h-11 w-full rounded-xl bg-white/[0.05] px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 transition-colors focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
   const inset =
     'rounded-lg bg-white/[0.06] px-2.5 py-1.5 text-sm text-white [color-scheme:dark] transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
 
@@ -1466,11 +1468,11 @@ export default function EventComposer({
                 {payoutProfileGap === 'stripe_connect'
                   ? t('composer.payoutGap.stripe', {
                       defaultValue:
-                        'Events in the US, Canada or France pay out through your Stripe profile — it isn’t set up yet, so paid tickets can’t publish. ',
+                        'Events in the US, Canada or France pay out through your Stripe profile. It isn’t set up yet, so paid tickets can’t publish. ',
                     })
                   : t('composer.payoutGap.haiti', {
                       defaultValue:
-                        'Events in Haiti pay out through your Haiti profile (MonCash or bank) — it isn’t set up yet, so paid tickets can’t publish. ',
+                        'Events in Haiti pay out through your Haiti profile (MonCash or bank). It isn’t set up yet, so paid tickets can’t publish. ',
                     })}
                 <a
                   href="/organizer/settings/payouts"
@@ -1646,7 +1648,7 @@ export default function EventComposer({
                     {recurrenceMode === 'count' ? (
                       <label className="flex items-center justify-between gap-3">
                         <span className="text-sm text-white/70">
-                          {t('composer.occurrences', { defaultValue: 'Number of occurrences (2–52)' })}
+                          {t('composer.occurrences', { defaultValue: 'Number of occurrences (2 to 52)' })}
                         </span>
                         <input
                           type="number"
@@ -1980,7 +1982,7 @@ export default function EventComposer({
                               <InfoPopover
                                 label={t('composer.tier.makeFree', { defaultValue: 'Make this a free ticket' })}
                                 text={t('composer.tier.makeFreeHint', {
-                                  defaultValue: 'This ticket is free — buyers are never charged for it.',
+                                  defaultValue: 'This ticket is free. Buyers are never charged for it.',
                                 })}
                               />
                             </span>
@@ -2074,7 +2076,7 @@ export default function EventComposer({
                                 label={t('composer.tier.hide', { defaultValue: 'Hide this ticket' })}
                                 text={t('composer.tier.hideHint', {
                                   defaultValue:
-                                    'Hidden tickets never show on the event page and cannot be bought online — useful for a tier you sell yourself.',
+                                    'Hidden tickets never show on the event page and cannot be bought online. Useful for a tier you sell yourself.',
                                 })}
                               />
                             </span>
@@ -2180,7 +2182,7 @@ export default function EventComposer({
                 <button
                   type="button"
                   onClick={addTier}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-transparent px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white"
+                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-transparent px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white"
                 >
                   <Plus className="h-4 w-4" /> {t('composer.addTicketType', { defaultValue: 'Add ticket type' })}
                 </button>
@@ -2235,8 +2237,8 @@ export default function EventComposer({
 
             <div className="space-y-3 rounded-xl bg-white/[0.025] p-4">
               {/* The bill so far, in running order. Each row is the whole entry
-                  in miniature — face, name, role, set time, whether a link is
-                  attached — and clicking it reopens the editor. */}
+                  in miniature, face, name, role, set time, whether a link is
+                  attached, and clicking it reopens the editor. */}
               {guests.length > 0 && (
                 <div className="space-y-2">
                   {guests.map((g, i) => (
@@ -2271,7 +2273,7 @@ export default function EventComposer({
                                 <span aria-hidden>·</span>
                                 <span>
                                   {g.startTime}
-                                  {g.endTime ? `–${g.endTime}` : ''}
+                                  {g.endTime ? `, ${g.endTime}` : ''}
                                 </span>
                               </>
                             )}
@@ -2318,7 +2320,7 @@ export default function EventComposer({
               <button
                 type="button"
                 onClick={openNewGuest}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white"
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white"
               >
                 <Plus className="h-4 w-4" /> {t('composer.addToGuestlist', { defaultValue: 'Add to guestlist' })}
               </button>
@@ -2437,7 +2439,7 @@ export default function EventComposer({
                       <p className="mt-1.5 text-xs text-white/50">
                         {t('composer.accessCodeHint', {
                           defaultValue:
-                            'Attendees must enter this code to view and buy. It’s stored hashed — we never keep the plain code.',
+                            'Attendees must enter this code to view and buy. It’s stored hashed, so we never keep the plain code.',
                         })}
                       </p>
                     )}
@@ -2514,13 +2516,13 @@ export default function EventComposer({
 
             {/* The "Poster Theme" swatch row was here. It pinned the gradient
                 used INSTEAD of a flyer, so it did nothing for the great
-                majority of events (which have one) — and on web it did nothing
+                majority of events (which have one), and on web it did nothing
                 at all: every reader here resolves the gradient from a hash of
                 the event id and none consult `theme_key`. Ten near-identical
                 teal circles with no explanation, next to the flyer uploader,
                 cost more confusion than they bought. `theme_key` itself lives
                 on (the mobile composer's picker does work), and is preserved
-                through a web edit — see the state initializer. */}
+                through a web edit, see the state initializer. */}
 
             {/* Series edit — apply shared field changes to every sibling. */}
             {isEdit && seriesId && (
@@ -2555,8 +2557,8 @@ export default function EventComposer({
             >
               {guest
                 ? authed
-                  ? t('composer.continueOrganizer', { defaultValue: 'Continue — set up your organizer profile' })
-                  : t('composer.continueSignup', { defaultValue: 'Continue — sign up to publish' })
+                  ? t('composer.continueOrganizer', { defaultValue: 'Continue and set up your organizer profile' })
+                  : t('composer.continueSignup', { defaultValue: 'Continue and sign up to publish' })
                 : isEdit
                 ? saving
                   ? t('composer.saving', { defaultValue: 'Saving…' })
@@ -2593,8 +2595,8 @@ export default function EventComposer({
                 ) : (
                   <p className="text-center text-xs text-white/70">
                     {isPublished
-                      ? t('composer.liveNote', { defaultValue: 'Live — visible to attendees.' })
-                      : t('composer.draftNote', { defaultValue: 'Draft — only you can see this.' })}
+                      ? t('composer.liveNote', { defaultValue: 'Live. Visible to attendees.' })
+                      : t('composer.draftNote', { defaultValue: 'Draft. Only you can see this.' })}
                   </p>
                 )}
               </>
@@ -2602,14 +2604,14 @@ export default function EventComposer({
               <>
                 <p className="text-center text-xs text-white/70">
                   {t('composer.guestFreeNote', {
-                    defaultValue: 'Free to set up — your draft is saved on this device, nothing is lost at sign-in.',
+                    defaultValue: 'Free to set up. Your draft is saved on this device, so nothing is lost at sign-in.',
                   })}
                 </p>
                 {isPaid && (
                   <p className="text-center text-xs text-amber-300/90">
                     {t('composer.guestPaidNote', {
                       defaultValue:
-                        'Paid tickets need a one-time identity verification before the event can go live — you can finish setting everything up first.',
+                        'Paid tickets need a one-time identity verification before the event can go live. You can finish setting everything up first.',
                     })}
                   </p>
                 )}
@@ -2617,7 +2619,7 @@ export default function EventComposer({
             ) : (
               <p className="text-center text-xs text-white/70">
                 {t('composer.savedPrivateNote', {
-                  defaultValue: 'Saved as a private draft — publish when you’re ready.',
+                  defaultValue: 'Saved as a private draft. Publish when you’re ready.',
                 })}
               </p>
             )}

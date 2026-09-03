@@ -56,7 +56,7 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
       return formatPrimaryMoneyFromCentsByCurrency(breakdown, event.currency, 'en-US', { currencyDisplay: 'code' })
     }
     const major = typeof event.revenue === 'number' ? event.revenue : Number(event.revenue || 0)
-    if (!Number.isFinite(major) || major === 0) return '—'
+    if (!Number.isFinite(major) || major === 0) return ', '
     return formatMoneyFromCents(Math.round(major * 100), normalizeCurrency(event.currency, 'HTG'), 'en-US', { currencyDisplay: 'code' })
   })()
 
@@ -113,11 +113,11 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
         <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-[12.5px] text-white/50">
           <span className="inline-flex items-center gap-1.5 font-mono tabular-nums">
             <Calendar className="h-3.5 w-3.5 shrink-0" />
-            {dateValid ? format(new Date(event.start_datetime), 'MMM d, yyyy · h:mm a') : '—'}
+            {dateValid ? format(new Date(event.start_datetime), 'MMM d, yyyy · h:mm a') : ', '}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{event.location_name || event.commune || event.city || '—'}</span>
+            <span className="truncate">{event.location_name || event.commune || event.city || ', '}</span>
           </span>
         </div>
       </div>

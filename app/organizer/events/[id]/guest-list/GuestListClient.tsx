@@ -42,7 +42,7 @@ const columns: OrgColumn<Guest>[] = [
     sortable: true,
     render: (g) => (
       <div>
-        <p className="font-medium text-white">{g.name || '—'}</p>
+        <p className="font-medium text-white">{g.name || ', '}</p>
         <p className="text-xs text-white/50">{g.email}</p>
       </div>
     ),
@@ -60,7 +60,7 @@ const columns: OrgColumn<Guest>[] = [
     key: 'plus_one',
     header: '+1',
     render: (g) => (
-      <span className="text-sm text-white/60">{g.plus_one ? 'Yes' : '—'}</span>
+      <span className="text-sm text-white/60">{g.plus_one ? 'Yes' : ', '}</span>
     ),
   },
   {

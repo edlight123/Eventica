@@ -149,7 +149,7 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
                   `h-full` grid with the rows stretched to fill the stage, which
                   meant the tiles took whatever shape was left over: 4 posters
                   in 2 columns on a phone came out at 0.46, and on a wide screen
-                  `sm:grid-cols-4` across the full height reached 0.35 — a 4:5
+                  `sm:grid-cols-4` across the full height reached 0.35, a 4:5
                   poster cropped to a vertical sliver, unrecognisable as a
                   poster. `content-center` keeps the wall centred in the stage
                   while the rows size themselves to the aspect instead. */}
@@ -201,7 +201,7 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
             className="font-display lowercase italic text-[clamp(17px,2vw,22px)] text-white/60 transition-all duration-700"
             style={{ opacity: seen ? 1 : 0, transform: seen ? 'none' : 'translateY(14px)' }}
           >
-            {t('home.cities_eyebrow', { defaultValue: 'where Haiti goes out — everywhere' })}
+            {t('home.cities_eyebrow', { defaultValue: 'where Haiti goes out, everywhere' })}
           </p>
 
           <ul className="mt-6 space-y-1">

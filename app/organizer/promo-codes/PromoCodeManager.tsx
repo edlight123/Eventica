@@ -218,7 +218,7 @@ export default function PromoCodeManager({
       sortAccessor: (p) => (p.expires_at ? new Date(p.expires_at).getTime() : 0),
       render: (p) => (
         <span className="font-mono tabular-nums">
-          {p.expires_at ? new Date(p.expires_at).toLocaleDateString() : '—'}
+          {p.expires_at ? new Date(p.expires_at).toLocaleDateString() : ', '}
         </span>
       ),
     },
@@ -384,7 +384,7 @@ export default function PromoCodeManager({
                   uses_count by the order quantity. Saying so here stops an
                   organizer reading "50" as "the first 50 customers". */}
               <p className="mt-1.5 text-xs text-white/40">
-                Counts tickets, not orders — a 10-ticket order uses 10.
+                Counts tickets, not orders, a 10-ticket order uses 10.
               </p>
             </div>
 

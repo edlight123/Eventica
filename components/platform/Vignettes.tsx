@@ -23,7 +23,7 @@ function VignetteStage({ glow, children }: { glow: string; children: React.React
     <div className="relative isolate">
       {/* max-w-full caps the bloom at the stage width. As a fixed 480px circle
           centred on a ~390px phone stage it reached 45px past each edge, and
-          with nothing clipping it the DOCUMENT grew to 427px — the whole
+          with nothing clipping it the DOCUMENT grew to 427px, the whole
           /platform page scrolled sideways. Capping rather than clipping the
           parent, because the phone frame inside casts a shadow that is meant
           to bleed; only the horizontal axis matters, so the height is left
@@ -108,7 +108,7 @@ export function EventPageVignette() {
           <div className="plt-ev-toast absolute inset-x-3 top-9 z-20 flex items-center gap-2 rounded-xl bg-[#1f1f1f]/95 px-3 py-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
             <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-white">
-              {t('platform.vignettes.ticketSold', { defaultValue: 'Ticket sold — Nadège J.' })}
+              {t('platform.vignettes.ticketSold', { defaultValue: 'Ticket sold: Nadège J.' })}
             </span>
             <span className="shrink-0 text-[10px] text-white/60">1,500 HTG</span>
           </div>
@@ -119,11 +119,11 @@ export function EventPageVignette() {
                 from="#7c3aed"
                 to="#312e81"
                 glow="rgba(124,58,237,0.35)"
-                label="Vèsen live — summer fest"
+                label="Vèsen live, summer fest"
               />
             </div>
             <p className="plt-ev-title mt-3 truncate font-grotesk text-[15px] font-bold text-white">
-              Vèsen Live — Summer Fest
+              Vèsen Live. Summer Fest
             </p>
             <p className="plt-ev-meta mt-1 text-[11px] text-white/55">
               Sat 12 Sep · Kay Atizan, Pétion-Ville

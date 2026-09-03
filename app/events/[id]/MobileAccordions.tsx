@@ -111,7 +111,7 @@ export default function MobileAccordions({
         </p>
         {/* Same placement idea as desktop: address, then the tile, then the two
             map links. Rendered bare (no wrapper div) because the tile returns
-            null with no provider key configured — a wrapper would leave its
+            null with no provider key configured, a wrapper would leave its
             margin behind as unexplained blank space inside the accordion. */}
         {venueMap}
         <p className="mt-3 text-sm">

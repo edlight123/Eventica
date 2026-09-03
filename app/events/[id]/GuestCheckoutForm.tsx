@@ -99,7 +99,7 @@ export default function GuestCheckoutForm({
       <p className="text-sm text-white/60 leading-relaxed">
         {t('checkout.guest_intro', {
           defaultValue:
-            'No account needed. We send your ticket and QR code straight to you — you can create an account afterwards if you want.',
+            'No account needed. We send your ticket and QR code straight to you, and you can create an account afterwards if you want.',
         })}
       </p>
 

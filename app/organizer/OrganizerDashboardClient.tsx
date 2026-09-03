@@ -67,7 +67,7 @@ export default function OrganizerDashboardClient({
           <h1 className="font-display text-2xl text-white">{t('organizer.dashboard_error.title', { defaultValue: "We couldn't load your dashboard" })}</h1>
           <p className="mt-2 text-[15px] text-white/70">
             {t('organizer.dashboard_error.description', {
-              defaultValue: 'Something went wrong fetching your events and sales. Your data is safe — please try again.',
+              defaultValue: 'Something went wrong fetching your events and sales. Your data is safe. Please try again.',
             })}
           </p>
           <button

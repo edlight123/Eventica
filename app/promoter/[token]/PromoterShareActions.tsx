@@ -24,7 +24,7 @@ export default function PromoterShareActions({
     }
   }
 
-  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${eventTitle} — ${shareUrl}`)}`
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${eventTitle}, ${shareUrl}`)}`
 
   return (
     <div className="mt-3 flex flex-col sm:flex-row gap-2">

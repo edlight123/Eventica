@@ -267,7 +267,7 @@ export default function SpotifySongPicker({
         </div>
         <p className="px-1 text-[11px] text-white/40">
           {t('composer.spotifySearchUnavailable', {
-            defaultValue: 'Song search needs setup — paste a Spotify link for now.',
+            defaultValue: 'Song search needs setup. Paste a Spotify link for now.',
           })}
         </p>
       </div>

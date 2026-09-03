@@ -86,7 +86,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: `${BRAND.name} — ${BRAND.tagline ?? 'Discover Events in Haiti'}`,
+        alt: `${BRAND.name}, ${BRAND.tagline ?? 'Discover Events in Haiti'}`,
       },
     ],
   },
@@ -141,7 +141,7 @@ export default async function RootLayout({
       </head>
       {/*
         A COLUMN THAT FILLS THE VIEWPORT. The footer is rendered after every
-        page, so on a short page — or one that errors into near-empty content —
+        page, so on a short page, or one that errors into near-empty content, 
         it floated wherever the content stopped, leaving a large dead band of
         background beneath it on mobile. min-h-dvh (not vh: iOS Safari's toolbar
         makes vh taller than the visible area) plus flex-1 on the content pushes

@@ -403,7 +403,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
           <div className="mt-4 border-t border-white/10 pt-2">
             {contactMatches.length === 0 ? (
               <p className="text-sm text-white/50 py-3 text-center">
-                None of your contacts are on Tikèm yet — invite them!
+                None of your contacts are on Tikèm yet, invite them!
               </p>
             ) : (
               <div className="divide-y divide-white/10">

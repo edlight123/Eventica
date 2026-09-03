@@ -65,7 +65,7 @@ export function FilterChipsRow({ filters, onRemoveFilter, onClearAll, userCountr
         label:
           range.max === undefined
             ? t('filters.price_and_up', { price: from, defaultValue: `${from} and up` })
-            : `${from} – ${formatPriceForCountry(range.max, userCountry)}`,
+            : `${from}, ${formatPriceForCountry(range.max, userCountry)}`,
       })
     } else {
       const priceConfig = PRICE_FILTERS.find(p => p.value === filters.price)

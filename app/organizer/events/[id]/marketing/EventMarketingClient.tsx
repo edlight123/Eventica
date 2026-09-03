@@ -56,7 +56,7 @@ export default function EventMarketingClient({
   const socialLinks = [
     {
       label: 'WhatsApp',
-      href: `https://wa.me/?text=${encodeURIComponent(`${eventTitle} — ${eventUrl}`)}`,
+      href: `https://wa.me/?text=${encodeURIComponent(`${eventTitle}, ${eventUrl}`)}`,
     },
     {
       label: 'X / Twitter',
@@ -180,7 +180,7 @@ export default function EventMarketingClient({
             <h2 className="font-semibold text-white">Promoters</h2>
             <p className="mt-1 text-sm text-white/50">
               Give each street-team member their own sales link and see exactly who
-              drives which tickets — commission tallied automatically.
+              drives which tickets, commission tallied automatically.
             </p>
           </div>
           <Link

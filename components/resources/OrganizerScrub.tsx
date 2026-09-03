@@ -270,7 +270,7 @@ export default function OrganizerScrub() {
                       </div>
                       <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
                         <div style={land(w1, 0.24)}>
-                          <Field label={t('resources.scrub.title')} value="Nwit Konpa — Live" />
+                          <Field label={t('resources.scrub.title')} value="Nwit Konpa. Live" />
                         </div>
                         <div style={land(w1, 0.38)}>
                           <Field label={t('resources.scrub.venue')} value="Yanvalou · Pacot" />
@@ -281,7 +281,7 @@ export default function OrganizerScrub() {
                       </div>
                     </div>
                     <div className="mt-2" style={land(w1, 0.62)}>
-                      <Field label={t('resources.scrub.tickets')} value="350 × General — 1,500 HTG" accent />
+                      <Field label={t('resources.scrub.tickets')} value="350 × General, 1,500 HTG" accent />
                     </div>
                     <div
                       className={`mt-3 rounded-xl py-2.5 text-center text-[12px] font-semibold transition-colors duration-300 ${
@@ -302,7 +302,7 @@ export default function OrganizerScrub() {
                   className="absolute inset-0 z-10 bg-[#0a0a0a]"
                   style={{ transform: `translate3d(0, ${dashY}%, 0)`, willChange: still ? undefined : 'transform' }}
                 >
-                  <ScreenBar title="Nwit Konpa — Live" />
+                  <ScreenBar title="Nwit Konpa. Live" />
                   <div className="px-4 pt-3">
                     <div className="rounded-xl bg-white/[0.06] p-3">
                       <p className="flex items-center gap-1.5 text-[8px] font-medium uppercase tracking-[0.14em] text-white/40">

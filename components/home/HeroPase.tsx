@@ -152,7 +152,7 @@ export default function HeroPase({
           style={{ ['--d' as any]: '0.18s' }}
         >
           {t('events.hero_pase_sub', {
-            defaultValue: 'concerts, fèt, festivals — in Haiti and the diaspora.',
+            defaultValue: 'concerts, fèt and festivals in Haiti and the diaspora.',
           })}
         </p>
         <div className="plt-enter pointer-events-auto mt-9 max-w-xl" style={{ ['--d' as any]: '0.28s' }}>

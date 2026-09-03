@@ -140,7 +140,7 @@ export default function SettingsContent({
       />
 
       {/* The three live facts, on one line. A settings hub's job is partly to
-          answer "is my account actually ready" — these answer it without
+          answer "is my account actually ready", these answer it without
           spending four cards on it. */}
       <div className="mt-6 flex flex-wrap items-baseline gap-x-8 gap-y-3 border-y border-white/10 py-4">
         <StateReadout
@@ -190,11 +190,11 @@ export default function SettingsContent({
                   {isPending
                     ? t('settings.verify_banner_pending_body', {
                         defaultValue:
-                          'We’re reviewing your details. You can keep building events in the meantime — we’ll email you as soon as it clears.',
+                          'We’re reviewing your details. You can keep building events in the meantime, and we’ll email you as soon as it clears.',
                       })
                     : t('settings.verify_banner_body', {
                         defaultValue:
-                          'A one-time identity check. Free events and drafts work without it — only paid ticket sales are held until it’s done.',
+                          'A one-time identity check. Free events and drafts work without it. Only paid ticket sales are held until it’s done.',
                       })}
                 </p>
               </div>

@@ -282,7 +282,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
         )}
         {!loading && !loadError && refined && hasMore && (
           <p className="mt-2 text-xs text-console-faint">
-            City, category, and search refine only the events loaded so far — load more to search further.
+            City, category, and search refine only the events loaded so far, load more to search further.
           </p>
         )}
       </div>

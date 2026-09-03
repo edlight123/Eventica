@@ -80,7 +80,7 @@ export default function PromoterAccountOffer({
       <p className="text-sm text-white/60 mt-1.5 leading-relaxed">
         {t(
           'promoter.offer_desc',
-          'Add this to a free Tikèm account to withdraw your earnings to MonCash and see every event you promote in one portal — this link keeps working either way.'
+          'Add this to a free Tikèm account to withdraw your earnings to MonCash and see every event you promote in one portal. This link keeps working either way.'
         )}
       </p>
 

@@ -241,7 +241,7 @@ export default function HeroSearch({
           {suggestions.length === 0 ? (
             <li className="px-4 py-3 text-[13px] text-white/50">
               {t('events.no_matches_hint', {
-                defaultValue: 'No matches — press Enter to search all',
+                defaultValue: 'No matches. Press Enter to search all',
               })}
             </li>
           ) : (

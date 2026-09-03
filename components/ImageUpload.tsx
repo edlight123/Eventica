@@ -129,7 +129,7 @@ export default function ImageUpload({
       const rawMessage: string = err?.message || ''
       let message = 'Failed to upload image. Please try again.'
       if (code === 'storage/quota-exceeded' || /quota/i.test(rawMessage)) {
-        message = 'Image storage is temporarily unavailable. Your event was not saved with this image — please try again shortly or contact support.'
+        message = 'Image storage is temporarily unavailable. Your event was not saved with this image, please try again shortly or contact support.'
       } else if (code === 'storage/unauthorized' || code === 'storage/unauthenticated') {
         message = "You don't have permission to upload right now. Please sign in again and retry."
       } else if (code === 'storage/retry-limit-exceeded') {

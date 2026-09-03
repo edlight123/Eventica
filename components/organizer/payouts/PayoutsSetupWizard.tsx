@@ -417,7 +417,7 @@ export default function PayoutsSetupWizard({
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">{t('onboarding.payouts.markets.title', { defaultValue: 'Where will you run events?' })}</h2>
               <p className="text-white/60">
-                {t('onboarding.payouts.markets.subtitle', { defaultValue: 'Pick every country you plan to hold events in. We’ll only set up the payout methods those countries use — and you can change this any time.' })}
+                {t('onboarding.payouts.markets.subtitle', { defaultValue: 'Pick every country you plan to hold events in. We’ll only set up the payout methods those countries use, and you can change this any time.' })}
               </p>
             </div>
 
@@ -449,7 +449,7 @@ export default function PayoutsSetupWizard({
                           ? t('onboarding.payouts.markets.rail_stripe', { defaultValue: 'Paid out through Stripe Connect' })
                           : COUNTRY_SUPPORT[code]?.requiredProfile === 'haiti'
                             ? t('onboarding.payouts.markets.rail_haiti', { defaultValue: 'Paid out by bank transfer or MonCash' })
-                            : t('onboarding.payouts.markets.rail_none', { defaultValue: 'Free and RSVP events for now — paid tickets coming soon' })}
+                            : t('onboarding.payouts.markets.rail_none', { defaultValue: 'Free and RSVP events for now. Paid tickets coming soon' })}
                       </div>
                     </div>
                     {isOn && <Check className="w-5 h-5 text-brand-300" />}
@@ -460,7 +460,7 @@ export default function PayoutsSetupWizard({
 
             {declaredRails.length > 1 ? (
               <div className="mb-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/60">
-                {t('onboarding.payouts.markets.two_rails_note', { defaultValue: 'Those markets use two different payout systems, so you’ll set up two separate methods. We’ll do one now — you can add the other straight after.' })}
+                {t('onboarding.payouts.markets.two_rails_note', { defaultValue: 'Those markets use two different payout systems, so you’ll set up two separate methods. We’ll do one now. You can add the other straight after.' })}
               </div>
             ) : null}
 

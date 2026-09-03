@@ -614,11 +614,11 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           ? (data.count === 1
               ? t('checkout.tickets_claimed_email', {
                   count: data.count,
-                  defaultValue: '{{count}} free ticket — check your email',
+                  defaultValue: '{{count}} free ticket. Check your email',
                 })
               : t('checkout.tickets_claimed_email_plural', {
                   count: data.count,
-                  defaultValue: '{{count}} free tickets — check your email',
+                  defaultValue: '{{count}} free tickets. Check your email',
                 }))
           : (data.count === 1
               ? t('checkout.tickets_added_collection', {

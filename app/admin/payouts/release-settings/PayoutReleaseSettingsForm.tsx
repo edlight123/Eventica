@@ -78,7 +78,7 @@ const GROUPS: GroupDef[] = [
         key: 'newHoldHours',
         label: 'New organizer hold',
         kind: 'hours',
-        help: 'A new organizer waits this many hours after their event ends before payout — raising it makes us safer and makes them slower.',
+        help: 'A new organizer waits this many hours after their event ends before payout, raising it makes us safer and makes them slower.',
       },
       {
         key: 'establishedHoldHours',
@@ -90,7 +90,7 @@ const GROUPS: GroupDef[] = [
   },
   {
     title: 'When an organizer becomes established',
-    blurb: 'Either threshold is enough — an organizer graduates on whichever they reach first.',
+    blurb: 'Either threshold is enough, an organizer graduates on whichever they reach first.',
     fields: [
       {
         key: 'establishedAfterEvents',
@@ -108,13 +108,13 @@ const GROUPS: GroupDef[] = [
         key: 'preEventEligibleGrossMinor',
         label: 'Lifetime revenue for pre-event eligibility',
         kind: 'money',
-        help: 'Below this, an admin cannot grant pre-event payouts at all; reaching it grants nothing by itself — an admin still has to approve each organizer by hand.',
+        help: 'Below this, an admin cannot grant pre-event payouts at all; reaching it grants nothing by itself, an admin still has to approve each organizer by hand.',
       },
     ],
   },
   {
     title: 'Review triggers',
-    blurb: 'These never block an organizer — they route a payout to the admin queue for a human look instead of paying out automatically.',
+    blurb: 'These never block an organizer, they route a payout to the admin queue for a human look instead of paying out automatically.',
     fields: [
       {
         key: 'reviewAboveGrossMinor',
@@ -132,7 +132,7 @@ const GROUPS: GroupDef[] = [
         key: 'lowAttendanceReviewRatio',
         label: 'Low attendance below',
         kind: 'percentRatio',
-        help: 'If fewer than this share of sold tickets were checked in, send the payout to review — it can mean the event never really happened.',
+        help: 'If fewer than this share of sold tickets were checked in, send the payout to review, it can mean the event never really happened.',
       },
     ],
   },
@@ -456,8 +456,8 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
       setMessage({
         type: 'success',
         text: changed.length
-          ? `Saved — ${changed.length} setting${changed.length === 1 ? '' : 's'} updated.`
-          : 'Nothing to save — these values already match what is live.',
+          ? `Saved, ${changed.length} setting${changed.length === 1 ? '' : 's'} updated.`
+          : 'Nothing to save, these values already match what is live.',
       })
     } catch (error) {
       console.error('Error saving payout release settings:', error)
@@ -538,7 +538,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
         <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-console-faint" />
         <p className="text-sm text-console-mut">
           Money thresholds are stored and compared in <span className="text-console-text">minor units of the account
-          currency</span> (cents for a USD account, centimes for HTG) — there is one number for every currency, so it is
+          currency</span> (cents for a USD account, centimes for HTG), there is one number for every currency, so it is
           not dollars. Inputs below are shown in major units for readability: typing{' '}
           <span className="font-mono text-console-text">1,000.00</span> saves{' '}
           <span className="font-mono text-console-text">100,000</span> minor units. Changes take effect on the next release
@@ -634,7 +634,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                       </span>
                       {limit && (
                         <span>
-                          Allowed {prettyDisplay(field.kind, toDisplay(field.kind, limit.min))} –{' '}
+                          Allowed {prettyDisplay(field.kind, toDisplay(field.kind, limit.min))}, {' '}
                           {prettyDisplay(field.kind, toDisplay(field.kind, limit.max))}
                         </span>
                       )}
@@ -658,7 +658,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                   >
                     review queue
                   </Link>{' '}
-                  — a flagged event stays unpaid until someone decides there.
+, a flagged event stays unpaid until someone decides there.
                 </p>
               )}
             </div>
@@ -673,7 +673,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
             </h2>
             <p className="mt-1 text-xs text-console-mut">
               The money thresholds above are single numbers, but organizers settle in different currencies. Before a
-              threshold is compared, an amount is converted into the threshold currency with these rates — so one
+              threshold is compared, an amount is converted into the threshold currency with these rates, so one
               threshold means one economic amount whether the account is in USD, CAD, EUR or HTG. Rates are used{' '}
               <span className="text-console-text">only for those comparisons</span>: payouts are always made in the
               account&rsquo;s own currency and are never converted.
@@ -687,7 +687,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
             }`}
           >
             <p className="text-sm font-medium text-console-text">
-              A daily job overwrites these — hand-edits are the fallback
+              A daily job overwrites these, hand-edits are the fallback
             </p>
             <p className="mt-1 text-console-mut">
               <span className="font-mono text-console-text">/api/cron/fx-snapshot</span> fetches mid-market rates once a day
@@ -706,11 +706,11 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                     </ConsoleState>
                     {fx.fetchedAt ? <span className="font-mono text-console-faint"> ({fx.fetchedAt.slice(0, 16).replace('T', ' ')} UTC)</span> : null}
                     {fx.provider ? <span className="text-console-faint"> via {fx.provider}</span> : null}
-                    {snapshotStale ? ' — too old to trust, every currency is on the manual rate below.' : ''}
+                    {snapshotStale ? ', too old to trust, every currency is on the manual rate below.' : ''}
                   </p>
                 ) : (
                   <p>
-                    <ConsoleState tone="warn">No FX snapshot stored yet</ConsoleState> — every currency is using the
+                    <ConsoleState tone="warn">No FX snapshot stored yet</ConsoleState>, every currency is using the
                     manual rate below.
                   </p>
                 )}
@@ -765,7 +765,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-console-mut">
-                Fallback rates — {normalizedThreshold || 'USD'} per 1 unit
+                Fallback rates, {normalizedThreshold || 'USD'} per 1 unit
               </p>
               <span className="label-mono text-[11px] uppercase tracking-wide text-console-faint">
                 {rateRows.length} currenc{rateRows.length === 1 ? 'y' : 'ies'}
@@ -777,7 +777,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                 {normalizedThreshold || 'USD'}
               </span>
               <span className="font-mono text-sm text-console-mut">1</span>
-              <span>Pinned — the threshold currency is always 1 against itself.</span>
+              <span>Pinned, the threshold currency is always 1 against itself.</span>
             </div>
 
             {rateRows.map((row) => {
@@ -829,7 +829,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
 
                   {pinned && (
                     <p className="mt-1 text-[11px] text-console-faint">
-                      This is the threshold currency — saved as 1 whatever is typed.
+                      This is the threshold currency, saved as 1 whatever is typed.
                     </p>
                   )}
                   {showPreview && (
@@ -853,7 +853,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
             </ConsoleButton>
 
             <p className="text-xs text-console-faint">
-              A currency with no rate at all is compared unconverted — its raw minor-unit number is measured against the
+              A currency with no rate at all is compared unconverted, its raw minor-unit number is measured against the
               threshold, which is almost always wrong. Removing a row is only safe when no organizer settles in that
               currency. Rates must be above 0 and at most{' '}
               {minorFormatter.format(MAX_REFERENCE_RATE)}; the daily job also refuses any single-day move larger than

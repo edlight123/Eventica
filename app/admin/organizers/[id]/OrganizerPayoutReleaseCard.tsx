@@ -72,7 +72,7 @@ function unitSuffix(kind: FieldKind): string {
 }
 
 function pretty(kind: FieldKind, apiValue: number): string {
-  if (!Number.isFinite(apiValue)) return '—'
+  if (!Number.isFinite(apiValue)) return ', '
   if (kind === 'money') return majorFormatter.format(apiValue / 100)
   return `${apiValue} ${unitSuffix(kind)}`
 }
@@ -243,7 +243,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
   }[] = [
     {
       label: 'Pre-event payouts approved',
-      help: 'Pay this organizer BEFORE their event ends — money advanced against a show that has not happened yet. Never automatic; only grant it to a promoter you know.',
+      help: 'Pay this organizer BEFORE their event ends, money advanced against a show that has not happened yet. Never automatic; only grant it to a promoter you know.',
       value: preEventApproved,
       set: setPreEventApproved,
       relaxes: true,
@@ -307,7 +307,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
               <span className="label-mono uppercase text-console-amber">● Forced established</span>
             )}
             {override?.highRisk && <span className="label-mono uppercase text-console-red">● High risk</span>}
-            {!override && <span className="label-mono uppercase text-console-faint">● No override — platform defaults</span>}
+            {!override && <span className="label-mono uppercase text-console-faint">● No override, platform defaults</span>}
           </div>
 
           {message && (
@@ -369,7 +369,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
                       step={field.kind === 'money' ? '0.01' : '1'}
                       min={toDisplay(field.kind, limit.min)}
                       max={toDisplay(field.kind, limit.max)}
-                      placeholder={inherited ? `Platform default — ${inherited}` : 'Platform default'}
+                      placeholder={inherited ? `Platform default, ${inherited}` : 'Platform default'}
                       className={`w-full rounded bg-console-ground px-3 py-2.5 text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 ${
                         error ? 'ring-2 ring-console-red/50' : 'focus:ring-console-mut'
                       } ${suffix ? 'pr-16' : ''}`}
@@ -384,7 +384,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
                   <p className="mt-1.5 text-xs text-console-mut">{field.help}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-console-faint">
                     <span>
-                      Allowed {toDisplay(field.kind, limit.min)} – {toDisplay(field.kind, limit.max)}
+                      Allowed {toDisplay(field.kind, limit.min)}, {toDisplay(field.kind, limit.max)}
                       {suffix ? ` ${suffix}` : ''}
                     </span>
                     {field.kind === 'money' && isOverridden && Number.isFinite(apiValue) && (
@@ -458,7 +458,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
               }`}
             />
             <p className="mt-1.5 text-xs text-console-mut">
-              Relaxing the rules — approving pre-event payouts or forcing established — cannot be saved without a note.
+              Relaxing the rules, approving pre-event payouts or forcing established, cannot be saved without a note.
               It is the record of why this organizer was trusted, read back later if something goes wrong.
             </p>
             {override?.note && (
@@ -472,7 +472,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-console-raise pt-4">
             <p className="text-xs text-console-faint">
               {noteRequired
-                ? 'Add a note before saving — the API rejects a relaxation without one.'
+                ? 'Add a note before saving, the API rejects a relaxation without one.'
                 : 'Saved changes are audit-logged with the before/after.'}
             </p>
             <div className="flex items-center gap-2">

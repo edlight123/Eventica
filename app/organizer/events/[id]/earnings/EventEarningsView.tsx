@@ -327,7 +327,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       showToast({
         type: 'success',
         title: 'Withdrawal requested',
-        message: `You'll receive your funds within ${withdrawMethod === 'moncash' ? '24 hours' : '3–5 business days'}.`,
+        message: `You'll receive your funds within ${withdrawMethod === 'moncash' ? '24 hours' : '3 to 5 business days'}.`,
         duration: 5000,
       })
     }
@@ -763,7 +763,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           >
                             {bankDestinations.map((d) => (
                               <option key={d.id} value={d.id}>
-                                {d.isPrimary ? 'Primary — ' : ''}{d.bankName} (****{d.accountNumberLast4})
+                                {d.isPrimary ? 'Primary, ' : ''}{d.bankName} (****{d.accountNumberLast4})
                               </option>
                             ))}
                           </select>

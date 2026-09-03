@@ -184,9 +184,9 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
       {/* Payout hero.
           Was a full teal gradient panel, which fought the rest of the product:
           the canvas is black and teal is the sparing accent, so a big teal slab
-          here read as another product's screen. Now the balance carries it —
+          here read as another product's screen. Now the balance carries it, 
           one large figure on the canvas, the way the public pages let a number
-          or a title do the work — and teal is left to the one accent that
+          or a title do the work, and teal is left to the one accent that
           matters, the wallet mark. */}
       <section className="relative overflow-hidden rounded-2xl bg-white/[0.03] p-6 sm:p-8">
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

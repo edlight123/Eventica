@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 
 interface BottomSheetProps {
@@ -18,6 +19,7 @@ export default function BottomSheet({
   children,
   showCloseButton = true,
 }: BottomSheetProps) {
+  const { t } = useTranslation('common')
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -47,7 +49,7 @@ export default function BottomSheet({
       >
         {/* OPAQUE, and it must stay opaque: this panel floats over page content
             (the fixed parent above), so a translucent fill lets the page show
-            straight through the sheet — text over text. That is exactly what
+            straight through the sheet, text over text. That is exactly what
             happened when a surface sweep treated it as a card, which broke
             guest checkout. #111 lifts it off the page's own black. */}
         <div className="bg-[#111] rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
@@ -60,7 +62,8 @@ export default function BottomSheet({
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors ml-auto"
+                  aria-label={t('common.close', { defaultValue: 'Close' })}
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-lg hover:bg-white/[0.04] transition-colors ml-auto sm:h-9 sm:w-9"
                 >
                   <X className="w-5 h-5 text-white/50" />
                 </button>

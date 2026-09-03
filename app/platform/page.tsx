@@ -19,7 +19,7 @@ import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 export const metadata: Metadata = {
   title: 'Platform | Tikèm',
   description:
-    'Everything you need to create, promote and sell out events across Haiti and the diaspora — built for organizers.',
+    'Everything you need to create, promote and sell out events across Haiti and the diaspora, built for organizers.',
 }
 
 // Reads auth cookies for the navbar context.
@@ -69,7 +69,7 @@ const DICT: Record<
     heroEyebrow: 'For organizers',
     heroTitle1: 'Your event.',
     heroTitle2: 'Sold out.',
-    heroSub: 'create the page, reach the crowd, get paid — in Haiti and the diaspora.',
+    heroSub: 'create the page, reach the crowd, get paid, in Haiti and the diaspora.',
     ctaStart: 'Start organizing',
     ctaDashboard: 'Organizer dashboard',
     fanAria: 'Posters from events on Tikèm',
@@ -80,18 +80,18 @@ const DICT: Record<
     ],
     sections: [
       {
-        index: '01 — Create',
+        index: '01 Create',
         title: 'a page worthy of the poster',
         blurb:
-          'Build a beautiful event page in minutes. Upload the artwork and Tikèm lets it shine — your event, your look.',
+          'Build a beautiful event page in minutes. Upload the artwork and Tikèm lets it shine. Your event, your look.',
         points: [
           {
             title: 'Flexible tickets',
-            body: 'Free RSVPs, paid tiers, early-bird and VIP — price it however the night calls for.',
+            body: 'Free RSVPs, paid tiers, early-bird and VIP. Price it however the night calls for.',
           },
           {
             title: 'Built for the culture',
-            body: 'Concerts, fêtes, conferences, watch parties — tikèm fits how Haiti goes out.',
+            body: 'Concerts, fêtes, conferences, watch parties. tikèm fits how Haiti goes out.',
           },
           {
             title: 'Live in minutes',
@@ -100,14 +100,14 @@ const DICT: Record<
         ],
       },
       {
-        index: '02 — Sell',
+        index: '02 Sell',
         title: 'reach your people',
         blurb:
           'Your event lands on the home feed and in Discover, next to the nights everyone is already watching.',
         points: [
           {
             title: 'Home & diaspora',
-            body: 'Get discovered by attendees in Haiti and Haitians abroad — Miami, New York, Montréal, Paris — in one place.',
+            body: 'Get discovered by attendees in Haiti and Haitians abroad, from Miami to New York, Montréal and Paris, in one place.',
           },
           {
             title: 'Made for mobile',
@@ -120,10 +120,10 @@ const DICT: Record<
         ],
       },
       {
-        index: '03 — Get paid',
+        index: '03 Get paid',
         title: 'money in your account',
         blurb:
-          'Sell tickets, scan guests at the door and track every gourde live — then cash out with confidence.',
+          'Sell tickets, scan guests at the door and track every gourde live, then cash out with confidence.',
         points: [
           {
             title: 'Collect payments',
@@ -149,7 +149,7 @@ const DICT: Record<
     heroEyebrow: 'Pour les organisateurs',
     heroTitle1: 'Votre événement.',
     heroTitle2: 'Complet.',
-    heroSub: 'créez la page, touchez le public, encaissez — en Haïti et dans la diaspora.',
+    heroSub: 'créez la page, touchez le public, encaissez, en Haïti et dans la diaspora.',
     ctaStart: 'Commencer à organiser',
     ctaDashboard: 'Tableau de bord organisateur',
     fanAria: 'Affiches d’événements sur Tikèm',
@@ -160,18 +160,18 @@ const DICT: Record<
     ],
     sections: [
       {
-        index: '01 — Créer',
+        index: '01 Créer',
         title: 'une page à la hauteur de l’affiche',
         blurb:
-          'Créez une belle page d’événement en quelques minutes. Téléversez votre visuel et Tikèm le met en valeur — votre événement, votre style.',
+          'Créez une belle page d’événement en quelques minutes. Téléversez votre visuel et Tikèm le met en valeur. Votre événement, votre style.',
         points: [
           {
             title: 'Des billets flexibles',
-            body: 'RSVP gratuits, tarifs payants, early-bird et VIP — fixez les prix comme la soirée l’exige.',
+            body: 'RSVP gratuits, tarifs payants, early-bird et VIP. Fixez les prix comme la soirée l’exige.',
           },
           {
             title: 'Pensé pour la culture',
-            body: 'Concerts, fêtes, conférences, soirées d’écoute — tikèm épouse la façon dont Haïti sort.',
+            body: 'Concerts, fêtes, conférences, soirées d’écoute. Tikèm épouse la façon dont Haïti sort.',
           },
           {
             title: 'En ligne en quelques minutes',
@@ -180,14 +180,14 @@ const DICT: Record<
         ],
       },
       {
-        index: '02 — Vendre',
+        index: '02 Vendre',
         title: 'touchez votre public',
         blurb:
           'Votre événement apparaît sur le fil d’accueil et dans Découvrir, aux côtés des soirées que tout le monde suit déjà.',
         points: [
           {
             title: 'Au pays et dans la diaspora',
-            body: 'Faites-vous découvrir par le public en Haïti et les Haïtiens à l’étranger — Miami, New York, Montréal, Paris — au même endroit.',
+            body: 'Faites-vous découvrir par le public en Haïti et les Haïtiens à l’étranger, de Miami à New York, Montréal et Paris, au même endroit.',
           },
           {
             title: 'Conçu pour le mobile',
@@ -200,10 +200,10 @@ const DICT: Record<
         ],
       },
       {
-        index: '03 — Encaisser',
+        index: '03 Encaisser',
         title: 'l’argent sur votre compte',
         blurb:
-          'Vendez des billets, scannez les invités à l’entrée et suivez chaque gourde en direct — puis encaissez en toute confiance.',
+          'Vendez des billets, scannez les invités à l’entrée et suivez chaque gourde en direct, puis encaissez en toute confiance.',
         points: [
           {
             title: 'Encaissez les paiements',
@@ -229,7 +229,7 @@ const DICT: Record<
     heroEyebrow: 'Pou òganizatè yo',
     heroTitle1: 'Evènman ou.',
     heroTitle2: 'Vann nèt.',
-    heroSub: 'kreye paj la, rive sou foul la, touche lajan ou — ann Ayiti ak nan dyaspora a.',
+    heroSub: 'kreye paj la, rive sou foul la, touche lajan ou, ann Ayiti ak nan dyaspora a.',
     ctaStart: 'Kòmanse òganize',
     ctaDashboard: 'Dashbòd òganizatè',
     fanAria: 'Afich evènman ki sou Tikèm',
@@ -240,18 +240,18 @@ const DICT: Record<
     ],
     sections: [
       {
-        index: '01 — Kreye',
+        index: '01 Kreye',
         title: 'yon paj ki merite afich la',
         blurb:
-          'Bati yon bèl paj evènman nan kèk minit. Mete afich ou epi Tikèm fè l briye — evènman ou, stil ou.',
+          'Bati yon bèl paj evènman nan kèk minit. Mete afich ou epi Tikèm fè l briye. Evènman ou, stil ou.',
         points: [
           {
             title: 'Tikè fleksib',
-            body: 'RSVP gratis, tikè peye, early-bird ak VIP — mete pri a jan sware a mande l.',
+            body: 'RSVP gratis, tikè peye, early-bird ak VIP. Mete pri a jan sware a mande l.',
           },
           {
             title: 'Fèt pou kilti a',
-            body: 'Konsè, fèt, konferans, watch party — tikèm mache jan Ayiti soti.',
+            body: 'Konsè, fèt, konferans, watch party. Tikèm mache jan Ayiti soti.',
           },
           {
             title: 'Anliy nan kèk minit',
@@ -260,14 +260,14 @@ const DICT: Record<
         ],
       },
       {
-        index: '02 — Vann',
+        index: '02 Vann',
         title: 'rive sou moun ou yo',
         blurb:
           'Evènman ou parèt sou fil akèy la ak nan Dekouvri, bò kote sware tout moun deja ap gade.',
         points: [
           {
             title: 'Lakay ak dyaspora',
-            body: 'Fè moun ann Ayiti ak Ayisyen aletranje jwenn ou — Miami, New York, Monreyal, Pari — yon sèl kote.',
+            body: 'Fè moun ann Ayiti ak Ayisyen aletranje jwenn ou, depi Miami rive New York, Monreyal ak Pari, yon sèl kote.',
           },
           {
             title: 'Fèt pou telefòn',
@@ -280,10 +280,10 @@ const DICT: Record<
         ],
       },
       {
-        index: '03 — Touche lajan',
+        index: '03 Touche lajan',
         title: 'lajan sou kont ou',
         blurb:
-          'Vann tikè, eskane envite yo nan pòt la epi swiv chak goud an dirèk — apre sa retire lajan ou ak konfyans.',
+          'Vann tikè, eskane envite yo nan pòt la epi swiv chak goud an dirèk, apre sa retire lajan ou ak konfyans.',
         points: [
           {
             title: 'Kolekte peman',

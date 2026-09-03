@@ -78,7 +78,7 @@ export default async function TeamSettingsPage({
 
         {eventsError ? (
           <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm text-white/70">
-            We couldn&apos;t load your events right now. Some counts may be incomplete — please refresh to try again.
+            We couldn&apos;t load your events right now. Some counts may be incomplete, please refresh to try again.
           </div>
         ) : null}
 

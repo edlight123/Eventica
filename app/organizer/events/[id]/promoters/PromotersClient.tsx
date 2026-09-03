@@ -126,7 +126,7 @@ export default function PromotersClient({
       showToast({
         type: 'success',
         title: 'Promoter added',
-        message: 'Send them their stats link — it is their whole toolkit.',
+        message: 'Send them their stats link, it is their whole toolkit.',
       })
     } finally {
       setSaving(false)
@@ -202,7 +202,7 @@ export default function PromotersClient({
                   className={`mt-1.5 ${inputClass}`}
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="Phone or email — for your reference"
+                  placeholder="Phone or email, for your reference"
                 />
               </div>
               <div>
@@ -333,7 +333,7 @@ export default function PromotersClient({
                   </button>
                   <a
                     href={`https://wa.me/?text=${encodeURIComponent(
-                      `You're a promoter for ${eventTitle}! Your personal sales link: ${p.shareUrl} — track your sales and commission here: ${p.statsUrl}`
+                      `You're a promoter for ${eventTitle}! Your personal sales link: ${p.shareUrl}, track your sales and commission here: ${p.statsUrl}`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -369,7 +369,7 @@ export default function PromotersClient({
       <p className="text-xs text-white/40 leading-relaxed">
         Commission on confirmed sales is withheld from your earnings automatically and
         paid to each promoter through their Tikèm wallet once this event&apos;s funds
-        release — you never handle it. Free RSVPs count toward their tickets but earn
+        release, you never handle it. Free RSVPs count toward their tickets but earn
         no commission. Amounts tallied before wallets launched are still settled by
         you directly.
       </p>

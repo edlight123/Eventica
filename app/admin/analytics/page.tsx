@@ -13,7 +13,7 @@ export default async function AdminAnalyticsPage() {
           Platform Analytics
         </h1>
         <p className="mt-1 text-[13px] text-console-mut">
-          The live scorecard — every area drills into its own page
+          The live scorecard, every area drills into its own page
         </p>
       </div>
 

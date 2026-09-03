@@ -489,7 +489,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   <div>
                     <p className="font-grotesk text-3xl font-bold text-white">
                       {t('common.free')}
-                      <span className="text-white/40"> – </span>
+                      <span className="text-white/40">, </span>
                       <span className="text-base font-medium text-white/50">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
                     </p>
                     <p className="mt-1.5 text-[13px] text-white/50">{t('events.per_ticket', { defaultValue: 'per ticket' })}</p>
@@ -555,7 +555,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   ) : (
                     <p className="text-xs text-white/50 text-center mt-3">
                       {t('events.no_account_needed', {
-                        defaultValue: 'No account needed — your ticket is emailed to you.',
+                        defaultValue: 'No account needed. Your ticket is emailed to you.',
                       })}
                     </p>
                   )}

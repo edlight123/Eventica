@@ -102,7 +102,7 @@ export default function PurchaseProcessingPage() {
                 })}{' '}
                 <strong>{t('purchase.my_tickets_label', { defaultValue: 'My Tickets' })}</strong>{' '}
                 {t('purchase.still_confirming_payment_detail_post', {
-                  defaultValue: 'shortly — no need to pay again.',
+                  defaultValue: 'shortly. No need to pay again.',
                 })}
               </p>
               <Link

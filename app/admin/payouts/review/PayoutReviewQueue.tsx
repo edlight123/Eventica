@@ -197,7 +197,7 @@ export default function PayoutReviewQueue() {
       action === 'release'
         ? {
             title: `Approve release of ${amount}?`,
-            description: `This lifts the review hold on “${item.eventTitle || item.eventId}” for ${who}. The hourly release run pays it out on its next pass — nothing moves from this page.`,
+            description: `This lifts the review hold on “${item.eventTitle || item.eventId}” for ${who}. The hourly release run pays it out on its next pass, nothing moves from this page.`,
             confirmLabel: 'Approve release',
             variant: 'default',
           }
@@ -223,7 +223,7 @@ export default function PayoutReviewQueue() {
       if (!res.ok || !data?.success) {
         setMessage({
           type: 'error',
-          text: [data?.error || 'Could not resolve this review item', data?.details].filter(Boolean).join(' — '),
+          text: [data?.error || 'Could not resolve this review item', data?.details].filter(Boolean).join(', '),
         })
         // A 409 means someone else already decided; re-read so the list is true.
         if (res.status === 409) await load(false)
@@ -234,8 +234,8 @@ export default function PayoutReviewQueue() {
         type: 'success',
         text:
           action === 'release'
-            ? `Release approved — ${amount} is queued for the next payout run.`
-            : `Dismissed — ${amount} stays held and will not be paid.`,
+            ? `Release approved, ${amount} is queued for the next payout run.`
+            : `Dismissed, ${amount} stays held and will not be paid.`,
       })
       await load(false)
     } catch (error) {
@@ -286,7 +286,7 @@ export default function PayoutReviewQueue() {
                 </span>
               ))
             ) : (
-              <span>—</span>
+              <span>, </span>
             )}
           </p>
         </div>
@@ -304,7 +304,7 @@ export default function PayoutReviewQueue() {
         <p className="text-sm text-console-mut">
           The hourly release job sends an event here when something about it wants human eyes, and a queued event is{' '}
           <span className="text-console-text">not paid</span> while it sits here. Approving lifts that hold so the next
-          run pays it; dismissing closes it and pays nothing. Neither button moves money by itself — the release job
+          run pays it; dismissing closes it and pays nothing. Neither button moves money by itself, the release job
           does, on its own schedule, with the balance and idempotency checks it already has. The thresholds that decide
           what lands here live in{' '}
           <Link
@@ -428,7 +428,7 @@ export default function PayoutReviewQueue() {
                     className="inline-flex items-center gap-1.5 text-xs"
                   >
                     <XCircle className="h-3.5 w-3.5" />
-                    Dismiss — do not pay
+                    Dismiss, do not pay
                   </ConsoleButton>
                   <ConsoleButton
                     type="button"
@@ -494,7 +494,7 @@ export default function PayoutReviewQueue() {
       <p className="flex items-start gap-1.5 text-xs text-console-faint">
         <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
         Approving does not itself send money: it clears the block, and the release job pays the event on its next run
-        once its own rules allow. If an event keeps re-appearing here, the condition that flagged it is still true —
+        once its own rules allow. If an event keeps re-appearing here, the condition that flagged it is still true, 
         change the organizer&rsquo;s settings or the platform thresholds rather than re-approving.
       </p>
     </div>

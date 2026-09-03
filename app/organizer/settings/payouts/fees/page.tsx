@@ -131,7 +131,7 @@ export default async function PayoutFeesPage() {
               <p>
                 {t(
                   'fees_page.who_pays_intro',
-                  'It depends on where your event is, and it is not a setting you choose — each market follows what buyers there expect.'
+                  'It depends on where your event is, and it is not a setting you choose. Each market follows what buyers there expect.'
                 )}
               </p>
               <ul className="list-disc list-inside space-y-2 ml-2">
@@ -151,7 +151,7 @@ export default async function PayoutFeesPage() {
                   <strong>{t('fees_page.haiti_label', 'Haiti:')}</strong>{' '}
                   {t(
                     'fees_page.who_pays_ht_a',
-                    'the buyer pays exactly the price you advertised and the fee comes out of your proceeds — price a ticket at 1,000 HTG and the buyer pays 1,000 HTG, of which you receive'
+                    'the buyer pays exactly the price you advertised and the fee comes out of your proceeds. Price a ticket at 1,000 HTG and the buyer pays 1,000 HTG, of which you receive'
                   )}{' '}
                   <strong>{t('fees_page.who_pays_ht_strong', '1,000 HTG minus fees')}</strong>
                   {t(
@@ -198,21 +198,21 @@ export default async function PayoutFeesPage() {
                 <strong>{t('fees_page.cap_strong', 'capped per ticket')}</strong>{' '}
                 {t(
                   'fees_page.cap_b',
-                  '— never more than {{usCap}} on a US ticket or {{htCap}} in Haiti. An expensive ticket costs us no more to sell than a cheap one, so the percentage stops climbing.'
+                  ', never more than {{usCap}} on a US ticket or {{htCap}} in Haiti. An expensive ticket costs us no more to sell than a cheap one, so the percentage stops climbing.'
                 )
                   .replace(
                     '{{usCap}}',
-                    usFeeCapMinor !== null ? formatCurrency(usFeeCapMinor, 'USD') : '—'
+                    usFeeCapMinor !== null ? formatCurrency(usFeeCapMinor, 'USD') : ', '
                   )
                   .replace(
                     '{{htCap}}',
-                    htFeeCapMinor !== null ? formatCurrency(htFeeCapMinor, 'HTG') : '—'
+                    htFeeCapMinor !== null ? formatCurrency(htFeeCapMinor, 'HTG') : ', '
                   )}
               </p>
               <p>
                 {t(
                   'fees_page.who_chooses_a',
-                  'You choose who pays it. By default, buyers in the United States, Canada and France pay it on top of your price, and in Haiti it comes out of your payout — but every event has a'
+                  'You choose who pays it. By default, buyers in the United States, Canada and France pay it on top of your price, and in Haiti it comes out of your payout, but every event has a'
                 )}{' '}
                 <strong>
                   &ldquo;{t('fees_page.pass_fee_switch', 'Pass the service fee to buyers')}&rdquo;
@@ -298,7 +298,7 @@ export default async function PayoutFeesPage() {
                 <h3 className="text-sm font-semibold text-white mb-2">
                   {t(
                     'fees_page.example_us_title',
-                    'United States, Canada, France — the buyer pays the fee'
+                    'United States, Canada, France: the buyer pays the fee'
                   )}
                 </h3>
                 <div className="bg-white/[0.03] rounded-lg border border-white/10 p-4 font-mono text-sm">
@@ -341,7 +341,7 @@ export default async function PayoutFeesPage() {
                 <p className="mt-2 text-sm text-white/60">
                   {t(
                     'fees_page.example_us_note',
-                    'You receive the full {{amount}}. Your buyer sees the total, with the fee itemized, before they pay — never at the last step.'
+                    'You receive the full {{amount}}. Your buyer sees the total, with the fee itemized, before they pay, never at the last step.'
                   ).replace('{{amount}}', formatCurrency(usExample.faceValue, 'USD'))}
                 </p>
               </div>
@@ -349,7 +349,7 @@ export default async function PayoutFeesPage() {
               {/* Organizer pays — Haiti */}
               <div>
                 <h3 className="text-sm font-semibold text-white mb-2">
-                  {t('fees_page.example_ht_title', 'Haiti — the fee comes out of your proceeds')}
+                  {t('fees_page.example_ht_title', 'Haiti: the fee comes out of your proceeds')}
                 </h3>
                 <div className="bg-white/[0.03] rounded-lg border border-white/10 p-4 font-mono text-sm">
                   <div className="space-y-2">

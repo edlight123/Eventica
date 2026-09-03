@@ -41,7 +41,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
   })()
 
   const amountText = (() => {
-    if (props.amountPaid === null || !Number.isFinite(props.amountPaid)) return '—'
+    if (props.amountPaid === null || !Number.isFinite(props.amountPaid)) return ', '
     const currency = props.amountCurrency || 'USD'
 
     try {
@@ -82,12 +82,12 @@ export default function PurchaseSuccessContentClient(props: Props) {
           <div className="p-4 md:p-6 space-y-3 md:space-y-4">
             <div className="flex justify-between items-center pb-3 border-b border-white/10">
               <span className="text-[13px] font-medium text-white/65">{t('tickets:purchase_success.ticket_id_label')}</span>
-              <span className="font-mono text-sm text-white">{props.ticketIdShort || '—'}</span>
+              <span className="font-mono text-sm text-white">{props.ticketIdShort || ', '}</span>
             </div>
 
             <div className="flex justify-between items-center pb-3 border-b border-white/10">
               <span className="text-[13px] font-medium text-white/65">{t('tickets:purchase_success.location_label')}</span>
-              <span className="text-sm text-white text-right truncate max-w-[60%]">{props.location || '—'}</span>
+              <span className="text-sm text-white text-right truncate max-w-[60%]">{props.location || ', '}</span>
             </div>
 
             <div className="flex justify-between items-center pb-3 border-b border-white/10">

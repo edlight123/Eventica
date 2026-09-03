@@ -104,9 +104,9 @@ export function AdminSidebar({ userEmail }: { userEmail?: string }) {
             ) : unreadable ? (
               <span
                 className="label-mono shrink-0 text-[11.5px] text-console-faint"
-                title="Count unavailable — this queue could not be read"
+                title="Count unavailable, this queue could not be read"
               >
-                —
+, 
               </span>
             ) : null}
           </RailLink>

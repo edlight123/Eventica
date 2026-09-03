@@ -69,7 +69,7 @@ export default async function EventAnalyticsPage({
       ? formatPrimaryMoneyFromCentsByCurrency(revenueByCurrencyCents, eventCurrency, 'en-US', {
           currencyDisplay: 'code',
         })
-      : '—'
+      : ', '
 
   // Sales by day (last 30 days of purchases)
   type DayStat = { date: string; count: number }
@@ -121,7 +121,7 @@ export default async function EventAnalyticsPage({
             <MetricCard
               icon={Users}
               label="Capacity"
-              value={capacity > 0 ? capacity : '—'}
+              value={capacity > 0 ? capacity : ', '}
               sublabel={capacity > 0 ? `${(capacity - ticketsSold)} remaining` : 'Unlimited'}
             />
             <MetricCard

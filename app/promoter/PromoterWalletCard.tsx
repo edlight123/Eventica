@@ -94,7 +94,7 @@ export default function PromoterWalletCard() {
               fee: Math.round((wallet.feePercent || 0.03) * 100),
             })
           : t('promoter.wallet_success_pending', {
-              defaultValue: 'Requested. {{amount}} will be sent to your MonCash shortly — no fee on this path.',
+              defaultValue: 'Requested. {{amount}} will be sent to your MonCash shortly. No fee on this path.',
               amount: fmtMoney(data.payoutHtgCents, 'HTG'),
             }),
       })
@@ -124,7 +124,7 @@ export default function PromoterWalletCard() {
       <p className="mt-3 text-xs text-white/40 leading-relaxed">
         {t('promoter.wallet_note', {
           defaultValue:
-            "Commission unlocks when the event's funds release to the organizer — the same schedule their own payout follows. Instant MonCash withdrawals carry a {{fee}}% fee; minimum {{min}}.",
+            "Commission unlocks when the event's funds release to the organizer, the same schedule their own payout follows. Instant MonCash withdrawals carry a {{fee}}% fee; minimum {{min}}.",
           fee: Math.round((wallet.feePercent || 0.03) * 100),
           min: fmtMoney(wallet.minWithdrawalHtgCents, 'HTG'),
         })}
@@ -161,7 +161,7 @@ export default function PromoterWalletCard() {
           {withdrawals.map((w) => (
             <div key={w.id} className="flex items-center justify-between gap-3 text-sm">
               <span className="text-white/60">
-                {w.createdAt ? new Date(w.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+                {w.createdAt ? new Date(w.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ', '}
                 {' · '}
                 {fmtMoney(w.payoutHtgCents, 'HTG')}
                 {w.instant ? ` · ${t('promoter.wallet_instant_label', 'instant')}` : ''}

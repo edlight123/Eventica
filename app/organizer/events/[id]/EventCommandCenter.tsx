@@ -76,7 +76,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
       icon: DollarSign,
     },
     { label: 'Tickets sold', value: sold.toLocaleString(), sub: capacity > 0 ? `of ${capacity.toLocaleString()}` : 'no cap', icon: Ticket },
-    { label: 'Checked in', value: checkedIn.toLocaleString(), sub: sold > 0 ? `${Math.round((checkedIn / sold) * 100)}%` : '—', icon: CheckCircle2 },
+    { label: 'Checked in', value: checkedIn.toLocaleString(), sub: sold > 0 ? `${Math.round((checkedIn / sold) * 100)}%` : ', ', icon: CheckCircle2 },
     { label: 'Capacity sold', value: `${pctSold}%`, icon: TrendingUp },
   ]
 
@@ -212,7 +212,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                 })}
               </ul>
             ) : (
-              <p className="py-4 text-sm text-white/45">No sales yet — share your event to get going.</p>
+              <p className="py-4 text-sm text-white/45">No sales yet, share your event to get going.</p>
             )}
           </section>
         </div>

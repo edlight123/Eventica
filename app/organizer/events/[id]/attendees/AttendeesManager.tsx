@@ -77,7 +77,7 @@ const COLUMNS: OrgColumn<Ticket>[] = [
     sortable: true,
     sortAccessor: (t: Ticket) => t.attendee?.email || '',
     render: (t: Ticket) => (
-      <span className="text-sm text-white/70">{t.attendee?.email || '—'}</span>
+      <span className="text-sm text-white/70">{t.attendee?.email || ', '}</span>
     ),
     cellClassName: 'hidden sm:table-cell',
     headerClassName: 'hidden sm:table-cell',
@@ -347,10 +347,10 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
         </p>
         <div className="space-y-3">
           <InfoRow icon={<User className="h-4 w-4" />} label="Name">
-            {ticket.attendee?.full_name || '—'}
+            {ticket.attendee?.full_name || ', '}
           </InfoRow>
           <InfoRow icon={<Mail className="h-4 w-4" />} label="Email">
-            {ticket.attendee?.email || '—'}
+            {ticket.attendee?.email || ', '}
           </InfoRow>
           <InfoRow
             icon={
@@ -360,7 +360,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
             }
             label="Phone"
           >
-            {ticket.attendee?.phone_number || '—'}
+            {ticket.attendee?.phone_number || ', '}
           </InfoRow>
         </div>
       </section>

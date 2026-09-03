@@ -9,7 +9,7 @@ import EventComposer from '@/app/organizer/events/EventComposer'
 export const metadata: Metadata = {
   title: 'Create an event | Tikèm',
   description:
-    'Set up your event on Tikèm in minutes — name, date, venue, tickets. Free to start; sign in only when you publish.',
+    'Set up your event on Tikèm in minutes, name, date, venue, tickets. Free to start; sign in only when you publish.',
 }
 
 export const dynamic = 'force-dynamic'

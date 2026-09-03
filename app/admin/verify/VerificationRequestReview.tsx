@@ -238,7 +238,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
           <p className="text-sm font-medium text-console-amber">No liveness recording</p>
           <p className="mt-1 text-xs text-console-mut">
             This organizer submitted before the liveness step existed, or skipped it. A still
-            selfie alone does not show a live person was present — ask them to record one before
+            selfie alone does not show a live person was present, ask them to record one before
             approving.
           </p>
         </div>
@@ -257,7 +257,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
         {sequence.length > 0 ? (
           <div className="mt-3">
             <p className="text-xs text-console-mut">
-              They were asked to do this, in this order — check the recording matches:
+              They were asked to do this, in this order, check the recording matches:
             </p>
             <ol className="mt-1.5 space-y-1">
               {sequence.map((step, i) => (

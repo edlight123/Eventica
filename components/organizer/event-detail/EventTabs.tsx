@@ -132,7 +132,7 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
               className={tabCls(!!activeInMore)}
             >
               {/* When the reader is inside the menu, the trigger says WHICH
-                  section — so the rail still answers "where am I". */}
+                  section, so the rail still answers "where am I". */}
               {activeInMore ? activeInMore.label : t('organizer.tab_more', { defaultValue: 'More' })}
               <ChevronDown
                 className={`h-3.5 w-3.5 transition-transform ${menuOpen ? 'rotate-180' : ''}`}

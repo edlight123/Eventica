@@ -21,9 +21,9 @@ export type OrganizerEventRow = {
 
 /** ISO-sliced so the server and client agree — same approach as the rest of this page. */
 function formatDay(dateStr: string | null): string {
-  if (!dateStr) return '—'
+  if (!dateStr) return ', '
   const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return '—'
+  if (isNaN(date.getTime())) return ', '
   return date.toISOString().slice(0, 10)
 }
 

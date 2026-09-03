@@ -64,7 +64,7 @@ export default function MobileKeyFacts({
 
   const priceLine = isFree
     ? t('common.free')
-    : `${hasFreeOption ? `${t('common.free')} – ` : ''}${ticketPrice.toLocaleString()} ${currency}`
+    : `${hasFreeOption ? `${t('common.free')}, ` : ''}${ticketPrice.toLocaleString()} ${currency}`
 
   return (
     <div className="md:hidden border-b border-white/10 px-4 py-5">
@@ -80,7 +80,7 @@ export default function MobileKeyFacts({
             padding is cancelled by the negative margin. It sits inline in a
             sentence, so it cannot simply be made 44px tall, and at 21px it was
             the smallest target on the page an organizer's guests actually
-            need — "how do I get there". */}
+            need, "how do I get there". */}
         <button
           onClick={handleOpenMaps}
           className="inline-block -my-3 py-3 text-brand-400 hover:text-brand-300"

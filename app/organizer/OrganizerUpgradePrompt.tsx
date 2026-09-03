@@ -47,7 +47,7 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
               Create your world on tikèm.
             </h2>
             <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-white/55">
-              Set up your organization once — then create events, sell tickets, and get paid.
+              Set up your organization once, then create events, sell tickets, and get paid.
             </p>
           </div>
         </div>

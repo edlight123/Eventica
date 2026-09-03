@@ -193,7 +193,7 @@ export default async function HomePage({
 
   // Tonight — starts today (through late night), the most urgent rail.
   const endOfTonight = new Date(now)
-  endOfTonight.setHours(29, 59, 59, 999) // rolls into tomorrow 5:59 AM — night events count
+  endOfTonight.setHours(29, 59, 59, 999) // rolls into tomorrow 5:59 AM, night events count
   const tonightEvents = prioritizedEvents
     .filter(e => {
       const start = new Date(e.start_datetime)

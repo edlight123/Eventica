@@ -446,7 +446,7 @@ export default function OrganizerEventsPage() {
                     <p className="text-xs text-white/70">
                       {t('events_page.search_scope_note', {
                         count: events.length,
-                        defaultValue: `Search covers the ${events.length} events loaded so far — load more to search further.`,
+                        defaultValue: `Search covers the ${events.length} events loaded so far, load more to search further.`,
                       })}
                     </p>
                   )}

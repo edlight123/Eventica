@@ -257,7 +257,7 @@ export default function GuestEditorSheet({
               rows={3}
               maxLength={500}
               placeholder={t('composer.guest.descriptionPlaceholder', {
-                defaultValue: 'A line about them — who they are, what they play.',
+                defaultValue: 'A line about them: who they are, what they play.',
               })}
               className={`${field} resize-none`}
             />

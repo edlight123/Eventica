@@ -309,8 +309,8 @@ export default function EventbriteStyleTicketSelector({
                     <button
                       onClick={() => updateQuantity(tier.id, -1)}
                       disabled={quantity === 0}
-                      aria-label={`${t('events.decrease_quantity', { defaultValue: 'Decrease quantity' })} — ${tier.name}`}
-                      className="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-brand-500 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      aria-label={`${t('events.decrease_quantity', { defaultValue: 'Decrease quantity' })}, ${tier.name}`}
+                      className="h-11 w-11 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-brand-500 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition sm:h-9 sm:w-9"
                     >
                       <Minus className="w-4 h-4 text-white/65" />
                     </button>
@@ -320,8 +320,8 @@ export default function EventbriteStyleTicketSelector({
                     <button
                       onClick={() => updateQuantity(tier.id, 1)}
                       disabled={quantity >= available}
-                      aria-label={`${t('events.increase_quantity', { defaultValue: 'Increase quantity' })} — ${tier.name}`}
-                      className="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-brand-500 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                      aria-label={`${t('events.increase_quantity', { defaultValue: 'Increase quantity' })}, ${tier.name}`}
+                      className="h-11 w-11 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-brand-500 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition sm:h-9 sm:w-9"
                     >
                       <Plus className="w-4 h-4 text-white/65" />
                     </button>

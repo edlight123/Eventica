@@ -73,7 +73,7 @@ function ReviewRow({ label, value }: { label: string; value?: string }) {
   return (
     <div>
       <dt className="text-white/50">{label}</dt>
-      <dd className="text-white">{value && value.trim() ? value : '—'}</dd>
+      <dd className="text-white">{value && value.trim() ? value : ', '}</dd>
     </div>
   )
 }
@@ -398,7 +398,7 @@ export default function VerificationWizard({
           <div className="mb-6 border border-brand-500/30 rounded-xl p-4">
             <h4 className="text-sm font-semibold text-brand-300 mb-1.5">{t('onboarding.verification.before_you_start', { defaultValue: 'Before you start' })}</h4>
             <p className="text-sm text-brand-300/90 mb-2">
-              {t('onboarding.verification.before_you_start_intro', { defaultValue: 'Have these ready — it takes about 5 minutes, and your progress saves as you go:' })}
+              {t('onboarding.verification.before_you_start_intro', { defaultValue: 'Have these ready. It takes about 5 minutes, and your progress saves as you go:' })}
             </p>
             <ul className="text-sm text-brand-300/90 space-y-1 ml-5 list-disc">
               <li>{t('onboarding.verification.checklist_id', { defaultValue: 'A government-issued ID (front & back)' })}</li>
@@ -732,8 +732,8 @@ export default function VerificationWizard({
                   <button type="button" onClick={() => setCurrentStepIndex(1)} className="text-sm font-medium text-brand-300 hover:text-brand-300">{t('onboarding.verification.review.edit', { defaultValue: 'Edit' })}</button>
                 </div>
                 <ul className="space-y-2 text-sm">
-                  <ReviewDoc ok={!!idFrontPath} label={t('onboarding.verification.review.doc_id_front', { defaultValue: 'Government ID — front' })} />
-                  <ReviewDoc ok={!!idBackPath} label={t('onboarding.verification.review.doc_id_back', { defaultValue: 'Government ID — back' })} />
+                  <ReviewDoc ok={!!idFrontPath} label={t('onboarding.verification.review.doc_id_front', { defaultValue: 'Government ID, front' })} />
+                  <ReviewDoc ok={!!idBackPath} label={t('onboarding.verification.review.doc_id_back', { defaultValue: 'Government ID, back' })} />
                   <ReviewDoc ok={!!selfiePath} label={t('onboarding.verification.review.doc_selfie', { defaultValue: 'Selfie with ID' })} />
                 </ul>
               </div>
@@ -754,7 +754,7 @@ export default function VerificationWizard({
               )}
 
               <div className="rounded-xl border border-brand-500/30 p-4 text-sm text-brand-300">
-                {t('onboarding.verification.review.submit_disclaimer', { defaultValue: 'By submitting, you confirm this information is accurate. Our team typically reviews within 1–2 business days, and you’ll be notified once approved — unlocking paid events.' })}
+                {t('onboarding.verification.review.submit_disclaimer', { defaultValue: 'By submitting, you confirm this information is accurate. Our team typically reviews within 1 to 2 business days, and you’ll be notified once approved, which unlocks paid events.' })}
               </div>
             </div>
           )}

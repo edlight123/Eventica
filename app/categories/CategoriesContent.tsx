@@ -96,7 +96,7 @@ export default function CategoriesContent({ initialCategory }: CategoriesContent
           </h1>
           <p className="mt-2 text-[13px] text-white/55 md:text-[15px]">
             {t('events.rail_worlds_desc', {
-              defaultValue: 'discover your world — mizik, kilti, espò and more',
+              defaultValue: 'discover your world: mizik, kilti, espò and more',
             })}
           </p>
         </div>

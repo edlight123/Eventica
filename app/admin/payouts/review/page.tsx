@@ -25,7 +25,7 @@ export default async function AdminPayoutReviewPage() {
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm text-console-mut">
           Events the release job would not pay on its own. Each one is an organizer waiting on
-          money, so decide and move on — approving lets the next run pay it, dismissing closes it
+          money, so decide and move on, approving lets the next run pay it, dismissing closes it
           without paying.
         </p>
       </div>

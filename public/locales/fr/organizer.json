@@ -107,7 +107,7 @@
     "loading": "Chargement…",
     "load_more": "Charger plus d'événements",
     "clear_filters": "Effacer les filtres",
-    "search_scope_note": "La recherche couvre les {{count}} événements chargés jusqu’ici — chargez-en plus pour chercher davantage."
+    "search_scope_note": "La recherche couvre les {{count}} événements chargés jusqu’ici. Chargez-en plus pour chercher davantage."
   },
   "event_card_detail": {
     "sold_out": "ÉPUISÉ",
@@ -197,11 +197,11 @@
     "verified_short": "Vérifié.",
     "verification_expired": "La vérification a expiré. Veuillez demander un nouveau code.",
     "profile_us_canada": "États-Unis et Canada",
-    "profile_payouts_title": "Paiements — {{profile}}",
+    "profile_payouts_title": "Paiements: {{profile}}",
     "profile_stripe_sub": "Paiements bancaires via Stripe Connect.",
     "profile_haiti_sub": "Virement bancaire ou mobile money (MonCash / NatCash).",
     "payout_profiles": "Profils de paiement",
-    "payout_profiles_desc": "Chaque région est payée via son propre profil — le pays de l'événement détermine lequel reçoit l'argent. Configurer l'un ne configure pas l'autre.",
+    "payout_profiles_desc": "Chaque région est payée via son propre profil. Le pays de l'événement détermine lequel reçoit l'argent. Configurer l'un ne configure pas l'autre.",
     "profile_haiti_title": "Événements en Haïti",
     "profile_haiti_detail": "MonCash et virement bancaire · vérifié par Tikèm",
     "profile_stripe_title": "Événements aux États-Unis · Canada · France",
@@ -233,7 +233,7 @@
     "opening_stripe": "Ouverture de Stripe…",
     "stripe_handles_us_ca": "Les paiements vers les États-Unis et le Canada passent par Stripe Connect.",
     "stripe_handles_us_ca_long": "Les paiements vers les États-Unis et le Canada passent par Stripe Connect (aucune coordonnée bancaire n'est requise ici).",
-    "stripe_collects_bank_short": "Stripe Connect recueille vos coordonnées bancaires de façon sécurisée — rien à saisir ici.",
+    "stripe_collects_bank_short": "Stripe Connect recueille vos coordonnées bancaires de façon sécurisée. Rien à saisir ici.",
     "stripe_collects_bank_long": "Stripe Connect recueillera vos coordonnées bancaires de façon sécurisée. Vous n'avez aucune information bancaire à saisir sur Tikèm.",
     "payouts_via_stripe": "Vos paiements sont traités via Stripe Connect.",
     "payouts_to_this_account": "Vos paiements seront envoyés sur ce compte.",
@@ -306,7 +306,7 @@
     "save_payout_details": "Enregistrer les coordonnées de paiement",
     "save_and_continue": "Enregistrer et continuer",
     "edit_payout_details": "Modifier les coordonnées de paiement",
-    "done_back_to_overview": "Terminé — retour à l'aperçu",
+    "done_back_to_overview": "Terminé, retour à l'aperçu",
     "back_to_payouts": "Retour aux paiements",
     "all_set_title": "Tout est prêt !",
     "all_set_desc": "Vos coordonnées de paiement ont été enregistrées. La vérification peut prendre 1 à 2 jours ouvrables.",
@@ -492,10 +492,10 @@
     "group_events": "gérer vos événements",
     "group_account": "compte",
     "verify_banner_title": "Terminez la vérification pour vendre des billets payants",
-    "verify_banner_body": "Une vérification d’identité unique. Les événements gratuits et les brouillons fonctionnent sans elle — seules les ventes de billets payants attendent.",
+    "verify_banner_body": "Une vérification d’identité unique. Les événements gratuits et les brouillons fonctionnent sans elle. Seules les ventes de billets payants attendent.",
     "verify_banner_cta": "Commencer la vérification",
     "verify_banner_pending_title": "Vérification en cours d’examen",
-    "verify_banner_pending_body": "Nous examinons vos informations. Vous pouvez continuer à créer des événements — nous vous écrirons dès que c’est validé."
+    "verify_banner_pending_body": "Nous examinons vos informations. Vous pouvez continuer à créer des événements, nous vous écrirons dès que c’est validé."
   },
   "door": {
     "valid": "VALIDE",
@@ -543,7 +543,7 @@
     "save": "Enregistrer les marchés",
     "saving": "Enregistrement…",
     "save_error": "Impossible d'enregistrer vos marchés",
-    "saved_note": "Enregistré — vous pouvez modifier à tout moment.",
+    "saved_note": "Enregistré. Vous pouvez modifier à tout moment.",
     "none_declared": "Rien de déclaré pour l'instant, donc toutes les méthodes de paiement sont affichées ci-dessous.",
     "no_paid_yet": "Les billets payants ne sont pas encore disponibles dans les marchés que vous avez choisis, il n'y a donc aucune méthode de paiement à configurer. Les événements gratuits et RSVP fonctionnent dès aujourd'hui.",
     "needs_one": "Vos marchés nécessitent une seule configuration de paiement.",
@@ -573,7 +573,7 @@
       "required_complete": "{{completed}} étapes obligatoires terminées sur {{total}}",
       "optional": "Facultatif",
       "before_you_start": "Avant de commencer",
-      "before_you_start_intro": "Préparez ces éléments — cela prend environ 5 minutes, et votre progression est enregistrée au fur et à mesure :",
+      "before_you_start_intro": "Préparez ces éléments. Cela prend environ 5 minutes, et votre progression est enregistrée au fur et à mesure :",
       "checklist_id": "Une pièce d’identité officielle (recto et verso)",
       "checklist_selfie": "Votre téléphone ou votre webcam pour un selfie rapide avec votre pièce d’identité en main",
       "checklist_org": "Le nom de votre organisation et vos coordonnées",
@@ -649,13 +649,13 @@
         "type": "Type",
         "location": "Lieu",
         "identity_documents": "Pièces d’identité",
-        "doc_id_front": "Pièce d’identité officielle — recto",
-        "doc_id_back": "Pièce d’identité officielle — verso",
+        "doc_id_front": "Pièce d’identité officielle, recto",
+        "doc_id_back": "Pièce d’identité officielle, verso",
         "doc_selfie": "Selfie avec la pièce d’identité",
         "business_details": "Informations sur l’entreprise",
         "reg_number": "N° d’enregistrement",
         "tax_id": "N° fiscal (NIF)",
-        "submit_disclaimer": "En soumettant, vous confirmez que ces informations sont exactes. Notre équipe examine généralement les dossiers sous 1 à 2 jours ouvrables, et vous serez averti dès l’approbation — ce qui débloque les événements payants."
+        "submit_disclaimer": "En soumettant, vous confirmez que ces informations sont exactes. Notre équipe examine généralement les dossiers sous 1 à 2 jours ouvrables, et vous serez averti dès l’approbation, ce qui débloque les événements payants."
       },
       "nav": {
         "previous": "Précédent",
@@ -723,11 +723,11 @@
       },
       "markets": {
         "title": "Où organiserez-vous vos événements ?",
-        "subtitle": "Choisissez tous les pays où vous prévoyez d’organiser des événements. Nous ne configurerons que les méthodes de paiement utilisées dans ces pays — et vous pourrez changer cela à tout moment.",
+        "subtitle": "Choisissez tous les pays où vous prévoyez d’organiser des événements. Nous ne configurerons que les méthodes de paiement utilisées dans ces pays, et vous pourrez changer cela à tout moment.",
         "rail_stripe": "Paiements via Stripe Connect",
         "rail_haiti": "Paiements par virement bancaire ou MonCash",
-        "rail_none": "Événements gratuits et sur inscription pour l’instant — billets payants bientôt disponibles",
-        "two_rails_note": "Ces marchés utilisent deux systèmes de paiement différents ; vous configurerez donc deux méthodes distinctes. Nous en ferons une maintenant — vous pourrez ajouter l’autre juste après."
+        "rail_none": "Événements gratuits et sur inscription pour l’instant. Billets payants bientôt disponibles",
+        "two_rails_note": "Ces marchés utilisent deux systèmes de paiement différents ; vous configurerez donc deux méthodes distinctes. Nous en ferons une maintenant. Vous pourrez ajouter l’autre juste après."
       },
       "nav": {
         "back": "Retour",

@@ -207,7 +207,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
         <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
           <p className="text-sm text-white/70">
-            <span className="font-semibold text-white">Links are not saved</span> — copy them now.
+            <span className="font-semibold text-white">Links are not saved</span>, copy them now.
             They&apos;ll disappear when you leave or refresh this page.
           </p>
         </div>

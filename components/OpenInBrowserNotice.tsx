@@ -61,7 +61,7 @@ export default function OpenInBrowserNotice({
         onClick={handleCopy}
         className="mt-2.5 text-xs font-semibold text-amber-200 underline underline-offset-2"
       >
-        {copied ? 'Link copied — paste it in Safari or Chrome' : 'Copy this page link'}
+        {copied ? 'Link copied, paste it in Safari or Chrome' : 'Copy this page link'}
       </button>
     </div>
   )

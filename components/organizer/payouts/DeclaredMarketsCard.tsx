@@ -108,7 +108,7 @@ export default function DeclaredMarketsCard({
         <h2 className="text-lg font-semibold text-white">{t('markets.title', { defaultValue: 'Where you run events' })}</h2>
         <p className="mt-1 text-sm text-white/60">
           Pick every country you plan to hold events in. We&apos;ll only ask you to set up the
-          payout methods those countries actually use — and you can change this whenever you
+          payout methods those countries actually use, and you can change this whenever you
           expand.
         </p>
 
@@ -147,7 +147,7 @@ export default function DeclaredMarketsCard({
             {isSaving ? t('markets.saving', { defaultValue: 'Saving…' }) : t('markets.save', { defaultValue: 'Save markets' })}
           </button>
           {justSaved && !isDirty ? (
-            <span className="text-sm text-white/50">{t('markets.saved_note', { defaultValue: 'Saved — you can update this any time.' })}</span>
+            <span className="text-sm text-white/50">{t('markets.saved_note', { defaultValue: 'Saved. You can update this any time.' })}</span>
           ) : null}
         </div>
 

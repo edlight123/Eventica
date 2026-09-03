@@ -491,7 +491,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                             Revoke
                           </button>
                         ) : (
-                          <span className="text-sm text-white/70">—</span>
+                          <span className="text-sm text-white/70">, </span>
                         )}
                       </td>
                     </tr>

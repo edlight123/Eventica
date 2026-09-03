@@ -107,7 +107,7 @@
     "loading": "Chajman…",
     "load_more": "Chaje plis evènman",
     "clear_filters": "Efase filt yo",
-    "search_scope_note": "Rechèch la kouvri {{count}} evènman ki chaje jiskaprezan — chaje plis pou chèche pi lwen."
+    "search_scope_note": "Rechèch la kouvri {{count}} evènman ki chaje jiskaprezan. Chaje plis pou chèche pi lwen."
   },
   "event_card_detail": {
     "sold_out": "VANN FINI",
@@ -201,7 +201,7 @@
     "profile_stripe_sub": "Peman nan bank ou atravè Stripe Connect.",
     "profile_haiti_sub": "Transfè bankè oswa mobile money (MonCash / NatCash).",
     "payout_profiles": "Pwofil peman",
-    "payout_profiles_desc": "Chak rejyon peye atravè pwofil pa l — se peyi evènman an ki deside kilès ki resevwa lajan an. Konfigire youn pa konfigire lòt la.",
+    "payout_profiles_desc": "Chak rejyon peye atravè pwofil pa l. Se peyi evènman an ki deside kilès ki resevwa lajan an. Konfigire youn pa konfigire lòt la.",
     "profile_haiti_title": "Evènman an Ayiti",
     "profile_haiti_detail": "MonCash ak transfè bankè · Tikèm verifye l",
     "profile_stripe_title": "Evènman Etazini · Kanada · Frans",
@@ -233,7 +233,7 @@
     "opening_stripe": "N ap louvri Stripe…",
     "stripe_handles_us_ca": "Peman Etazini ak Kanada pase nan Stripe Connect.",
     "stripe_handles_us_ca_long": "Peman Etazini ak Kanada pase nan Stripe Connect (ou pa bezwen mete enfòmasyon bank isit la).",
-    "stripe_collects_bank_short": "Stripe Connect pran enfòmasyon bank ou an sekirite — ou pa bezwen mete anyen isit la.",
+    "stripe_collects_bank_short": "Stripe Connect pran enfòmasyon bank ou an sekirite. Ou pa bezwen mete anyen isit la.",
     "stripe_collects_bank_long": "Stripe Connect ap pran enfòmasyon bank ou an sekirite. Ou pa bezwen mete okenn enfòmasyon bank sou Tikèm.",
     "payouts_via_stripe": "Peman ou yo pase nan Stripe Connect.",
     "payouts_to_this_account": "Peman ou yo ap voye nan kont sa a.",
@@ -306,7 +306,7 @@
     "save_payout_details": "Sove enfòmasyon peman yo",
     "save_and_continue": "Sove epi kontinye",
     "edit_payout_details": "Modifye enfòmasyon peman yo",
-    "done_back_to_overview": "Fini — retounen nan apèsi a",
+    "done_back_to_overview": "Fini, retounen nan apèsi a",
     "back_to_payouts": "Retounen nan peman",
     "all_set_title": "Tout bagay pare!",
     "all_set_desc": "Enfòmasyon peman ou sove. Verifikasyon an ka pran 1 a 2 jou travay.",
@@ -492,10 +492,10 @@
     "group_events": "jere evènman w yo",
     "group_account": "kont",
     "verify_banner_title": "Fini verifikasyon an pou w vann tikè peye",
-    "verify_banner_body": "Se yon sèl tchèk idantite. Evènman gratis ak bouyon mache san li — se sèlman vant tikè peye k ap tann.",
+    "verify_banner_body": "Se yon sèl tchèk idantite. Evènman gratis ak bouyon mache san li. Se sèlman vant tikè peye k ap tann.",
     "verify_banner_cta": "Kòmanse verifikasyon an",
     "verify_banner_pending_title": "Y ap egzamine verifikasyon an",
-    "verify_banner_pending_body": "N ap gade enfòmasyon w yo. Ou ka kontinye kreye evènman — n ap ekri w kou l fin apwouve."
+    "verify_banner_pending_body": "N ap gade enfòmasyon w yo. Ou ka kontinye kreye evènman, n ap ekri w kou l fin apwouve."
   },
   "door": {
     "valid": "VALAB",
@@ -506,7 +506,7 @@
     "quantity": "Konbyen",
     "entry_point": "Kote l antre",
     "previous_checkin": "Dènye fwa l antre",
-    "checked_in_now": "Li antre — kite l pase",
+    "checked_in_now": "Li antre. Kite l pase",
     "override_allow_reentry": "Fòse / Kite l antre ankò",
     "reentry_not_allowed": "Li pa ka antre de fwa",
     "reason": "Poukisa",
@@ -543,7 +543,7 @@
     "save": "Anrejistre mache yo",
     "saving": "Ap anrejistre…",
     "save_error": "Nou pa t ka anrejistre mache w yo",
-    "saved_note": "Anrejistre — ou ka chanje l nenpòt lè.",
+    "saved_note": "Anrejistre. Ou ka chanje l nenpòt lè.",
     "none_declared": "Ou poko deklare anyen, se poutèt sa tout metòd peman parèt anba a.",
     "no_paid_yet": "Tikè pou lajan poko disponib nan mache ou chwazi yo, kidonk pa gen metòd peman pou mete kanpe. Evènman gratis ak RSVP mache depi jodi a.",
     "needs_one": "Mache w yo bezwen yon sèl konfigirasyon peman.",
@@ -573,7 +573,7 @@
       "required_complete": "{{completed}} sou {{total}} etap obligatwa fini",
       "optional": "Opsyonèl",
       "before_you_start": "Anvan ou kòmanse",
-      "before_you_start_intro": "Prepare bagay sa yo — sa pran anviwon 5 minit, epi tou sa ou fè ap sove pandan w ap avanse:",
+      "before_you_start_intro": "Prepare bagay sa yo. Sa pran anviwon 5 minit, epi tou sa ou fè ap sove pandan w ap avanse:",
       "checklist_id": "Yon kat idantite gouvènman bay (devan ak dèyè)",
       "checklist_selfie": "Telefòn ou oswa kamera ou pou yon selfie rapid ak kat idantite ou nan men w",
       "checklist_org": "Non òganizasyon ou ak enfòmasyon kontak ou",
@@ -649,13 +649,13 @@
         "type": "Tip",
         "location": "Kote",
         "identity_documents": "Dokiman idantite",
-        "doc_id_front": "Kat idantite gouvènman — devan",
-        "doc_id_back": "Kat idantite gouvènman — dèyè",
+        "doc_id_front": "Kat idantite gouvènman, devan",
+        "doc_id_back": "Kat idantite gouvènman, dèyè",
         "doc_selfie": "Selfie ak kat idantite a",
         "business_details": "Enfòmasyon biznis",
         "reg_number": "Nimewo anrejistreman",
         "tax_id": "Nimewo fiskal (NIF)",
-        "submit_disclaimer": "Lè ou voye l, ou konfime enfòmasyon sa yo kòrèk. Ekip nou an revize sa anjeneral nan 1 a 2 jou travay, epi n ap avèti ou lè li apwouve — se sa k ap debloke evènman ki gen tikè peye."
+        "submit_disclaimer": "Lè ou voye l, ou konfime enfòmasyon sa yo kòrèk. Ekip nou an revize sa anjeneral nan 1 a 2 jou travay, epi n ap avèti ou lè li apwouve, se sa k ap debloke evènman ki gen tikè peye."
       },
       "nav": {
         "previous": "Anvan",
@@ -723,11 +723,11 @@
       },
       "markets": {
         "title": "Ki kote w ap fè evènman ou yo?",
-        "subtitle": "Chwazi tout peyi kote ou gen plan pou fè evènman. N ap konfigire sèlman metòd peman peyi sa yo sèvi — epi ou ka chanje sa nenpòt lè.",
+        "subtitle": "Chwazi tout peyi kote ou gen plan pou fè evènman. N ap konfigire sèlman metòd peman peyi sa yo sèvi, epi ou ka chanje sa nenpòt lè.",
         "rail_stripe": "Peman pase nan Stripe Connect",
         "rail_haiti": "Peman pa transfè bankè oswa MonCash",
-        "rail_none": "Evènman gratis ak RSVP pou kounye a — tikè peye ap vini talè",
-        "two_rails_note": "Mache sa yo sèvi ak de sistèm peman diferan, kidonk w ap konfigire de metòd apa. N ap fè youn kounye a — ou ka ajoute lòt la touswit apre."
+        "rail_none": "Evènman gratis ak RSVP pou kounye a. Tikè peye ap vini talè",
+        "two_rails_note": "Mache sa yo sèvi ak de sistèm peman diferan, kidonk w ap konfigire de metòd apa. N ap fè youn kounye a. Ou ka ajoute lòt la touswit apre."
       },
       "nav": {
         "back": "Retounen",

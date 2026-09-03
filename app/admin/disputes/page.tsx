@@ -26,7 +26,7 @@ export default async function AdminDisputesPage() {
         </h1>
         <p className="mt-2 max-w-3xl text-[13px] text-console-mut">
           Every card dispute filed against a ticket sale. Tikèm is the merchant of record on the Stripe rail, so each
-          of these has already been debited from the platform balance — and each one has a deadline we answer, not the
+          of these has already been debited from the platform balance, and each one has a deadline we answer, not the
           organizer.
         </p>
       </header>

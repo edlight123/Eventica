@@ -36,7 +36,7 @@ export default async function AdminLayout({
           MobileNavWrapper carries navigation, so no admin route becomes
           unreachable on a phone. There is deliberately no icon-only tier: an
           icon rail cannot carry `count · oldest`, which is the whole point of
-          the rail — losing it at one breakpoint would drop the console's
+          the rail, losing it at one breakpoint would drop the console's
           organizing signal exactly where scanning is hardest.
         */}
         <div className="sticky top-0 hidden h-screen md:block">

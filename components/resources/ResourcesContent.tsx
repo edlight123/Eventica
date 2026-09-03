@@ -113,7 +113,7 @@ function GuideRow({ guide, index }: { guide: Guide; index: string }) {
                   href={`/guides/${guide.slug}-${c}.pdf`}
                   download
                   className="border-l border-white/10 px-2.5 py-1.5 text-white/45 transition-colors hover:bg-white/5 hover:text-brand-300"
-                  aria-label={`${title} (${LANG_LABEL[c]}) — PDF`}
+                  aria-label={`${title} (${LANG_LABEL[c]}). PDF`}
                 >
                   <Download className="h-3 w-3" />
                 </a>

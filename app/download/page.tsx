@@ -4,7 +4,7 @@ import DownloadLanding from './DownloadLanding'
 
 export const metadata = {
   title: 'Download Tikèm',
-  description: 'Get the Tikèm app — discover events, buy tickets, and check in at the door. Available on iPhone and Android.',
+  description: 'Get the Tikèm app, discover events, buy tickets, and check in at the door. Available on iPhone and Android.',
   openGraph: {
     title: 'Download Tikèm',
     description: 'Discover events, buy tickets, and check in at the door. Get the app on iPhone and Android.',

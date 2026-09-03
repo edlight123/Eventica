@@ -39,7 +39,7 @@ export default async function PurchaseFailedPage({
       title: t('purchase.failed.sold_out.title', 'Sold Out'),
       description: t(
         'purchase.failed.sold_out.description',
-        'This event sold out before your payment completed. If you were charged, you will be refunded automatically — no ticket was issued.'
+        'This event sold out before your payment completed. If you were charged, you will be refunded automatically. No ticket was issued.'
       ),
     },
     amount_mismatch: {
@@ -74,7 +74,7 @@ export default async function PurchaseFailedPage({
       title: t('purchase.failed.capacity_exceeded.title', 'Sold Out'),
       description: t(
         'purchase.failed.capacity_exceeded.description',
-        'This event sold out before your payment completed. If you were charged, you will be refunded automatically — no ticket was issued.'
+        'This event sold out before your payment completed. If you were charged, you will be refunded automatically. No ticket was issued.'
       ),
     },
     unknown: {

@@ -89,7 +89,7 @@ export default function PayoutsSummaryDashboard({
       ring: 'bg-amber-500/10 border-amber-500/30',
       chip: 'text-amber-300',
       title: 'Verification in progress',
-      description: 'We’re reviewing your payout details. This usually takes 1–2 business days — we’ll notify you once it’s approved.',
+      description: 'We’re reviewing your payout details. This usually takes 1 to 2 business days, we’ll notify you once it’s approved.',
     },
     needs_attention: {
       icon: <AlertCircle className="h-7 w-7" />,

@@ -19,7 +19,7 @@ function formatEventLabel(event: OrganizerEvent) {
   const title = event.title || 'Untitled event'
   const date = event.start_datetime ? new Date(event.start_datetime).toLocaleString() : ''
   const city = event.city ? ` • ${event.city}` : ''
-  return `${title}${date ? ` — ${date}` : ''}${city}`
+  return `${title}${date ? `, ${date}` : ''}${city}`
 }
 
 export default function EventStaffHub({

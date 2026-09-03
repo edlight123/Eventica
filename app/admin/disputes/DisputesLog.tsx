@@ -66,7 +66,7 @@ const UNATTRIBUTED_LABELS: Record<string, string> = {
   dispute_had_no_charge_or_payment_intent:
     'Stripe sent this dispute with neither a charge nor a PaymentIntent, so there was nothing to match on.',
   ticket_lookup_failed:
-    'The ticket lookup ERRORED — this is not a confirmed non-match. Refresh; if it persists, check Firestore.',
+    'The ticket lookup ERRORED, this is not a confirmed non-match. Refresh; if it persists, check Firestore.',
   attribution_threw:
     'Attribution crashed while this dispute was recorded. The dispute is stored; the match needs redoing by hand.',
   matched_ticket_has_no_event_id:
@@ -85,14 +85,14 @@ function formatMinor(amountMinor: number, currency: string): string {
 
 function formatMoneyMap(map: Record<string, number>): string {
   const entries = Object.entries(map || {})
-  if (!entries.length) return '—'
+  if (!entries.length) return ', '
   return entries.map(([currency, minor]) => formatMinor(minor, currency)).join(' · ')
 }
 
 function shortDate(iso: string | null): string {
-  if (!iso) return '—'
+  if (!iso) return ', '
   const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return '—'
+  if (Number.isNaN(date.getTime())) return ', '
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
@@ -265,7 +265,7 @@ function DisputeRow({ item, now }: { item: DisputeItem; now: Date | null }) {
       {item.isOpen && item.attributed && !item.organizerNotifiedAt && (
         <div className="mt-3 rounded bg-console-ground px-3 py-2 text-sm text-console-red">
           The organizer has NOT been reached about this dispute
-          {item.notifyError ? ` (${item.notifyError})` : ''}. They hold the evidence — contact them
+          {item.notifyError ? ` (${item.notifyError})` : ''}. They hold the evidence, contact them
           directly.
         </div>
       )}

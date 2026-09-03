@@ -18,7 +18,7 @@ export default function HomeOutro() {
           {t('home.outro', { defaultValue: 'nou wè aswè a.' })}
         </h2>
         <p className="mt-3 text-[14px] text-white/50">
-          {t('home.outro_sub', { defaultValue: 'see you tonight — tikèm' })}
+          {t('home.outro_sub', { defaultValue: 'see you tonight, tikèm' })}
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <a

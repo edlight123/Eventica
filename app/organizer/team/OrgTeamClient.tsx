@@ -67,7 +67,7 @@ const columns: OrgColumn<Member>[] = [
       <span className="font-mono tabular-nums text-sm text-white/40">
         {m.joined_at
           ? new Date(m.joined_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
-          : '—'}
+          : ', '}
       </span>
     ),
   },
@@ -290,7 +290,7 @@ export default function OrgTeamClient({
             >
               {ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
-                  {r.label} — {r.description}
+                  {r.label}, {r.description}
                 </option>
               ))}
             </select>

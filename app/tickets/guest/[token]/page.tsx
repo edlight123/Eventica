@@ -110,7 +110,7 @@ export default async function GuestTicketsPage({
               {order.phone
                 ? t('guest_tickets.also_sent_copy_and_text', 'a copy and a text message.')
                 : t('guest_tickets.also_sent_copy', 'a copy.')}{' '}
-              {t('guest_tickets.keep_link', 'Keep this link — it is your ticket.')}
+              {t('guest_tickets.keep_link', 'Keep this link. It is your ticket.')}
             </p>
           </div>
         )}
@@ -136,7 +136,7 @@ export default async function GuestTicketsPage({
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
             <p className="text-white font-semibold">{t('guest_tickets.still_being_issued', 'Your tickets are still being issued.')}</p>
             <p className="text-sm text-white/60 mt-2">
-              {t('guest_tickets.still_being_issued_detail', 'This usually takes a few seconds. Refresh this page — the link stays valid.')}
+              {t('guest_tickets.still_being_issued_detail', 'This usually takes a few seconds. Refresh this page. The link stays valid.')}
             </p>
           </div>
         ) : (

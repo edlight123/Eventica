@@ -1235,7 +1235,7 @@ export default function PayoutsPageNew({
                             </div>
                           </div>
                         ) : (
-                          <div className="rounded-xl border border-white/10 px-4 py-3 text-sm text-white/70">{t('payouts_page.stripe_collects_bank_short', { defaultValue: 'Stripe Connect collects your bank details securely — no bank info required here.' })}</div>
+                          <div className="rounded-xl border border-white/10 px-4 py-3 text-sm text-white/70">{t('payouts_page.stripe_collects_bank_short', { defaultValue: 'Stripe Connect collects your bank details securely. No bank info required here.' })}</div>
                         )}
 
                         {activeProfile === 'haiti' && formData.method === 'bank_transfer' ? (
@@ -1426,7 +1426,7 @@ export default function PayoutsPageNew({
 
                       <p className="mt-4 text-xs text-white/50">{t('payouts_page.verification_required_note', { defaultValue: 'Verification is required to receive payouts and publish paid events.' })}</p>
                       <button type="button" onClick={() => setEditStep('done')} className="mt-4 w-full rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800">
-                        {t('payouts_page.done_back_to_overview', { defaultValue: 'Done — back to overview' })}
+                        {t('payouts_page.done_back_to_overview', { defaultValue: 'Done, back to overview' })}
                       </button>
                     </div>
                   </div>
@@ -1439,7 +1439,7 @@ export default function PayoutsPageNew({
                       <CheckCircle className="h-7 w-7 text-emerald-300" />
                     </div>
                     <h2 className="text-xl font-semibold text-white">{t('payouts_page.all_set_title', { defaultValue: "You're all set!" })}</h2>
-                    <p className="mt-2 text-sm text-white/60">{t('payouts_page.all_set_desc', { defaultValue: 'Your payout details have been saved. Verification may take 1–2 business days.' })}</p>
+                    <p className="mt-2 text-sm text-white/60">{t('payouts_page.all_set_desc', { defaultValue: 'Your payout details have been saved. Verification may take 1 to 2 business days.' })}</p>
                     <Link href="/organizer/settings/payouts" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
                       {t('payouts_page.back_to_payouts', { defaultValue: 'Back to payouts' })}
                     </Link>
@@ -1465,11 +1465,11 @@ export default function PayoutsPageNew({
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-2">{t('payouts_page.payout_profiles', { defaultValue: 'Payout profiles' })}</h2>
                 <p className="text-sm text-white/60 mb-4">
-                  {t('payouts_page.payout_profiles_desc', { defaultValue: "Each region pays out through its own profile — an event's country decides which one gets paid. Completing one does not cover the other." })}
+                  {t('payouts_page.payout_profiles_desc', { defaultValue: "Each region pays out through its own profile. An event's country decides which one gets paid. Completing one does not cover the other." })}
                 </p>
 
                 {/* One descriptive card per region: which events, which rail, who
-                    verifies, and its own status — the dual-profile model made
+                    verifies, and its own status, the dual-profile model made
                     visible (tester feedback, 2026-08-12/29). */}
                 <div className="space-y-2">
                   {(

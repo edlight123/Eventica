@@ -207,7 +207,7 @@ export default function AppScrub({
   const captions: { key: string; text: string; opacity: number }[] = [
     { key: 'a', text: t('home.appscrub_a', { defaultValue: 'one feed. every fèt.' }), opacity: c1 },
     { key: 'b', text: t('home.appscrub_b', { defaultValue: 'tap. peye. antre.' }), opacity: c2 },
-    { key: 'c', text: t('home.appscrub_c', { defaultValue: 'ou ladan — you’re in.' }), opacity: c3 },
+    { key: 'c', text: t('home.appscrub_c', { defaultValue: 'ou ladan, you’re in.' }), opacity: c3 },
   ]
 
   return (
@@ -351,7 +351,7 @@ export default function AppScrub({
                   </p>
 
                   {/* the white ticket card: poster header, real QR, punched
-                      perforation — the real app's ticket, made poster-grade */}
+                      perforation, the real app's ticket, made poster-grade */}
                   <div className="relative mt-4 w-full max-w-[216px]">
                     {/* soft brand glow behind the card */}
                     <span aria-hidden className="absolute -inset-5 rounded-[30px] bg-brand-400/15 blur-2xl" />

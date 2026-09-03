@@ -21,9 +21,9 @@ interface ContentPageViewProps {
  * it here — we localize this single line inline from the resolved locale.
  */
 const DRAFT_NOTE: Record<Locale, string> = {
-  en: 'Draft translation — being reviewed. The English version is the reference.',
-  fr: 'Traduction provisoire — en cours de révision. La version anglaise fait référence.',
-  ht: 'Tradiksyon pwovizwa — n ap revize l. Vèsyon anglè a se referans lan.',
+  en: 'Draft translation, being reviewed. The English version is the reference.',
+  fr: 'Traduction provisoire, en cours de révision. La version anglaise fait référence.',
+  ht: 'Tradiksyon pwovizwa, n ap revize l. Vèsyon anglè a se referans lan.',
 }
 
 /** Render a single content block using the same markup the pages used inline. */

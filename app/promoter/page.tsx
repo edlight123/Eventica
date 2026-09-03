@@ -51,7 +51,7 @@ const COPY: Record<Lang, {
     commissionEarned: (count) => `Commission earned · ${count} ticket${count !== 1 ? 's' : ''}`,
     emptyTitle: 'Nothing here yet.',
     emptyDesc:
-      'When an organizer makes you a promoter, they send you a personal stats link. Open it and choose “add to my account” — it will show up here.',
+      'When an organizer makes you a promoter, they send you a personal stats link. Open it and choose “add to my account” and it will show up here.',
     owesYou: 'owes you',
     active: 'Active',
     paused: 'Paused',
@@ -70,7 +70,7 @@ const COPY: Record<Lang, {
     commissionEarned: (count) => `Commission gagnée · ${count} billet${count !== 1 ? 's' : ''}`,
     emptyTitle: 'Rien ici pour l’instant.',
     emptyDesc:
-      'Quand un organisateur fait de vous un promoteur, il vous envoie un lien personnel de statistiques. Ouvrez-le et choisissez « ajouter à mon compte » — il apparaîtra ici.',
+      'Quand un organisateur fait de vous un promoteur, il vous envoie un lien personnel de statistiques. Ouvrez-le et choisissez « ajouter à mon compte », il apparaîtra ici.',
     owesYou: 'vous doit',
     active: 'Actif',
     paused: 'En pause',
@@ -89,7 +89,7 @@ const COPY: Record<Lang, {
     commissionEarned: (count) => `Komisyon ou fè · ${count} tikè`,
     emptyTitle: 'Poko gen anyen isit la.',
     emptyDesc:
-      'Lè yon òganizatè fè w vin pwomotè, li voye ba ou yon lyen estatistik pèsonèl. Ouvri li epi chwazi "ajoute nan kont mwen" — l ap parèt isit la.',
+      'Lè yon òganizatè fè w vin pwomotè, li voye ba ou yon lyen estatistik pèsonèl. Ouvri li epi chwazi "ajoute nan kont mwen", l ap parèt isit la.',
     owesYou: 'dwe ou',
     active: 'Aktif',
     paused: 'Sispann',

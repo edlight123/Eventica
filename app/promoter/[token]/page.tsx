@@ -71,14 +71,14 @@ const COPY: Record<Lang, {
     defaultEventTitle: 'Event',
     yourLinkTitle: 'Your personal link',
     linkNote:
-      'Every ticket bought through this link counts for you — even when the buyer pays later in the same visit.',
+      'Every ticket bought through this link counts for you, even when the buyer pays later in the same visit.',
     statTicketsSold: 'Tickets sold',
     statSalesDriven: 'Sales you drove',
     statYourCommission: 'Your commission',
     pausedNotice:
       'This link is currently paused by the organizer. Sales made through it are not being counted right now.',
     footerNote:
-      "Your commission collects in a Tikèm wallet and unlocks when the event's funds release — add this page to a free account to withdraw it to MonCash. Keep this link: it is your personal page, and its numbers update with every sale.",
+      "Your commission collects in a Tikèm wallet and unlocks when the event's funds release. Add this page to a free account to withdraw it to MonCash. Keep this link: it is your personal page, and its numbers update with every sale.",
   },
   fr: {
     eyebrow: (code) => `Promoteur · ${code}`,
@@ -88,14 +88,14 @@ const COPY: Record<Lang, {
     defaultEventTitle: 'Événement',
     yourLinkTitle: 'Votre lien personnel',
     linkNote:
-      'Chaque billet acheté via ce lien compte pour vous — même quand l’acheteur paie plus tard au cours de la même visite.',
+      'Chaque billet acheté via ce lien compte pour vous, même quand l’acheteur paie plus tard au cours de la même visite.',
     statTicketsSold: 'Billets vendus',
     statSalesDriven: 'Ventes générées',
     statYourCommission: 'Votre commission',
     pausedNotice:
       'Ce lien est actuellement en pause par l’organisateur. Les ventes faites via ce lien ne sont pas comptabilisées en ce moment.',
     footerNote:
-      "Votre commission se rassemble dans un portefeuille Tikèm et se débloque au versement des fonds de l’événement — ajoutez cette page à un compte gratuit pour la retirer vers MonCash. Gardez ce lien : c’est votre page personnelle, et ses chiffres se mettent à jour à chaque vente.",
+      "Votre commission se rassemble dans un portefeuille Tikèm et se débloque au versement des fonds de l’événement. Ajoutez cette page à un compte gratuit pour la retirer vers MonCash. Gardez ce lien : c’est votre page personnelle, et ses chiffres se mettent à jour à chaque vente.",
   },
   ht: {
     eyebrow: (code) => `Pwomotè · ${code}`,
@@ -105,13 +105,13 @@ const COPY: Record<Lang, {
     defaultEventTitle: 'Evènman',
     yourLinkTitle: 'Lyen pèsonèl ou',
     linkNote:
-      'Chak tikè ki achte atravè lyen sa a konte pou ou — menm lè achtè a peye pita nan menm vizit la.',
+      'Chak tikè ki achte atravè lyen sa a konte pou ou, menm lè achtè a peye pita nan menm vizit la.',
     statTicketsSold: 'Tikè vann',
     statSalesDriven: 'Vant ou fè rive',
     statYourCommission: 'Komisyon ou',
     pausedNotice: 'Òganizatè a sispann lyen sa a kounye a. Vant ki fèt atravè li pa konte kounye a.',
     footerNote:
-      'Komisyon ou rasanble nan yon wolèt Tikèm epi li debloke lè lajan evènman an voye — ajoute paj sa a nan yon kont gratis pou retire l nan MonCash. Konsève lyen sa a: se paj pèsonèl ou, epi chif li yo mete ajou ak chak vant.',
+      'Komisyon ou rasanble nan yon wolèt Tikèm epi li debloke lè lajan evènman an voye. Ajoute paj sa a nan yon kont gratis pou retire l nan MonCash. Konsève lyen sa a: se paj pèsonèl ou, epi chif li yo mete ajou ak chak vant.',
   },
 }
 
@@ -172,7 +172,7 @@ export default async function PromoterStatsPage({
           </h1>
           <p className="text-white/60 mt-2">
             {event?.title || copy.defaultEventTitle}
-            {formatDate(toIso(event?.start_datetime), lang) ? ` — ${formatDate(toIso(event?.start_datetime), lang)}` : ''}
+            {formatDate(toIso(event?.start_datetime), lang) ? `, ${formatDate(toIso(event?.start_datetime), lang)}` : ''}
           </p>
           <p className="text-white/50 text-sm mt-1">{copy.youEarn(commissionLabel)}</p>
         </header>

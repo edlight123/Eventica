@@ -267,7 +267,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                       {event.payoutEligible && !event.hasPendingPayout && !event.hasCompletedPayout && (
                         <span
                           className="inline-flex cursor-not-allowed items-center gap-1 text-sm text-console-faint"
-                          title="Manual payout creation isn't available yet — organizers request payouts from their dashboard"
+                          title="Manual payout creation isn't available yet, organizers request payouts from their dashboard"
                         >
                           <Send className="w-4 h-4" />
                           Create Payout
@@ -442,7 +442,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                 <button
                   type="button"
                   disabled
-                  title="Manual payout creation isn't available yet — organizers request payouts from their dashboard"
+                  title="Manual payout creation isn't available yet, organizers request payouts from their dashboard"
                   className="flex-1 cursor-not-allowed rounded bg-console-raise px-4 py-2 text-[13px] font-semibold text-console-faint opacity-50"
                 >
                   Create Payout (coming soon)

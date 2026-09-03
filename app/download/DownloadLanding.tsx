@@ -40,7 +40,7 @@ export default function DownloadLanding({ appStoreUrl, playStoreUrl }: Props) {
           Get Tikèm
         </h1>
         <p className="mt-4 text-base text-white/60">
-          Discover events, buy tickets, and check in at the door — all from your phone.
+          Discover events, buy tickets, and check in at the door, all from your phone.
         </p>
 
         <div className="mt-10 flex flex-col gap-3">

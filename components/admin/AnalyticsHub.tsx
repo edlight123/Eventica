@@ -20,12 +20,12 @@ export function HeroScorecard() {
   const m = metrics
 
   const cells = [
-    { label: 'Total users', value: m ? fmtNum(m.usersCount) : '—' },
-    { label: 'Active events', value: m ? fmtNum(m.eventsCount) : '—' },
-    { label: 'Tickets · 7d', value: m ? fmtNum(m.tickets7d) : '—' },
-    { label: 'Revenue · 7d', value: m ? fmtHTG(m.gmv7d) : '—', sub: 'HTG' },
-    { label: 'Refunds · 7d', value: m ? fmtNum(m.refunds7d) : '—' },
-    { label: 'Pending', value: m ? fmtNum(m.pendingCount) : '—' },
+    { label: 'Total users', value: m ? fmtNum(m.usersCount) : ', ' },
+    { label: 'Active events', value: m ? fmtNum(m.eventsCount) : ', ' },
+    { label: 'Tickets · 7d', value: m ? fmtNum(m.tickets7d) : ', ' },
+    { label: 'Revenue · 7d', value: m ? fmtHTG(m.gmv7d) : ', ', sub: 'HTG' },
+    { label: 'Refunds · 7d', value: m ? fmtNum(m.refunds7d) : ', ' },
+    { label: 'Pending', value: m ? fmtNum(m.pendingCount) : ', ' },
   ]
 
   return (

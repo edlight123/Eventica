@@ -37,8 +37,11 @@ function parseDateValue(value?: string): Date | null {
   return new Date(y, m - 1, d)
 }
 
+// min-h-11 on phones. These triggers are how every date and time in the app is
+// set, and at 34px they were under the 44px touch floor on the one device where
+// that matters. Desktop keeps the tighter height via sm:.
 const triggerBase =
-  'inline-flex items-center gap-2 rounded-lg border bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
+  'inline-flex min-h-11 items-center gap-2 rounded-lg border bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-brand-400/40 sm:min-h-0'
 
 /**
  * Centered modal, portaled to <body> so it can never be clipped by an ancestor
@@ -322,7 +325,7 @@ export function TimePicker({
                   onChange(opt)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors sm:min-h-0 ${
                   isSel ? 'bg-brand-600 font-semibold text-white' : 'text-white/80 hover:bg-white/[0.08]'
                 }`}
               >

@@ -30,7 +30,7 @@ export default function TicketsError({
 
         <p className="text-white/70 mb-6">
           Something went wrong while loading your tickets. This is usually a
-          temporary network issue — please try again in a moment.
+          temporary network issue, please try again in a moment.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3">

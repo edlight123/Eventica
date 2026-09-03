@@ -76,7 +76,7 @@ export default function OnboardingClient({ bearerToken }: { bearerToken: string 
         <h1 style={title}>Set up payouts</h1>
         <p style={muted}>
           Verify your details and connect a bank account. Tikèm never sees your banking
-          credentials — this step is secured by Stripe.
+          credentials, this step is secured by Stripe.
         </p>
 
         {failed === 'no_account' ? (

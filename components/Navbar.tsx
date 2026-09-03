@@ -144,7 +144,7 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
                 {t('nav.resources', { defaultValue: 'Guides' })}
               </Link>
               {/* Churn guard: composing an event never requires an account
-                  up front — guests build the whole thing at /create and only
+                  up front, guests build the whole thing at /create and only
                   meet sign-up at publish. Organizers go straight in. */}
               <Link
                 href={user?.role === 'organizer' ? '/organizer/events/new' : '/create'}

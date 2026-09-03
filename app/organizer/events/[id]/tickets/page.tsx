@@ -67,7 +67,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
           <OrgEmptyState
             icon={Ticket}
             title="No ticket types yet"
-            description="Add ticket types — free RSVP or paid tiers — so people can register for your event."
+            description="Add ticket types, free RSVP or paid tiers, so people can register for your event."
             action={
               <Link
                 href={`/organizer/events/${id}/edit`}

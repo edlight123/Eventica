@@ -465,7 +465,7 @@ export default function VerifyOrganizerPage() {
 
                   {!isReadOnly ? (
                     <p className="text-xs text-white/60">
-                      Submissions are typically reviewed within 24–48 hours.
+                      Submissions are typically reviewed within 24 to 48 hours.
                     </p>
                   ) : null}
                 </div>

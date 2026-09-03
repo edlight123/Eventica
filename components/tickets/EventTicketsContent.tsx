@@ -28,7 +28,7 @@ interface EventTicketsContentProps {
   tickets: any[]
 }
 
-const FALLBACK = '—'
+const FALLBACK = ', '
 
 /** date-fns `format` throws on invalid dates; always guard through this. */
 function safeFormat(value: any, fmt: string, fallback: string = FALLBACK): string {

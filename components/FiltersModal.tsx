@@ -122,7 +122,7 @@ export function FiltersModal({
       ? t('filters.any_price', { defaultValue: 'Any price' })
       : topThumbParked
         ? andUp(minPrice)
-        : `${priceMoney(minPrice)} – ${priceMoney(maxPrice)}`
+        : `${priceMoney(minPrice)}, ${priceMoney(maxPrice)}`
 
   // Thumbs stay a step apart so they can never cross (and never coincide, which
   // would make one of them unreachable by pointer).

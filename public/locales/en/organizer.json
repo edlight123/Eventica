@@ -107,7 +107,7 @@
     "loading": "Loading…",
     "load_more": "Load more events",
     "clear_filters": "Clear filters",
-    "search_scope_note": "Search covers the {{count}} events loaded so far — load more to search further."
+    "search_scope_note": "Search covers the {{count}} events loaded so far. Load more to search further."
   },
   "event_card_detail": {
     "sold_out": "SOLD OUT",
@@ -201,7 +201,7 @@
     "profile_stripe_sub": "Bank payouts via Stripe Connect.",
     "profile_haiti_sub": "Bank transfer or mobile money (MonCash / NatCash).",
     "payout_profiles": "Payout profiles",
-    "payout_profiles_desc": "Each region pays out through its own profile — an event's country decides which one gets paid. Completing one does not cover the other.",
+    "payout_profiles_desc": "Each region pays out through its own profile. An event's country decides which one gets paid. Completing one does not cover the other.",
     "profile_haiti_title": "Haiti events",
     "profile_haiti_detail": "MonCash & bank transfer · verified by Tikèm",
     "profile_stripe_title": "US · Canada · France events",
@@ -233,7 +233,7 @@
     "opening_stripe": "Opening Stripe…",
     "stripe_handles_us_ca": "US/Canada payouts are handled via Stripe Connect.",
     "stripe_handles_us_ca_long": "US/Canada payouts are handled via Stripe Connect (no bank details required here).",
-    "stripe_collects_bank_short": "Stripe Connect collects your bank details securely — no bank info required here.",
+    "stripe_collects_bank_short": "Stripe Connect collects your bank details securely. No bank info required here.",
     "stripe_collects_bank_long": "Stripe Connect will collect your bank details securely. You don't need to enter any bank information on Tikèm.",
     "payouts_via_stripe": "Your payouts are handled through Stripe Connect.",
     "payouts_to_this_account": "Your payouts will be sent to this account.",
@@ -306,10 +306,10 @@
     "save_payout_details": "Save payout details",
     "save_and_continue": "Save & continue",
     "edit_payout_details": "Edit payout details",
-    "done_back_to_overview": "Done — back to overview",
+    "done_back_to_overview": "Done, back to overview",
     "back_to_payouts": "Back to payouts",
     "all_set_title": "You're all set!",
-    "all_set_desc": "Your payout details have been saved. Verification may take 1–2 business days.",
+    "all_set_desc": "Your payout details have been saved. Verification may take 1 to 2 business days.",
     "view": "View",
     "cancel": "Cancel",
     "loading": "Loading…",
@@ -492,10 +492,10 @@
     "group_events": "running your events",
     "group_account": "account",
     "verify_banner_title": "Finish verification to sell paid tickets",
-    "verify_banner_body": "A one-time identity check. Free events and drafts work without it — only paid ticket sales are held until it’s done.",
+    "verify_banner_body": "A one-time identity check. Free events and drafts work without it. Only paid ticket sales are held until it’s done.",
     "verify_banner_cta": "Start verification",
     "verify_banner_pending_title": "Verification under review",
-    "verify_banner_pending_body": "We’re reviewing your details. You can keep building events in the meantime — we’ll email you as soon as it clears."
+    "verify_banner_pending_body": "We’re reviewing your details. You can keep building events in the meantime, and we’ll email you as soon as it clears."
   },
   "door": {
     "valid": "VALID",
@@ -543,7 +543,7 @@
     "save": "Save markets",
     "saving": "Saving…",
     "save_error": "Could not save your markets",
-    "saved_note": "Saved — you can update this any time.",
+    "saved_note": "Saved. You can update this any time.",
     "none_declared": "Nothing declared yet, so every payout method is shown below.",
     "no_paid_yet": "Paid tickets aren't available in the markets you picked yet, so there's no payout method to set up. Free and RSVP events work today.",
     "needs_one": "Your markets need one payout setup.",
@@ -573,7 +573,7 @@
       "required_complete": "{{completed}} of {{total}} required complete",
       "optional": "Optional",
       "before_you_start": "Before you start",
-      "before_you_start_intro": "Have these ready — it takes about 5 minutes, and your progress saves as you go:",
+      "before_you_start_intro": "Have these ready. It takes about 5 minutes, and your progress saves as you go:",
       "checklist_id": "A government-issued ID (front & back)",
       "checklist_selfie": "Your phone or webcam for a quick selfie holding your ID",
       "checklist_org": "Your organization name and contact details",
@@ -649,13 +649,13 @@
         "type": "Type",
         "location": "Location",
         "identity_documents": "Identity documents",
-        "doc_id_front": "Government ID — front",
-        "doc_id_back": "Government ID — back",
+        "doc_id_front": "Government ID, front",
+        "doc_id_back": "Government ID, back",
         "doc_selfie": "Selfie with ID",
         "business_details": "Business details",
         "reg_number": "Reg. number",
         "tax_id": "Tax ID",
-        "submit_disclaimer": "By submitting, you confirm this information is accurate. Our team typically reviews within 1–2 business days, and you’ll be notified once approved — unlocking paid events."
+        "submit_disclaimer": "By submitting, you confirm this information is accurate. Our team typically reviews within 1 to 2 business days, and you’ll be notified once approved, which unlocks paid events."
       },
       "nav": {
         "previous": "Previous",
@@ -723,11 +723,11 @@
       },
       "markets": {
         "title": "Where will you run events?",
-        "subtitle": "Pick every country you plan to hold events in. We’ll only set up the payout methods those countries use — and you can change this any time.",
+        "subtitle": "Pick every country you plan to hold events in. We’ll only set up the payout methods those countries use, and you can change this any time.",
         "rail_stripe": "Paid out through Stripe Connect",
         "rail_haiti": "Paid out by bank transfer or MonCash",
-        "rail_none": "Free and RSVP events for now — paid tickets coming soon",
-        "two_rails_note": "Those markets use two different payout systems, so you’ll set up two separate methods. We’ll do one now — you can add the other straight after."
+        "rail_none": "Free and RSVP events for now. Paid tickets coming soon",
+        "two_rails_note": "Those markets use two different payout systems, so you’ll set up two separate methods. We’ll do one now. You can add the other straight after."
       },
       "nav": {
         "back": "Back",

@@ -7,9 +7,9 @@ import { ConsoleState, consoleTone } from '@/components/admin/console'
 // Invalid Date to date-fns `format` throws "RangeError: Invalid time value" and
 // crashes the whole moderation table, so format defensively.
 function formatEventDate(value?: string): string {
-  if (!value) return '—'
+  if (!value) return ', '
   const d = new Date(value)
-  return isNaN(d.getTime()) ? '—' : format(d, 'MMM d, yyyy')
+  return isNaN(d.getTime()) ? ', ' : format(d, 'MMM d, yyyy')
 }
 
 interface Event {
@@ -46,7 +46,7 @@ function ReportsCell({ event }: { event: Event }) {
   return event.reports_count && event.reports_count > 0 ? (
     <span className="label-mono text-sm tabular-nums text-console-amber">{event.reports_count}</span>
   ) : (
-    <span className="text-sm text-console-faint">—</span>
+    <span className="text-sm text-console-faint">, </span>
   )
 }
 
