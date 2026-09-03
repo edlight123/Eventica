@@ -30,6 +30,20 @@ export default function FlyerLibraryPicker({
   const { t } = useTranslation('common')
   const [q, setQ] = useState('')
 
+  // A placeholder that clips is worse than a short one. At a 402px viewport the
+  // input has ~302px of room — ~260px once the clear button appears — while the
+  // long placeholder measures ~297px in Inter 15 in English and ~309px in
+  // French. So the phone gets the short form and the desktop keeps the
+  // examples. Starts false so the server and the first client render agree.
+  const [wide, setWide] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)')
+    const sync = () => setWide(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
   // Match the label AND the tags, so "konpa", "dj" or "gala" find artwork whose
   // name says none of those.
   const items = useMemo(() => {
@@ -77,15 +91,24 @@ export default function FlyerLibraryPicker({
         aria-label={t('composer.flyerLibrary', { defaultValue: 'Flyer library' })}
         className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#0d0f0e] shadow-2xl sm:rounded-3xl"
       >
-        <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
           <div>
             <h2 className="text-[15px] font-semibold text-white">
               {t('composer.flyerLibrary', { defaultValue: 'Flyer library' })}
             </h2>
+            {/* Two spans rather than one string: the long sentence takes three
+                lines at 402px and pushes the grid down the sheet. */}
             <p className="mt-0.5 text-xs text-white/50">
-              {t('composer.flyerLibraryHint', {
-                defaultValue: 'Free artwork you can use as-is. Swap it for your own flyer any time.',
-              })}
+              <span className="sm:hidden">
+                {t('composer.flyerLibraryHintShort', {
+                  defaultValue: 'Free artwork — swap it any time.',
+                })}
+              </span>
+              <span className="hidden sm:inline">
+                {t('composer.flyerLibraryHint', {
+                  defaultValue: 'Free artwork you can use as-is. Swap it for your own flyer any time.',
+                })}
+              </span>
             </p>
           </div>
           <button
@@ -106,9 +129,13 @@ export default function FlyerLibraryPicker({
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder={t('composer.flyerSearchPlaceholder', {
-                defaultValue: 'Search artwork: konpa, party, gala, sports…',
-              })}
+              placeholder={
+                wide
+                  ? t('composer.flyerSearchPlaceholder', {
+                      defaultValue: 'Search artwork: konpa, party, gala, sports…',
+                    })
+                  : t('composer.flyerSearchShort', { defaultValue: 'Search: konpa, gala…' })
+              }
               aria-label={t('composer.flyerSearchPlaceholder', { defaultValue: 'Search artwork' })}
               className="min-h-11 w-full bg-transparent py-3 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
             />
@@ -125,7 +152,24 @@ export default function FlyerLibraryPicker({
           </div>
         </div>
 
-        <div className="grid flex-1 grid-cols-2 gap-3 overflow-y-auto p-5 sm:grid-cols-3">
+        {/* Why `auto-rows-min` matters more than the tile's aspect class: this
+            grid is a flex child with `flex-1`, so it gets a DEFINITE height
+            from the sheet's max-h-[90vh]. With the default `auto` rows, Blink
+            divides that height among the eight rows instead of letting them
+            overflow — at a 402px phone the rows came out 57px tall, so each
+            tile was a 223x57 band that clipped its own 4:5 image. Sizing the
+            rows to their content is what makes the tiles posters AND what
+            gives the grid something to scroll: before this the grid's
+            scrollHeight always equalled its clientHeight.
+            The sheet is its own fixed overlay with `document.body` locked, so
+            this grid is the only scroll container — no nested scroll to trap
+            anyone, and its sensible max height is the sheet's own 90vh. */}
+        {/* scrollbar-hide: it still scrolls, the bar just isn't drawn (owner
+            ask). The utility lives in globals.css and covers WebKit, Firefox
+            and old Edge — the grid is a touch surface first, and on a phone the
+            bar only ever appeared as a grey stripe over the right column of
+            posters. */}
+        <div className="scrollbar-hide grid min-h-0 flex-1 auto-rows-min grid-cols-2 content-start gap-3 overflow-y-auto overscroll-contain p-5 sm:grid-cols-3">
           {items.length === 0 && (
             <p className="col-span-full py-8 text-center text-sm text-white/45">
               {t('composer.flyerNoMatch', { defaultValue: 'No artwork matches that. Try “party”, “konpa” or “gala”.' })}
@@ -135,26 +179,38 @@ export default function FlyerLibraryPicker({
             const full = flyerLibraryFullUrl(item)
             const selected = current === full
             return (
+              // The poster frame is the tile itself, not the picture inside it:
+              // the button is the box that clips, so the box is what has to be
+              // 4:5. `self-start` keeps a row from ever stretching it.
               <button
                 key={item.id}
                 type="button"
                 onClick={() => onPick(full)}
                 aria-pressed={selected}
-                className={`group relative overflow-hidden rounded-xl border text-left transition-colors ${
+                title={labelFor(item)}
+                className={`group relative aspect-[4/5] self-start overflow-hidden rounded-xl border text-left transition-colors ${
                   selected ? 'border-white' : 'border-white/10 hover:border-white/35'
                 }`}
               >
                 {/* Plain img, not next/image: fifteen tiles through the
                     optimizer is fifteen server fetches for images the CDN
-                    already serves at exactly this size. */}
+                    already serves at exactly this size. h-full rather than an
+                    aspect class of its own — if aspect-ratio on a form control
+                    ever fails us, height:auto against a shrink-wrapped button
+                    still lands on the thumb's own 4:5. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={flyerLibraryThumbUrl(item)}
                   alt={labelFor(item)}
                   loading="lazy"
-                  className="aspect-[4/5] w-full object-cover"
+                  className="h-full w-full object-cover"
                 />
-                <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-2.5 pb-2 pt-6 text-[11px] font-semibold text-white">
+                {/* One line, always. The band is absolute so a wrapped label
+                    never changed the tile's height — it ate a second line of
+                    the poster on some tiles and not others, which is what made
+                    the row of captions look ragged. `title` keeps the full
+                    text reachable. */}
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/85 to-transparent px-2.5 pb-2 pt-6 text-[11px] font-semibold leading-4 text-white">
                   {labelFor(item)}
                 </span>
                 {selected && (

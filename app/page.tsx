@@ -255,6 +255,35 @@ export default async function HomePage({
     return serialized
   }
 
+  /**
+   * The hero search's pool — ALL countries, unlike every rail on this page.
+   *
+   * `events` is the strictly country-scoped list, and handing that to the
+   * autocomplete meant a Haiti-scoped visitor's search could not see MTL
+   * KOMPA, BK KONPA, KONPA CRUISE or LA NUIT CRÉOLE at all: they are in the
+   * payload, just not in the pool. Typing "mtl" returned nothing, which is
+   * what the owner reported. The rails stay scoped — a reader in
+   * Port-au-Prince should not have Miami events in their listings — but SEARCH
+   * is the one place where asking for something out of scope is the point.
+   *
+   * Organizer names are overlaid from the enriched in-country list by id:
+   * `allCountriesEvents` was captured before that enrichment ran, so without
+   * this the pool would silently lose organizer-name matching. Out-of-country
+   * events keep whatever name is on their own doc, which is still strictly
+   * more than the nothing they had before.
+   */
+  const enrichedNameById = new Map<string, string>(
+    (events as any[])
+      .filter((e) => e?.id && e?.organizer_name)
+      .map((e) => [String(e.id), String(e.organizer_name)])
+  )
+  const searchPool = serializeData(
+    (allCountriesEvents as any[]).map((e) => ({
+      ...e,
+      organizer_name: e.organizer_name || enrichedNameById.get(String(e.id)) || '',
+    }))
+  )
+
   const serializedEvents = serializeData(events)
   const serializedTrendingEvents = serializeData(trendingEvents)
   const serializedUpcomingThisWeek = serializeData(upcomingThisWeek)
@@ -382,9 +411,9 @@ export default async function HomePage({
       {/* HERO: the statement (SA K AP PASE? + floating posters), or the
           compact working band when filters are active. */}
       {hasActiveFilters ? (
-        <HeroSection events={serializedEvents} />
+        <HeroSection events={searchPool} />
       ) : (
-        <HeroPase posters={heroPosters} events={serializedEvents} />
+        <HeroPase posters={heroPosters} events={searchPool} />
       )}
 
       {/* Act 1: the poster film strip — the platform, alive, in one glance. */}

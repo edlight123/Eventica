@@ -37,11 +37,24 @@ function parseDateValue(value?: string): Date | null {
   return new Date(y, m - 1, d)
 }
 
-// min-h-11 on phones. These triggers are how every date and time in the app is
-// set, and at 34px they were under the 44px touch floor on the one device where
-// that matters. Desktop keeps the tighter height via sm:.
+/**
+ * A real filled control, not a hairline around nothing.
+ *
+ * This was `border` + `bg-white/[0.03]` — a visible ring over a fill so faint
+ * it read as empty, which is the exact pattern the owner rejected across the
+ * composer's left column ("not every box needs to be a border w empty fill")
+ * and then again for these two ("i dont like the light border and no fill. see
+ * how you can make it more premium"). So the ring is gone and the fill does the
+ * work: `bg-white/[0.07]` is the composer's own field surface, lifting to
+ * `.11` on hover so the control still answers the cursor. Focus keeps a real
+ * ring — that one is not decoration, it is how a keyboard user finds it.
+ *
+ * min-h-11 on phones: at 34px these were under the 44px touch floor, and they
+ * are how every date and time in the app gets set. Desktop keeps the tighter
+ * height via sm:.
+ */
 const triggerBase =
-  'inline-flex min-h-11 items-center gap-2 rounded-lg border bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-brand-400/40 sm:min-h-0'
+  'inline-flex min-h-11 items-center gap-2 rounded-lg bg-white/[0.07] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.11] focus:outline-none focus:ring-2 focus:ring-brand-400/40 sm:min-h-0'
 
 /**
  * Centered modal, portaled to <body> so it can never be clipped by an ancestor

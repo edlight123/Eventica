@@ -66,8 +66,24 @@ interface ProfileSuggestion {
  * 0 = whole-string prefix, 1 = word prefix, 2 = substring, -1 = no match.
  * Lower is better so scores compose by simple addition of a field offset.
  */
+/**
+ * Case AND diacritics, because half this catalogue is written in Kreyòl and
+ * French. Lowercasing alone meant `montreal` matched nothing while `Montréal`
+ * matched three events, and `foj` missed `FÒJ 2026` — nobody types an accent
+ * on a phone keyboard. NFD splits a letter from its combining mark, then the
+ * marks are dropped, so `ò` and `o` compare equal.
+ */
+// Not exported: Next validates a route file's exports and rejects unknown ones.
+function fold(value: unknown): string {
+  return String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+}
+
 function matchRank(haystack: unknown, q: string): number {
-  const h = String(haystack ?? '').trim().toLowerCase()
+  const h = fold(haystack)
   if (!h) return -1
   if (h.startsWith(q)) return 0
   // Static split (never a regex built from user input).
@@ -184,7 +200,8 @@ export async function GET(request: Request) {
       return NextResponse.json({})
     }
     const q = raw.slice(0, MAX_Q_LENGTH)
-    const needle = q.toLowerCase()
+    // Folded to match `matchRank`'s haystack — one side alone fixes nothing.
+    const needle = fold(q)
     const country = (searchParams.get('country') || 'HT').slice(0, 4).toUpperCase()
 
     // Auth, the event pool and the profile probes are independent — fan out.

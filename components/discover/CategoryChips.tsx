@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { CATEGORIES } from '@/lib/filters/config'
+import { discoverChipCls } from './DateChips'
 import { Music, Trophy, Palette, Briefcase, PartyPopper, Sparkles, Ticket, Drama, UtensilsCrossed, Users, ChevronDown, Check, X } from 'lucide-react'
 
 interface CategoryChipsProps {
@@ -74,18 +75,17 @@ export function CategoryChips({ selectedCategories }: CategoryChipsProps) {
 
   return (
     <>
+      {/* Same chip as the date row beside it — 10px radius, 34px of ink, and a
+          white fill rather than a teal-bordered pill when a category is on. */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        // 44px touch floor on phones, matching the date chips beside it.
-        className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-all sm:min-h-0 ${
-          count > 0 ? 'border-brand-400 text-brand-300' : 'border-white/15 text-white/75 hover:bg-white/10'
-        }`}
+        className={discoverChipCls(count > 0)}
       >
         {label}
-        <ChevronDown className="h-4 w-4 opacity-70" />
+        <ChevronDown className="h-3.5 w-3.5 opacity-60" />
       </button>
 
       {open && typeof document !== 'undefined' &&
@@ -117,13 +117,18 @@ export function CategoryChips({ selectedCategories }: CategoryChipsProps) {
                       key={category}
                       type="button"
                       onClick={() => toggle(category)}
-                      className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-all ${
-                        isSel ? 'border-brand-400 bg-brand-500/10 text-brand-200' : 'border-white/10 text-white/80 hover:bg-white/[0.05]'
+                      // Fill-vs-fill, 10px radius: the same language as the chip
+                      // that opened this sheet. The old selected tile was a teal
+                      // tint inside a teal border — a coloured status pill.
+                      // min-h-11 here, unlike the rail chip: this sheet has room
+                      // for a proper 44px target, so it gets one.
+                      className={`flex min-h-11 items-center gap-2 rounded-[10px] px-3 py-2 text-left text-[13px] leading-[18px] font-medium transition-colors ${
+                        isSel ? 'bg-white text-black' : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
                       }`}
                     >
-                      <span className="text-white/60">{CATEGORY_ICONS[category]}</span>
+                      <span className={isSel ? 'text-black/55' : 'text-white/50'}>{CATEGORY_ICONS[category]}</span>
                       <span className="flex-1 truncate">{t(`categories.${category}`, { defaultValue: category })}</span>
-                      {isSel && <Check className="h-4 w-4 shrink-0 text-brand-300" />}
+                      {isSel && <Check className="h-4 w-4 shrink-0 text-black" />}
                     </button>
                   )
                 })}

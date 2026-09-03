@@ -29,7 +29,9 @@ export default function OrganizerChrome({
   }
 
   return (
-    <div className="surface-dark min-h-screen">
+    // chrome-56: OrganizerTopNav is h-14 at every width, unlike the public
+    // Navbar's h-14 sm:h-16, so --chrome-h is corrected for this subtree.
+    <div className="surface-dark min-h-screen chrome-56">
       {chromeTop}
       <main className="pb-mobile-nav">{children}</main>
       {chromeBottom}

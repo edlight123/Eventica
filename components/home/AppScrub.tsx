@@ -212,24 +212,41 @@ export default function AppScrub({
 
   return (
     <div ref={wrapRef} className="relative h-[170vh] bg-[#0a0a0a] sm:h-[320vh]">
-      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+      {/* The stage pins BELOW the site chrome, not under it. At top-0 with a
+          full h-screen the composition centred itself against the whole
+          viewport, so on a phone (402×734) the top 23px of the frame — the
+          notch and the status bar — sat behind the sticky navbar, and at
+          402×664 the first 58px were gone. The offset tracks Navbar's own
+          h-14 sm:h-16 (3.5rem / 4rem).
+          The height is svh, not vh: iOS Safari's 100vh is the toolbars-hidden
+          height while window.innerHeight (what the scrub divides by) is the
+          visible one, and a stage taller than top + innerHeight unpins BEFORE
+          progress reaches 1 — the last beats of the film played while the
+          phone was already sliding away. svh makes the two agree.
+          Mobile starts the composition at the top instead of centring it: a
+          short phone can't fit phone + captions + CTA, and clipping must
+          happen at the bottom, never against the navbar. md+ is unchanged. */}
+      <div className="sticky top-14 flex h-[calc(100svh_-_3.5rem)] items-start overflow-hidden pt-4 sm:top-16 sm:h-[calc(100svh_-_4rem)] md:top-0 md:h-screen md:items-center md:pt-0">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-5 px-4 sm:px-6 md:grid-cols-2 md:gap-10 lg:px-8">
           {/* Captions hold the left; each line hands off to the next. */}
-          <div className="relative z-10 order-2 h-28 md:order-1 md:h-40">
-            {captions.map((c) => (
-              <p
-                key={c.key}
-                className="absolute inset-x-0 font-display lowercase italic !text-[clamp(26px,4.2vw,52px)] !leading-[1.08] text-white"
-                style={{ opacity: c.opacity }}
-                aria-hidden={c.opacity < 0.5}
-              >
-                {c.text}
-              </p>
-            ))}
-            <div
-              className="absolute inset-x-0 top-full mt-6"
-              style={{ opacity: still ? 1 : Math.max(c3, 0) }}
-            >
+          <div className="relative z-10 order-2 md:order-1">
+            <div className="relative h-16 md:h-40">
+              {captions.map((c) => (
+                <p
+                  key={c.key}
+                  className="absolute inset-x-0 font-display lowercase italic !text-[clamp(26px,4.2vw,52px)] !leading-[1.08] text-white"
+                  style={{ opacity: c.opacity }}
+                  aria-hidden={c.opacity < 0.5}
+                >
+                  {c.text}
+                </p>
+              ))}
+            </div>
+            {/* In flow, not absolute at top-full: out of flow it reserved no
+                height, so on a phone it landed past the stage's
+                overflow-hidden edge and never showed. Same position on md+,
+                where the phone column sets the row height. */}
+            <div className="mt-4 md:mt-6" style={{ opacity: still ? 1 : Math.max(c3, 0) }}>
               <Link
                 href="/discover"
                 className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-400 transition-colors hover:text-brand-300"

@@ -24,12 +24,20 @@ export function DiscoverFilterChipsStrip({
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="scrollbar-hide flex items-center gap-3 overflow-x-auto px-4 sm:px-6 lg:px-8 pb-3">
+      {/* The rail bleeds off the right edge by design — there are more chips
+          than a 402px phone can hold. Two details keep that from reading as a
+          rendering fault: the trailing spacer lets the last chip scroll clear
+          of the edge instead of stopping half-shaved against it, and `pt-2`
+          keeps each chip's 44px ::after touch box inside this scroller's
+          padding box — 7px of vertical overflow here would turn an
+          `overflow-x` rail into one that also scrolls a few pixels vertically. */}
+      <div className="scrollbar-hide flex items-center gap-3 overflow-x-auto px-4 pb-3 pt-2 sm:px-6 lg:px-8">
         <span className="sr-only">{t('common.when')}</span>
         <DateChips currentDate={currentDate} bare />
-        <div className="h-6 w-px shrink-0 bg-white/15" aria-hidden="true" />
+        <div className="h-5 w-px shrink-0 bg-white/10" aria-hidden="true" />
         <span className="sr-only">{t('common.categories')}</span>
         <CategoryChips selectedCategories={selectedCategories} bare />
+        <span className="w-1 shrink-0" aria-hidden="true" />
       </div>
     </div>
   )

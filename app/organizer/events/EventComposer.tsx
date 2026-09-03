@@ -55,7 +55,7 @@ import {
   Repeat,
   Settings,
   SlidersHorizontal,
-  Star,
+  Tag,
   Ticket,
   Trash2,
   Type,
@@ -225,39 +225,51 @@ const makeId = () => Math.random().toString(36).slice(2, 9)
  * of what is still missing, so "why can't I publish yet" is answerable at a
  * glance instead of by scrolling.
  */
-function FormProgress({
-  steps,
-}: {
-  steps: { label: string; done: boolean }[]
-}) {
-  const doneCount = steps.filter((s) => s.done).length
+function FormProgress({ done, total }: { done: number; total: number }) {
+  const { t } = useTranslation('common')
   return (
-    <ol className="mb-7 flex items-center gap-2" aria-label="Form progress">
-      {steps.map((s, i) => (
-        <li key={s.label} className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="flex min-w-0 flex-1 flex-col gap-1.5">
-            {/* The bar carries the state; the label names the step. */}
-            <span
-              className={`h-1 w-full rounded-full transition-colors ${
-                s.done ? 'bg-brand-400' : 'bg-white/12'
-              }`}
-            />
-            <span
-              className={`truncate text-[11px] font-medium uppercase tracking-[0.1em] transition-colors ${
-                s.done ? 'text-brand-300' : 'text-white/35'
-              }`}
-            >
-              {s.label}
-            </span>
-          </span>
-          {i === steps.length - 1 && (
-            <span className="shrink-0 self-start pt-px font-mono text-[11px] tabular-nums text-white/35">
-              {doneCount}/{steps.length}
-            </span>
-          )}
-        </li>
-      ))}
-    </ol>
+    /**
+     * Four quarters, no words, pinned under the navbar.
+     *
+     * It began as three labelled steps (BASICS / TICKETS / POSTER) with a "2/3"
+     * counter, buried at the top of the form's own column. The owner asked for
+     * the labels gone and the bar moved to the top of the PAGE: "instead of
+     * each item they should represent percent completion... the last one only
+     * lights up after 100%". So it is a progress meter now, not a stepper —
+     * the segments do not name anything, they just fill.
+     *
+     * The offset is `var(--chrome-h)`, not a literal: the public Navbar is
+     * h-14 / sm:h-16 but /organizer swaps in OrganizerTopNav at a flat h-14,
+     * and a hard-coded top-16 left an 8px stripe of page showing between the
+     * two there. globals.css owns the value. Page colour rather
+     * than a lifted surface, and no bottom hairline, because a sticky bar in
+     * either of those sits a few pixels under the navbar's border and reads as
+     * a seam across the page — a mistake this codebase has already made once.
+     */
+    <div className="sticky top-[var(--chrome-h)] z-30 bg-[#0a0a0a]/90 backdrop-blur-xl">
+      <div
+        className="mx-auto flex max-w-5xl gap-1.5 px-4 py-3 sm:px-6 lg:px-8"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round((done / total) * 100)}
+        aria-label={t('composer.progressLabel', { defaultValue: 'Event setup progress' })}
+      >
+        {Array.from({ length: total }, (_, i) => (
+          <span
+            key={i}
+            // The unlit segments were `bg-white/12`, which at 1px on a black
+            // page is about #1f1f1f — invisible. The bar then read as one
+            // short teal line rather than one quarter of four, which is the
+            // entire thing it is meant to communicate. /20 keeps the track
+            // quiet but present.
+            className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
+              i < done ? 'bg-brand-400' : 'bg-white/20'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -301,17 +313,30 @@ function Toggle({
 const CHIP_ON = 'bg-white text-black'
 const CHIP_OFF = 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
 /**
- * The chip stays visually compact and grows only its HIT AREA.
+ * Small, squarish, and tappable — in that order of difficulty.
  *
- * I first met the 44px touch floor with `min-h-11`, which made every chip 44px
- * TALL. On a phone that turned eight category chips into three fat rows that
- * dominated the form. The pill is now ~34px as it was, and `py-2.5 -my-1`
- * extends the tappable box past the ink without moving the layout: the padding
- * adds height, the negative margin gives it back. Same trick as the event
- * page's "Open in Maps" link.
+ * Two owner passes got us here. `min-h-11` met the 44px touch floor by making
+ * every chip 44px TALL, which turned eight category chips into three fat rows
+ * ("pills way to big"). Padding alone then left them at 34px and fully round,
+ * and the answer to that was "make them smaller and maybe less round".
+ *
+ * So the INK is 30px and `rounded-[10px]`, and the TOUCH TARGET is separate: an
+ * ::after pseudo-element stretched 7px past the top and bottom edges gives 44px
+ * of tappable box without adding a pixel of visible height or shifting the
+ * layout. `leading-[18px]` is explicit because an arbitrary `text-[13px]` sets
+ * only font-size and would otherwise inherit whatever line-height the parent
+ * had, making the height drift between the rows that use this.
  */
 const chipCls = (on: boolean) =>
-  `-my-1 inline-flex items-center rounded-full px-2.5 py-2 text-[13px] font-medium transition-colors ${on ? CHIP_ON : CHIP_OFF}`
+  [
+    'relative inline-flex items-center rounded-[10px] px-2.5 py-1.5',
+    'text-[13px] leading-[18px] font-medium transition-colors',
+    // Verified emitted: `.after\\:-inset-y-\\[7px\\]:after{top:-7px;bottom:-7px}`
+    // is in the built CSS. Worth checking rather than assuming — a hit area
+    // that silently failed to compile is not visible in a screenshot.
+    "after:absolute after:inset-x-0 after:-inset-y-[7px] after:content-['']",
+    on ? CHIP_ON : CHIP_OFF,
+  ].join(' ')
 
 /**
  * A state read-out that is a DOT plus a label — never a filled status pill
@@ -1537,8 +1562,31 @@ export default function EventComposer({
   const inset =
     'rounded-lg bg-white/[0.06] px-2.5 py-1.5 text-sm text-white [color-scheme:dark] transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
 
+  /**
+   * Readiness in quarters, in the order the owner asked for: poster first.
+   *
+   * Each quarter is 25%, all four are required to publish, and the fourth
+   * lighting up IS 100%. Poster leads deliberately — it is the thing that
+   * actually sells the night, and an event with no artwork is the worst
+   * performing card on Discover; the flyer library exists so that no organizer
+   * is stuck at 75% for want of a designer.
+   */
+  const quarters = [
+    Boolean(bannerUrl),
+    Boolean(title.trim()),
+    Boolean(startDate && (isOnline || address.trim() || venueName.trim() || city.trim())),
+    sellMode === 'rsvp' || tiers.some((tr) => tr.name.trim() && String(tr.price).trim() !== ''),
+  ]
+  const quartersDone = quarters.filter(Boolean).length
+  const readyToPublish = quartersDone === quarters.length
+
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+    <div>
+      {/* Outside the padded wrapper so it can span the full width and pin
+          directly under the navbar, which is what "at the very top of the
+          page" means. Same on a phone — the owner asked for it there too. */}
+      <FormProgress done={quartersDone} total={quarters.length} />
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 md:py-10">
       {/* Explicit grid placement on desktop so mobile is free to reorder.
           On a phone the stack is: poster, then the form, then the actions.
           It used to be poster+actions first and the form last, which put
@@ -1547,29 +1595,6 @@ export default function EventComposer({
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,360px)] lg:grid-rows-[auto_1fr]">
         {/* ===================== LEFT — the event ===================== */}
         <div className="order-2 min-w-0 lg:col-start-1 lg:row-span-2 lg:row-start-1">
-          {/* What is still missing, at a glance. Basics = the things without
-              which nothing can be published; tickets = a sellable price or an
-              RSVP; poster = the artwork, which is optional to publish but is
-              what actually sells the night, so it earns its own step. */}
-          <FormProgress
-            steps={[
-              {
-                label: t('composer.step.basics', { defaultValue: 'Basics' }),
-                done: Boolean(title.trim() && startDate && (isOnline || address.trim() || venueName.trim() || city.trim())),
-              },
-              {
-                label: t('composer.step.tickets', { defaultValue: 'Tickets' }),
-                done:
-                  sellMode === 'rsvp' ||
-                  tiers.some((tr) => tr.name.trim() && String(tr.price).trim() !== ''),
-              },
-              {
-                label: t('composer.step.poster', { defaultValue: 'Poster' }),
-                done: Boolean(bannerUrl),
-              },
-            ]}
-          />
-
           {/* Region payout-profile nudge — which profile this event pays through. */}
           {payoutProfileGap && (
             <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
@@ -1875,7 +1900,9 @@ export default function EventComposer({
               {/* Category as a Posh-style row of chips */}
               <div className="rounded-xl bg-white/[0.03] px-4 py-3.5">
                 <div className="mb-2.5 flex items-center gap-2 text-[13px] font-medium text-white/50">
-                  <Star className="h-4 w-4" /> {t('composer.category', { defaultValue: 'Category' })}
+                  {/* Tag, not Star: a star means featured/favourite everywhere
+                      else in this app, so it read as "star this category". */}
+                  <Tag className="h-4 w-4" /> {t('composer.category', { defaultValue: 'Category' })}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => (
@@ -2704,7 +2731,12 @@ export default function EventComposer({
                   : t('composer.saveChanges', { defaultValue: 'Save changes' })
                 : saving
                 ? t('composer.creating', { defaultValue: 'Creating…' })
-                : t('composer.createEvent', { defaultValue: 'Create Event' })}
+                : readyToPublish
+                ? t('composer.createEvent', { defaultValue: 'Create Event' })
+                : /* Creation always writes is_published:false — publishing is a
+                     separate, Stripe-gated step — so below 100% the button says
+                     what it actually does instead of implying it goes live. */
+                  t('composer.saveDraft', { defaultValue: 'Save as draft' })}
             </button>
 
             {isEdit ? (
@@ -2712,7 +2744,15 @@ export default function EventComposer({
                 <button
                   type="button"
                   onClick={handleTogglePublish}
-                  disabled={publishing || (!isPublished && paidPublishingBlocked)}
+                  // 100% or nothing, on owner ask: "the last one only lights up
+                  // after 100%. then the person can submit the event, otherwise
+                  // save as we draft." Unpublishing is never blocked — an
+                  // organizer must always be able to take a live event down,
+                  // whatever state the form is in.
+                  disabled={
+                    publishing ||
+                    (!isPublished && (paidPublishingBlocked || !readyToPublish))
+                  }
                   className={`w-full rounded-xl px-7 py-3 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
                     isPublished
                       ? 'border border-white/15 text-white/80 hover:bg-white/[0.04]'
@@ -2729,6 +2769,15 @@ export default function EventComposer({
                   <p className="text-center text-xs text-amber-300">
                     {t('composer.verifyToPublish', {
                       defaultValue: 'Complete identity verification to publish paid events.',
+                    })}
+                  </p>
+                ) : !isPublished && !readyToPublish ? (
+                  /* A disabled button with no explanation is a dead end. The
+                     bar at the top shows HOW far; this says how much is left. */
+                  <p className="text-center text-xs text-white/70">
+                    {t('composer.completeToPublish', {
+                      count: quarters.length - quartersDone,
+                      defaultValue: 'Fill in {{count}} more of the four to publish. Saved as a draft until then.',
                     })}
                   </p>
                 ) : (
@@ -2782,6 +2831,7 @@ export default function EventComposer({
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

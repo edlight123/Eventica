@@ -103,26 +103,47 @@ export default async function DiscoverPage({
 
   filteredEvents = filteredEvents.filter(notDefinitelyEnded)
   
-  // STRICT country filtering - ONLY show events from user's country
-  // Events without a country field are assumed to be in Haiti (HT)
-  filteredEvents = filteredEvents.filter(e => {
-    const eventCountry = e.country || 'HT' // Default to Haiti if no country set
-    return eventCountry === userCountry
-  })
-  
-  // Apply search filter
-  const searchQuery = params.search as string | undefined
-  if (searchQuery && searchQuery.trim()) {
-    const query = searchQuery.toLowerCase().trim()
-    filteredEvents = filteredEvents.filter(event => 
-      event.title?.toLowerCase().includes(query) ||
-      event.description?.toLowerCase().includes(query) ||
-      event.venue_name?.toLowerCase().includes(query) ||
-      event.city?.toLowerCase().includes(query) ||
-      event.category?.toLowerCase().includes(query)
+  // Search, and the country rule it is allowed to break.
+  //
+  // Two defects lived here, both reproduced on production before this change:
+  //
+  // 1. The matcher only lowercased, so it never folded accents. `?search=foj`
+  //    returned "No events found" while `?search=FÒJ` found FÒJ 2026, and
+  //    `siwel` missed SIWÈL. On a phone nobody reaches for È or Ò, and this
+  //    catalogue is named in Kreyòl and French — so folding is not a nicety.
+  //
+  // 2. The STRICT country filter ran BEFORE the search, so a typed query could
+  //    never leave the visitor's default country (HT for anyone signed out).
+  //    The autosuggest, which does not country-filter, offered "MTL KOMPA" for
+  //    the query `mtl`; pressing the keyboard's search key then said "No events
+  //    found". A typed query is an explicit intent, so it now searches every
+  //    country and the country restriction applies only to the unfiltered feed.
+  //    That alone makes the owner's `mtl` land on MTL KOMPA — no alias table.
+  const searchQuery = typeof params.search === 'string' ? params.search.trim() : ''
+
+  /** Lowercase and strip diacritics, so "siwel" reaches "SIWÈL". */
+  const fold = (value: unknown) =>
+    String(value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+
+  if (searchQuery) {
+    const query = fold(searchQuery)
+    filteredEvents = filteredEvents.filter(event =>
+      fold(event.title).includes(query) ||
+      fold(event.description).includes(query) ||
+      fold(event.venue_name).includes(query) ||
+      fold(event.city).includes(query) ||
+      fold(event.commune).includes(query) ||
+      fold(event.category).includes(query) ||
+      fold(Array.isArray(event.tags) ? event.tags.join(' ') : '').includes(query)
     )
+  } else {
+    // No query: the feed stays local. Events with no country are Haitian, as before.
+    filteredEvents = filteredEvents.filter(e => (e.country || 'HT') === userCountry)
   }
-  
+
   // Apply sorting rules
   if (filters.sortBy === 'date') {
     filteredEvents = sortEventsByDate(filteredEvents)

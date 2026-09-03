@@ -9,8 +9,32 @@
 //   03  the dashboard runs live — ticking revenue, orders sliding in (JS)
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { Bookmark } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+
+/**
+ * A real event, reduced to what a 128px flyer needs.
+ *
+ * These phones used to be filled entirely with `MockPoster` gradients — the
+ * owner's report was that the mockups "show without any posters, they just
+ * show the cards", and that is literally what was on screen: thirteen flat
+ * colour rectangles. Real artwork is the whole point of this product, so the
+ * landing page that sells it should be showing some.
+ *
+ * `city` rather than an attendance number: the cards used to print "214
+ * going", which was fine beside an invented title and is not fine beside a
+ * real one — it would be a made-up figure attached to somebody's actual event.
+ * The city is true and does the same layout job.
+ */
+export interface VignettePoster {
+  id: string
+  title: string
+  city?: string
+  /** Already formatted for display, e.g. "1,500 HTG". Real, or absent. */
+  price?: string
+  banner_image_url: string
+}
 
 /* ------------------------------------------------------------------ */
 /* Stage, frame, artwork                                               */
@@ -55,19 +79,28 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** Stand-in poster artwork: the color is plural because it comes from the
-    art — each fake flyer carries its own hue and radiates it (the glow). */
+/**
+ * Poster artwork in the house 4:5 frame.
+ *
+ * `src` draws a real flyer; without one it falls back to the gradient it always
+ * was. The fallback is not dead code — /platform renders on a cold cache and
+ * in demo mode, and a phone full of empty frames would be worse than a phone
+ * full of colour. The gradient also still supplies the `glow`, which is what
+ * lights the room behind each stage.
+ */
 function MockPoster({
   from,
   to,
   glow,
   label,
+  src,
   className = '',
 }: {
   from: string
   to: string
   glow: string
   label?: string
+  src?: string
   className?: string
 }) {
   return (
@@ -78,7 +111,19 @@ function MockPoster({
         boxShadow: `0 0 28px -4px ${glow}`,
       }}
     >
-      {label && (
+      {src && (
+        <Image
+          src={src}
+          alt=""
+          fill
+          sizes="160px"
+          quality={60}
+          className="object-cover"
+        />
+      )}
+      {/* Only over the gradient. On real art the flyer carries its own title,
+          and a second one stamped on top of it reads as a rendering fault. */}
+      {label && !src && (
         <span className="font-grotesk text-[11px] font-bold uppercase leading-[1.05] tracking-tight text-white/90">
           {label}
         </span>
@@ -91,26 +136,31 @@ function MockPoster({
 /* 01 — CREATE: the page assembles, then the toast reports a sale.     */
 /* ------------------------------------------------------------------ */
 
-export function EventPageVignette() {
+export function EventPageVignette({ posters = [] }: { posters?: VignettePoster[] }) {
   const { t } = useTranslation('common')
+  const hero = posters[0]
+  const behind = [posters[1], posters[2]]
   return (
     <VignetteStage glow="rgba(124,58,237,0.14)">
       <div className="relative isolate mx-auto w-fit">
         {/* two more flyers peek from behind the phone: a wall, not a lone screen */}
         <div className="plt-float absolute -left-16 top-14 -z-10 hidden w-[128px] -rotate-6 opacity-75 sm:block lg:-left-24" style={{ ['--dur' as any]: '8s' }}>
-          <MockPoster from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.28)" />
+          <MockPoster from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.28)" src={behind[0]?.banner_image_url} />
         </div>
         <div className="plt-float absolute -right-14 bottom-16 -z-10 hidden w-[118px] rotate-6 opacity-75 sm:block lg:-right-20" style={{ ['--dur' as any]: '9s', ['--d' as any]: '1.2s' }}>
-          <MockPoster from="#e11d48" to="#4c0519" glow="rgba(225,29,72,0.28)" />
+          <MockPoster from="#e11d48" to="#4c0519" glow="rgba(225,29,72,0.28)" src={behind[1]?.banner_image_url} />
         </div>
         <PhoneFrame>
           {/* the sale, reported the moment the loop's CTA takes its press */}
           <div className="plt-ev-toast absolute inset-x-3 top-9 z-20 flex items-center gap-2 rounded-xl bg-[#1f1f1f]/95 px-3 py-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+            {/* No buyer name. It read "Ticket sold: Nadège J." — harmless
+                over an invented event, a fabricated sale by a named person
+                once the poster beside it belongs to somebody real. The
+                notification itself is product chrome and stays. */}
             <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-white">
-              {t('platform.vignettes.ticketSold', { defaultValue: 'Ticket sold: Nadège J.' })}
+              {t('platform.vignettes.ticketSoldPlain', { defaultValue: 'Ticket sold' })}
             </span>
-            <span className="shrink-0 text-[10px] text-white/60">1,500 HTG</span>
           </div>
 
           <div className="flex h-full flex-col px-4 pb-4 pt-10">
@@ -120,17 +170,31 @@ export function EventPageVignette() {
                 to="#312e81"
                 glow="rgba(124,58,237,0.35)"
                 label="Vèsen live, summer fest"
+                src={hero?.banner_image_url}
               />
             </div>
             <p className="plt-ev-title mt-3 truncate font-grotesk text-[15px] font-bold text-white">
-              Vèsen Live. Summer Fest
+              {hero?.title || 'Vèsen Live. Summer Fest'}
             </p>
-            <p className="plt-ev-meta mt-1 text-[11px] text-white/55">
-              Sat 12 Sep · Kay Atizan, Pétion-Ville
+            {/* Real event, real place. The invented venue line is kept only for
+                the no-data fallback, where there is nothing to misstate. */}
+            <p className="plt-ev-meta mt-1 truncate text-[11px] text-white/55">
+              {hero?.city || 'Sat 12 Sep · Kay Atizan, Pétion-Ville'}
             </p>
-            <p className="plt-ev-price mt-1 text-[11px] font-semibold text-brand-400">
-              {t('platform.vignettes.fromPrice', { defaultValue: 'From {{price}}', price: '1,500 HTG' })}
-            </p>
+            {/* The real event's real price. This line printed a hardcoded
+                "From 1,500 HTG", which became a made-up figure the moment the
+                poster above it belonged to somebody. Rendered only when the
+                price is actually known, so no invented number ever appears
+                beside a real event; the fallback keeps the old copy because
+                there is no real event to misprice. */}
+            {(hero ? hero.price : '1,500 HTG') && (
+              <p className="plt-ev-price mt-1 text-[11px] font-semibold text-brand-400">
+                {t('platform.vignettes.fromPrice', {
+                  defaultValue: 'From {{price}}',
+                  price: hero ? hero.price : '1,500 HTG',
+                })}
+              </p>
+            )}
             {/* the rest of the page, suggested */}
             <div className="plt-ev-lines mt-4 space-y-2">
               <div className="h-2 w-full rounded-full bg-white/[0.07]" />
@@ -158,6 +222,7 @@ function FeedCard({
   title,
   going,
   save = false,
+  poster,
 }: {
   from: string
   to: string
@@ -165,28 +230,40 @@ function FeedCard({
   title: string
   going: string
   save?: boolean
+  /** A real event, when the page had one to give. */
+  poster?: VignettePoster
 }) {
   const { t } = useTranslation('common')
   return (
     <div>
       <div className="relative">
-        <MockPoster from={from} to={to} glow={glow} />
+        <MockPoster from={from} to={to} glow={glow} src={poster?.banner_image_url} />
         {save && (
           <span className="plt-feed-save absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-white shadow-[0_2px_10px_rgba(0,0,0,0.4)]">
             <Bookmark className="h-3 w-3 fill-black text-black" />
           </span>
         )}
       </div>
-      <p className="mt-1.5 truncate text-[10px] font-semibold text-white">{title}</p>
-      <p className="text-[9px] text-white/50">
-        ● {t('platform.vignettes.going', { defaultValue: '{{n}} going', n: going })}
+      <p className="mt-1.5 truncate text-[10px] font-semibold text-white">
+        {poster?.title || title}
+      </p>
+      {/* A real event gets its real city. The invented "N going" is kept only
+          for the gradient fallback, where there is no real event to misreport. */}
+      <p className="truncate text-[9px] text-white/50">
+        {poster
+          ? poster.city || ''
+          : `● ${t('platform.vignettes.going', { defaultValue: '{{n}} going', n: going })}`}
       </p>
     </div>
   )
 }
 
-export function DiscoverVignette() {
+export function DiscoverVignette({ posters = [] }: { posters?: VignettePoster[] }) {
   const { t } = useTranslation('common')
+  // Positional: card i shows event i, and falls back to its own gradient when
+  // the pool runs short. Ten cards, so a thin pool degrades card by card
+  // instead of all-or-nothing.
+  const at = (i: number) => posters[i]
   return (
     <VignetteStage glow="rgba(245,158,11,0.10)">
       <PhoneFrame>
@@ -195,26 +272,26 @@ export function DiscoverVignette() {
             {t('platform.vignettes.tonight', { defaultValue: 'tonight' })}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2.5">
-            <FeedCard from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.32)" title="Kanaval Kickoff" going="214" />
-            <FeedCard from="#e11d48" to="#4c0519" glow="rgba(225,29,72,0.32)" title="Nuit Kompa" going="96" />
-            <FeedCard from="#0ea5e9" to="#1e3a8a" glow="rgba(14,165,233,0.32)" title="Plaj Sunset" going="58" />
-            <FeedCard from="#10b981" to="#064e3b" glow="rgba(16,185,129,0.32)" title="Fèt Champèt" going="143" />
+            <FeedCard from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.32)" title="Kanaval Kickoff" going="214"  poster={at(0)} />
+            <FeedCard from="#e11d48" to="#4c0519" glow="rgba(225,29,72,0.32)" title="Nuit Kompa" going="96"  poster={at(1)} />
+            <FeedCard from="#0ea5e9" to="#1e3a8a" glow="rgba(14,165,233,0.32)" title="Plaj Sunset" going="58"  poster={at(2)} />
+            <FeedCard from="#10b981" to="#064e3b" glow="rgba(16,185,129,0.32)" title="Fèt Champèt" going="143"  poster={at(3)} />
           </div>
           <p className="mt-5 font-display lowercase italic text-[19px] leading-none text-white/90">
             {t('platform.vignettes.thisWeekend', { defaultValue: 'this weekend' })}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2.5">
-            <FeedCard from="#a855f7" to="#3b0764" glow="rgba(168,85,247,0.32)" title="Vibe Rooftop" going="181" save />
-            <FeedCard from="#f43f5e" to="#500724" glow="rgba(244,63,94,0.32)" title="Bal Kanpe" going="67" />
-            <FeedCard from="#f97316" to="#431407" glow="rgba(249,115,22,0.32)" title="Griyo Night" going="122" />
-            <FeedCard from="#6366f1" to="#1e1b4b" glow="rgba(99,102,241,0.32)" title="Jazz Pòtoprens" going="49" />
+            <FeedCard from="#a855f7" to="#3b0764" glow="rgba(168,85,247,0.32)" title="Vibe Rooftop" going="181" save  poster={at(4)} />
+            <FeedCard from="#f43f5e" to="#500724" glow="rgba(244,63,94,0.32)" title="Bal Kanpe" going="67"  poster={at(5)} />
+            <FeedCard from="#f97316" to="#431407" glow="rgba(249,115,22,0.32)" title="Griyo Night" going="122"  poster={at(6)} />
+            <FeedCard from="#6366f1" to="#1e1b4b" glow="rgba(99,102,241,0.32)" title="Jazz Pòtoprens" going="49"  poster={at(7)} />
           </div>
           <p className="mt-5 font-display lowercase italic text-[19px] leading-none text-white/90">
             {t('platform.vignettes.inDiaspora', { defaultValue: 'in the diaspora' })}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2.5 pb-6">
-            <FeedCard from="#ec4899" to="#500724" glow="rgba(236,72,153,0.32)" title="Miami Link Up" going="238" />
-            <FeedCard from="#3b82f6" to="#172554" glow="rgba(59,130,246,0.32)" title="Konpa Paris" going="164" />
+            <FeedCard from="#ec4899" to="#500724" glow="rgba(236,72,153,0.32)" title="Miami Link Up" going="238"  poster={at(8)} />
+            <FeedCard from="#3b82f6" to="#172554" glow="rgba(59,130,246,0.32)" title="Konpa Paris" going="164"  poster={at(9)} />
           </div>
         </div>
       </PhoneFrame>

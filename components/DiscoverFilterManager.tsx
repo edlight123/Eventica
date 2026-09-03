@@ -105,12 +105,15 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
       {/* Sticky discover header: search + location + always-reachable quick filters.
           Pins directly below the navbar (h-14 / sm:h-16). */}
       {/* Same translucency as the navbar above (which renders `flush` on this
-          page), so the two bars read as ONE header band with this single rule
-          at its bottom edge. */}
+          page), so the two bars read as ONE header band.
+          NO bottom rule. It used to carry `border-b border-white/10`, which
+          landed a few pixels under the navbar's own edge and read as a seam
+          drawn across the page right below the chips. The blurred band plus the
+          feed's own top padding separate the two regions on their own. */}
       <div
         ref={headerRef}
         data-collapsed={collapsed ? 'true' : 'false'}
-        className="sticky top-14 sm:top-16 z-40 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl"
+        className="sticky top-14 sm:top-16 z-40 bg-[#0a0a0a]/80 backdrop-blur-xl"
       >
         <DiscoverTopBar
           filters={appliedFilters}

@@ -113,6 +113,7 @@ export function SearchSuggest({
   const [showLoading, setShowLoading] = useState(false)
 
   const wrapRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const listboxId = useId()
 
@@ -280,6 +281,12 @@ export function SearchSuggest({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    // The virtual keyboard's search key submits but does NOT dismiss the
+    // keyboard when JS handles the submit — so on a phone the field keeps
+    // focus, the keyboard keeps covering the feed, and the search reads as
+    // "nothing happened" even though the results below already changed.
+    // Blurring hands the screen back.
+    inputRef.current?.blur()
     if (open && highlight >= 0 && highlight < flatRows.length) {
       activate(flatRows[highlight])
       return
@@ -338,6 +345,7 @@ export function SearchSuggest({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
           <input
+            ref={inputRef}
             type="text"
             value={query}
             onChange={handleChange}
@@ -346,7 +354,7 @@ export function SearchSuggest({
               if (hasQuery && flatRows.length > 0) setOpen(true)
             }}
             placeholder={t('filters.search_placeholder')}
-            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm"
+            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-[16px]"
             role="combobox"
             aria-expanded={showDropdown}
             aria-controls={listboxId}

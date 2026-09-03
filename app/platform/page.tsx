@@ -371,12 +371,35 @@ export default async function PlatformPage() {
     .map((e: any) => ({
       id: String(e.id),
       title: String(e.title || ''),
+      // The vignette feed cards print the city under the art. It replaced an
+      // invented "N going" figure, which stopped being harmless the moment
+      // the poster beside it belonged to a real organizer.
+      city: String(e.city || ''),
+      // Formatted here, on the server, where the currency lives. Undefined
+      // when the event has no price — the vignette then prints no price line
+      // rather than an invented one.
+      price:
+        Number(e.ticket_price) > 0
+          ? `${Number(e.ticket_price).toLocaleString('en-US')} ${String(e.currency || 'HTG')}`
+          : undefined,
       banner_image_url: String(e.banner_image_url),
     }))
   // The hero fan takes the first three posters. With a deep pool the strip
   // runs on the rest so artwork doesn't repeat in one viewport; with thin
   // inventory they share posters — a lit wall beats an empty one.
   const fanEvents = posterPool.slice(0, 3)
+  /**
+   * The three phone mockups were filled with flat gradient rectangles — the
+   * owner's report was that they "show without any posters, they just show the
+   * cards". They take real artwork now, from the pool this page already loads.
+   *
+   * The feed is handed a rotated slice so its ten cards do not open with the
+   * same three posters the event-page phone is already showing a screen
+   * earlier. With a thin pool they overlap again, which is the same trade the
+   * fan and the strip already make above: a lit wall beats an empty one.
+   */
+  const vignetteEventPosters = posterPool
+  const vignetteFeedPosters = [...posterPool.slice(3), ...posterPool.slice(0, 3)]
   const stripEvents =
     posterPool.length >= 7 ? posterPool.slice(3, 17) : posterPool.slice(0, 14)
 
@@ -456,7 +479,7 @@ export default async function PlatformPage() {
         title={t.sections[0].title}
         blurb={t.sections[0].blurb}
         points={t.sections[0].points}
-        vignette={<EventPageVignette />}
+        vignette={<EventPageVignette posters={vignetteEventPosters} />}
       />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -469,7 +492,7 @@ export default async function PlatformPage() {
         title={t.sections[1].title}
         blurb={t.sections[1].blurb}
         points={t.sections[1].points}
-        vignette={<DiscoverVignette />}
+        vignette={<DiscoverVignette posters={vignetteFeedPosters} />}
         flip
       />
 

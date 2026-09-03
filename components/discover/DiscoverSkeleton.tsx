@@ -41,18 +41,21 @@ export function EventRailSkeleton({ cards = 5 }: { cards?: number }) {
 /** Placeholder for the sticky discover header (search row + quick-filter strip). */
 export function DiscoverFilterBarSkeleton() {
   return (
-    <div className="bg-white/[0.06] border-b border-white/10 animate-pulse">
+    // No fill and no bottom rule: the real header is a transparent blurred
+    // band with no hairline, and a bordered grey block here flashed a line
+    // across the page for the first paint.
+    <div className="animate-pulse">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2">
         <div className="flex items-center gap-3">
-          <div className="h-11 flex-1 rounded-lg" />
-          <div className="hidden md:block h-11 w-28 rounded-full" />
-          <div className="h-11 w-24 rounded-lg" />
+          <div className="h-11 flex-1 rounded-lg bg-white/[0.06]" />
+          <div className="hidden md:block h-11 w-28 rounded-lg bg-white/[0.06]" />
+          <div className="h-11 w-24 rounded-lg bg-white/[0.06]" />
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3 pt-2">
         <div className="flex gap-2 overflow-hidden">
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="h-8 w-20 rounded-full shrink-0" />
+            <div key={i} className="h-[30px] w-20 shrink-0 rounded-[10px] bg-white/[0.06]" />
           ))}
         </div>
       </div>

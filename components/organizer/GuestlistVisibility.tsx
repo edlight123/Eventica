@@ -2,14 +2,25 @@
 
 /**
  * How the guest list appears on the event page — the face pile, the count, or
- * nothing — chosen against a live preview of the exact row the public will see.
+ * nothing — chosen by tapping the eye on the live preview of the exact row the
+ * public will see.
  *
  * The reason this is a preview and not three words: "show who's going" and
  * "show how many" sound nearly identical in a settings list, and an organizer
- * picking between them is really picking between two *pictures*. So each option
- * renders its own picture, and the choice is made by looking rather than by
- * parsing. Posh's page does the same thing, and it is the one control on that
- * page nobody has to think about.
+ * picking between them is really picking between two *pictures*. So the choice
+ * is made by looking rather than by parsing.
+ *
+ * This started as a preview row plus three stacked option cards, one card per
+ * mode. That reversed: Posh's version is a single glyph you tap, and once the
+ * preview is already showing the consequence, the cards were three copies of a
+ * picture the row above them was drawing better. So the radio fieldset is gone
+ * and the eye moved into the preview row itself — tap it and the same row
+ * re-draws in the next mode, which is the shortest path from "what does this
+ * do" to seeing it done. Two things the cards used to carry had to be kept:
+ * the per-mode hint (now the small line under the sentence, where the label
+ * "ON YOUR EVENT PAGE" used to sit — the row is visibly a preview already) and
+ * a readable mode name, which rides under the glyph so nothing depends on
+ * recognising an icon.
  */
 
 import { useTranslation } from 'react-i18next'
@@ -29,9 +40,12 @@ const ICONS: Record<GuestlistVisibility, typeof Eye> = {
   hidden: EyeOff,
 }
 
+/** faces -> count -> hidden -> faces. Derived so the order stays one list. */
+const nextMode = (v: GuestlistVisibility): GuestlistVisibility =>
+  GUESTLIST_VISIBILITIES[(GUESTLIST_VISIBILITIES.indexOf(v) + 1) % GUESTLIST_VISIBILITIES.length]
+
 /**
- * The overlapping circles. Rendered at two sizes: 32px in the option cards,
- * 40px in the headline preview, matching WhosGoing on the public page.
+ * The overlapping circles, drawn at the size WhosGoing uses on the public page.
  */
 export function FacePile({
   faces,
@@ -42,7 +56,7 @@ export function FacePile({
   faces: FacePileFace[]
   size?: number
   max?: number
-  /** Greyed out, for the "not showing" option. */
+  /** Greyed out, for the "not showing" mode. */
   dim?: boolean
 }) {
   const shown = faces.slice(0, max)
@@ -74,6 +88,34 @@ export function FacePile({
   )
 }
 
+/**
+ * Stand-in guests for an event with none added yet — see the comment at the use
+ * site for why they are named. They used to be initials on a teal circle, which
+ * made the faces mode look like a diagram of itself rather than the thing it
+ * produces; the whole point of that mode is that the faces are the flyer, so
+ * the preview has to show faces. These are the audience Tikèm actually has:
+ * Haitian and diaspora, a deliberate spread of light and dark skin and of men
+ * and women, everybody smiling, because that is what a guest list looks like
+ * when a night is going well.
+ *
+ * Unsplash is the only remote image host the enforcing CSP's img-src and
+ * next.config.js remotePatterns both allow, and the URL shape is the one
+ * lib/flyerLibrary.ts already uses. Every id below was fetched and looked at
+ * before it landed here — a 404 or a mis-cropped photo would ship broken
+ * circles into the composer, which is worse than the initials it replaces. The
+ * square crop is requested from the CDN so the circle never squashes anyone.
+ * These never leave this control; nothing here is written to an event.
+ */
+const unsplashFace = (photo: string) =>
+  `https://images.unsplash.com/photo-${photo}?w=96&h=96&fit=crop&q=80`
+
+const SAMPLE_FACES: FacePileFace[] = [
+  { id: 's1', name: 'Mika', photoUrl: unsplashFace('1662850886700-4ec19bd30d11') },
+  { id: 's2', name: 'Jonas', photoUrl: unsplashFace('1522529599102-193c0d76b5b6') },
+  { id: 's3', name: 'Widlyn', photoUrl: unsplashFace('1646658104783-2eec2433c1d1') },
+  { id: 's4', name: 'Farah', photoUrl: unsplashFace('1507152832244-10d45c7eda57') },
+]
+
 export default function GuestlistVisibilityPicker({
   value,
   onChange,
@@ -95,18 +137,33 @@ export default function GuestlistVisibilityPicker({
   // two options looked identical apart from the circles. A name makes the
   // format itself visible: "Mika and 23 others going". These never leave this
   // control.
-  const sample: FacePileFace[] =
-    faces.length > 0
-      ? faces
-      : [
-          { id: 's1', name: 'Mika' },
-          { id: 's2', name: 'Jonas' },
-          { id: 's3', name: 'Widlyn' },
-          { id: 's4', name: 'Farah' },
-        ]
+  const sample: FacePileFace[] = faces.length > 0 ? faces : SAMPLE_FACES
   const count = going ?? Math.max(sample.length, 24)
   const lead = sample[0]?.name?.split(' ')[0]
   const others = Math.max(0, count - 1)
+
+  /** Long mode name ("Faces and names"), for the button's spoken label. */
+  const label = (v: GuestlistVisibility) =>
+    t(`composer.guestVis.${v}`, {
+      defaultValue: v === 'faces' ? 'Faces and names' : v === 'count' ? 'Count only' : 'Not showing',
+    })
+
+  /** Short mode name ("Faces"), for the caption under the glyph. */
+  const shortLabel = (v: GuestlistVisibility) =>
+    t(`composer.guestVis.${v}Short`, {
+      defaultValue: v === 'faces' ? 'Faces' : v === 'count' ? 'Count' : 'Hidden',
+    })
+
+  /** The one-line explanation the option cards used to carry. */
+  const hint = (v: GuestlistVisibility) =>
+    t(`composer.guestVis.${v}Hint`, {
+      defaultValue:
+        v === 'faces'
+          ? 'Who is going, with photos'
+          : v === 'count'
+            ? 'How many, no names'
+            : 'Keep attendance private',
+    })
 
   /** The sentence the public page will print, per mode. */
   const sentence = (v: GuestlistVisibility) => {
@@ -122,68 +179,53 @@ export default function GuestlistVisibilityPicker({
       : t('composer.guestVis.previewCount', { count, defaultValue: '{{count}} going' })
   }
 
-  return (
-    <div className="space-y-3">
-      {/* The preview, at the size the event page draws it. */}
-      <div className="flex items-center gap-3 rounded-xl bg-white/[0.055] px-3 py-3">
-        {value !== 'count' && <FacePile faces={sample} size={40} dim={value === 'hidden'} />}
-        <span className="min-w-0">
-          <span className="block truncate text-[15px] font-semibold text-white">{sentence(value)}</span>
-          <span className="label-mono block text-[10px] uppercase text-white/40">
-            {t('composer.guestVis.previewLabel', { defaultValue: 'On your event page' })}
-          </span>
-        </span>
-      </div>
+  const Icon = ICONS[value]
+  const upcoming = nextMode(value)
+  const dimmed = value === 'hidden'
 
-      <fieldset>
-        <legend className="sr-only">
-          {t('composer.guestVis.legend', { defaultValue: 'Who can see the guest list' })}
-        </legend>
-        <div className="grid gap-2 sm:grid-cols-3">
-          {GUESTLIST_VISIBILITIES.map((v) => {
-            const Icon = ICONS[v]
-            const on = value === v
-            return (
-              <label
-                key={v}
-                className={`flex cursor-pointer items-start gap-2.5 rounded-xl px-3 py-2.5 transition-colors ${
-                  on
-                    ? 'bg-white text-black'
-                    : 'bg-white/[0.055] text-white/70 hover:bg-white/[0.09] hover:text-white'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="guestlist-visibility"
-                  value={v}
-                  checked={on}
-                  onChange={() => onChange(v)}
-                  className="sr-only"
-                />
-                <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${on ? 'text-black' : ''}`} aria-hidden />
-                <span className="min-w-0">
-                  <span className="block text-[13px] font-semibold">
-                    {t(`composer.guestVis.${v}`, {
-                      defaultValue:
-                        v === 'faces' ? 'Faces and names' : v === 'count' ? 'Count only' : 'Not showing',
-                    })}
-                  </span>
-                  <span className={`block text-[11px] leading-snug ${on ? 'text-black/60' : 'text-white/45'}`}>
-                    {t(`composer.guestVis.${v}Hint`, {
-                      defaultValue:
-                        v === 'faces'
-                          ? 'Who is going, with photos'
-                          : v === 'count'
-                            ? 'How many, no names'
-                            : 'Keep attendance private',
-                    })}
-                  </span>
-                </span>
-              </label>
-            )
-          })}
-        </div>
-      </fieldset>
+  return (
+    // One row: the preview the event page will draw, and the eye that changes
+    // it. role/aria-label stand in for the fieldset's legend now that there is
+    // no fieldset. The text block is a live region so a screen reader hears the
+    // new sentence after a tap, not just the button's relabelled self.
+    <div
+      role="group"
+      aria-label={t('composer.guestVis.legend', { defaultValue: 'Who can see the guest list' })}
+      className="flex items-center gap-3 rounded-xl bg-white/[0.055] p-3"
+    >
+      {value !== 'count' && <FacePile faces={sample} size={40} dim={dimmed} />}
+
+      {/* No truncate: at 402px the row can get narrow enough that clipping
+          would eat the count, and a wrapped sentence is still readable. */}
+      <span className="min-w-0 flex-1" aria-live="polite">
+        <span className="block text-[15px] font-semibold leading-tight text-white">{sentence(value)}</span>
+        <span className="mt-1 block text-[11px] leading-snug text-white/45">{hint(value)}</span>
+      </span>
+
+      <button
+        type="button"
+        onClick={() => onChange(upcoming)}
+        aria-label={t('composer.guestVis.cycleAria', {
+          current: label(value),
+          next: label(upcoming),
+          defaultValue: 'Guest list on your event page: {{current}}. Activate to switch to {{next}}.',
+        })}
+        title={label(value)}
+        // h-11 is the 44px minimum touch target. The caption under the glyph is
+        // the mode name in words, so the meaning never rests on the icon alone.
+        // min-w rather than a fixed width: the caption is translated, and
+        // "KANTITE" is wider than "COUNT".
+        className={`flex h-11 min-w-[56px] shrink-0 flex-col items-center justify-center gap-1 rounded-lg px-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414] ${
+          dimmed
+            ? 'bg-white/[0.06] text-white/45 hover:bg-white/[0.12] hover:text-white/70'
+            : 'bg-white/[0.11] text-white hover:bg-white/[0.18]'
+        }`}
+      >
+        <Icon className="h-[17px] w-[17px]" aria-hidden />
+        <span className="label-mono whitespace-nowrap text-[9px] uppercase leading-none tracking-wide">
+          {shortLabel(value)}
+        </span>
+      </button>
     </div>
   )
 }

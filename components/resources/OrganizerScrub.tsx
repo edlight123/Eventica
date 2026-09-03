@@ -91,15 +91,24 @@ function OrgTabBar({ active }: { active: 'home' | 'events' | 'scan' | 'team' }) 
   )
 }
 
-function ScreenBar({ title, back = true }: { title: string; back?: boolean }) {
+/** The event's own header. `poster` carries the artwork onto the screens that
+    used to be pure data — the dashboard, the team, the door — because without
+    it three of the film's four phases were bare cards with no poster anywhere,
+    which is not what the console looks like. 4:5, the house poster shape. */
+function ScreenBar({ title, back = true, poster = false }: { title: string; back?: boolean; poster?: boolean }) {
   return (
     <div className="flex items-center gap-2.5 px-4 pt-12">
       {back && (
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-white/[0.06]">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/[0.06]">
           <ChevronLeft className="h-4 w-4 text-white" />
         </span>
       )}
-      <span className="font-grotesk text-[15px] font-bold text-white">{title}</span>
+      {poster && (
+        <span className="relative block aspect-[4/5] w-8 shrink-0 overflow-hidden rounded-md">
+          <Image src="/brand/guide-poster.jpg" alt="" fill sizes="32px" className="object-cover" />
+        </span>
+      )}
+      <span className="min-w-0 truncate font-grotesk text-[15px] font-bold text-white">{title}</span>
     </div>
   )
 }
@@ -201,15 +210,25 @@ export default function OrganizerScrub() {
 
   return (
     <div ref={wrapRef} className="relative h-[400vh] bg-[#0a0a0a]">
-      <div className="sticky top-0 flex h-screen items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
+      {/* Pinned BELOW the navbar (its own h-14 sm:h-16), not under it: centred
+          against a whole h-screen the frame's top 74px sat behind the sticky
+          nav at 402×734. svh rather than vh so the stage can't outgrow
+          window.innerHeight — the scrub divides by innerHeight, and a taller
+          stage unpins before progress reaches 1. Top-aligned on mobile so any
+          shortfall clips at the bottom, never against the nav; md+ unchanged.
+          Mirrors components/home/AppScrub. */}
+      <div className="sticky top-14 flex h-[calc(100svh_-_3.5rem)] items-start overflow-hidden pt-4 sm:top-16 sm:h-[calc(100svh_-_4rem)] md:top-0 md:h-screen md:items-center md:pt-0">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-5 px-4 sm:px-6 md:grid-cols-2 md:gap-10 lg:px-8">
           {/* Captions: each line hands off to the next; links are real. */}
           <div className="relative z-10 order-2 md:order-1">
             <p className="eyebrow text-brand-400">{t('resources.scrub.eyebrow')}</p>
-            <div className="relative mt-4 h-32 md:h-44">
+            <div className="relative mt-3 h-24 md:mt-4 md:h-44">
               {CAPTIONS.map((c, i) => (
                 <div key={c.key} className="absolute inset-x-0" style={{ opacity: opacities[i] }} aria-hidden={opacities[i] < 0.5}>
-                  <p className="font-display lowercase italic text-[clamp(26px,4.2vw,52px)] leading-[1.08] text-white">
+                  {/* !text / !leading: body carries .mobile-typography, whose
+                      `p { text-sm }` outranks a plain arbitrary class and was
+                      rendering these display captions at 14px on phones. */}
+                  <p className="font-display lowercase italic !text-[clamp(26px,4.2vw,52px)] !leading-[1.08] text-white">
                     {t(`resources.scrub.${c.key}`)}
                   </p>
                   <a
@@ -224,7 +243,7 @@ export default function OrganizerScrub() {
                 </div>
               ))}
             </div>
-            <div className="mt-6" style={{ opacity: still ? 1 : Math.max(c4, 0) }}>
+            <div className="mt-4 md:mt-6" style={{ opacity: still ? 1 : Math.max(c4, 0) }}>
               <Link
                 href="/create"
                 className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-400 transition-colors hover:text-brand-300"
@@ -251,7 +270,9 @@ export default function OrganizerScrub() {
                       <div
                         className="relative w-[104px] shrink-0 overflow-hidden rounded-xl"
                         style={{
-                          opacity: 0.25 + 0.75 * smooth(w1, 0, 0.22),
+                          // Floor at 0.5, not 0.25: at the top of the track the
+                          // poster was faint enough to read as missing artwork.
+                          opacity: 0.5 + 0.5 * smooth(w1, 0, 0.22),
                           transform: `scale(${0.94 + 0.06 * smooth(w1, 0, 0.22)})`,
                         }}
                       >
@@ -302,7 +323,7 @@ export default function OrganizerScrub() {
                   className="absolute inset-0 z-10 bg-[#0a0a0a]"
                   style={{ transform: `translate3d(0, ${dashY}%, 0)`, willChange: still ? undefined : 'transform' }}
                 >
-                  <ScreenBar title="Nwit Konpa. Live" />
+                  <ScreenBar title="Nwit Konpa. Live" poster />
                   <div className="px-4 pt-3">
                     <div className="rounded-xl bg-white/[0.06] p-3">
                       <p className="flex items-center gap-1.5 text-[8px] font-medium uppercase tracking-[0.14em] text-white/40">
@@ -360,7 +381,7 @@ export default function OrganizerScrub() {
                   className="absolute inset-0 z-20 bg-[#0a0a0a]"
                   style={{ transform: `translate3d(0, ${teamY}%, 0)`, willChange: still ? undefined : 'transform' }}
                 >
-                  <ScreenBar title={t('resources.scrub.team')} />
+                  <ScreenBar title={t('resources.scrub.team')} poster />
                   <div className="px-4 pt-3">
                     <div className="space-y-1.5">
                       {[
@@ -424,7 +445,7 @@ export default function OrganizerScrub() {
                   className="absolute inset-0 z-[25] flex flex-col bg-[#050505]"
                   style={{ transform: `translate3d(0, ${scanY}%, 0)`, willChange: still ? undefined : 'transform' }}
                 >
-                  <ScreenBar title={t('resources.scrub.door_scan')} />
+                  <ScreenBar title={t('resources.scrub.door_scan')} poster />
                   <div className="flex flex-1 flex-col px-4 pt-3">
                     {/* viewfinder — the brackets flash green on the hit */}
                     <div className="relative overflow-hidden rounded-2xl bg-[#101010] py-7">

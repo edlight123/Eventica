@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import type { DateFilter } from '@/lib/filters/types'
-import { FilterChip } from '@/components/FilterChip'
 import { InlineCalendar } from '@/components/ui/DateTimePickers'
 import { X } from 'lucide-react'
 
@@ -13,6 +12,33 @@ interface DateChipsProps {
   /** When true, render only the chip row (no horizontal-scroll wrapper) for embedding in a shared strip. */
   bare?: boolean
 }
+
+/**
+ * The house quick-filter chip. Kept byte-for-byte in step with the event
+ * composer's `chipCls` (app/organizer/events/EventComposer.tsx) so a filter
+ * chip is the same object wherever the reader meets one.
+ *
+ * These used to be the shared <FilterChip>: `rounded-full`, a hairline border,
+ * `min-h-11`. Round + outlined + 44px tall made four date options read as four
+ * fat lozenges, and the selected one was a teal-bordered pill — a coloured
+ * status pill, which this codebase does not ship.
+ *
+ * So the INK is 30px and `rounded-[10px]`, state is fill-vs-fill (white when
+ * on, barely-there when off), and the TOUCH TARGET is a separate concern: an
+ * ::after stretched 7px past the top and bottom edges buys the 44px tappable
+ * box without a pixel of visible height. `leading-[18px]` is explicit because
+ * an arbitrary `text-[13px]` sets only font-size and would otherwise inherit
+ * whatever line-height the strip had, letting the chip height drift.
+ */
+const CHIP_ON = 'bg-white text-black'
+const CHIP_OFF = 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
+export const discoverChipCls = (on: boolean) =>
+  [
+    'relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap',
+    'rounded-[10px] px-2.5 py-1.5 text-[13px] leading-[18px] font-medium transition-colors',
+    "after:absolute after:inset-x-0 after:-inset-y-[7px] after:content-['']",
+    on ? CHIP_ON : CHIP_OFF,
+  ].join(' ')
 
 export function DateChips({ currentDate, bare = false }: DateChipsProps) {
   const { t } = useTranslation('common')
@@ -57,8 +83,8 @@ export function DateChips({ currentDate, bare = false }: DateChipsProps) {
 
   return (
     <>
-      <div className={bare ? 'flex gap-2 min-w-max' : 'scrollbar-hide overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0'}>
-        <div className="flex gap-2 min-w-max">
+      <div className={bare ? 'flex items-center' : 'scrollbar-hide overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0'}>
+        <div className="flex items-center gap-2 min-w-max">
           {DATE_OPTIONS.map(option => {
             // Format the picked-date chip label safely.
             let label = option.label
@@ -70,12 +96,15 @@ export function DateChips({ currentDate, bare = false }: DateChipsProps) {
             }
 
             return (
-              <FilterChip
+              <button
                 key={option.value}
-                label={label}
-                active={currentDate === option.value}
+                type="button"
+                aria-pressed={currentDate === option.value}
                 onClick={() => handleDateChange(option.value)}
-              />
+                className={discoverChipCls(currentDate === option.value)}
+              >
+                {label}
+              </button>
             )
           })}
         </div>

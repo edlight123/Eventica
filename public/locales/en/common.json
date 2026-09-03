@@ -330,7 +330,8 @@
     "fees_included_detail": "Includes {{fee}} {{currency}} fee",
     "no_account_needed": "No account needed. Your ticket is emailed to you.",
     "venue_map_open": "Open {{venue}} on Google Maps",
-    "lineup": "Lineup"
+    "lineup": "Lineup",
+    "hero_search_placeholder_short": "Search events…"
   },
   "favorites": {
     "title": "My Favorites",
@@ -1050,7 +1051,8 @@
       "checkedIn": "Checked in",
       "payout": "Payout",
       "availableAfterEvent": "Available after event",
-      "recentOrders": "Recent orders"
+      "recentOrders": "Recent orders",
+      "ticketSoldPlain": "Ticket sold"
     }
   },
   "composer": {
@@ -1265,6 +1267,7 @@
     "moveDown": "Move later",
     "flyerLibrary": "Flyer library",
     "flyerLibraryHint": "Free artwork you can use as-is. Swap it for your own flyer any time.",
+    "flyerLibraryHintShort": "Free artwork — swap it any time.",
     "flyerLib": {
       "stageLights": "Stage lights",
       "crowdGold": "Crowd in gold",
@@ -1308,6 +1311,7 @@
     "accentFromPoster": "Accent from poster",
     "accentAwaitingPoster": "add a flyer",
     "flyerSearchPlaceholder": "Search artwork: konpa, party, gala, sports…",
+    "flyerSearchShort": "Search: konpa, gala…",
     "flyerNoMatch": "No artwork matches that. Try “party”, “konpa” or “gala”.",
     "guestVis": {
       "legend": "Who can see the guest list",
@@ -1320,8 +1324,15 @@
       "count": "Count only",
       "countHint": "How many, no names",
       "hidden": "Not showing",
-      "hiddenHint": "Keep attendance private"
-    }
+      "hiddenHint": "Keep attendance private",
+      "facesShort": "Faces",
+      "countShort": "Count",
+      "hiddenShort": "Hidden",
+      "cycleAria": "Guest list on your event page: {{current}}. Activate to switch to {{next}}."
+    },
+    "progressLabel": "Event setup progress",
+    "completeToPublish": "Fill in {{count}} more of the four to publish. Saved as a draft until then.",
+    "saveDraft": "Save as draft"
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",

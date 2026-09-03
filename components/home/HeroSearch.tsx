@@ -28,6 +28,54 @@ function formatRowDate(date: any): string {
   return isValid(d) ? format(d, 'MMM d') : ''
 }
 
+/**
+ * Fold a string for matching: lowercase it, strip diacritics, and reduce every
+ * run of punctuation to a single space.
+ *
+ * This is the actual fix for "the search bar does not suggest anything". The
+ * matcher used to compare raw lowercased strings, and this catalogue is written
+ * in Kreyòl and French — "Cap-Haïtien", "SIWÈL", "NWIT KREYÒL", "LA NUIT
+ * CRÉOLE", "FÒJ 2026". Nobody reaches for the accent key on a phone, so on
+ * production "haïtien" returned four events while "haitien" returned none, and
+ * "siwel" returned none at all. Folding both sides makes the accented half of
+ * the catalogue reachable by the way people actually type.
+ */
+function fold(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+/** Same, with the separators removed, so "caphaitien" matches "Cap-Haïtien". */
+const squash = (s: string) => fold(s).replace(/ /g, '')
+
+/**
+ * How Haiti and the diaspora actually name their cities. None of these strings
+ * appear in the data, so each one was a dead end: "mtl" was the owner's own
+ * test query, and "okap" / "pap" are simply what Cap-Haïtien and
+ * Port-au-Prince are called in Kreyòl. The alias is added to the query's terms
+ * rather than replacing it, so a literal title match still wins.
+ */
+const QUERY_ALIASES: Record<string, string> = {
+  mtl: 'montreal',
+  nyc: 'new york',
+  mia: 'miami',
+  pap: 'port au prince',
+  pv: 'petion ville',
+  okap: 'cap haitien',
+  kap: 'cap haitien',
+  // kompa / konpa are the SAME word, spelled both ways across the catalogue —
+  // "KOMPA FEST" and "KONPA CRUISE" are both live right now. Accent folding
+  // cannot bridge an m to an n, so without this pair each spelling finds only
+  // half the konpa nights on the platform, which on a Haitian events app is
+  // the single most likely query there is.
+  konpa: 'kompa',
+  kompa: 'konpa',
+}
+
 export default function HeroSearch({
   events,
   compact = false,
@@ -50,6 +98,20 @@ export default function HeroSearch({
   useEffect(() => {
     setCity(searchParams?.get('city') || '')
   }, [searchParams])
+
+  /**
+   * Phone-width, resolved on the client only. `false` on the server and on the
+   * first client render, so hydration can never mismatch; the placeholder then
+   * shortens on a phone one frame later, which is invisible.
+   */
+  const [narrow, setNarrow] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 480px)')
+    const sync = () => setNarrow(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -78,18 +140,28 @@ export default function HeroSearch({
       setDebouncedQuery('')
       return
     }
-    const id = setTimeout(() => setDebouncedQuery(q.toLowerCase()), 150)
+    const id = setTimeout(() => setDebouncedQuery(q), 150)
     return () => clearTimeout(id)
   }, [query])
 
+  /** The query's folded forms, plus any city-nickname expansion. */
+  const terms = useMemo(() => {
+    const f = fold(debouncedQuery)
+    if (f.length < 2) return []
+    const out = [f, squash(debouncedQuery)]
+    const alias = QUERY_ALIASES[squash(debouncedQuery)]
+    if (alias) out.push(fold(alias), squash(alias))
+    return Array.from(new Set(out.filter((s) => s.length >= 2)))
+  }, [debouncedQuery])
+
   const suggestions: Suggestion[] = useMemo(() => {
-    if (!autocompleteEnabled || debouncedQuery.length < 2) return []
-    const q = debouncedQuery
+    if (!autocompleteEnabled || terms.length === 0) return []
     return source
       .filter((ev) => {
-        const hay = [
+        const raw = [
           ev?.title,
           ev?.city,
+          ev?.commune,
           ev?.category,
           ev?.venue_name,
           ev?.organizer_name,
@@ -97,8 +169,9 @@ export default function HeroSearch({
         ]
           .filter(Boolean)
           .join(' ')
-          .toLowerCase()
-        return hay.includes(q)
+        const hay = fold(raw)
+        const tight = hay.replace(/ /g, '')
+        return terms.some((term) => hay.includes(term) || tight.includes(term))
       })
       .slice(0, 6)
       .map((ev) => ({
@@ -110,17 +183,26 @@ export default function HeroSearch({
         date: ev?.start_datetime,
       }))
       .filter((s) => s.id)
-  }, [source, debouncedQuery, autocompleteEnabled])
+  }, [source, terms, autocompleteEnabled])
 
-  // Keep the dropdown open state / highlight in sync with results.
+  /**
+   * Open on a real query — NOT on a non-empty result list.
+   *
+   * This used to be `suggestions.length > 0 ? open : close`, which made the
+   * panel's own "no matches" row unreachable: the row only renders when the
+   * panel is open, and the panel was only ever open when there was something
+   * else to show. So a query that matched nothing produced no dropdown, no
+   * message, no spinner — nothing at all, which is exactly what the field
+   * looked like from the outside: broken. Now the panel appears whenever the
+   * reader has typed something, and it always says what it found.
+   *
+   * Depending on the query rather than on `suggestions` also means Escape
+   * sticks until the next keystroke.
+   */
   useEffect(() => {
-    if (suggestions.length > 0) {
-      setOpen(true)
-      setHighlight(-1)
-    } else {
-      setOpen(false)
-    }
-  }, [suggestions])
+    setHighlight(-1)
+    setOpen(autocompleteEnabled && terms.length > 0)
+  }, [terms, autocompleteEnabled])
 
   useEffect(
     () => () => {
@@ -204,7 +286,10 @@ export default function HeroSearch({
       : undefined
 
   return (
-    <div className={compact ? 'relative w-full max-w-xl' : 'relative w-full max-w-xl'}>
+    // z-20: a `plt-enter` ancestor animates a transform, which creates a
+    // stacking context, and without a z-index here the dropdown was once
+    // painted through by a sibling of that ancestor.
+    <div className="relative z-20 w-full max-w-xl">
       <form
         onSubmit={handleSearch}
         className={`flex items-center gap-3 border border-white/10 bg-[#141414]/80 px-4 backdrop-blur-md transition-colors focus-within:border-white/25 ${
@@ -217,22 +302,37 @@ export default function HeroSearch({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (suggestions.length > 0) setOpen(true)
+            if (autocompleteEnabled && terms.length > 0) setOpen(true)
           }}
           onBlur={() => {
             // Delay so a row click registers before the dropdown closes.
             blurTimer.current = setTimeout(() => setOpen(false), 150)
           }}
-          placeholder={t('events.hero_search_placeholder', {
-            defaultValue: 'Search events, organizers, cities…',
-          })}
+          /**
+           * Two placeholders, because one cannot fit both widths.
+           *
+           * At 402px the field's flex share is only ~147px once the icon, the
+           * divider and the city dropdown have taken theirs, so "Search
+           * events, organizers, cities…" clipped mid-word at "organizers, c"
+           * — which reads as a broken layout rather than as a hint. `narrow`
+           * is resolved after mount (see the effect above) so the server and
+           * the first client pass agree; the long form is the default, so a
+           * desktop reader never sees the short one.
+           */
+          placeholder={
+            narrow
+              ? t('events.hero_search_placeholder_short', { defaultValue: 'Search events…' })
+              : t('events.hero_search_placeholder', {
+                  defaultValue: 'Search events, organizers, cities…',
+                })
+          }
           // 16px, not 15: iOS Safari zooms the page when a focused field is
           // under 16px. globals.css enforces a floor for every input, but the
           // stated size should match what the browser actually uses.
           className="min-w-0 flex-1 bg-transparent text-[16px] text-white outline-none placeholder:text-white/45"
           aria-label={t('common.search')}
           role="combobox"
-          aria-expanded={open && suggestions.length > 0}
+          aria-expanded={open}
           aria-controls={listboxId}
           aria-autocomplete="list"
           aria-activedescendant={activeOptionId}
@@ -282,22 +382,12 @@ export default function HeroSearch({
         </button>
       </form>
 
-      {/* Instant autocomplete dropdown */}
+      {/* Instant autocomplete dropdown. Opaque (#141414) on purpose: this floats
+          over posters and page copy, and a translucent panel showed both. */}
       {autocompleteEnabled && open && (
-        <ul
-          id={listboxId}
-          role="listbox"
-          aria-label={t('common.search')}
-          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#111] shadow-poster-sm backdrop-blur-md"
-        >
-          {suggestions.length === 0 ? (
-            <li className="px-4 py-3 text-[13px] text-white/50">
-              {t('events.no_matches_hint', {
-                defaultValue: 'No matches. Press Enter to search all',
-              })}
-            </li>
-          ) : (
-            suggestions.map((s, i) => {
+        <div className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-poster-sm">
+          <ul id={listboxId} role="listbox" aria-label={t('common.search')}>
+            {suggestions.map((s, i) => {
               const rowDate = formatRowDate(s.date)
               const meta = [rowDate, s.city].filter(Boolean).join(' · ')
               return (
@@ -332,9 +422,39 @@ export default function HeroSearch({
                   </button>
                 </li>
               )
-            })
+            })}
+          </ul>
+
+          {/* The empty state, which the reader could never actually see before.
+              A tappable row, not a dead hint: "press Enter" means nothing on a
+              phone keyboard, so this row IS the escape hatch to /discover. */}
+          {suggestions.length === 0 && (
+            <button
+              type="button"
+              // onMouseDown beats the input's blur timer, as with the rows above.
+              onMouseDown={(e) => {
+                e.preventDefault()
+                submitSearch()
+              }}
+              className="flex min-h-[44px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]"
+            >
+              <Search className="h-4 w-4 shrink-0 text-white/35" />
+              {/* Existing keys only — both are already translated in en/fr/ht.
+                  `events.no_matches_hint` is deliberately NOT used: it reads
+                  "press Enter to search all", and a phone keyboard has no
+                  Enter the reader can see. */}
+              <span aria-live="polite" className="min-w-0 flex-1">
+                <span className="block truncate text-[14px] text-white/70">
+                  {t('common.no_results', { defaultValue: 'No results found' })}
+                </span>
+                <span className="mt-0.5 block truncate text-[12px] text-brand-300">
+                  {t('events.see_all', { defaultValue: 'See all' })}
+                </span>
+              </span>
+              <ArrowUpRight className="h-4 w-4 shrink-0 text-brand-400" />
+            </button>
           )}
-        </ul>
+        </div>
       )}
     </div>
   )

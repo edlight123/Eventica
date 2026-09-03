@@ -72,6 +72,21 @@ select:-webkit-autofill {
    Kept as a variable so the footer can add its own padding on top of it. */
 :root {
   --mobile-nav-h: 0px;
+  /* Height of the sticky chrome at the top of the page, so anything that has
+     to pin BELOW it can do so without hard-coding a number that is wrong on
+     half the routes. The public Navbar is h-14 / sm:h-16; /organizer replaces
+     it with OrganizerTopNav, which is h-14 at every width — a composer sticky
+     bar at a flat top-16 left an 8px stripe of page showing through there. */
+  --chrome-h: 56px;
+}
+@media (min-width: 640px) {
+  :root {
+    --chrome-h: 64px;
+  }
+}
+/* The organizer shell overrides it back down; see components/organizer/OrganizerChrome. */
+.chrome-56 {
+  --chrome-h: 56px;
 }
 @media (max-width: 768px) {
   body[data-mobile-nav] {
@@ -89,13 +104,21 @@ select:-webkit-autofill {
    which also takes pinch-zoom away from anyone who needs it; the actual fix is
    to stop handing Safari a reason. 16px is the right floor for a field on a
    phone anyway, and no input in the app is deliberately larger, so this only
-   ever raises a size. Specificity: three :not([attr]) selectors give (0,3,1),
-   which beats a `text-[15px]` utility class — a bare `input` selector would
-   have lost silently. */
+   ever raises a size.
+
+   Specificity, and this is the whole trick: in a selector LIST each compound
+   is weighed on its own. `input:not([type=…]):not(…):not(…)` is (0,3,1) and
+   beats a `text-[15px]` utility class, but the bare `textarea` and `select`
+   in the same list were only (0,0,1) and LOST — so the composer's
+   `text-[15px]` textarea still zoomed the page when "Short Summary" opened it
+   with autoFocus, even though the input beside it was fixed. The `:root`
+   prefix costs nothing visually and lifts every compound to at least (0,1,1),
+   which is what actually has to be true for all three. No `!important`: no
+   field in the app declares one, so this wins on the cascade honestly. */
 @media (max-width: 768px) {
-  input:not([type='checkbox']):not([type='radio']):not([type='range']),
-  textarea,
-  select {
+  :root input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  :root textarea,
+  :root select {
     font-size: 16px;
   }
 }

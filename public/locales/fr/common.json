@@ -330,7 +330,8 @@
     "fees_included_detail": "Inclut des frais de {{fee}} {{currency}}",
     "no_account_needed": "Aucun compte nécessaire. Votre billet vous est envoyé par email.",
     "venue_map_open": "Ouvrir {{venue}} dans Google Maps",
-    "lineup": "Affiche"
+    "lineup": "Affiche",
+    "hero_search_placeholder_short": "Rechercher…"
   },
   "favorites": {
     "title": "Mes favoris",
@@ -1050,7 +1051,8 @@
       "checkedIn": "Entrées",
       "payout": "Versement",
       "availableAfterEvent": "Disponible après l’événement",
-      "recentOrders": "Commandes récentes"
+      "recentOrders": "Commandes récentes",
+      "ticketSoldPlain": "Billet vendu"
     }
   },
   "composer": {
@@ -1265,6 +1267,7 @@
     "moveDown": "Déplacer plus tard",
     "flyerLibrary": "Bibliothèque de flyers",
     "flyerLibraryHint": "Des visuels gratuits, utilisables tels quels. Remplacez-les par votre flyer quand vous voulez.",
+    "flyerLibraryHintShort": "Visuels gratuits, changez quand vous voulez.",
     "flyerLib": {
       "stageLights": "Lumières de scène",
       "crowdGold": "Foule dorée",
@@ -1308,6 +1311,7 @@
     "accentFromPoster": "Couleur de l’affiche",
     "accentAwaitingPoster": "ajoutez un flyer",
     "flyerSearchPlaceholder": "Chercher un visuel : konpa, fête, gala, sport…",
+    "flyerSearchShort": "Chercher : konpa, gala…",
     "flyerNoMatch": "Aucun visuel ne correspond. Essayez « fête », « konpa » ou « gala ».",
     "guestVis": {
       "legend": "Qui peut voir la liste d'invités",
@@ -1320,8 +1324,15 @@
       "count": "Nombre seulement",
       "countHint": "Combien, sans les noms",
       "hidden": "Masquée",
-      "hiddenHint": "Garder la participation privée"
-    }
+      "hiddenHint": "Garder la participation privée",
+      "facesShort": "Visages",
+      "countShort": "Nombre",
+      "hiddenShort": "Masqué",
+      "cycleAria": "Liste d'invités sur votre page d'événement : {{current}}. Activez pour passer à {{next}}."
+    },
+    "progressLabel": "Progression de la configuration",
+    "completeToPublish": "Encore {{count}} des quatre à remplir pour publier. Enregistré comme brouillon d'ici là.",
+    "saveDraft": "Enregistrer le brouillon"
   },
   "promoter": {
     "portal_eyebrow": "Portail promoteur",

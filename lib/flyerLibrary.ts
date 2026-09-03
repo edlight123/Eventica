@@ -36,7 +36,17 @@ const unsplash = (photo: string, w: number, h: number) =>
 /** Full-size 4:5 poster, what gets saved as banner_image_url. */
 export const flyerLibraryFullUrl = (item: FlyerLibraryItem) => unsplash(item.photo, 1200, 1500)
 
-/** Grid thumbnail — small on purpose, the picker shows fifteen at once. */
+/**
+ * Grid thumbnail — small on purpose, the picker shows fifteen at once. Exactly
+ * 4:5, matching the poster-shaped tiles, so the tile never has to crop it.
+ *
+ * Left at 320x400 deliberately. A tile resolves to ~166 CSS px wide, so on a
+ * 3x phone these are a little soft, and 400x500 does fix that — but fifteen
+ * tiles go from 439KB to 617KB, and `q` barely moves the number (Unsplash
+ * serves much the same bytes at 70 as at 80). 178KB is not a good trade for
+ * marginal sharpness at this size on the connections this picker exists to
+ * serve: it is aimed at first-time organizers with no artwork.
+ */
 export const flyerLibraryThumbUrl = (item: FlyerLibraryItem) => unsplash(item.photo, 320, 400)
 
 export const FLYER_LIBRARY: readonly FlyerLibraryItem[] = [

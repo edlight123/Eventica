@@ -330,7 +330,8 @@
     "fees_included_detail": "Gen yon frè {{fee}} {{currency}} ladan",
     "no_account_needed": "Pa bezwen kont. Nou voye tikè ou nan imel ou.",
     "venue_map_open": "Louvri {{venue}} nan Google Maps",
-    "lineup": "Pwogram"
+    "lineup": "Pwogram",
+    "hero_search_placeholder_short": "Chèche evènman…"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -1050,7 +1051,8 @@
       "checkedIn": "Antre",
       "payout": "Peman",
       "availableAfterEvent": "Disponib apre evènman an",
-      "recentOrders": "Dènye kòmand yo"
+      "recentOrders": "Dènye kòmand yo",
+      "ticketSoldPlain": "Tikè vann"
     }
   },
   "composer": {
@@ -1265,6 +1267,7 @@
     "moveDown": "Mete pi ta",
     "flyerLibrary": "Bibliyotèk flyer",
     "flyerLibraryHint": "Imaj gratis ou ka sèvi konsa. Ou ka mete flyer pa w nenpòt lè.",
+    "flyerLibraryHintShort": "Imaj gratis, ou ka chanje l nenpòt lè.",
     "flyerLib": {
       "stageLights": "Limyè sèn",
       "crowdGold": "Foul nan lò",
@@ -1308,6 +1311,7 @@
     "accentFromPoster": "Koulè afich la",
     "accentAwaitingPoster": "mete yon flyer",
     "flyerSearchPlaceholder": "Chèche yon imaj: konpa, fèt, gala, espò…",
+    "flyerSearchShort": "Chèche: konpa, gala…",
     "flyerNoMatch": "Pa gen imaj ki matche. Eseye “fèt”, “konpa” oswa “gala”.",
     "guestVis": {
       "legend": "Kiyès ki ka wè lis envite a",
@@ -1320,8 +1324,15 @@
       "count": "Sèlman kantite a",
       "countHint": "Konbyen, san non",
       "hidden": "Pa montre",
-      "hiddenHint": "Kenbe patisipasyon an prive"
-    }
+      "hiddenHint": "Kenbe patisipasyon an prive",
+      "facesShort": "Figi",
+      "countShort": "Kantite",
+      "hiddenShort": "Kache",
+      "cycleAria": "Lis envite a sou paj evènman w : {{current}}. Peze pou chanje pou {{next}}."
+    },
+    "progressLabel": "Pwogrè konfigirasyon evènman an",
+    "completeToPublish": "Ranpli {{count}} lòt nan kat yo pou pibliye. N ap kenbe l kòm bouyon jiskaske w fini.",
+    "saveDraft": "Kenbe kòm bouyon"
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",
