@@ -7,7 +7,7 @@ export default function DefaultsLoading() {
           <div className="h-9 w-64 bg-white/[0.06] rounded mb-2 animate-pulse" />
           <div className="h-5 w-full max-w-lg bg-white/[0.06] rounded animate-pulse" />
         </div>
-        <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6 space-y-6">
+        <div className="bg-white/[0.03] rounded-xl  shadow-sm p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2].map((i) => (
               <div key={i}>

@@ -69,7 +69,7 @@ export default function GettingStartedTracker({
   const nextStep = steps.find((s) => !s.completed);
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-sm  overflow-hidden">
+    <div className="bg-white/[0.03] rounded-2xl shadow-sm  overflow-hidden">
       {/* Header */}
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center justify-between mb-4">
@@ -92,7 +92,7 @@ export default function GettingStartedTracker({
         </div>
 
         {/* Progress Bar */}
-        <div className="h-2 bg-[#0a0a0a] rounded-full overflow-hidden">
+        <div className="h-2 bg-white/[0.03] rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPercent}%` }}
@@ -107,7 +107,7 @@ export default function GettingStartedTracker({
             key={step.id}
             className={`p-4 flex items-center gap-4 transition-colors ${
               step.completed
-                ? 'bg-[#0a0a0a]'
+                ? 'bg-white/[0.03]'
                 : nextStep?.id === step.id
                 ? 'bg-primary-50/30'
                 : ''
@@ -146,7 +146,7 @@ export default function GettingStartedTracker({
                 className={`flex-shrink-0 inline-flex items-center gap-1 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                   nextStep?.id === step.id
                     ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
-                    : 'bg-[#0a0a0a] text-white/60 hover:bg-white/[0.04]'
+                    : 'bg-white/[0.03] text-white/60 hover:bg-white/[0.04]'
                 }`}
               >
                 {step.ctaLabel}

@@ -112,12 +112,30 @@ export function EmptyState({
 /** Status chip tone. One accent (brand teal) + semantic green/red/amber/neutral. */
 export type ChipTone = 'brand' | 'neutral' | 'success' | 'warning' | 'danger'
 
-const toneStyles: Record<ChipTone, string> = {
-  brand: 'text-brand-300 border border-brand-100',
-  neutral: 'bg-white/[0.04] text-white/70 border border-white/10',
-  success: 'text-emerald-300 border border-green-200',
-  warning: 'text-amber-300 border border-amber-200',
-  danger: 'text-red-300 border border-red-200',
+/**
+ * Status is read as a DOT plus a label, never a filled or outlined pill.
+ *
+ * Two reasons this changed. The house rule: a filled status pill reads as a
+ * button, so PUBLISHED / ACTIVE / PENDING looked like things to press. And the
+ * borders here were quietly broken — `border-green-200`, `border-amber-200`,
+ * `border-brand-100` are Tailwind's LIGHT tints, so on a black canvas each chip
+ * drew a near-white hairline and every tone looked the same. A coloured dot
+ * carries the state; the label stays plain text at normal weight.
+ */
+const toneDot: Record<ChipTone, string> = {
+  brand: 'bg-brand-400',
+  neutral: 'bg-white/35',
+  success: 'bg-emerald-400',
+  warning: 'bg-amber-400',
+  danger: 'bg-red-400',
+}
+
+const toneText: Record<ChipTone, string> = {
+  brand: 'text-brand-300',
+  neutral: 'text-white/60',
+  success: 'text-emerald-300',
+  warning: 'text-amber-300',
+  danger: 'text-red-300',
 }
 
 /**
@@ -152,8 +170,11 @@ export function statusTone(status: string): ChipTone {
 }
 
 /**
- * Status pill. Pass a `tone` directly, or a `status` string to auto-map via
- * statusTone(). The label defaults to a humanized status. Use across all tables.
+ * Status read-out: a coloured dot and a label. Pass a `tone` directly, or a
+ * `status` string to auto-map via statusTone(). The label defaults to a
+ * humanized status. Use across all tables.
+ *
+ * Named "Chip" for its call sites' sake; it is deliberately not a pill.
  */
 export function StatusChip({
   status,
@@ -174,9 +195,13 @@ export function StatusChip({
     (status ? status.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '')
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${toneStyles[resolved]} ${className}`}
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap text-xs capitalize ${toneText[resolved]} ${className}`}
     >
-      {Icon && <Icon className="h-3 w-3" />}
+      {Icon ? (
+        <Icon className="h-3 w-3" />
+      ) : (
+        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${toneDot[resolved]}`} aria-hidden />
+      )}
       {label}
     </span>
   )

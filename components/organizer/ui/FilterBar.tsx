@@ -23,7 +23,7 @@ export function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      // The inactive state was `bg-[#0a0a0a]` — the page's own background —
+      // The inactive state was `bg-white/[0.03]` — the page's own background —
       // with a stray leading space where a border class had been removed, so an
       // unselected chip was invisible and only the active one could be seen.
       // A real fill fixes that; h-11 on phones meets the touch floor.

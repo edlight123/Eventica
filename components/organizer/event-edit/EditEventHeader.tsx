@@ -64,7 +64,7 @@ export function EditEventHeader({
                       </span>
                     )}
                   </div>
-                  <div className="w-full bg-[#0a0a0a] rounded-full h-2">
+                  <div className="w-full bg-white/[0.03] rounded-full h-2">
                     <div
                       className={`h-2 rounded-full transition-all duration-500 ${
                         completionPercentage === 100
@@ -102,8 +102,8 @@ export function EditEventHeader({
               disabled={isSaving || !hasUnsavedChanges}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold transition-all ${
                 hasUnsavedChanges
-                  ? 'bg-[#0a0a0a] text-white hover:bg-white/[0.04] border-2 border-white/15'
-                  : 'bg-[#0a0a0a] text-white/40 border-2 border-white/10 cursor-not-allowed'
+                  ? 'bg-white/[0.03] text-white hover:bg-white/[0.04] border-2 border-white/15'
+                  : 'bg-white/[0.03] text-white/40 border-2 border-white/10 cursor-not-allowed'
               }`}
             >
               <Save className="w-4 h-4" />
@@ -117,7 +117,7 @@ export function EditEventHeader({
               <Link
                 href={`/events/${eventId}`}
                 target="_blank"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04] border-2 border-white/15 transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-white/[0.03] text-white/70 hover:bg-white/[0.04] border-2 border-white/15 transition-all"
               >
                 <Eye className="w-4 h-4" />
                 <span className="hidden sm:inline">Preview</span>
@@ -134,7 +134,7 @@ export function EditEventHeader({
                   ? isPublished
                     ? 'bg-gray-600 text-white hover:bg-gray-700 shadow-md hover:shadow-lg'
                     : 'bg-brand-700 text-white hover:bg-brand-800 shadow-md hover:shadow-lg'
-                  : 'bg-[#0a0a0a] text-white/40 cursor-not-allowed'
+                  : 'bg-white/[0.03] text-white/40 cursor-not-allowed'
               }`}
               title={!canPublish ? `Complete ${missingItemsCount} required item${missingItemsCount !== 1 ? 's' : ''} to publish` : ''}
             >

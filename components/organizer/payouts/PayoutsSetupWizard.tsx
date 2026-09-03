@@ -310,7 +310,7 @@ export default function PayoutsSetupWizard({
   }
 
   return (
-    <div className="min-h-[80vh] bg-[#0a0a0a]">
+    <div className="min-h-[80vh] bg-white/[0.03]">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         {currentStep !== 'welcome' && (
@@ -324,7 +324,7 @@ export default function PayoutsSetupWizard({
             </button>
 
             {/* Progress Bar */}
-            <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-4">
+            <div className="bg-white/[0.03] rounded-xl border border-white/10 p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-white">
                   {t('onboarding.payouts.progress_title', { defaultValue: 'Setting up payouts' })}
@@ -342,7 +342,7 @@ export default function PayoutsSetupWizard({
                   <div
                     key={step.id}
                     className={`flex-1 h-2 rounded-full transition-colors ${
-                      idx <= currentStepIndex ? 'bg-brand-600' : 'bg-[#0a0a0a]'
+                      idx <= currentStepIndex ? 'bg-brand-600' : 'bg-white/[0.03]'
                     }`}
                   />
                 ))}
@@ -374,21 +374,21 @@ export default function PayoutsSetupWizard({
 
             {/* Benefits */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="bg-[#0a0a0a] rounded-xl  p-4 text-left">
+              <div className="bg-white/[0.03] rounded-xl  p-4 text-left">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
                   <Shield className="w-5 h-5 text-brand-300" />
                 </div>
                 <h3 className="font-semibold text-white mb-1">{t('onboarding.payouts.welcome.secure_title', { defaultValue: 'Secure' })}</h3>
                 <p className="text-sm text-white/60">{t('onboarding.payouts.welcome.secure_desc', { defaultValue: 'Bank-level encryption protects your data' })}</p>
               </div>
-              <div className="bg-[#0a0a0a] rounded-xl  p-4 text-left">
+              <div className="bg-white/[0.03] rounded-xl  p-4 text-left">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
                   <Sparkles className="w-5 h-5 text-brand-300" />
                 </div>
                 <h3 className="font-semibold text-white mb-1">{t('onboarding.payouts.welcome.fast_title', { defaultValue: 'Fast' })}</h3>
                 <p className="text-sm text-white/60">{t('onboarding.payouts.welcome.fast_desc', { defaultValue: 'Receive funds within 48 hours of events' })}</p>
               </div>
-              <div className="bg-[#0a0a0a] rounded-xl  p-4 text-left">
+              <div className="bg-white/[0.03] rounded-xl  p-4 text-left">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
                   <Globe className="w-5 h-5 text-brand-300" />
                 </div>
@@ -437,7 +437,7 @@ export default function PayoutsSetupWizard({
                       )
                     }
                     className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
-                      isOn ? 'border-brand-500' : 'border-white/10 hover:border-white/15 bg-[#0a0a0a]'
+                      isOn ? 'border-brand-500' : 'border-white/10 hover:border-white/15 bg-white/[0.03]'
                     }`}
                   >
                     <div className="flex-1 text-left">
@@ -505,7 +505,7 @@ export default function PayoutsSetupWizard({
                   className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
                     selectedLocation === location.id
                       ? 'border-brand-500 '
-                      : 'border-white/10 hover:border-white/15 bg-[#0a0a0a]'
+                      : 'border-white/10 hover:border-white/15 bg-white/[0.03]'
                   }`}
                 >
                   <span className="text-3xl">{location.flag}</span>
@@ -562,9 +562,9 @@ export default function PayoutsSetupWizard({
             </div>
 
             {isStripeLocation ? (
-              <div className="bg-[#0a0a0a] rounded-xl border-2 border-brand-500 p-6 mb-8">
+              <div className="bg-white/[0.03] rounded-xl border-2 border-brand-500 p-6 mb-8">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-white/[0.03] flex items-center justify-center flex-shrink-0">
                     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
                       <path d="M13.976 9.15c-2.172-.806-3.234-1.354-3.234-2.31 0-.788.636-1.262 1.885-1.262 2.217 0 3.614.964 3.614.964l.667-2.524s-1.397-.89-4.238-.89c-2.888 0-4.822 1.567-4.822 3.8 0 1.973 1.419 3.178 3.586 3.938 1.85.66 2.634 1.18 2.634 2.094 0 .888-.67 1.433-1.948 1.433-2.218 0-4.08-1.18-4.08-1.18l-.69 2.547s1.866 1.28 4.72 1.28c3.044 0 4.93-1.504 4.93-3.908 0-2.016-1.51-3.17-3.024-3.982z" fill="#635BFF"/>
                     </svg>
@@ -588,7 +588,7 @@ export default function PayoutsSetupWizard({
                   className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
                     selectedMethod === 'bank_transfer'
                       ? 'border-brand-500 '
-                      : 'border-white/10 hover:border-white/15 bg-[#0a0a0a]'
+                      : 'border-white/10 hover:border-white/15 bg-white/[0.03]'
                   }`}
                 >
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center">
@@ -608,7 +608,7 @@ export default function PayoutsSetupWizard({
                   className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
                     selectedMethod === 'mobile_money'
                       ? 'border-brand-500 '
-                      : 'border-white/10 hover:border-white/15 bg-[#0a0a0a]'
+                      : 'border-white/10 hover:border-white/15 bg-white/[0.03]'
                   }`}
                 >
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center">
@@ -669,8 +669,8 @@ export default function PayoutsSetupWizard({
             </div>
 
             {isStripeLocation ? (
-              <div className="bg-[#0a0a0a] rounded-xl p-6 mb-8 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center">
+              <div className="bg-white/[0.03] rounded-xl p-6 mb-8 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center">
                   <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
                     <path d="M13.976 9.15c-2.172-.806-3.234-1.354-3.234-2.31 0-.788.636-1.262 1.885-1.262 2.217 0 3.614.964 3.614.964l.667-2.524s-1.397-.89-4.238-.89c-2.888 0-4.822 1.567-4.822 3.8 0 1.973 1.419 3.178 3.586 3.938 1.85.66 2.634 1.18 2.634 2.094 0 .888-.67 1.433-1.948 1.433-2.218 0-4.08-1.18-4.08-1.18l-.69 2.547s1.866 1.28 4.72 1.28c3.044 0 4.93-1.504 4.93-3.908 0-2.016-1.51-3.17-3.024-3.982z" fill="#635BFF"/>
                   </svg>
@@ -683,7 +683,7 @@ export default function PayoutsSetupWizard({
                 </p>
               </div>
             ) : selectedMethod === 'bank_transfer' ? (
-              <div className="bg-[#0a0a0a] rounded-xl  p-5 space-y-4 mb-8">
+              <div className="bg-white/[0.03] rounded-xl  p-5 space-y-4 mb-8">
                 {/* Bank Selection */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
@@ -758,7 +758,7 @@ export default function PayoutsSetupWizard({
                 </div>
               </div>
             ) : (
-              <div className="bg-[#0a0a0a] rounded-xl  p-5 space-y-4 mb-8">
+              <div className="bg-white/[0.03] rounded-xl  p-5 space-y-4 mb-8">
                 {/* Provider Selection */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
@@ -848,7 +848,7 @@ export default function PayoutsSetupWizard({
               <p className="text-white/60">{t('onboarding.payouts.review.subtitle', { defaultValue: 'Confirm your payout details before finishing' })}</p>
             </div>
 
-            <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden mb-8">
+            <div className="bg-white/[0.03] rounded-xl  overflow-hidden mb-8">
               {/* Location */}
               <div className="p-4 border-b border-white/10">
                 <div className="flex items-center justify-between">

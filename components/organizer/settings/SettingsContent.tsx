@@ -21,7 +21,7 @@ import { PageHeader, SectionHeader } from '@/components/organizer/ui'
 /**
  * The organizer settings hub.
  *
- * What was here before: nine link cards painted `bg-[#0a0a0a]` — the exact
+ * What was here before: nine link cards painted `bg-white/[0.03]` — the exact
  * colour of the page behind them — with `rounded-xl  p-4` where a border class
  * had been deleted, and `hover:border-brand-300` with no border-width to hover.
  * So the cards were invisible, the hover was inert, the icon tiles were empty

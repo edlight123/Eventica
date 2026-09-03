@@ -156,7 +156,7 @@ export default function VerificationStatusHero({
                   {completionPercentage}%
                 </span>
               </div>
-              <div className="w-full bg-[#0a0a0a] rounded-full h-2">
+              <div className="w-full bg-white/[0.03] rounded-full h-2">
                 <div
                   className="bg-gradient-to-r from-amber-500 to-amber-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${completionPercentage}%` }}

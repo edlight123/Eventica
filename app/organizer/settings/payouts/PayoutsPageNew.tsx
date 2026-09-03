@@ -983,7 +983,7 @@ export default function PayoutsPageNew({
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* Header */}
-      <div className="bg-[#0a0a0a] border-b border-white/10">
+      <div className="bg-white/[0.03] border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
@@ -1013,13 +1013,13 @@ export default function PayoutsPageNew({
             </Link>
             <Link
               href="/organizer/earnings"
-              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-[#0a0a0a] text-white border border-white/15 hover:bg-white/[0.04]"
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-white/[0.03] text-white border border-white/15 hover:bg-white/[0.04]"
             >
               {t('payouts_page.tab_earnings', { defaultValue: 'Earnings' })}
             </Link>
             <Link
               href="/organizer/settings/payouts/history"
-              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-[#0a0a0a] text-white border border-white/15 hover:bg-white/[0.04]"
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-white/[0.03] text-white border border-white/15 hover:bg-white/[0.04]"
             >
               {t('payouts_page.payout_history', { defaultValue: 'Payout history' })}
             </Link>
@@ -1048,7 +1048,7 @@ export default function PayoutsPageNew({
                     onChange={(e) => setPayoutChangeCode(e.target.value)}
                     placeholder={t('payouts_page.code_placeholder', { defaultValue: '6-digit code' })}
                     aria-label={t('payouts_page.code_aria', { defaultValue: '6-digit verification code' })}
-                    className="w-full rounded-xl border border-amber-500/30 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
+                    className="w-full rounded-xl border border-amber-500/30 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
                   />
                   <button
                     type="button"
@@ -1062,7 +1062,7 @@ export default function PayoutsPageNew({
                     type="button"
                     onClick={sendPayoutChangeEmailCode}
                     disabled={isSendingPayoutChangeCode}
-                    className="px-4 py-2 bg-[#0a0a0a] border border-amber-300 text-amber-300 rounded-lg font-medium hover:bg-amber-500/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-white/[0.03] border border-amber-300 text-amber-300 rounded-lg font-medium hover:bg-amber-500/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSendingPayoutChangeCode ? t('payouts_page.sending', { defaultValue: 'Sending…' }) : t('payouts_page.resend_code', { defaultValue: 'Resend code' })}
                   </button>
@@ -1129,7 +1129,7 @@ export default function PayoutsPageNew({
 
                 {/* Step-up banner inline in stepper */}
                 {payoutChangeVerificationRequired ? (
-                  <div id="payout-change-stepup" className="rounded-xl border border-amber-500/30 bg-[#0a0a0a] p-4">
+                  <div id="payout-change-stepup" className="rounded-xl border border-amber-500/30 bg-white/[0.03] p-4">
                     <div className="flex items-start gap-3">
                       <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-300" />
                       <div className="min-w-0 flex-1">
@@ -1143,12 +1143,12 @@ export default function PayoutsPageNew({
                             onChange={(e) => setPayoutChangeCode(e.target.value)}
                             placeholder={t('payouts_page.code_placeholder', { defaultValue: '6-digit code' })}
                             aria-label={t('payouts_page.code_aria', { defaultValue: '6-digit verification code' })}
-                            className="w-full rounded-xl border border-amber-500/30 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
+                            className="w-full rounded-xl border border-amber-500/30 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
                           />
                           <button type="button" onClick={verifyPayoutChangeEmailCode} disabled={isVerifyingPayoutChangeCode || !/^\d{6}$/.test(payoutChangeCode)} className="rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-40">
                             {isVerifyingPayoutChangeCode ? t('payouts_page.verifying', { defaultValue: 'Verifying…' }) : t('payouts_page.verify_and_continue', { defaultValue: 'Verify & continue' })}
                           </button>
-                          <button type="button" onClick={sendPayoutChangeEmailCode} disabled={isSendingPayoutChangeCode} className="rounded-xl border border-amber-500/30 bg-[#0a0a0a] px-4 py-2.5 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-500/10 disabled:opacity-50">
+                          <button type="button" onClick={sendPayoutChangeEmailCode} disabled={isSendingPayoutChangeCode} className="rounded-xl border border-amber-500/30 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-500/10 disabled:opacity-50">
                             {isSendingPayoutChangeCode ? t('payouts_page.sending', { defaultValue: 'Sending…' }) : t('payouts_page.resend_code', { defaultValue: 'Resend code' })}
                           </button>
                         </div>
@@ -1254,7 +1254,7 @@ export default function PayoutsPageNew({
                             <label className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.bank_account', { defaultValue: 'Bank account' })} <span className="text-red-500">*</span></label>
                             {isLoadingBankDestinations ? <div className="text-sm text-white/50">{t('payouts_page.loading_saved_banks', { defaultValue: 'Loading saved bank accounts…' })}</div> : null}
                             {bankDestinations && bankDestinations.length ? (
-                              <select aria-label={t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })} value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                              <select aria-label={t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })} value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
                                 {bankDestinations.map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? t('payouts_page.primary_suffix', { defaultValue: ' (Primary)' }) : ''}</option>))}
                               </select>
                             ) : <div className="text-sm text-white/60">{t('payouts_page.no_banks_step2', { defaultValue: 'No bank accounts saved yet. Add one in step 2 (Verify).' })}</div>}
@@ -1266,7 +1266,7 @@ export default function PayoutsPageNew({
                           <>
                             <div>
                               <label htmlFor="step-provider" className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.provider', { defaultValue: 'Provider' })}</label>
-                              <select id="step-provider" value={formData.provider} onChange={(e) => setFormData({ ...formData, provider: e.target.value })} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                              <select id="step-provider" value={formData.provider} onChange={(e) => setFormData({ ...formData, provider: e.target.value })} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
                                 <option value="moncash">MonCash</option>
                                 {NATCASH_ENABLED && <option value="natcash">Natcash</option>}
                               </select>
@@ -1280,7 +1280,7 @@ export default function PayoutsPageNew({
                             ) : (
                               <div>
                                 <label htmlFor="step-phone" className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.phone_number', { defaultValue: 'Phone number' })}</label>
-                                <input id="step-phone" type="tel" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} placeholder="+50912345678" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                <input id="step-phone" type="tel" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} placeholder="+50912345678" className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                 {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) ? (
                                   <button type="button" onClick={() => { setIsChangingMobileNumber(false); setFormData((p) => ({ ...p, phoneNumber: '' })) }} className="mt-2 text-sm font-medium text-white/60 hover:text-white/70">{t('payouts_page.use_saved_number', { defaultValue: 'Use saved number instead' })}</button>
                                 ) : null}
@@ -1326,7 +1326,7 @@ export default function PayoutsPageNew({
                               {isHaiti ? (
                                 <div>
                                   <label htmlFor="step2-bank-select" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })}</label>
-                                  <select id="step2-bank-select" value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                  <select id="step2-bank-select" value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
                                     {(bankDestinations || []).map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? t('payouts_page.primary_suffix', { defaultValue: ' (Primary)' }) : ''} ({d.verificationStatus ? t(`payouts_page.dest_status_${d.verificationStatus}`, { defaultValue: d.verificationStatus }) : t('payouts_page.dest_status_not_submitted', { defaultValue: 'not submitted' })})</option>))}
                                   </select>
                                   {isLoadingBankDestinations ? <div className="mt-1 text-xs text-white/50">{t('payouts_page.loading_bank_accounts', { defaultValue: 'Loading bank accounts…' })}</div> : null}
@@ -1343,7 +1343,7 @@ export default function PayoutsPageNew({
                                     {isHaiti && status === 'failed' ? <div className="text-sm text-red-300">{t('payouts_page.verification_rejected', { defaultValue: 'Verification was rejected. Please upload a new document.' })}</div> : null}
                                     <div>
                                       <label htmlFor="step2-doc-type" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.document_type', { defaultValue: 'Document type' })}</label>
-                                      <select id="step2-doc-type" value={bankVerificationType} onChange={(e) => setBankVerificationType(e.target.value as any)} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                      <select id="step2-doc-type" value={bankVerificationType} onChange={(e) => setBankVerificationType(e.target.value as any)} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
                                         <option value="bank_statement">{t('payouts_page.doc_bank_statement', { defaultValue: 'Bank statement' })}</option>
                                         <option value="void_check">{t('payouts_page.doc_void_check', { defaultValue: 'Void check' })}</option>
                                         <option value="utility_bill">{t('payouts_page.doc_utility_bill', { defaultValue: 'Utility bill' })}</option>
@@ -1371,7 +1371,7 @@ export default function PayoutsPageNew({
                                     <div className="mt-3 space-y-3">
                                       <div>
                                         <label htmlFor="step2-add-bank" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.bank', { defaultValue: 'Bank' })}</label>
-                                        <select id="step2-add-bank" value={newBankDestination.bankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, bankName: e.target.value, customBankName: e.target.value === 'other' ? p.customBankName : '' }))} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                        <select id="step2-add-bank" value={newBankDestination.bankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, bankName: e.target.value, customBankName: e.target.value === 'other' ? p.customBankName : '' }))} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
                                           <option value="">{t('payouts_page.select_a_bank', { defaultValue: 'Select a bank' })}</option>
                                           {banks.map((bank) => (<option key={bank.value} value={bank.value}>{bank.label}</option>))}
                                         </select>
@@ -1379,24 +1379,24 @@ export default function PayoutsPageNew({
                                       {newBankDestination.bankName === 'other' ? (
                                         <div>
                                           <label htmlFor="step2-custom-bank" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.bank_name', { defaultValue: 'Bank name' })}</label>
-                                          <input id="step2-custom-bank" type="text" value={newBankDestination.customBankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, customBankName: e.target.value }))} placeholder={t('payouts_page.bank_name_placeholder', { defaultValue: 'Enter your bank name' })} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                          <input id="step2-custom-bank" type="text" value={newBankDestination.customBankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, customBankName: e.target.value }))} placeholder={t('payouts_page.bank_name_placeholder', { defaultValue: 'Enter your bank name' })} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                         </div>
                                       ) : null}
                                       <div>
                                         <label htmlFor="step2-acct-num" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.account_number', { defaultValue: 'Account number' })}</label>
-                                        <input id="step2-acct-num" type="text" value={newBankDestination.accountNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountNumber: e.target.value }))} placeholder="1234567890" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                        <input id="step2-acct-num" type="text" value={newBankDestination.accountNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountNumber: e.target.value }))} placeholder="1234567890" className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <div>
                                         <label htmlFor="step2-acct-holder" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.account_holder_name', { defaultValue: 'Account holder name' })}</label>
-                                        <input id="step2-acct-holder" type="text" value={newBankDestination.accountHolder} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountHolder: e.target.value }))} placeholder={t('payouts_page.account_holder_placeholder', { defaultValue: 'Your legal name' })} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                        <input id="step2-acct-holder" type="text" value={newBankDestination.accountHolder} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountHolder: e.target.value }))} placeholder={t('payouts_page.account_holder_placeholder', { defaultValue: 'Your legal name' })} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <div>
                                         <label htmlFor="step2-routing" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.routing_number_optional', { defaultValue: 'Routing number (optional)' })}</label>
-                                        <input id="step2-routing" type="text" value={newBankDestination.routingNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, routingNumber: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                        <input id="step2-routing" type="text" value={newBankDestination.routingNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, routingNumber: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <div>
                                         <label htmlFor="step2-swift" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.swift_code_optional', { defaultValue: 'SWIFT code (optional)' })}</label>
-                                        <input id="step2-swift" type="text" value={newBankDestination.swiftCode} onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                        <input id="step2-swift" type="text" value={newBankDestination.swiftCode} onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <button type="button" onClick={addBankDestination} disabled={isAddingBankDestination} className="w-full rounded-xl  px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50">
                                         {isAddingBankDestination ? t('payouts_page.adding', { defaultValue: 'Adding…' }) : t('payouts_page.add_bank_account', { defaultValue: 'Add bank account' })}
@@ -1423,7 +1423,7 @@ export default function PayoutsPageNew({
                                 </button>
                                 <div>
                                   <label htmlFor="step2-phone-code" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.enter_6_digit_code', { defaultValue: 'Enter 6-digit code' })}</label>
-                                  <input id="step2-phone-code" type="text" inputMode="numeric" value={phoneVerificationCode} onChange={(e) => setPhoneVerificationCode(e.target.value)} placeholder="123456" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                  <input id="step2-phone-code" type="text" inputMode="numeric" value={phoneVerificationCode} onChange={(e) => setPhoneVerificationCode(e.target.value)} placeholder="123456" className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                 </div>
                                 <button type="button" onClick={submitPhoneVerificationCode} disabled={isSubmittingPhoneCode} className="w-full rounded-xl  px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50">
                                   {isSubmittingPhoneCode ? t('payouts_page.verifying', { defaultValue: 'Verifying…' }) : t('payouts_page.verify_phone', { defaultValue: 'Verify phone' })}
@@ -1472,7 +1472,7 @@ export default function PayoutsPageNew({
             />
 
             {/* Payout Profile Selector */}
-            <div className="order-1 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
+            <div className="order-1 bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-2">{t('payouts_page.payout_profiles', { defaultValue: 'Payout profiles' })}</h2>
                 <p className="text-sm text-white/60 mb-4">
@@ -1514,7 +1514,7 @@ export default function PayoutsPageNew({
                       className={`w-full rounded-lg border px-4 py-3 text-left transition-colors ${
                         activeProfile === p.id
                           ? 'border-white/30 bg-white/[0.05]'
-                          : 'border-white/10 bg-[#0a0a0a] hover:bg-white/[0.03]'
+                          : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.03]'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -1549,7 +1549,7 @@ export default function PayoutsPageNew({
             </div>
 
             {/* Verification Card */}
-            <div className="order-3 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
+            <div className="order-3 bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <div id="verify-payouts" />
                 <h2 className="text-lg font-semibold text-white">{t('payouts_page.verify_payouts', { defaultValue: 'Verify payouts' })}</h2>
@@ -1678,7 +1678,7 @@ export default function PayoutsPageNew({
                                 type="button"
                                 onClick={submitBankVerification}
                                 disabled={isSubmittingBankVerification}
-                                className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full px-4 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 {isSubmittingBankVerification ? t('payouts_page.submitting', { defaultValue: 'Submitting…' }) : t('payouts_page.submit_bank_verification', { defaultValue: 'Submit bank verification' })}
                               </button>
@@ -1797,7 +1797,7 @@ export default function PayoutsPageNew({
                                   type="button"
                                   onClick={addBankDestination}
                                   disabled={isAddingBankDestination}
-                                  className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="w-full px-4 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   {isAddingBankDestination ? t('payouts_page.adding', { defaultValue: 'Adding…' }) : t('payouts_page.add_bank_account', { defaultValue: 'Add bank account' })}
                                 </button>
@@ -1834,7 +1834,7 @@ export default function PayoutsPageNew({
                             type="button"
                             onClick={sendPhoneVerificationCode}
                             disabled={isSendingPhoneCode}
-                            className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full px-4 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isSendingPhoneCode ? t('payouts_page.sending', { defaultValue: 'Sending…' }) : t('payouts_page.send_verification_code', { defaultValue: 'Send verification code' })}
                           </button>
@@ -1855,7 +1855,7 @@ export default function PayoutsPageNew({
                             type="button"
                             onClick={submitPhoneVerificationCode}
                             disabled={isSubmittingPhoneCode}
-                            className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full px-4 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isSubmittingPhoneCode ? t('payouts_page.verifying', { defaultValue: 'Verifying…' }) : t('payouts_page.verify_phone', { defaultValue: 'Verify phone' })}
                           </button>
@@ -1878,14 +1878,14 @@ export default function PayoutsPageNew({
             </div>
             
             {/* Payout Setup Card */}
-            <div className="order-2 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
+            <div className="order-2 bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">
                   {t('payouts_page.payout_setup', { defaultValue: 'Payout setup' })}
                 </h2>
 
                 {isStripeConnectSelection ? (
-                  <div className="mb-4  rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
+                  <div className="mb-4  rounded-lg p-3 sm:p-4 bg-white/[0.03]">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-white">Stripe Connect</p>
@@ -1914,14 +1914,14 @@ export default function PayoutsPageNew({
                           <button
                             type="button"
                             onClick={startStripeOnboarding}
-                            className="px-3 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04]"
+                            className="px-3 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04]"
                           >
                             {t('payouts_page.continue_onboarding', { defaultValue: 'Continue onboarding' })}
                           </button>
                           <button
                             type="button"
                             onClick={openStripeDashboard}
-                            className="px-3 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04]"
+                            className="px-3 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04]"
                           >
                             {t('payouts_page.manage_in_stripe', { defaultValue: 'Manage in Stripe' })}
                           </button>
@@ -1938,7 +1938,7 @@ export default function PayoutsPageNew({
                 {isHaiti &&
                 String(formData.method || '').toLowerCase() === 'mobile_money' &&
                 selectedProvider === 'moncash' ? (
-                  <div className="mb-4  rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
+                  <div className="mb-4  rounded-lg p-3 sm:p-4 bg-white/[0.03]">
                     <p className="text-sm font-semibold text-white">{t('payouts_page.instant_moncash_title', { defaultValue: 'Instant MonCash (prefunding)' })}</p>
                     <p className="text-[12px] sm:text-sm text-white/60 mt-1">
                       {t('payouts_page.instant_moncash_desc', { defaultValue: 'Instant payouts depend on platform prefunding availability.' })}
@@ -2053,7 +2053,7 @@ export default function PayoutsPageNew({
                     <button
                       type="button"
                       onClick={() => setIsEditing(true)}
-                      className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors"
+                      className="w-full px-4 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors"
                     >
                       {t('payouts_page.edit_payout_details', { defaultValue: 'Edit payout details' })}
                     </button>
@@ -2137,7 +2137,7 @@ export default function PayoutsPageNew({
                         </div>
                       </div>
                     ) : (
-                      <div className="p-3 bg-[#0a0a0a]  rounded-lg text-sm text-white/70">
+                      <div className="p-3 bg-white/[0.03]  rounded-lg text-sm text-white/70">
                         {t('payouts_page.stripe_collects_bank_long', { defaultValue: "Stripe Connect will collect your bank details securely. You don't need to enter any bank information on Tikèm." })}
                       </div>
                     )}
@@ -2208,7 +2208,7 @@ export default function PayoutsPageNew({
                         </div>
 
                         {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) && !isChangingMobileNumber ? (
-                          <div className=" rounded-lg p-3 bg-[#0a0a0a]">
+                          <div className=" rounded-lg p-3 bg-white/[0.03]">
                             <div className="text-sm text-white font-medium">{t('payouts_page.saved_phone_number', { defaultValue: 'Saved phone number' })}</div>
                             <div className="text-sm text-white/70 mt-1">
                               ****{config?.mobileMoneyDetails?.phoneNumberLast4}
@@ -2277,7 +2277,7 @@ export default function PayoutsPageNew({
                             setPayoutChangeMessage(null)
                           }}
                           disabled={isSaving}
-                          className="px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-4 py-2 bg-white/[0.03] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {t('payouts_page.cancel', { defaultValue: 'Cancel' })}
                         </button>
@@ -2298,7 +2298,7 @@ export default function PayoutsPageNew({
           <div className="lg:col-span-2 space-y-6">
             
             {/* Earnings by Event Card */}
-            <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
+            <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-white">
@@ -2320,7 +2320,7 @@ export default function PayoutsPageNew({
               {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-[#0a0a0a] border-b border-white/10">
+                  <thead className="bg-white/[0.03] border-b border-white/10">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
                         {t('payouts_page.th_event', { defaultValue: 'Event' })}
@@ -2426,7 +2426,7 @@ export default function PayoutsPageNew({
             </div>
 
             {/* Payouts Summary Card */}
-            <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
+            <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">
                   {t('payouts_page.title', { defaultValue: 'Payouts' })}
@@ -2458,7 +2458,7 @@ export default function PayoutsPageNew({
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-[#0a0a0a]  rounded-lg">
+                    <div className="flex items-center gap-3 p-4 bg-white/[0.03]  rounded-lg">
                       <AlertCircle className="w-5 h-5 text-white/40 flex-shrink-0" />
                       <div className="text-sm text-white/60">
                         {t('payouts_page.no_upcoming_payouts', { defaultValue: 'No upcoming payouts yet.' })}

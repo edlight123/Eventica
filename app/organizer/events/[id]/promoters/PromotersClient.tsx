@@ -228,7 +228,7 @@ export default function PromotersClient({
                     onChange={(e) => setCommissionValue(e.target.value)}
                   />
                   <select
-                    className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 [&>option]:bg-[#0a0a0a]"
+                    className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 [&>option]:bg-white/[0.03]"
                     value={commissionType}
                     onChange={(e) => setCommissionType(e.target.value as any)}
                   >

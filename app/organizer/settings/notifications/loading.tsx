@@ -7,7 +7,7 @@ export default function NotificationsLoading() {
           <div className="h-9 w-56 bg-white/[0.06] rounded mb-2 animate-pulse" />
           <div className="h-5 w-96 bg-white/[0.06] rounded animate-pulse" />
         </div>
-        <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6 space-y-8">
+        <div className="bg-white/[0.03] rounded-xl  shadow-sm p-6 space-y-8">
           {[1, 2, 3].map((section) => (
             <div key={section}>
               <div className="h-6 w-48 bg-white/[0.06] rounded mb-4 animate-pulse" />

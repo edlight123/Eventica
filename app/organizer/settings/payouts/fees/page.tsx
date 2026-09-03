@@ -93,7 +93,7 @@ export default async function PayoutFeesPage() {
   return (
     <div className="bg-[#0a0a0a]">
       {/* Header */}
-      <div className="bg-[#0a0a0a] border-b border-white/10">
+      <div className="bg-white/[0.03] border-b border-white/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
@@ -123,7 +123,7 @@ export default async function PayoutFeesPage() {
         <div className="space-y-6">
           
           {/* Who pays the fee — the thing that decides every number below */}
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+          <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               {t('fees_page.who_pays_title', 'Who pays the fee')}
             </h2>
@@ -170,7 +170,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Platform Fee Card */}
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+          <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               {t('fees_page.platform_fee', 'Platform fee')}
             </h2>
@@ -223,7 +223,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Processing Fee Card */}
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+          <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               {t('fees_page.processing_fee', 'Payment processing fee')}
             </h2>
@@ -251,7 +251,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Payout Schedule Card */}
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+          <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               {t('fees_page.payout_schedule', 'Payout schedule')}
             </h2>
@@ -287,7 +287,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Example Calculation Card — one per fee model, so neither reads as the rule */}
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+          <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               {t('fees_page.examples_title', 'Example calculations')}
             </h2>
@@ -301,7 +301,7 @@ export default async function PayoutFeesPage() {
                     'United States, Canada, France — the buyer pays the fee'
                   )}
                 </h3>
-                <div className="bg-[#0a0a0a] rounded-lg border border-white/10 p-4 font-mono text-sm">
+                <div className="bg-white/[0.03] rounded-lg border border-white/10 p-4 font-mono text-sm">
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-white/60">
@@ -351,7 +351,7 @@ export default async function PayoutFeesPage() {
                 <h3 className="text-sm font-semibold text-white mb-2">
                   {t('fees_page.example_ht_title', 'Haiti — the fee comes out of your proceeds')}
                 </h3>
-                <div className="bg-[#0a0a0a] rounded-lg border border-white/10 p-4 font-mono text-sm">
+                <div className="bg-white/[0.03] rounded-lg border border-white/10 p-4 font-mono text-sm">
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-white/60">
@@ -408,7 +408,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Refunds Note Card */}
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+          <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               {t('fees_page.refunds_title', 'Refunds')}
             </h2>

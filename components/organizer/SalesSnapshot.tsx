@@ -72,21 +72,21 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
   }
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-soft  p-4 sm:p-5">
+    <div className="bg-white/[0.03] rounded-2xl shadow-soft  p-4 sm:p-5">
       {/* Header with Toggle */}
       <div className="mb-3.5 flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2.5 min-w-0">
           <h3 className="font-display text-lg leading-none text-white sm:text-xl">{t('sales_snapshot.title')}</h3>
           <span className="truncate text-xs text-white/40">{getRangeLabel(range)}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-[#0a0a0a] p-0.5">
+        <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-white/[0.03] p-0.5">
           {(['7d', '30d', 'lifetime'] as TimeRange[]).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
               className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
                 range === r
-                  ? 'bg-[#0a0a0a] text-brand-300 shadow-sm'
+                  ? 'bg-white/[0.03] text-brand-300 shadow-sm'
                   : 'text-white/50 hover:text-white'
               }`}
             >

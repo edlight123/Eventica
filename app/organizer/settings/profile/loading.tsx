@@ -12,7 +12,7 @@ export default function ProfileLoading() {
         </div>
 
         {/* Form Skeleton */}
-        <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6 space-y-6">
+        <div className="bg-white/[0.03] rounded-xl  shadow-sm p-6 space-y-6">
           {/* Avatar */}
           <div className="flex items-start gap-6">
             <div className="w-24 h-24 rounded-full bg-white/[0.06] animate-pulse" />

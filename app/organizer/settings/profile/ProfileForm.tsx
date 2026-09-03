@@ -138,7 +138,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
       {/* Profile Photo */}
       <div className="flex items-start gap-6">
         <div className="relative">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-[#0a0a0a] border-2 border-white/10">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-white/[0.03] border-2 border-white/10">
             {formData.photo_url ? (
               <Image
                 src={formData.photo_url}
@@ -211,7 +211,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             type="email"
             id="email"
             value={formData.email}
-            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg bg-[#0a0a0a] text-white/50 cursor-not-allowed"
+            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg bg-white/[0.03] text-white/50 cursor-not-allowed"
             disabled
           />
         </div>

@@ -138,7 +138,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
       {/* Organization Logo */}
       <div className="flex items-start gap-6">
         <div className="relative">
-          <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#0a0a0a] border-2 border-white/10">
+          <div className="w-24 h-24 rounded-lg overflow-hidden bg-white/[0.03] border-2 border-white/10">
             {formData.organization_logo ? (
               <Image
                 src={formData.organization_logo}

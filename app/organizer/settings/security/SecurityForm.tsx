@@ -87,7 +87,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
   return (
     <div className="space-y-6">
       {/* Change Password */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+      <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
         <div className="flex items-center gap-2 mb-6">
           <Key className="w-5 h-5 text-brand-300" />
           <h3 className="text-lg font-semibold text-white">Change Password</h3>
@@ -160,7 +160,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
       </div>
 
       {/* Two-Factor Authentication (Future) */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+      <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-brand-300" />
@@ -171,14 +171,14 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
               </p>
             </div>
           </div>
-          <span className="px-3 py-1 bg-[#0a0a0a] text-white/60 text-xs font-medium rounded-full">
+          <span className="px-3 py-1 bg-white/[0.03] text-white/60 text-xs font-medium rounded-full">
             Coming Soon
           </span>
         </div>
       </div>
 
       {/* Login History */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
+      <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-2">
             <Monitor className="w-5 h-5 text-brand-300" />

@@ -74,7 +74,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
   const statusInfo = getStatusInfo()
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-soft  p-6">
+    <div className="bg-white/[0.03] rounded-2xl shadow-soft  p-6">
       <div className="flex items-start gap-4 mb-6">
         <div className={`w-12 h-12 ${statusInfo.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
           <div className={statusInfo.iconColor}>
@@ -91,7 +91,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       {status !== 'not-setup' && (
         <div className="space-y-4 mb-6">
           {/* Pending Balance */}
-          <div className="bg-[#0a0a0a] rounded-xl p-4">
+          <div className="bg-white/[0.03] rounded-xl p-4">
             <p className="label-mono text-xs uppercase mb-1">{t('payouts.pending_balance')}</p>
             <p className="text-2xl font-bold text-brand-300 font-mono tabular-nums">
               {formatMoneyFromCents(pendingBalance, currency)}

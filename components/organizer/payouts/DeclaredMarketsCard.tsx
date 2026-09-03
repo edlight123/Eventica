@@ -103,7 +103,7 @@ export default function DeclaredMarketsCard({
   }
 
   return (
-    <div className={`bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden ${className || ''}`}>
+    <div className={`bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden ${className || ''}`}>
       <div className="p-6">
         <h2 className="text-lg font-semibold text-white">{t('markets.title', { defaultValue: 'Where you run events' })}</h2>
         <p className="mt-1 text-sm text-white/60">
@@ -124,7 +124,7 @@ export default function DeclaredMarketsCard({
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
                   isOn
                     ? 'border-brand-700 bg-brand-700 text-white'
-                    : 'border-white/15 bg-[#0a0a0a] text-white/80 hover:bg-white/[0.04]'
+                    : 'border-white/15 bg-white/[0.03] text-white/80 hover:bg-white/[0.04]'
                 }`}
               >
                 {isOn ? <Check className="h-3.5 w-3.5" /> : null}

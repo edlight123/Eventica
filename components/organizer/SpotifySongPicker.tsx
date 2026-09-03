@@ -313,7 +313,7 @@ export default function SpotifySongPicker({
           id={listboxId}
           role="listbox"
           aria-label={t('composer.spotifyResultsLabel', { defaultValue: 'Song results' })}
-          className="absolute left-0 right-0 z-30 mt-2 max-h-80 overflow-y-auto rounded-xl border border-white/10 bg-[#0a0a0a] py-1 shadow-2xl"
+          className="absolute left-0 right-0 z-30 mt-2 max-h-80 overflow-y-auto rounded-xl border border-white/10 bg-[#111] py-1 shadow-2xl"
         >
           {results.length === 0 ? (
             <li className="px-4 py-3 text-xs text-white/40">

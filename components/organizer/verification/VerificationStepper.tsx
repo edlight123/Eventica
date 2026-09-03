@@ -69,15 +69,15 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
       badgeText: 'Complete'
     },
     incomplete: {
-      bgColor: 'bg-[#0a0a0a]',
+      bgColor: 'bg-white/[0.03]',
       borderColor: 'border-white/10',
-      iconBgColor: 'bg-[#0a0a0a]',
+      iconBgColor: 'bg-white/[0.03]',
       icon: (
         <span className="text-xs font-bold text-white/60">
           {stepNumber}
         </span>
       ),
-      badgeColor: 'bg-[#0a0a0a] text-white/60',
+      badgeColor: 'bg-white/[0.03] text-white/60',
       badgeText: step.required ? 'Required' : 'Optional'
     },
     needs_attention: {

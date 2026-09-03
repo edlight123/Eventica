@@ -168,12 +168,12 @@ export function OrgDataTable<T>({
         <div className="divide-y divide-white/5">
           {Array.from({ length: skeletonRows }).map((_, i) => (
             <div key={i} className="flex animate-pulse items-center gap-4 px-4 py-4 sm:px-6">
-              <div className="h-9 w-9 rounded-lg bg-[#0a0a0a]" />
+              <div className="h-9 w-9 rounded-lg bg-white/[0.06]" />
               <div className="flex-1 space-y-2">
-                <div className="h-3.5 w-1/3 rounded bg-[#0a0a0a]" />
-                <div className="h-3 w-1/4 rounded bg-[#0a0a0a]" />
+                <div className="h-3.5 w-1/3 rounded bg-white/[0.06]" />
+                <div className="h-3 w-1/4 rounded bg-white/[0.06]" />
               </div>
-              <div className="h-6 w-16 rounded-full bg-[#0a0a0a]" />
+              <div className="h-6 w-16 rounded-full bg-white/[0.06]" />
             </div>
           ))}
         </div>

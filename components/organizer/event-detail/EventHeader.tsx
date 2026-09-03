@@ -82,7 +82,7 @@ export function EventHeader({ event }: EventHeaderProps) {
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                   event.is_published 
                     ? 'text-emerald-300' 
-                    : 'bg-[#0a0a0a] text-white/90'
+                    : 'bg-white/[0.03] text-white/90'
                 }`}>
                   {event.is_published ? t('organizer.published') : t('organizer.draft')}
                 </span>
@@ -113,7 +113,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             <div className="flex items-center gap-2 ml-4">
               <Link
                 href={`/organizer/events/${event.id}/edit`}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
               >
                 <Edit className="w-4 h-4" />
                 {t('organizer.edit')}
@@ -121,7 +121,7 @@ export function EventHeader({ event }: EventHeaderProps) {
               <Link
                 href={`/events/${event.id}`}
                 target="_blank"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
               >
                 <Eye className="w-4 h-4" />
                 {t('organizer.preview')}
@@ -137,7 +137,7 @@ export function EventHeader({ event }: EventHeaderProps) {
                     navigator.clipboard.writeText(`${window.location.origin}/events/${event.id}`)
                   }
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 {t('organizer.share')}
@@ -163,7 +163,7 @@ export function EventHeader({ event }: EventHeaderProps) {
                   <MoreVertical className="w-5 h-5 text-white/70" />
                 </button>
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] rounded-lg shadow-lg  py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-[#111] rounded-lg shadow-lg  py-1 z-50">
                     <button className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-white/[0.04] flex items-center gap-2">
                       <Copy className="w-4 h-4" />
                       {t('organizer.duplicate')}
@@ -190,7 +190,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
               event.is_published 
                 ? 'text-emerald-300' 
-                : 'bg-[#0a0a0a] text-white/90'
+                : 'bg-white/[0.03] text-white/90'
             }`}>
               {event.is_published ? t('organizer.published') : t('organizer.draft')}
             </span>
@@ -244,7 +244,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             onClick={handlePublishToggle}
             disabled={isPublishing}
             className={`flex flex-col items-center gap-1 p-2 rounded-lg ${
-              event.is_published ? 'bg-[#0a0a0a]' : ''
+              event.is_published ? 'bg-white/[0.03]' : ''
             }`}
           >
             <div className={`w-5 h-5 rounded-full ${event.is_published ? 'bg-gray-600' : 'bg-brand-700'}`} />

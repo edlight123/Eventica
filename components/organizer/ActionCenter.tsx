@@ -60,12 +60,12 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
       case 'verification':
         return { bg: '', border: 'border-amber-500/30', text: 'text-white', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
       default:
-        return { bg: 'bg-[#0a0a0a]', border: 'border-white/10', text: 'text-white', icon: 'text-white/60', btn: 'bg-gray-600 hover:bg-gray-700' }
+        return { bg: 'bg-white/[0.03]', border: 'border-white/10', text: 'text-white', icon: 'text-white/60', btn: 'bg-gray-600 hover:bg-gray-700' }
     }
   }
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-soft  p-6">
+    <div className="bg-white/[0.03] rounded-2xl shadow-soft  p-6">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center">
           <AlertCircle className="w-5 h-5 text-red-300" />
@@ -87,7 +87,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
               className={`${colors.bg} ${colors.border} border rounded-xl p-4`}
             >
               <div className="flex items-start gap-3">
-                <div className={`w-8 h-8 bg-[#0a0a0a] rounded-lg flex items-center justify-center flex-shrink-0 ${colors.icon}`}>
+                <div className={`w-8 h-8 bg-white/[0.03] rounded-lg flex items-center justify-center flex-shrink-0 ${colors.icon}`}>
                   {getIcon(alert.type)}
                 </div>
                 <div className="flex-1 min-w-0">

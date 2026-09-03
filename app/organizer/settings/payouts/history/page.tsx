@@ -67,7 +67,7 @@ function PayoutHistoryClient({ payouts }: { payouts: PayoutHistoryItem[] }) {
   return (
     <div className="bg-[#0a0a0a]">
       {/* Header */}
-      <div className="bg-[#0a0a0a] border-b border-white/10">
+      <div className="bg-white/[0.03] border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
@@ -94,12 +94,12 @@ function PayoutHistoryClient({ payouts }: { payouts: PayoutHistoryItem[] }) {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
           
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-white/10">
+              <thead className="bg-white/[0.03] border-b border-white/10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
                     Date

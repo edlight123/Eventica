@@ -86,7 +86,7 @@ export default function OrganizerEventsFiltersModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl z-50 flex flex-col bg-[#0a0a0a] md:rounded-2xl md:shadow-2xl md:max-h-[90vh] overflow-hidden">
+      <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl z-50 flex flex-col bg-[#111] md:rounded-2xl md:shadow-2xl md:max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-brand-700 text-white">
           <div className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export default function OrganizerEventsFiltersModal({
                       }
                     }))
                   }
-                  className="w-full px-3 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <div>
@@ -146,7 +146,7 @@ export default function OrganizerEventsFiltersModal({
                       }
                     }))
                   }
-                  className="w-full px-3 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
@@ -176,7 +176,7 @@ export default function OrganizerEventsFiltersModal({
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       isSelected
                         ? 'bg-brand-700 text-white shadow-sm'
-                        : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+                        : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
                     }`}
                   >
                     {city}
@@ -202,7 +202,7 @@ export default function OrganizerEventsFiltersModal({
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       isSelected
                         ? 'bg-brand-700 text-white shadow-sm'
-                        : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+                        : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
                     }`}
                   >
                     {category}
@@ -224,7 +224,7 @@ export default function OrganizerEventsFiltersModal({
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === null
                     ? 'bg-brand-700 text-white shadow-sm'
-                    : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+                    : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
                 }`}
               >
                 All Events
@@ -234,7 +234,7 @@ export default function OrganizerEventsFiltersModal({
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === true
                     ? 'bg-brand-700 text-white shadow-sm'
-                    : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+                    : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
                 }`}
               >
                 Has Sales
@@ -244,7 +244,7 @@ export default function OrganizerEventsFiltersModal({
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === false
                     ? 'bg-brand-700 text-white shadow-sm'
-                    : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+                    : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
                 }`}
               >
                 No Sales
@@ -267,7 +267,7 @@ export default function OrganizerEventsFiltersModal({
                     sortBy: e.target.value as EventFilters['sortBy']
                   }))
                 }
-                className="px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="px-4 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="date">Event Date</option>
                 <option value="sales">Ticket Sales</option>
@@ -282,7 +282,7 @@ export default function OrganizerEventsFiltersModal({
                     sortOrder: e.target.value as EventFilters['sortOrder']
                   }))
                 }
-                className="px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="px-4 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="desc">Descending</option>
                 <option value="asc">Ascending</option>
@@ -292,7 +292,7 @@ export default function OrganizerEventsFiltersModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-white/10 bg-[#0a0a0a]">
+        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-white/10 bg-white/[0.03]">
           <button
             onClick={handleClearAll}
             className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors"
@@ -302,7 +302,7 @@ export default function OrganizerEventsFiltersModal({
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-5 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-semibold text-white/70 hover:bg-white/[0.04] transition-all"
+              className="px-5 py-2 bg-white/[0.03] border border-white/15 rounded-lg text-sm font-semibold text-white/70 hover:bg-white/[0.04] transition-all"
             >
               Cancel
             </button>

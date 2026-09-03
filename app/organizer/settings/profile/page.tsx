@@ -62,7 +62,7 @@ export default async function ProfileSettingsPage() {
         </div>
 
         {/* Info Notice */}
-        <div className="mt-6 p-4 bg-[#0a0a0a]  rounded-lg">
+        <div className="mt-6 p-4 bg-white/[0.03]  rounded-lg">
           <p className="text-sm text-white/60">
             <strong className="text-white">Note:</strong> Your email address is managed through your authentication provider and cannot be changed here. Contact support if you need to update your email.
           </p>

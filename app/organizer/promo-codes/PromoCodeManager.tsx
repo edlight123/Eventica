@@ -161,7 +161,7 @@ export default function PromoCodeManager({
         className={`px-3 py-1.5 rounded-lg font-medium text-xs md:text-sm transition ${
           promo.is_active
             ? 'text-brand-300 hover:bg-brand-500/15'
-            : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+            : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
         }`}
       >
         {promo.is_active ? 'Deactivate' : 'Activate'}
@@ -329,7 +329,7 @@ export default function PromoCodeManager({
                 required
                 value={eventId}
                 onChange={(e) => setEventId(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-[#0a0a0a] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                className="w-full rounded-lg border border-white/15 bg-white/[0.03] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="">Select event</option>
                 {events.map((event) => (
@@ -345,7 +345,7 @@ export default function PromoCodeManager({
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
-                className="w-full rounded-lg border border-white/15 bg-[#0a0a0a] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                className="w-full rounded-lg border border-white/15 bg-white/[0.03] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="percentage">Percentage (%)</option>
                 <option value="fixed">Fixed Amount</option>
@@ -396,7 +396,7 @@ export default function PromoCodeManager({
                 type="datetime-local"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-[#0a0a0a] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                className="w-full rounded-lg border border-white/15 bg-white/[0.03] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               />
             </div>
           </div>

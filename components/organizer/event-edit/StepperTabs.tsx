@@ -19,7 +19,7 @@ const TAB_ICONS: Record<string, any> = {
 
 export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps) {
   return (
-    <div className="bg-[#0a0a0a] border-b border-white/10">
+    <div className="bg-white/[0.03] border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Desktop Tabs */}
         <div className="hidden md:flex items-center justify-between">
@@ -52,7 +52,7 @@ export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps)
                       ? 'text-emerald-300 group-hover:bg-green-200'
                       : hasWarnings || tab.missingFields.length > 0
                       ? 'text-amber-300 group-hover:bg-amber-200'
-                      : 'bg-[#0a0a0a] text-white/60 group-hover:bg-white/[0.04]'
+                      : 'bg-white/[0.03] text-white/60 group-hover:bg-white/[0.04]'
                   }`}>
                     {isCompleted && !isActive ? (
                       <Check className="w-5 h-5" />
@@ -116,7 +116,7 @@ export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps)
                   <div className={`h-0.5 w-8 transition-all ${
                     isPast || isCompleted
                       ? 'bg-green-500'
-                      : 'bg-[#0a0a0a]'
+                      : 'bg-white/[0.03]'
                   }`}></div>
                 )}
               </div>

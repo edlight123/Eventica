@@ -22,7 +22,7 @@ export function OrgEmptyState({
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#0a0a0a] p-10 text-center ${className}`}
+      className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center ${className}`}
     >
       {Icon && (
         <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl text-brand-400">

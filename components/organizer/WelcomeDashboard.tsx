@@ -69,7 +69,7 @@ export default function WelcomeDashboard({
             </div>
             <Link
               href="/organizer/events/new"
-              className="flex-shrink-0 inline-flex items-center gap-2 bg-[#0a0a0a] text-brand-300 px-6 py-3 rounded-xl font-semibold hover:bg-brand-500/10 transition-colors shadow-lg"
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-white/[0.03] text-brand-300 px-6 py-3 rounded-xl font-semibold hover:bg-brand-500/10 transition-colors shadow-lg"
             >
               {t('organizer.welcome.createEventBtn', 'Create Event')}
               <ArrowRight className="w-5 h-5" />
@@ -80,7 +80,7 @@ export default function WelcomeDashboard({
 
       {/* Benefits Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#0a0a0a] rounded-xl p-5  shadow-sm">
+        <div className="bg-white/[0.03] rounded-xl p-5  shadow-sm">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
             <Calendar className="w-5 h-5 text-brand-300" />
           </div>
@@ -95,7 +95,7 @@ export default function WelcomeDashboard({
           </p>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl p-5  shadow-sm">
+        <div className="bg-white/[0.03] rounded-xl p-5  shadow-sm">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
             <TrendingUp className="w-5 h-5 text-brand-300" />
           </div>
@@ -110,7 +110,7 @@ export default function WelcomeDashboard({
           </p>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl p-5  shadow-sm">
+        <div className="bg-white/[0.03] rounded-xl p-5  shadow-sm">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
             <Users className="w-5 h-5 text-brand-300" />
           </div>

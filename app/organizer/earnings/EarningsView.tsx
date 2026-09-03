@@ -181,16 +181,18 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
 
   return (
     <div className="space-y-6">
-      {/* Payout hero — available balance + primary action */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 via-brand-700 to-brand-800 p-6 text-white shadow-soft sm:p-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#0a0a0a] blur-2xl"
-        />
+      {/* Payout hero.
+          Was a full teal gradient panel, which fought the rest of the product:
+          the canvas is black and teal is the sparing accent, so a big teal slab
+          here read as another product's screen. Now the balance carries it —
+          one large figure on the canvas, the way the public pages let a number
+          or a title do the work — and teal is left to the one accent that
+          matters, the wallet mark. */}
+      <section className="relative overflow-hidden rounded-2xl bg-white/[0.03] p-6 sm:p-8">
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-brand-100">
-              <Wallet className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-white/50">
+              <Wallet className="h-4 w-4 text-brand-400" />
               <span className="eyebrow">Available to withdraw</span>
             </div>
 
@@ -201,7 +203,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
               {formatCurrency(availableForPayout, payoutCurrency)}
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-100">
+            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/55">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
                 Pending&nbsp;
@@ -221,7 +223,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
               type="button"
               onClick={() => setPayoutOpen(true)}
               disabled={!canWithdraw}
-              // The states were inverted: enabled was `bg-[#0a0a0a]` (near
+              // The states were inverted: enabled was `bg-white/[0.03]` (near
               // black) while disabled was `bg-white/70` — and a white fill is
               // this product's PRIMARY button, so the unusable state looked
               // like the call to action and the usable one looked like a hole.
@@ -231,7 +233,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
               Request payout
               <ArrowRight className="h-4 w-4" />
             </button>
-            <p className="mt-2 max-w-[14rem] text-xs text-brand-100 lg:text-right">
+            <p className="mt-2 max-w-[14rem] text-xs text-white/55 lg:text-right">
               {canWithdraw
                 ? 'Paid to your configured method, batched to the next Friday.'
                 : availableForPayout > 0
@@ -301,7 +303,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
         </div>
       </details>
 
-      <div className="bg-[#0a0a0a] rounded-2xl  shadow-soft overflow-hidden">
+      <div className="bg-white/[0.03] rounded-2xl  shadow-soft overflow-hidden">
         {/* Filter Tabs */}
         <div className="border-b border-white/10 px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -318,7 +320,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
                     filter === status
                       ? 'bg-brand-700 text-white'
-                      : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+                      : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -347,7 +349,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
               <div key={event.eventId} className="p-4 hover:bg-white/[0.04]">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-display italic text-white truncate">{event.eventTitle}</h3>
+                    <h3 className="truncate font-semibold text-white">{event.eventTitle}</h3>
                     <p className="font-mono tabular-nums text-sm text-white/50 mt-1">
                       {new Date(event.eventDate).toLocaleDateString()}
                     </p>
@@ -421,7 +423,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-[#0a0a0a] divide-y divide-white/10">
+            <tbody className="bg-white/[0.03] divide-y divide-white/10">
               {filteredEvents.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">
@@ -440,7 +442,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                 filteredEvents.map((event) => (
                   <tr key={event.eventId} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
-                      <div className="font-display italic text-white">{event.eventTitle}</div>
+                      <div className="font-medium text-white">{event.eventTitle}</div>
                     </td>
                     <td className="px-6 py-4 font-mono tabular-nums text-sm text-white/50 whitespace-nowrap">
                       {new Date(event.eventDate).toLocaleDateString()}

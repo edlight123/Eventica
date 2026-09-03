@@ -82,7 +82,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-[#0a0a0a]  rounded-lg p-6 md:p-8">
+      <div className="bg-white/[0.03]  rounded-lg p-6 md:p-8">
         <h3 className="text-lg md:text-xl font-bold text-white mb-6">
           {t('onboarding.verification.forms.organizer_info_title', { defaultValue: 'Organizer Information' })}
         </h3>
@@ -252,7 +252,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           type="button"
           onClick={onCancel}
           disabled={isSaving}
-          className="flex-1 px-6 py-3 text-white/70 bg-[#0a0a0a] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all disabled:opacity-50"
+          className="flex-1 px-6 py-3 text-white/70 bg-white/[0.03] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all disabled:opacity-50"
         >
           {t('onboarding.verification.nav.cancel', { defaultValue: 'Cancel' })}
         </button>

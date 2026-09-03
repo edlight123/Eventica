@@ -22,7 +22,7 @@ export default function DangerZoneLoading() {
         {/* Action Cards Skeleton */}
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-[#0a0a0a] rounded-xl border-2 border-white/10 p-6">
+            <div key={i} className="bg-white/[0.03] rounded-xl border-2 border-white/10 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-3">
                   <div className="h-6 w-56 bg-white/[0.06] rounded animate-pulse" />

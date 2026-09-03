@@ -11,10 +11,10 @@ export default function TeamLoading() {
           <div className="flex justify-end">
             <div className="h-11 w-48 bg-white/[0.06] rounded-lg animate-pulse" />
           </div>
-          <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden">
+          <div className="bg-white/[0.03] rounded-xl  overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-[#0a0a0a] border-b border-white/10">
+                <thead className="bg-white/[0.03] border-b border-white/10">
                   <tr>
                     {[1, 2, 3, 4, 5].map((i) => (
                       <th key={i} className="px-6 py-3">

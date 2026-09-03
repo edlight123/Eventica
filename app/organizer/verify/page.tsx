@@ -272,7 +272,7 @@ export default function VerifyOrganizerPage() {
 
   if (authLoading || loading || restarting) {
     return (
-      <div className="bg-[#0a0a0a] flex items-center justify-center">
+      <div className="bg-white/[0.03] flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-white/60">
@@ -285,8 +285,8 @@ export default function VerifyOrganizerPage() {
 
   if (error && !request) {
     return (
-      <div className="bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-[#0a0a0a] border border-red-500/30 rounded-lg p-6 max-w-md">
+      <div className="bg-white/[0.03] flex items-center justify-center p-4">
+        <div className="bg-white/[0.03] border border-red-500/30 rounded-lg p-6 max-w-md">
           <h2 className="text-lg font-bold text-red-300 mb-2">Error Loading Verification</h2>
           <p className="text-sm text-red-300 mb-4">{error}</p>
           <button
@@ -360,7 +360,7 @@ export default function VerifyOrganizerPage() {
         />
 
         {statusForUI === 'approved' && !wantsDetails ? (
-          <div className="bg-[#0a0a0a] border border-emerald-500/30 rounded-xl p-4 md:p-5 mb-6">
+          <div className="bg-white/[0.03] border border-emerald-500/30 rounded-xl p-4 md:p-5 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold text-white">You’re already verified</div>
@@ -369,7 +369,7 @@ export default function VerifyOrganizerPage() {
               <div className="flex flex-col sm:flex-row gap-2">
                 <Link
                   href="/organizer/verify?details=1"
-                  className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-[#0a0a0a] border border-white/15 hover:border-white/20 hover:bg-white/[0.04] transition-all text-center"
+                  className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-white/[0.03] border border-white/15 hover:border-white/20 hover:bg-white/[0.04] transition-all text-center"
                 >
                   View Verification Details
                 </Link>
@@ -385,7 +385,7 @@ export default function VerifyOrganizerPage() {
         ) : null}
 
         {error ? (
-          <div className="bg-[#0a0a0a] border border-red-500/30 rounded-lg p-4 mb-6">
+          <div className="bg-white/[0.03] border border-red-500/30 rounded-lg p-4 mb-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-sm font-semibold text-red-300">Something went wrong</div>

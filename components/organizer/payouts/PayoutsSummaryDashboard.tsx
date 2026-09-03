@@ -134,7 +134,7 @@ export default function PayoutsSummaryDashboard({
     return (
       <div 
         key={profile}
-        className="bg-[#0a0a0a] rounded-xl border border-white/10 p-5 transition-colors"
+        className="bg-white/[0.03] rounded-xl border border-white/10 p-5 transition-colors"
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export default function PayoutsSummaryDashboard({
         </div>
 
         {method.details.maskedNumber && (
-          <div className="bg-[#0a0a0a] rounded-lg px-3 py-2 mb-4 font-mono text-sm text-white/60">
+          <div className="bg-white/[0.03] rounded-lg px-3 py-2 mb-4 font-mono text-sm text-white/60">
             {method.type === 'mobile_money' ? 'Phone: ' : 'Account: '}
             ****{method.details.maskedNumber}
           </div>
@@ -228,8 +228,8 @@ export default function PayoutsSummaryDashboard({
             {stripeMethod && renderPayoutMethod(stripeMethod, 'stripe_connect')}
           </div>
         ) : (
-          <div className="bg-[#0a0a0a] rounded-xl  p-8 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#0a0a0a] flex items-center justify-center">
+          <div className="bg-white/[0.03] rounded-xl  p-8 text-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-white/[0.03] flex items-center justify-center">
               <Wallet className="w-7 h-7 text-white/40" />
             </div>
             <h3 className="font-semibold text-white mb-2">No payout methods set up</h3>
@@ -248,7 +248,7 @@ export default function PayoutsSummaryDashboard({
       </div>
 
       {/* Quick Links */}
-      <div className="bg-[#0a0a0a] rounded-xl  p-5">
+      <div className="bg-white/[0.03] rounded-xl  p-5">
         <h3 className="font-semibold text-white mb-4">Manage</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
@@ -268,7 +268,7 @@ export default function PayoutsSummaryDashboard({
             href="/organizer/settings/payouts/history"
             className="flex items-center gap-3 p-3 rounded-lg  hover:bg-white/[0.04] hover:border-white/10 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-white/[0.03] flex items-center justify-center flex-shrink-0">
               <History className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">
@@ -281,7 +281,7 @@ export default function PayoutsSummaryDashboard({
             href="/organizer/settings/payouts/fees"
             className="flex items-center gap-3 p-3 rounded-lg  hover:bg-white/[0.04] hover:border-white/10 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-white/[0.03] flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">

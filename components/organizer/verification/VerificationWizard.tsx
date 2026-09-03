@@ -82,7 +82,7 @@ function ReviewDoc({ ok, label }: { ok: boolean; label: string }) {
   const { t } = useTranslation('organizer')
   return (
     <li className="flex items-center gap-2">
-      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-[#0a0a0a] text-white/40'}`}>
+      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-white/[0.03] text-white/40'}`}>
         {ok ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
       </span>
       <span className={ok ? 'text-white' : 'text-white/50'}>{label}</span>
@@ -298,7 +298,7 @@ export default function VerificationWizard({
   const progressPercentage = ((currentStepIndex + 1) / STEPS.length) * 100
 
   return (
-    <div className="min-h-[80vh] bg-[#0a0a0a]">
+    <div className="min-h-[80vh] bg-white/[0.03]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {/* Header */}
         <div className="mb-6">
@@ -311,7 +311,7 @@ export default function VerificationWizard({
           </button>
           
           {/* Progress Bar */}
-          <div className="bg-[#0a0a0a] rounded-xl  p-4 md:p-5">
+          <div className="bg-white/[0.03] rounded-xl  p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-white">
                 {t('onboarding.verification.step_of', {
@@ -350,8 +350,8 @@ export default function VerificationWizard({
                           : isCurrent
                             ? 'bg-brand-600 text-white ring-4 ring-brand-500/20'
                             : isPast
-                              ? 'bg-[#0a0a0a] text-white/60'
-                              : 'bg-[#0a0a0a] text-white/50'
+                              ? 'bg-white/[0.03] text-white/60'
+                              : 'bg-white/[0.03] text-white/50'
                         }
                       `}
                     >
@@ -360,7 +360,7 @@ export default function VerificationWizard({
                     {index < STEPS.length - 1 && (
                       <div
                         className={`flex-1 h-1 mx-2 rounded-full transition-colors ${
-                          isComplete || isPast ? 'bg-green-500' : 'bg-[#0a0a0a]'
+                          isComplete || isPast ? 'bg-green-500' : 'bg-white/[0.03]'
                         }`}
                       />
                     )}
@@ -384,7 +384,7 @@ export default function VerificationWizard({
               <p className="text-white/60">
                 {t(`onboarding.verification.steps.${currentStep.id}.description`, { defaultValue: currentStep.description })}
                 {!currentStep.required && (
-                  <span className="ml-2 text-xs font-medium text-white/50 bg-[#0a0a0a] px-2 py-0.5 rounded-full">
+                  <span className="ml-2 text-xs font-medium text-white/50 bg-white/[0.03] px-2 py-0.5 rounded-full">
                     {t('onboarding.verification.optional', { defaultValue: 'Optional' })}
                   </span>
                 )}
@@ -420,7 +420,7 @@ export default function VerificationWizard({
         )}
 
         {/* Step Content */}
-        <div className="bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
+        <div className="bg-white/[0.03] rounded-xl  shadow-sm overflow-hidden">
           {currentStep.id === 'organizerInfo' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Full Name */}
@@ -631,7 +631,7 @@ export default function VerificationWizard({
 
           {currentStep.id === 'businessDetails' && (
             <div className="p-5 md:p-6 space-y-5">
-              <div className="bg-[#0a0a0a]  rounded-xl p-4 mb-2">
+              <div className="bg-white/[0.03]  rounded-xl p-4 mb-2">
                 <p className="text-sm text-white/60">
                   {t('onboarding.verification.business_optional_note', { defaultValue: 'This step is optional. Add business details if you have a registered business.' })}
                 </p>

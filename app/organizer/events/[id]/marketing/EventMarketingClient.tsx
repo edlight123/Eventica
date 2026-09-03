@@ -193,7 +193,7 @@ export default function EventMarketingClient({
       </div>
 
       {/* SMS campaigns — coming soon */}
-      <div className="rounded-2xl border border-dashed border-white/10 bg-[#0a0a0a]/50 p-8">
+      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03]/50 p-8">
         <div className="mx-auto max-w-sm text-center">
           <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
             <Megaphone className="h-6 w-6 text-brand-400" />

@@ -9,7 +9,7 @@ export default function SecurityLoading() {
         </div>
         <div className="space-y-6">
           {/* Password Change Skeleton */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
+          <div className="bg-white/[0.03] rounded-xl  shadow-sm p-6">
             <div className="h-6 w-48 bg-white/[0.06] rounded mb-6 animate-pulse" />
             <div className="space-y-4 max-w-md">
               {[1, 2, 3].map((i) => (
@@ -23,7 +23,7 @@ export default function SecurityLoading() {
           </div>
           
           {/* 2FA Skeleton */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
+          <div className="bg-white/[0.03] rounded-xl  shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="h-6 w-64 bg-white/[0.06] rounded mb-2 animate-pulse" />
@@ -34,7 +34,7 @@ export default function SecurityLoading() {
           </div>
 
           {/* Login History Skeleton */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
+          <div className="bg-white/[0.03] rounded-xl  shadow-sm overflow-hidden">
             <div className="p-6 border-b border-white/10">
               <div className="h-6 w-56 bg-white/[0.06] rounded mb-1 animate-pulse" />
               <div className="h-4 w-72 bg-white/[0.06] rounded animate-pulse" />

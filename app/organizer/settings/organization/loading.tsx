@@ -7,7 +7,7 @@ export default function OrganizationLoading() {
           <div className="h-9 w-96 bg-white/[0.06] rounded mb-2 animate-pulse" />
           <div className="h-5 w-full max-w-md bg-white/[0.06] rounded animate-pulse" />
         </div>
-        <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6 space-y-6">
+        <div className="bg-white/[0.03] rounded-xl  shadow-sm p-6 space-y-6">
           <div className="flex items-start gap-6">
             <div className="w-24 h-24 rounded-lg bg-white/[0.06] animate-pulse" />
             <div className="flex-1">
