@@ -823,6 +823,12 @@ export default function EventComposer({
     passwordProtected &&
     ((!isEdit && trimmedCode.length < 6) || (trimmedCode.length > 0 && trimmedCode.length < 6))
 
+  // The organizer's own UTC offset, shown beside the date fields so "8pm" is
+  // unambiguous. This is deliberately CLIENT-truth: the times they type are
+  // wall-clock in their own zone, so the label must be their zone, not the
+  // server's. That makes it a guaranteed hydration mismatch — the server has no
+  // way to know the offset and renders its own (GMT+0 on Vercel) — so every
+  // render site carries suppressHydrationWarning and the client value wins.
   const tzLabel = (() => {
     const off = -new Date().getTimezoneOffset() / 60
     return `GMT${off >= 0 ? '+' : ''}${off}`
@@ -1536,7 +1542,7 @@ export default function EventComposer({
                   {t('composer.start', { defaultValue: 'Start' })} <span className="text-red-300" aria-hidden="true">*</span>
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
+                  <span suppressHydrationWarning className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker
                     value={startDate}
                     onChange={setStartDate}
@@ -1549,7 +1555,7 @@ export default function EventComposer({
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">{t('composer.end', { defaultValue: 'End' })}</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
+                  <span suppressHydrationWarning className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker
                     value={endDate}
                     onChange={setEndDate}
