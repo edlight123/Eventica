@@ -484,7 +484,16 @@
       "manage_settings": "Gérer les paramètres",
       "contact_support": "Contacter le support"
     },
-    "eyebrow": "Organisateur"
+    "eyebrow": "Organisateur",
+    "group_you": "vous & votre marque",
+    "group_money": "être payé",
+    "group_events": "gérer vos événements",
+    "group_account": "compte",
+    "verify_banner_title": "Terminez la vérification pour vendre des billets payants",
+    "verify_banner_body": "Une vérification d’identité unique. Les événements gratuits et les brouillons fonctionnent sans elle — seules les ventes de billets payants attendent.",
+    "verify_banner_cta": "Commencer la vérification",
+    "verify_banner_pending_title": "Vérification en cours d’examen",
+    "verify_banner_pending_body": "Nous examinons vos informations. Vous pouvez continuer à créer des événements — nous vous écrirons dès que c’est validé."
   },
   "door": {
     "valid": "VALIDE",

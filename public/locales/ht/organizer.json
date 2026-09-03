@@ -484,7 +484,16 @@
       "manage_settings": "Jere paramèt",
       "contact_support": "Kontakte sipò"
     },
-    "eyebrow": "Òganizatè"
+    "eyebrow": "Òganizatè",
+    "group_you": "ou menm & mak ou",
+    "group_money": "jwenn lajan w",
+    "group_events": "jere evènman w yo",
+    "group_account": "kont",
+    "verify_banner_title": "Fini verifikasyon an pou w vann tikè peye",
+    "verify_banner_body": "Se yon sèl tchèk idantite. Evènman gratis ak bouyon mache san li — se sèlman vant tikè peye k ap tann.",
+    "verify_banner_cta": "Kòmanse verifikasyon an",
+    "verify_banner_pending_title": "Y ap egzamine verifikasyon an",
+    "verify_banner_pending_body": "N ap gade enfòmasyon w yo. Ou ka kontinye kreye evènman — n ap ekri w kou l fin apwouve."
   },
   "door": {
     "valid": "VALAB",

@@ -484,7 +484,16 @@
       "manage_settings": "Manage Settings",
       "contact_support": "Contact Support"
     },
-    "eyebrow": "Organizer"
+    "eyebrow": "Organizer",
+    "group_you": "you & your brand",
+    "group_money": "getting paid",
+    "group_events": "running your events",
+    "group_account": "account",
+    "verify_banner_title": "Finish verification to sell paid tickets",
+    "verify_banner_body": "A one-time identity check. Free events and drafts work without it — only paid ticket sales are held until it’s done.",
+    "verify_banner_cta": "Start verification",
+    "verify_banner_pending_title": "Verification under review",
+    "verify_banner_pending_body": "We’re reviewing your details. You can keep building events in the meantime — we’ll email you as soon as it clears."
   },
   "door": {
     "valid": "VALID",
