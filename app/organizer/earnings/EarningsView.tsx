@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { EarningsSummary } from '@/types/earnings'
+import { FEE_CONFIG, type EarningsSummary } from '@/types/earnings'
 import { StatusChip, type ChipTone } from '@/components/ui/kit'
 import { PayoutRequestModal } from '@/components/organizer/PayoutRequestModal'
 import {
@@ -19,11 +19,21 @@ import {
 interface EarningsViewProps {
   summary: EarningsSummary
   organizerId: string
+  /**
+   * The balance the WITHDRAWAL is judged against, from the same function
+   * /api/organizer/request-payout calls. `summary` is the earnings history from
+   * a different collection and the two can disagree, so the hero figure and the
+   * button gate must come from here — otherwise the page invites a request the
+   * money path will refuse.
+   */
+  withdrawable?: { available: number; pending: number; currency: string }
 }
 
-// Minimum available balance (in cents) required to request a payout.
-// Mirrors FEE_CONFIG.MINIMUM_PAYOUT_AMOUNT.
-const MIN_PAYOUT_CENTS = 5000
+// The single minimum, shared with the server so the button and the route can
+// never disagree about the threshold. It was previously duplicated here as a
+// literal 5000 and compared with `>`, while the server used `>=` — so a balance
+// of exactly the minimum was refused by the UI and accepted by the API.
+const MIN_PAYOUT_CENTS = FEE_CONFIG.MINIMUM_PAYOUT_AMOUNT
 
 type CurrencyTotals = {
   totalGrossSales: number
@@ -59,7 +69,7 @@ function StatCard({
   )
 }
 
-export default function EarningsView({ summary, organizerId }: EarningsViewProps) {
+export default function EarningsView({ summary, organizerId, withdrawable }: EarningsViewProps) {
   const [filter, setFilter] = useState<'all' | 'ready' | 'pending' | 'locked'>('all')
   const [payoutOpen, setPayoutOpen] = useState(false)
 
@@ -132,10 +142,6 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
   const pendingPick = (t?: CurrencyTotals) =>
     heldBack(t?.totalNetAmount ?? 0, t?.totalAvailableToWithdraw ?? 0, t?.totalWithdrawn ?? 0)
 
-  const availableLabel = isMixed
-    ? mixedInline((t) => t?.totalAvailableToWithdraw ?? 0)
-    : formatCurrency(summary.totalAvailableToWithdraw)
-
   const pendingLabel = isMixed
     ? mixedInline(pendingPick)
     : formatCurrency(heldBack(summary.totalNetAmount, summary.totalAvailableToWithdraw, summary.totalWithdrawn))
@@ -144,9 +150,26 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
     ? mixedInline((t) => t?.totalWithdrawn ?? 0)
     : formatCurrency(summary.totalWithdrawn)
 
-  const canWithdraw = isMixed
-    ? (usd?.totalAvailableToWithdraw ?? 0) > MIN_PAYOUT_CENTS || (htg?.totalAvailableToWithdraw ?? 0) > MIN_PAYOUT_CENTS
-    : summary.totalAvailableToWithdraw > MIN_PAYOUT_CENTS
+  /* ------------------------------------------------------------------------
+   * The withdrawable balance.
+   *
+   * When the server passed one, it is authoritative: it is the figure
+   * /api/organizer/request-payout will re-derive and judge. Falling back to the
+   * earnings summary keeps this component usable on its own, but a page that
+   * offers the button should always pass it.
+   * ---------------------------------------------------------------------- */
+  const availableForPayout = withdrawable
+    ? withdrawable.available
+    : summary.totalAvailableToWithdraw
+
+  const payoutCurrency = (() => {
+    const c = withdrawable?.currency
+    return c === 'HTG' || c === 'USD' || c === 'CAD' || c === 'EUR' ? c : undefined
+  })()
+
+  // `>=`, matching meetsMinimumPayout on the server. The old `>` refused a
+  // balance of exactly the minimum that the API would have accepted.
+  const canWithdraw = availableForPayout >= MIN_PAYOUT_CENTS
 
   const totalFeesLabel = isMixed
     ? mixedInline((t) => (t?.totalPlatformFees ?? 0) + (t?.totalProcessingFees ?? 0))
@@ -171,27 +194,20 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
               <span className="eyebrow">Available to withdraw</span>
             </div>
 
-            {isMixed ? (
-              <div className="mt-3 space-y-1">
-                <div className="font-mono tabular-nums text-3xl leading-none sm:text-4xl">
-                  {formatCurrency(usd?.totalAvailableToWithdraw ?? 0, 'USD')}
-                  <span className="label-mono ml-2 align-middle text-sm text-brand-200">USD</span>
-                </div>
-                <div className="font-mono tabular-nums text-3xl leading-none sm:text-4xl">
-                  {formatCurrency(htg?.totalAvailableToWithdraw ?? 0, 'HTG')}
-                  <span className="label-mono ml-2 align-middle text-sm text-brand-200">HTG</span>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-3 font-mono tabular-nums text-[clamp(32px,6vw,52px)] leading-none">
-                {formatCurrency(summary.totalAvailableToWithdraw)}
-              </div>
-            )}
+            {/* One figure, from the authoritative balance. The old mixed-currency
+                split came from the earnings summary and could contradict what
+                the payout route would pay. */}
+            <div className="mt-3 font-mono tabular-nums text-[clamp(32px,6vw,52px)] leading-none">
+              {formatCurrency(availableForPayout, payoutCurrency)}
+            </div>
 
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-100">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
-                Pending&nbsp;<span className="font-mono tabular-nums font-semibold text-white">{pendingLabel}</span>
+                Pending&nbsp;
+                <span className="font-mono tabular-nums font-semibold text-white">
+                  {withdrawable ? formatCurrency(withdrawable.pending, payoutCurrency) : pendingLabel}
+                </span>
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ArrowDownCircle className="h-3.5 w-3.5" />
@@ -205,7 +221,12 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
               type="button"
               onClick={() => setPayoutOpen(true)}
               disabled={!canWithdraw}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0a0a0a] px-6 py-3 font-semibold text-brand-300 shadow-sm transition hover:bg-brand-500/10 disabled:cursor-not-allowed disabled:bg-white/70 disabled:text-brand-300/60 lg:w-auto"
+              // The states were inverted: enabled was `bg-[#0a0a0a]` (near
+              // black) while disabled was `bg-white/70` — and a white fill is
+              // this product's PRIMARY button, so the unusable state looked
+              // like the call to action and the usable one looked like a hole.
+              // Enabled is now white; disabled is a dim, obviously-inert fill.
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-gray-900 shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-white/15 disabled:text-white/40 disabled:shadow-none lg:w-auto"
             >
               Request payout
               <ArrowRight className="h-4 w-4" />
@@ -213,7 +234,9 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
             <p className="mt-2 max-w-[14rem] text-xs text-brand-100 lg:text-right">
               {canWithdraw
                 ? 'Paid to your configured method, batched to the next Friday.'
-                : `You need at least ${formatCurrency(MIN_PAYOUT_CENTS)} available to request a payout.`}
+                : availableForPayout > 0
+                  ? `You need at least ${formatCurrency(MIN_PAYOUT_CENTS, payoutCurrency)} to request a payout.`
+                  : 'Nothing to withdraw yet. Funds appear here about a week after each event ends.'}
             </p>
           </div>
         </div>
@@ -452,10 +475,12 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
         </div>
       </div>
 
+      {/* The confirmation must restate the SAME figure the request will be
+          judged against, not the earnings-summary one. */}
       <PayoutRequestModal
         open={payoutOpen}
         onClose={() => setPayoutOpen(false)}
-        availableLabel={availableLabel}
+        availableLabel={formatCurrency(availableForPayout, payoutCurrency)}
       />
     </div>
   )

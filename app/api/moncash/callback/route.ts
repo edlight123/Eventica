@@ -8,6 +8,7 @@ import { guestRecipientFromOrder } from '@/lib/guest/checkout'
 import { attachTicketsToGuestOrder, guestTicketUrl, isGuestId } from '@/lib/guest/identity'
 import { adminDb } from '@/lib/firebase/admin'
 import { addTicketToEarnings } from '@/lib/earnings'
+import { incidenceForEvent } from '@/lib/checkout/buyer-pricing'
 
 export const dynamic = 'force-dynamic'
 
@@ -92,9 +93,29 @@ export async function GET(request: Request) {
       return pricePerTicket
     })()
 
+    /**
+     * Who paid the platform fee on this sale — stamped on every ticket.
+     *
+     * The payout side (lib/firestore/payout.ts) reads `fee_incidence` to decide
+     * whether to deduct the platform fee: under BUYER incidence the fee was
+     * already collected from the buyer on top of face value, so the organizer's
+     * balance is the face value and deducting again charges them twice.
+     *
+     * Only the two Stripe paths were stamping it. MonCash — the live rail in
+     * Haiti — was not, so every MonCash ticket read as organizer-incidence and
+     * had 10% taken off at payout even when the buyer had already paid it. The
+     * flag the payout comment assumed was "stamped per ticket at purchase" was
+     * in fact absent on the primary channel.
+     */
+    const feeIncidence = incidenceForEvent({
+      country: eventDetails?.country ?? 'HT',
+      fee_incidence: eventDetails?.fee_incidence ?? null,
+    })
+
     const createdTickets = []
     for (let i = 0; i < quantity; i++) {
       const ticketData = {
+        fee_incidence: feeIncidence,
         event_id: pendingTx.event_id,
         attendee_id: pendingTx.user_id,
         attendee_name: attendee?.full_name || attendee?.email || 'Guest',
@@ -156,7 +177,11 @@ export async function GET(request: Request) {
             {
               event_id: pendingTx.event_id,
               attendee_id: pendingTx.user_id,
-              status: 'confirmed',
+              // Status deliberately NOT set here. This is a merge onto the
+              // ticket the insert already created as 'valid', and writing
+              // 'confirmed' downgraded it into a value the payout engine's
+              // filter did not accept — which made these sales impossible to
+              // withdraw. The mirror carries data, not status.
               ticket_type: pendingTx.tier_name || 'General Admission',
               price_paid: organizerUnitPrice,
               currency: eventCurrency,

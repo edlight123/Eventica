@@ -1,5 +1,6 @@
 import { adminDb } from '@/lib/firebase/admin'
 import { upsertPrimaryBankDestinationFromPayoutSettings } from '@/lib/firestore/payout-destinations'
+import { isLiveTicketStatus } from '@/lib/tickets/status'
 
 export type PayoutStatus = 'not_setup' | 'pending_verification' | 'active' | 'on_hold'
 export type PayoutMethod = 'bank_transfer' | 'mobile_money'
@@ -803,14 +804,23 @@ export async function getOrganizerBalance(organizerId: string): Promise<{
     
     for (let i = 0; i < eventIds.length; i += BATCH_SIZE) {
       const batch = eventIds.slice(i, i + BATCH_SIZE)
+      // Status is filtered in MEMORY, not in the query.
+      //
+      // This filtered on `status == 'valid'` alone, which silently excluded
+      // every MonCash and SogePay sale — those rails write 'confirmed' — so
+      // real money was permanently unwithdrawable. It cannot become a second
+      // `in` filter alongside `event_id in batch` without a new composite index
+      // and a disjunction cap, so the status test moved into JS where it needs
+      // neither. See lib/tickets/status.ts.
       const ticketsSnapshot = await adminDb
         .collection('tickets')
         .where('event_id', 'in', batch)
-        .where('status', '==', 'valid')  // Exclude cancelled/refunded
         .get()
-      
+
       ticketsSnapshot.docs.forEach((doc: any) => {
-        allTickets.push({ id: doc.id, ...doc.data() })
+        const data = doc.data()
+        if (!isLiveTicketStatus(data?.status)) return  // cancelled / refunded
+        allTickets.push({ id: doc.id, ...data })
       })
     }
 
@@ -933,13 +943,16 @@ export async function getAvailableTicketsForPayout(organizerId: string): Promise
     
     for (let i = 0; i < eventIds.length; i += BATCH_SIZE) {
       const batch = eventIds.slice(i, i + BATCH_SIZE)
+      // Same in-memory status test as getOrganizerBalance above — the two must
+      // agree on which tickets exist, or the batch paid would differ from the
+      // balance shown.
       const ticketsSnapshot = await adminDb
         .collection('tickets')
         .where('event_id', 'in', batch)
-        .where('status', '==', 'valid')
         .get()
-      
+
       ticketsSnapshot.docs.forEach((doc: any) => {
+        if (!isLiveTicketStatus(doc.data()?.status)) return
         const ticket = { id: doc.id, ...doc.data() }
         const event = events.find((e: any) => e.id === ticket.event_id)
         

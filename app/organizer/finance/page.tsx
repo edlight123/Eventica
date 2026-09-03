@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireAuth } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase/admin'
 import { getOrganizerEarningsSummary } from '@/lib/earnings'
+import { getOrganizerBalance } from '@/lib/firestore/payout'
 import { PageHeader } from '@/components/organizer/ui'
 import EarningsView from '../earnings/EarningsView'
 import Link from 'next/link'
@@ -21,7 +22,26 @@ export default async function FinancePage() {
   const role = userDoc.exists ? userDoc.data()?.role : null
   if (role !== 'organizer') redirect('/organizer?redirect=/organizer/finance')
 
-  const summary = await getOrganizerEarningsSummary(user.id)
+  // TWO different balances, deliberately both fetched.
+  //
+  // `summary` comes from the `event_earnings` collection and is the earnings
+  // HISTORY — gross sales, fees, per-event breakdown.
+  //
+  // `balance` comes from the same function /api/organizer/request-payout
+  // validates against: tickets joined to events, minus already-paid ticket ids.
+  // They are separate implementations with different settlement delays, so they
+  // can and do disagree — this page used to show the first number and enable
+  // "Request payout" from it, while the request was judged against the second.
+  // An organizer was shown 2,250.00 HTG available and got "Insufficient
+  // balance" on every attempt, because the earnings doc behind that figure
+  // pointed at an event no longer in their account.
+  //
+  // The withdrawable figure must be the one the money path honours, so the hero
+  // and the button now come from `balance`.
+  const [summary, balance] = await Promise.all([
+    getOrganizerEarningsSummary(user.id),
+    getOrganizerBalance(user.id),
+  ])
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -41,7 +61,15 @@ export default async function FinancePage() {
         />
 
         <div className="mt-8">
-          <EarningsView summary={summary} organizerId={user.id} />
+          <EarningsView
+            summary={summary}
+            organizerId={user.id}
+            withdrawable={{
+              available: balance.available,
+              pending: balance.pending,
+              currency: balance.currency,
+            }}
+          />
         </div>
       </div>
     </div>

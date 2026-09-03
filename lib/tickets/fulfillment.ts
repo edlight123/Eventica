@@ -325,7 +325,11 @@ export async function fulfillPaidOrder(params: {
               event_id: pendingTx.event_id,
               attendee_id: pendingTx.user_id,
               user_id: pendingTx.user_id,
-              status: 'confirmed',
+              // Status deliberately NOT set here. This is a merge onto the
+              // ticket the insert already created as 'valid', and writing
+              // 'confirmed' downgraded it into a value the payout engine's
+              // filter did not accept — which made these sales impossible to
+              // withdraw. The mirror carries data, not status.
               ticket_type: selection.tierName || 'General Admission',
               tier_id: selection.tierId || '',
               price_paid: organizerUnitPrice,
