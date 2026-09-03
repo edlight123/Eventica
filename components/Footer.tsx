@@ -34,6 +34,9 @@ export default function Footer() {
   ]
 
   const companyLinks: FooterLink[] = [
+    // The vision page belongs under Company, above support and the legal
+    // links: it is the "who are you and why" answer, not a help article.
+    { href: '/vision', label: t('footer.vision', { defaultValue: 'Vision' }) },
     { href: '/support', label: t('footer.support', { defaultValue: 'Support' }) },
     { href: '/legal/privacy', label: t('footer.privacy', { defaultValue: 'Privacy' }) },
     { href: '/legal/terms', label: t('footer.terms', { defaultValue: 'Terms' }) },
