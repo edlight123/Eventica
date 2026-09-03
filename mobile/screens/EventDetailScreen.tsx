@@ -528,7 +528,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const isPastEvent = purchaseCutoffDate && new Date(purchaseCutoffDate) < new Date();
   
   // Premium badge logic (matching PWA)
-  const isVIP = (event.ticket_price || 0) > 100;
+  // isVIP removed: it was computed here and never rendered.
   const isTrending = (event.tickets_sold || 0) > 10;
   const selloutSoon = !isSoldOut && remainingTickets > 0 && remainingTickets < 10;
 

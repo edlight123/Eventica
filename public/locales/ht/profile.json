@@ -79,6 +79,7 @@
     "no_upcoming_title": "Pa gen evènman k ap vini",
     "no_upcoming_desc": "Òganizatè sa a pa gen okenn evènman k ap vini kounye a.",
     "past_events": "Evènman ki pase",
-    "past_events_desc": "Evènman anvan yo òganize pa {{name}}"
+    "past_events_desc": "Evènman anvan yo òganize pa {{name}}",
+    "since": "Sou Tikèm depi {{date}}"
   }
 }

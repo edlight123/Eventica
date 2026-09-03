@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import Image from 'next/image'
 import Badge from '@/components/ui/Badge'
-import { Shield, Star, TrendingUp } from 'lucide-react'
+import { Shield, TrendingUp } from 'lucide-react'
 import { getPosterTheme } from '@/lib/posterGradient'
 
 interface MobileHeroProps {
@@ -13,7 +13,6 @@ interface MobileHeroProps {
   organizerName: string
   organizerId: string
   isVerified: boolean
-  isVIP: boolean
   isTrending: boolean
   isSoldOut: boolean
   selloutSoon: boolean
@@ -26,7 +25,6 @@ export default function MobileHero({
   organizerName,
   organizerId,
   isVerified,
-  isVIP,
   isTrending,
   isSoldOut,
   selloutSoon
@@ -75,11 +73,6 @@ export default function MobileHero({
           {!isSoldOut && selloutSoon && (
             <Badge variant="warning" size="sm">
               {t('ticket.almost_sold_out')}
-            </Badge>
-          )}
-          {isVIP && (
-            <Badge variant="vip" size="sm" icon={<Star className="w-3 h-3" />}>
-              {t('events.vip_event')}
             </Badge>
           )}
           {isTrending && (

@@ -79,6 +79,7 @@
     "no_upcoming_title": "Aucun événement à venir",
     "no_upcoming_desc": "Cet organisateur n'a aucun événement à venir pour le moment.",
     "past_events": "Événements passés",
-    "past_events_desc": "Événements précédents organisés par {{name}}"
+    "past_events_desc": "Événements précédents organisés par {{name}}",
+    "since": "Sur Tikèm depuis {{date}}"
   }
 }

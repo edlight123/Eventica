@@ -187,6 +187,12 @@ export default async function OrganizerProfilePage({ params }: { params: Promise
         bio={bio}
         friendshipState={friendshipState as any}
         isAuthenticated={!!user}
+        // Already in `userData` from the fetch above — the hero shows where an
+        // organizer works when they have set it. Roughly half of production
+        // organizer docs carry default_country, fewer default_city, so both
+        // are optional and the row simply omits what is missing.
+        city={typeof userData?.default_city === 'string' ? userData.default_city : undefined}
+        country={typeof userData?.default_country === 'string' ? userData.default_country : undefined}
       />
 
       <MobileNavWrapper user={user} />

@@ -156,7 +156,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   // above.
 
   // Premium badge logic
-  const isVIP = (event.ticket_price || 0) > 100
+  // isVIP removed with the badge it fed (owner ask) — see EventDetailsClient.
   const isTrending = (event.tickets_sold || 0) > 10
   // Shared ladder — see lib/ticketScarcity. Was a second, independent
   // `remainingTickets < 10` that could disagree with the client component's.

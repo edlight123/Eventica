@@ -60,7 +60,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   const isPastEvent = event.end_datetime ? new Date(event.end_datetime) < new Date() : new Date(event.start_datetime) < new Date()
   
   // Premium badge logic
-  const isVIP = (event.ticket_price || 0) > 100
+  // "VIP Event" removed on owner ask (2026-09-03). Worth recording WHY it was
+  // never meaningful: the flag was `ticket_price > 100`, and with prices held
+  // in the event's own currency that is ~US$0.75 in HTG — so essentially every
+  // paid event in Haiti was labelled VIP. A badge that fires on almost
+  // everything tells a buyer nothing.
   const isTrending = (event.tickets_sold || 0) > 10
   /**
    * One ladder for the whole app now (lib/ticketScarcity). This was a bare
@@ -109,7 +113,6 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         organizerName={organizerLabel}
         isVerified={event.users?.is_verified || false}
         organizerId={event.organizer_id}
-        isVIP={isVIP}
         isTrending={isTrending}
         isSoldOut={isSoldOut}
         selloutSoon={selloutSoon}
@@ -199,8 +202,6 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               <div className="mb-5 flex items-start justify-between gap-3">
                 <p className="eyebrow pt-2 text-white/60">
                   {event.category}
-                  {isVIP && <span className="text-white/30"> · </span>}
-                  {isVIP && <span className="text-brand-300">{t('events.vip_event')}</span>}
                   {isTrending && <span className="text-white/30"> · </span>}
                   {isTrending && <span>{t('events.trending')}</span>}
                 </p>
