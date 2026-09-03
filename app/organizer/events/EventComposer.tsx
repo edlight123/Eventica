@@ -25,7 +25,6 @@ import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
 import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type EventCurrency } from '@/lib/currency-policy'
 import { incidenceForEvent, priceOrder } from '@/lib/checkout/buyer-pricing'
 import { fromCents } from '@/lib/ticketPricing'
-import { THEMES, type PosterThemeKey } from '@/lib/posterGradient'
 // The sanctioned editorial section heading (font-display, lowercase, italic).
 // Hand-rolled bold sans headings read as off-brand — see EditorialRails.
 import { SectionHeader } from '@/components/ui/EditorialRails'
@@ -77,16 +76,6 @@ const ACCENTS: { hex: string; name: string }[] = [
   { hex: '#EC4899', name: 'Pink' },
   { hex: '#F97316', name: 'Orange' },
 ]
-
-/**
- * Poster-theme swatches for the `theme_key` picker, derived from the single
- * source of truth: the exported THEMES map in `lib/posterGradient.ts` (the
- * poster resolver). Persisting one of these keys pins the poster gradient
- * everywhere the resolver runs; '' = Auto. No colors are defined here.
- */
-const POSTER_THEME_SWATCHES: { key: PosterThemeKey; bg: string }[] = (
-  Object.keys(THEMES) as PosterThemeKey[]
-).map((key) => ({ key, bg: THEMES[key].bg }))
 
 // Recurring-event cadence options for the "Repeats" selector (create-only).
 type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly'
@@ -258,11 +247,18 @@ function Toggle({
   )
 }
 
-/** Selected/on chip: a white fill (never teal) — see the house rule above. */
-const CHIP_ON = 'border-white bg-white text-black'
-const CHIP_OFF = 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
+/**
+ * Selected/on chip: a white fill (never teal) — see the house rule above.
+ *
+ * The off state is a fill too, not a hairline ring: a row of outlined pills
+ * inside an already-outlined box was the pattern that made this whole column
+ * read as a wireframe. Fill-vs-fill still separates on from off unmistakably,
+ * because on is white and off is barely there.
+ */
+const CHIP_ON = 'bg-white text-black'
+const CHIP_OFF = 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
 const chipCls = (on: boolean) =>
-  `rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${on ? CHIP_ON : CHIP_OFF}`
+  `rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${on ? CHIP_ON : CHIP_OFF}`
 
 /**
  * A state read-out that is a DOT plus a label — never a filled status pill
@@ -600,7 +596,11 @@ export default function EventComposer({
   const [spotifyUrl, setSpotifyUrl] = useState(event?.spotify_url || '')
   // Optional promo video link (default '').
   const [videoUrl, setVideoUrl] = useState(event?.video_url || '')
-  // Poster-theme override ('' = Auto). A valid key pins the poster gradient.
+  // Poster-theme override ('' = Auto), no longer editable here — the swatch row
+  // was removed (see below). It is still READ and written back so a theme the
+  // organizer chose in the mobile composer, where the picker works, survives an
+  // unrelated edit made on the web. Dropping it from the payload would erase it,
+  // which is the exact failure this file has already shipped twice.
   const [themeKey, setThemeKey] = useState<string>(event?.theme_key || '')
   const [titleFont, setTitleFont] = useState<'Default' | 'Serif' | 'Sans'>(event?.title_font || 'Default')
   const [accentColor, setAccentColor] = useState(event?.accent_color || '#14B8A6')
@@ -1430,10 +1430,28 @@ export default function EventComposer({
     }
   }
 
+  /* ------------------------------------------------------------------------
+   * Surfaces, not outlines.
+   *
+   * Every row here used to be a 1px hollow rectangle on the same black ground,
+   * so a dozen unrelated controls read as one wireframe and nothing looked
+   * clickable, typeable or grouped. These four levels replace that: depth does
+   * the work borders were doing, and the LEVEL says what a thing is.
+   *
+   *   panel  0.025  a group's ground; rows inside it divide with a hairline
+   *   row    0.03   a static or toggle row — present, not inviting
+   *   field  0.05   something you type in; brightens further on focus
+   *   inset  0.06   a small field sitting ON a panel, so it still reads as one
+   *
+   * Outlines survive in exactly one place — the dashed "add another" buttons —
+   * because there a dashed edge around empty space is the meaning.
+   * ---------------------------------------------------------------------- */
   const rowCls =
-    'flex w-full items-center gap-3 rounded-xl border border-white/10 px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.04]'
+    'flex w-full items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.06]'
   const field =
-    'w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/40'
+    'w-full rounded-xl bg-white/[0.05] px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 transition-colors focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
+  const inset =
+    'rounded-lg bg-white/[0.06] px-2.5 py-1.5 text-sm text-white [color-scheme:dark] transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -1482,7 +1500,7 @@ export default function EventComposer({
           )}
 
           {/* Sell Tickets / RSVP */}
-          <div className="mx-auto mb-8 grid max-w-md grid-cols-2 rounded-full border border-white/10 p-1">
+          <div className="mx-auto mb-8 grid max-w-md grid-cols-2 rounded-full bg-white/[0.05] p-1">
             {(['tickets', 'rsvp'] as const).map((m) => (
               <button
                 key={m}
@@ -1531,7 +1549,7 @@ export default function EventComposer({
               <button
                 type="button"
                 onClick={() => setShowSummary(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.05] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.09] hover:text-white"
               >
                 <Plus className="h-4 w-4" /> {t('composer.shortSummary', { defaultValue: 'Short Summary' })}
               </button>
@@ -1541,7 +1559,7 @@ export default function EventComposer({
           {/* Dates */}
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={CalendarDays}>{t('composer.dates', { defaultValue: 'Dates' })}</SectionTitle>
-            <div className="overflow-hidden rounded-xl border border-white/10">
+            <div className="overflow-hidden rounded-xl bg-white/[0.025]">
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">
                   {t('composer.start', { defaultValue: 'Start' })} <span className="text-red-300" aria-hidden="true">*</span>
@@ -1584,7 +1602,7 @@ export default function EventComposer({
 
             {/* Repeats — create-only. Generates a series of independent events. */}
             {!isEdit && (
-              <div className="mt-3 rounded-xl border border-white/10 px-4 py-3.5">
+              <div className="mt-3 rounded-xl bg-white/[0.03] px-4 py-3.5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-[15px] text-white/80">
                     <Repeat className="h-4 w-4 text-white/50" /> {t('composer.repeats', { defaultValue: 'Repeats' })}
@@ -1640,7 +1658,7 @@ export default function EventComposer({
                             setRecurrenceCount(Math.max(2, Math.min(MAX_RECURRENCE_COUNT, n)))
                           }}
                           aria-label={t('composer.occurrencesAria', { defaultValue: 'Number of occurrences' })}
-                          className="w-20 rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-right text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
+                          className={`w-20 text-right ${inset}`}
                         />
                       </label>
                     ) : (
@@ -1654,7 +1672,7 @@ export default function EventComposer({
                           value={recurrenceEndDate}
                           onChange={(e) => setRecurrenceEndDate(e.target.value)}
                           aria-label={t('composer.repeatUntilAria', { defaultValue: 'Repeat until date' })}
-                          className="rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
+                          className={inset}
                         />
                       </label>
                     )}
@@ -1685,7 +1703,7 @@ export default function EventComposer({
               )}
 
               {/* Online toggle (kept compact) */}
-              <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl bg-white/[0.03] px-4 py-3.5">
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Globe className="h-[18px] w-[18px] text-white/50" /> {t('composer.onlineEvent', { defaultValue: 'Online event' })}
                 </span>
@@ -1694,7 +1712,16 @@ export default function EventComposer({
 
               {!isOnline && (
                 <>
-                  <div className={`flex items-center gap-3 rounded-xl border px-4 ${locationInvalid ? 'border-red-400/60' : 'border-white/10'}`}>
+                  {/* Invalid keeps a ring — an error is the one moment a hard
+                      edge is the right signal, and a red FILL would read as a
+                      destructive control rather than a field needing input. */}
+                  <div
+                    className={`flex items-center gap-3 rounded-xl px-4 transition-colors ${
+                      locationInvalid
+                        ? 'bg-red-500/[0.07] ring-1 ring-red-400/60'
+                        : 'bg-white/[0.05] focus-within:bg-white/[0.08] focus-within:ring-2 focus-within:ring-brand-400/50'
+                    }`}
+                  >
                     <MapPin className="h-[18px] w-[18px] shrink-0 text-white/50" />
                     <input
                       value={address}
@@ -1705,7 +1732,7 @@ export default function EventComposer({
                     />
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
+                    <div className="flex items-center gap-3 rounded-xl bg-white/[0.05] px-4 transition-colors focus-within:bg-white/[0.08] focus-within:ring-2 focus-within:ring-brand-400/50">
                       <Globe className="h-[18px] w-[18px] shrink-0 text-white/50" />
                       <input
                         value={venueName}
@@ -1734,7 +1761,7 @@ export default function EventComposer({
               )}
 
               {/* Category as a Posh-style row of chips */}
-              <div className="rounded-xl border border-white/10 px-4 py-3.5">
+              <div className="rounded-xl bg-white/[0.03] px-4 py-3.5">
                 <div className="mb-2.5 flex items-center gap-2 text-[13px] font-medium text-white/50">
                   <Star className="h-4 w-4" /> {t('composer.category', { defaultValue: 'Category' })}
                 </div>
@@ -1764,7 +1791,7 @@ export default function EventComposer({
                     type="button"
                     onClick={addTier}
                     aria-label={t('composer.addTicketType', { defaultValue: 'Add ticket type' })}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors hover:border-white/40 hover:text-white"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.07] text-white/70 transition-colors hover:bg-white/[0.14] hover:text-white"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -1774,11 +1801,11 @@ export default function EventComposer({
               </SectionTitle>
 
               {/* Currency — HTG or USD (attendees see HTG by default) */}
-              <div className="mb-3 flex items-center justify-between rounded-xl border border-white/10 px-4 py-3">
+              <div className="mb-3 flex items-center justify-between rounded-xl bg-white/[0.03] px-4 py-3">
                 <span className="label-mono text-[11px] uppercase tracking-wide text-white/70">
                   {t('composer.currency', { defaultValue: 'Currency' })}
                 </span>
-                <div className="flex rounded-full border border-white/10 p-0.5" role="group" aria-label="Ticket currency">
+                <div className="flex rounded-full bg-white/[0.06] p-0.5" role="group" aria-label="Ticket currency">
                   {allowedCurrencies.map((c) => (
                     <button
                       key={c}
@@ -1806,7 +1833,7 @@ export default function EventComposer({
                   const menuOpen = menuTierId === tier.id
                   const rowLabel = tier.name.trim() || `#${i + 1}`
                   return (
-                    <div key={tier.id} className="rounded-xl border border-white/10">
+                    <div key={tier.id} className="rounded-xl bg-white/[0.03]">
                       {/* ── SUMMARY ROW ───────────────────────────────── */}
                       <div className="flex flex-wrap items-center gap-2 p-3">
                         <input
@@ -1820,7 +1847,7 @@ export default function EventComposer({
                             defaultValue: 'Ticket type {{n}} name',
                             n: i + 1,
                           })}
-                          className="min-w-[9rem] flex-1 rounded-lg border border-transparent bg-transparent px-2 py-2 text-[15px] text-white placeholder:text-white/35 hover:border-white/10 focus:border-brand-400 focus:outline-none"
+                          className="min-w-[9rem] flex-1 rounded-lg bg-transparent px-2 py-2 text-[15px] text-white placeholder:text-white/35 transition-colors hover:bg-white/[0.05] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                         />
 
                         {/* Price — a free tier reads as a dot + label, never an input of 0. */}
@@ -1838,7 +1865,7 @@ export default function EventComposer({
                               tier: rowLabel,
                               currency,
                             })}
-                            className="w-[5.5rem] rounded-lg border border-white/10 bg-transparent px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 focus:border-brand-400 focus:outline-none"
+                            className="w-[5.5rem] rounded-lg bg-white/[0.06] px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                           />
                         )}
 
@@ -1856,7 +1883,7 @@ export default function EventComposer({
                               defaultValue: 'Quantity for {{tier}}',
                               tier: rowLabel,
                             })}
-                            className="w-[4.5rem] rounded-lg border border-white/10 bg-transparent px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 focus:border-brand-400 focus:outline-none"
+                            className="w-[4.5rem] rounded-lg bg-white/[0.06] px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                           />
                         )}
 
@@ -2027,7 +2054,7 @@ export default function EventComposer({
                                     defaultValue: 'Maximum per order for {{tier}}',
                                     tier: rowLabel,
                                   })}
-                                  className="w-20 rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-right text-sm text-white [color-scheme:dark] focus:border-brand-400 focus:outline-none"
+                                  className={`w-20 text-right ${inset}`}
                                 />
                               )}
                               <Toggle
@@ -2161,7 +2188,7 @@ export default function EventComposer({
 
               {/* WHO PAYS THE SERVICE FEE — only meaningful once something costs money. */}
               {isPaid && (
-                <div className="mt-3 rounded-xl border border-white/10 p-4">
+                <div className="mt-3 rounded-xl bg-white/[0.025] p-4">
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="text-[15px] text-white/80">
@@ -2206,7 +2233,7 @@ export default function EventComposer({
               {t('composer.guestlist', { defaultValue: 'Guestlist' })}
             </SectionTitle>
 
-            <div className="space-y-3 rounded-xl border border-white/10 p-4">
+            <div className="space-y-3 rounded-xl bg-white/[0.025] p-4">
               {/* The bill so far, in running order. Each row is the whole entry
                   in miniature — face, name, role, set time, whether a link is
                   attached — and clicking it reopens the editor. */}
@@ -2215,7 +2242,7 @@ export default function EventComposer({
                   {guests.map((g, i) => (
                     <div
                       key={g.id}
-                      className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5"
+                      className="flex items-center gap-3 rounded-lg bg-white/[0.055] px-3 py-2.5"
                     >
                       <button
                         type="button"
@@ -2348,7 +2375,7 @@ export default function EventComposer({
           {/* Media rows */}
           <div className="mt-8 space-y-3 border-t border-white/10 pt-6">
             {/* Promo video — optional link (persisted as video_url). */}
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
+            <div className="flex items-center gap-3 rounded-xl bg-white/[0.05] px-4 transition-colors focus-within:bg-white/[0.08] focus-within:ring-2 focus-within:ring-brand-400/50">
               <Youtube className="h-[18px] w-[18px] shrink-0 text-white/50" />
               <input
                 value={videoUrl}
@@ -2362,7 +2389,7 @@ export default function EventComposer({
               <span className="flex items-center gap-3">
                 <ImageIcon className="h-[18px] w-[18px]" /> {t('composer.imageGallery', { defaultValue: 'Image Gallery' })}
               </span>
-              <span className="inline-flex select-none items-center rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
+              <span className="inline-flex select-none items-center rounded-full bg-white/[0.07] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
                 {t('composer.comingSoon', { defaultValue: 'Coming soon' })}
               </span>
             </div>
@@ -2372,11 +2399,11 @@ export default function EventComposer({
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={Settings}>{t('composer.pageSettings', { defaultValue: 'Page Settings' })}</SectionTitle>
             <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl bg-white/[0.03] px-4 py-3.5">
                 <span className="text-[15px] text-white/80">{t('composer.showOnExplore', { defaultValue: 'Show on Explore' })}</span>
                 <Toggle on={showOnExplore} onChange={setShowOnExplore} label="Show on Explore" />
               </div>
-              <div className="rounded-xl border border-white/10 px-4 py-3.5">
+              <div className="rounded-xl bg-white/[0.03] px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[15px] text-white/80">
                     <Lock className="h-4 w-4 text-white/50" /> {t('composer.passwordProtected', { defaultValue: 'Password Protected Event' })}
@@ -2449,7 +2476,7 @@ export default function EventComposer({
             <SpotifySongPicker value={spotifyUrl} onChange={setSpotifyUrl} />
 
             {/* Font + accent */}
-            <div className="space-y-3 rounded-xl border border-white/10 p-4">
+            <div className="space-y-3 rounded-xl bg-white/[0.025] p-4">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-white/80">
                   <Type className="h-4 w-4 text-white/50" /> {t('composer.titleFont', { defaultValue: 'Title Font' })}
@@ -2457,7 +2484,7 @@ export default function EventComposer({
                 <select
                   value={titleFont}
                   onChange={(e) => setTitleFont(e.target.value as any)}
-                  className="rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none"
+                  className={inset}
                 >
                   <option value="Default">{t('composer.fonts.Default', { defaultValue: 'Default' })}</option>
                   <option value="Serif">{t('composer.fonts.Serif', { defaultValue: 'Serif' })}</option>
@@ -2485,45 +2512,19 @@ export default function EventComposer({
               </div>
             </div>
 
-            {/* Poster theme — pins the poster gradient ('' = Auto). */}
-            <div className="space-y-3 rounded-xl border border-white/10 p-4">
-              <span className="flex items-center gap-2 text-sm text-white/80">
-                <Palette className="h-4 w-4 text-white/50" /> {t('composer.posterTheme', { defaultValue: 'Poster Theme' })}
-              </span>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setThemeKey('')}
-                  aria-pressed={themeKey === ''}
-                  title={t('composer.auto', { defaultValue: 'Auto' })}
-                  className={`flex h-8 items-center rounded-full border px-3 text-xs font-semibold transition-all ${
-                    themeKey === ''
-                      ? 'border-white bg-white text-black'
-                      : 'border-white/15 text-white/70 hover:text-white'
-                  }`}
-                >
-                  {t('composer.auto', { defaultValue: 'Auto' })}
-                </button>
-                {POSTER_THEME_SWATCHES.map(({ key, bg }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setThemeKey(key)}
-                    aria-label={key}
-                    aria-pressed={themeKey === key}
-                    title={key}
-                    className={`h-8 w-8 rounded-full transition-transform ${
-                      themeKey === key ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0a0a0a]' : ''
-                    }`}
-                    style={{ backgroundImage: bg }}
-                  />
-                ))}
-              </div>
-            </div>
+            {/* The "Poster Theme" swatch row was here. It pinned the gradient
+                used INSTEAD of a flyer, so it did nothing for the great
+                majority of events (which have one) — and on web it did nothing
+                at all: every reader here resolves the gradient from a hash of
+                the event id and none consult `theme_key`. Ten near-identical
+                teal circles with no explanation, next to the flyer uploader,
+                cost more confusion than they bought. `theme_key` itself lives
+                on (the mobile composer's picker does work), and is preserved
+                through a web edit — see the state initializer. */}
 
             {/* Series edit — apply shared field changes to every sibling. */}
             {isEdit && seriesId && (
-              <label className="flex items-start gap-3 rounded-xl border border-white/10 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.04]">
+              <label className="flex items-start gap-3 rounded-xl bg-white/[0.03] px-4 py-3.5 text-left transition-colors hover:bg-white/[0.06]">
                 <input
                   type="checkbox"
                   checked={applyToSeries}

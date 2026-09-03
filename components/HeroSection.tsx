@@ -48,7 +48,10 @@ export function CityChips({ className = '' }: { className?: string }) {
 export default function HeroSection({ events }: { events?: any[] }) {
   const { t } = useTranslation('common')
   return (
-    <section className="border-b border-white/10">
+    // No bottom rule: the navbar above already draws one, so this hairline
+    // sat a few pixels below another and read as a seam across the page. The
+    // search row is separated from the results by its own padding instead.
+    <section>
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
         <h1 className="sr-only">{t('events.find_perfect_event')}</h1>
         <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:gap-6">

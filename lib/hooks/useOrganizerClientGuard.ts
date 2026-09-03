@@ -29,7 +29,32 @@ export function useOrganizerClientGuard(options?: {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+    let cancelled = false
+    let unsubscribe: (() => void) | undefined
+
+    // Wait for the SDK to finish restoring the persisted session BEFORE
+    // trusting a null user.
+    //
+    // onAuthStateChanged emits null on its first call while that restore is
+    // still in flight, so subscribing straight away and redirecting on the
+    // first null bounced signed-in organizers to /auth/login. It showed up on
+    // client-side navigation into a guarded page (Marketing → Events), where
+    // the freshly-mounted guard runs before auth has rehydrated.
+    //
+    // authStateReady() resolves once the initial state is settled, so a null
+    // after it is a real signed-out user.
+    auth
+      .authStateReady()
+      .catch(() => {
+        /* fall through and subscribe anyway — never trap the page in limbo */
+      })
+      .then(() => {
+        if (cancelled) return
+        unsubscribe = onAuthStateChanged(auth, handleUser)
+      })
+
+    async function handleUser(authUser: FirebaseUser | null) {
+      if (cancelled) return
       if (!authUser) {
         router.replace(`/auth/login?redirect=${encodeURIComponent(loginRedirectPath)}`)
         return
@@ -60,11 +85,14 @@ export function useOrganizerClientGuard(options?: {
         router.replace('/profile')
         return
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
-    })
+    }
 
-    return () => unsubscribe()
+    return () => {
+      cancelled = true
+      unsubscribe?.()
+    }
   }, [router, loginRedirectPath, upgradeRedirectPath])
 
   return { firebaseUser, navbarUser, userProfile, loading }

@@ -24,7 +24,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -50,6 +50,10 @@ function formatDuration(ms: number): string {
   const total = Math.round(ms / 1000);
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
+
+// Spotify's brand green. Their guidelines keep the mark this colour rather
+// than tinting it to the host UI, so it does not follow the theme's palette.
+const SPOTIFY_GREEN = '#1DB954';
 
 /** open.spotify.com/... → true. Mirrors the web parser's tolerance. */
 function looksLikeSpotifyLink(raw: string): boolean {
@@ -214,6 +218,9 @@ export default function SpotifySongPicker({
   return (
     <View style={[styles.row, { borderBottomColor: colors.border }]}>
       <View style={styles.searchRow}>
+        {/* The brand mark, in Spotify green: it says both "search" and "search
+            Spotify" in one glyph, and the row had no leading icon at all. */}
+        <FontAwesome5 name="spotify" size={19} color={SPOTIFY_GREEN} />
         <TextInput
           style={[styles.input, styles.searchInput, { color: colors.text }]}
           placeholder={tr('organizerCreateEventFlow.canvas.spotifySearchPlaceholder', 'Search a song on Spotify')}

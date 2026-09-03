@@ -508,7 +508,8 @@
     "tab_comps": "Comps",
     "tab_tracking": "Tracking",
     "tab_staff": "Staff",
-    "event_sections_aria": "Event sections"
+    "event_sections_aria": "Event sections",
+    "tab_more": "More"
   },
   "next_event": {
     "no_upcoming_title": "No Upcoming Events",

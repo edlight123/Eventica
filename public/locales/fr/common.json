@@ -508,7 +508,8 @@
     "tab_comps": "Invitations gratuites",
     "tab_tracking": "Suivi",
     "tab_staff": "Équipe",
-    "event_sections_aria": "Sections de l’événement"
+    "event_sections_aria": "Sections de l’événement",
+    "tab_more": "Plus"
   },
   "next_event": {
     "no_upcoming_title": "Aucun événement à venir",

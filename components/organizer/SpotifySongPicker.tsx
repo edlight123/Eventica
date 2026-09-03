@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Loader2, Music2, Search, X } from 'lucide-react'
+import { Loader2, Music2, X } from 'lucide-react'
 
 import { parseSpotifyUrl } from '@/components/events/SpotifyEmbed'
+import SpotifyLogo from '@/components/icons/SpotifyLogo'
 
 /**
  * The composer's song field: a real Spotify typeahead instead of "paste a URL".
@@ -212,8 +213,10 @@ export default function SpotifySongPicker({
               className="h-10 w-10 shrink-0 rounded-lg object-cover"
             />
           ) : (
+            // A saved or pasted link has no album art to show, so the logo
+            // stands in — it still says where the song lives.
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10">
-              <Music2 className="h-[18px] w-[18px] text-white/50" />
+              <SpotifyLogo className="h-[20px] w-[20px]" />
             </span>
           )}
 
@@ -250,7 +253,7 @@ export default function SpotifySongPicker({
     return (
       <div className="space-y-1.5">
         <div className={shell}>
-          <Music2 className="h-[18px] w-[18px] shrink-0 text-white/50" />
+          <SpotifyLogo className="h-[20px] w-[20px] shrink-0" />
           <input
             ref={inputRef}
             value={value}
@@ -277,7 +280,9 @@ export default function SpotifySongPicker({
   return (
     <div ref={wrapRef} className="relative">
       <div className={shell}>
-        <Search className="h-[18px] w-[18px] shrink-0 text-white/50" />
+        {/* The logo, not a magnifying glass: it says both "search" and "search
+            Spotify" in one mark, and matches how the field reads in the app. */}
+        <SpotifyLogo className="h-[20px] w-[20px] shrink-0" />
         <input
           ref={inputRef}
           value={query}

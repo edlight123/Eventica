@@ -69,7 +69,21 @@ export default function InvitePage() {
       // ignore storage failures
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    // Wait for the persisted session to be restored before treating a null
+    // user as signed out — onAuthStateChanged's first emission is null while
+    // that restore is still running, and redirecting on it sent already
+    // signed-in people to the login screen from an invite link.
+    let unsubscribe: (() => void) | undefined
+    let cancelled = false
+    auth
+      .authStateReady()
+      .catch(() => {})
+      .then(() => {
+        if (!cancelled) unsubscribe = onAuthStateChanged(auth, onUser)
+      })
+
+    async function onUser(user: import('firebase/auth').User | null) {
+      if (cancelled) return
       if (!user) {
         const redirect = `/invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
         router.replace(`/auth/login?redirect=${encodeURIComponent(redirect)}`)
@@ -117,9 +131,18 @@ export default function InvitePage() {
         setStatus('error')
         setMessage(err?.message || t('invite.error_generic', 'Failed to redeem invite.'))
       }
-    })
+    }
 
-    return () => unsubscribe()
+    return () => {
+      cancelled = true
+      unsubscribe?.()
+    }
+    // `t` is deliberately NOT a dependency. Its identity changes when the
+    // language does, and re-running this effect would POST the redeem endpoint
+    // a second time for an invite already claimed. It is only read to phrase an
+    // error, so a stale closure costs a message in the previous language —
+    // cheaper than a duplicate redeem.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, token, router, isMobile])
 
   return (

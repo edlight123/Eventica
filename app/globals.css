@@ -13,10 +13,22 @@ body {
   @apply bg-[#0a0a0a] text-white;
 }
 
-/* Form-control baseline: never fall back to the browser's white inputs. */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-textarea,
-select {
+/* Form-control baseline: never fall back to the browser's white inputs.
+ *
+ * Wrapped in :where() so it carries ZERO specificity. Written plainly, this
+ * selector's triple `:not()` compound out-specified every `bg-*` utility on
+ * every input, select and textarea in the app: `bg-white/[0.05]` on a field
+ * added the class and emitted the CSS, and changed nothing on screen. Filled
+ * inputs were quietly impossible, which is why the composer ended up built
+ * entirely from hollow outlines.
+ *
+ * @layer base does NOT fix this — Tailwind 3's layers are source-order
+ * grouping, not native CSS cascade layers, and specificity is compared before
+ * source order. :where() is the fix: the baseline still catches every input
+ * nobody styled, and any explicit utility now wins. */
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"])),
+:where(textarea),
+:where(select) {
   background-color: transparent;
   color: inherit;
 }
