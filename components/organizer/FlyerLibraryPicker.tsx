@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, X } from 'lucide-react'
+import { Check, Search, X } from 'lucide-react'
 import {
   FLYER_LIBRARY,
   flyerLibraryFullUrl,
@@ -28,6 +28,20 @@ export default function FlyerLibraryPicker({
   onClose: () => void
 }) {
   const { t } = useTranslation('common')
+  const [q, setQ] = useState('')
+
+  // Match the label AND the tags, so "konpa", "dj" or "gala" find artwork whose
+  // name says none of those.
+  const items = useMemo(() => {
+    const needle = q.trim().toLowerCase()
+    if (!needle) return FLYER_LIBRARY
+    return FLYER_LIBRARY.filter(
+      (i) =>
+        i.label.toLowerCase().includes(needle) ||
+        i.id.toLowerCase().includes(needle) ||
+        i.tags.some((tg) => tg.includes(needle))
+    )
+  }, [q])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -84,8 +98,40 @@ export default function FlyerLibraryPicker({
           </button>
         </div>
 
+        {/* Search. Fifteen tiles fit on a laptop but not on a phone, and an
+            organizer usually knows the kind of night before the picture. */}
+        <div className="shrink-0 px-5 pt-4">
+          <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.05] px-4">
+            <Search className="h-[18px] w-[18px] shrink-0 text-white/40" aria-hidden />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t('composer.flyerSearchPlaceholder', {
+                defaultValue: 'Search artwork: konpa, party, gala, sports…',
+              })}
+              aria-label={t('composer.flyerSearchPlaceholder', { defaultValue: 'Search artwork' })}
+              className="min-h-11 w-full bg-transparent py-3 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
+            />
+            {q && (
+              <button
+                type="button"
+                onClick={() => setQ('')}
+                aria-label={t('common.clear', { defaultValue: 'Clear' })}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-white/40 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="grid flex-1 grid-cols-2 gap-3 overflow-y-auto p-5 sm:grid-cols-3">
-          {FLYER_LIBRARY.map((item) => {
+          {items.length === 0 && (
+            <p className="col-span-full py-8 text-center text-sm text-white/45">
+              {t('composer.flyerNoMatch', { defaultValue: 'No artwork matches that. Try “party”, “konpa” or “gala”.' })}
+            </p>
+          )}
+          {items.map((item) => {
             const full = flyerLibraryFullUrl(item)
             const selected = current === full
             return (

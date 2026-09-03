@@ -231,6 +231,11 @@ export async function getEventById(eventId: string): Promise<Event | null> {
         // dead on the page for exactly that reason.
         guestlist:
           data?.guestlist && Array.isArray(data.guestlist) ? data.guestlist : undefined,
+        // The poster's dominant colour, derived in the composer and used to
+        // tint the glow behind the artwork on this page. Without it in this
+        // whitelist the field would be written and never seen — which is
+        // exactly what happened to guestlist, spotify_url and theme_key.
+        accent_color: typeof data?.accent_color === 'string' ? data.accent_color : undefined,
         tags: data?.tags && Array.isArray(data.tags) ? data.tags.filter((tag: any) => typeof tag === 'string') : undefined,
         created_at: data?.created_at?.toDate?.()?.toISOString() || data?.created_at,
         updated_at: data?.updated_at?.toDate?.()?.toISOString() || data?.updated_at,

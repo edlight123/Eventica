@@ -67,7 +67,8 @@
     "free_label": "Gratuit",
     "optional": "optionnel",
     "complete": "Terminé",
-    "done": "Terminé"
+    "done": "Terminé",
+    "clear": "Effacer"
   },
   "categories": {
     "Music": "Musique",
@@ -1296,7 +1297,16 @@
       "descriptionPlaceholder": "Une ligne à leur sujet : qui ils sont, ce qu’ils jouent.",
       "startTime": "Heure de début",
       "endTime": "Heure de fin"
-    }
+    },
+    "step": {
+      "basics": "Bases",
+      "tickets": "Billets",
+      "poster": "Affiche"
+    },
+    "accentFromPoster": "Couleur de l’affiche",
+    "accentAwaitingPoster": "ajoutez un flyer",
+    "flyerSearchPlaceholder": "Chercher un visuel : konpa, fête, gala, sport…",
+    "flyerNoMatch": "Aucun visuel ne correspond. Essayez « fête », « konpa » ou « gala »."
   },
   "promoter": {
     "portal_eyebrow": "Portail promoteur",

@@ -67,7 +67,8 @@
     "free_label": "Free",
     "optional": "optional",
     "complete": "Complete",
-    "done": "Done"
+    "done": "Done",
+    "clear": "Clear"
   },
   "categories": {
     "Music": "Music",
@@ -1296,7 +1297,16 @@
       "descriptionPlaceholder": "A line about them: who they are, what they play.",
       "startTime": "Start time",
       "endTime": "End time"
-    }
+    },
+    "step": {
+      "basics": "Basics",
+      "tickets": "Tickets",
+      "poster": "Poster"
+    },
+    "accentFromPoster": "Accent from poster",
+    "accentAwaitingPoster": "add a flyer",
+    "flyerSearchPlaceholder": "Search artwork: konpa, party, gala, sports…",
+    "flyerNoMatch": "No artwork matches that. Try “party”, “konpa” or “gala”."
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",

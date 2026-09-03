@@ -67,7 +67,8 @@
     "free_label": "Gratis",
     "optional": "opsyonèl",
     "complete": "Fini",
-    "done": "Fini"
+    "done": "Fini",
+    "clear": "Efase"
   },
   "categories": {
     "Music": "Mizik",
@@ -1296,7 +1297,16 @@
       "descriptionPlaceholder": "Yon ti liy sou li: kiyès li ye, kisa l jwe.",
       "startTime": "Lè li kòmanse",
       "endTime": "Lè li fini"
-    }
+    },
+    "step": {
+      "basics": "Baz",
+      "tickets": "Tikè",
+      "poster": "Afich"
+    },
+    "accentFromPoster": "Koulè afich la",
+    "accentAwaitingPoster": "mete yon flyer",
+    "flyerSearchPlaceholder": "Chèche yon imaj: konpa, fèt, gala, espò…",
+    "flyerNoMatch": "Pa gen imaj ki matche. Eseye “fèt”, “konpa” oswa “gala”."
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",

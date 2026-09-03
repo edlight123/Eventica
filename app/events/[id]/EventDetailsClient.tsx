@@ -127,8 +127,20 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)] gap-8 lg:gap-12 items-start">
 
-            {/* Poster image — portrait poster shape */}
-            <div className="mx-auto w-full max-w-[320px] lg:mx-0 lg:max-w-none">
+            {/* Poster image, portrait poster shape.
+                The bloom behind it is tinted with `accent_color`, the poster's
+                own dominant colour derived in the composer. That field used to
+                be written and read by nothing; this is what makes it mean
+                something. Falls back to no bloom when the event has no
+                accent, so an older event looks exactly as before. */}
+            <div className="relative mx-auto w-full max-w-[320px] lg:mx-0 lg:max-w-none">
+              {event.accent_color && event.banner_image_url && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-6 -z-10 rounded-full opacity-40 blur-3xl"
+                  style={{ backgroundColor: event.accent_color }}
+                />
+              )}
               <div
                 className="poster-vignette relative aspect-[4/5] overflow-hidden rounded-none shadow-poster ring-1 ring-white/10"
                 style={event.banner_image_url ? undefined : { backgroundImage: posterTheme.bg }}

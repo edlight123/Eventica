@@ -13,6 +13,7 @@ import { isDemoMode } from '@/lib/demo'
 import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
 import SpotifySongPicker from '@/components/organizer/SpotifySongPicker'
+import { usePosterAccent, POSTER_ACCENT_FALLBACK } from '@/components/ui/usePosterAccent'
 import GuestEditorSheet from '@/components/organizer/GuestEditorSheet'
 import {
   GUEST_ROLES,
@@ -67,15 +68,6 @@ const CATEGORIES = [
   'Other',
 ]
 
-const ACCENTS: { hex: string; name: string }[] = [
-  { hex: '#14B8A6', name: 'Teal' },
-  { hex: '#F2B705', name: 'Gold' },
-  { hex: '#EF4444', name: 'Red' },
-  { hex: '#8B5CF6', name: 'Purple' },
-  { hex: '#3B82F6', name: 'Blue' },
-  { hex: '#EC4899', name: 'Pink' },
-  { hex: '#F97316', name: 'Orange' },
-]
 
 // Recurring-event cadence options for the "Repeats" selector (create-only).
 type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly'
@@ -218,6 +210,50 @@ function localInputToISO(local?: string): string | null {
 
 const makeId = () => Math.random().toString(36).slice(2, 9)
 
+/**
+ * Three steps, and how far along the form is.
+ *
+ * Not a wizard: the form stays one page, because an organizer editing a live
+ * event should not have to walk a flow to change a price. This is a read-out
+ * of what is still missing, so "why can't I publish yet" is answerable at a
+ * glance instead of by scrolling.
+ */
+function FormProgress({
+  steps,
+}: {
+  steps: { label: string; done: boolean }[]
+}) {
+  const doneCount = steps.filter((s) => s.done).length
+  return (
+    <ol className="mb-7 flex items-center gap-2" aria-label="Form progress">
+      {steps.map((s, i) => (
+        <li key={s.label} className="flex min-w-0 flex-1 items-center gap-2">
+          <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+            {/* The bar carries the state; the label names the step. */}
+            <span
+              className={`h-1 w-full rounded-full transition-colors ${
+                s.done ? 'bg-brand-400' : 'bg-white/12'
+              }`}
+            />
+            <span
+              className={`truncate text-[11px] font-medium uppercase tracking-[0.1em] transition-colors ${
+                s.done ? 'text-brand-300' : 'text-white/35'
+              }`}
+            >
+              {s.label}
+            </span>
+          </span>
+          {i === steps.length - 1 && (
+            <span className="shrink-0 self-start pt-px font-mono text-[11px] tabular-nums text-white/35">
+              {doneCount}/{steps.length}
+            </span>
+          )}
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 /* ----------------------------- small UI atoms ----------------------------- */
 
 function Toggle({
@@ -257,10 +293,18 @@ function Toggle({
  */
 const CHIP_ON = 'bg-white text-black'
 const CHIP_OFF = 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
+/**
+ * The chip stays visually compact and grows only its HIT AREA.
+ *
+ * I first met the 44px touch floor with `min-h-11`, which made every chip 44px
+ * TALL. On a phone that turned eight category chips into three fat rows that
+ * dominated the form. The pill is now ~34px as it was, and `py-2.5 -my-1`
+ * extends the tappable box past the ink without moving the layout: the padding
+ * adds height, the negative margin gives it back. Same trick as the event
+ * page's "Open in Maps" link.
+ */
 const chipCls = (on: boolean) =>
-  // min-h-11 on phones: these were 32px, under the 44px touch floor, and there
-  // are dozens of them down this form.
-  `inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm font-medium transition-colors sm:min-h-0 ${on ? CHIP_ON : CHIP_OFF}`
+  `-my-1 inline-flex items-center rounded-full px-2.5 py-2 text-[13px] font-medium transition-colors ${on ? CHIP_ON : CHIP_OFF}`
 
 /**
  * A state read-out that is a DOT plus a label — never a filled status pill
@@ -606,6 +650,28 @@ export default function EventComposer({
   const [themeKey, setThemeKey] = useState<string>(event?.theme_key || '')
   const [titleFont, setTitleFont] = useState<'Default' | 'Serif' | 'Sans'>(event?.title_font || 'Default')
   const [accentColor, setAccentColor] = useState(event?.accent_color || '#14B8A6')
+
+  /* ------------------------------------------------------------------------
+   * The accent follows the poster.
+   *
+   * usePosterAccent extracts the flyer's dominant colour client-side (same
+   * hook the poster cards already use for their glow) and returns an "r,g,b"
+   * triple. Converted to hex here because `accent_color` has always been
+   * stored as hex, and anything already reading that field keeps working.
+   * ---------------------------------------------------------------------- */
+  const posterAccentRgb = usePosterAccent(bannerUrl || undefined)
+  useEffect(() => {
+    if (!bannerUrl) return
+    if (posterAccentRgb === POSTER_ACCENT_FALLBACK) return
+    const hex =
+      '#' +
+      posterAccentRgb
+        .split(',')
+        .map((n) => Math.max(0, Math.min(255, parseInt(n.trim(), 10) || 0)).toString(16).padStart(2, '0'))
+        .join('')
+        .toUpperCase()
+    if (hex.length === 7) setAccentColor(hex)
+  }, [posterAccentRgb, bannerUrl])
 
   // Edit-only: published state (toggled via the publish control)
   const [isPublished, setIsPublished] = useState(!!event?.is_published)
@@ -1457,9 +1523,37 @@ export default function EventComposer({
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,360px)]">
+      {/* Explicit grid placement on desktop so mobile is free to reorder.
+          On a phone the stack is: poster, then the form, then the actions.
+          It used to be poster+actions first and the form last, which put
+          "Continue and sign up to publish" ABOVE the form the organizer had
+          not filled in yet. */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,360px)] lg:grid-rows-[auto_1fr]">
         {/* ===================== LEFT — the event ===================== */}
-        <div className="order-2 min-w-0 lg:order-1">
+        <div className="order-2 min-w-0 lg:col-start-1 lg:row-span-2 lg:row-start-1">
+          {/* What is still missing, at a glance. Basics = the things without
+              which nothing can be published; tickets = a sellable price or an
+              RSVP; poster = the artwork, which is optional to publish but is
+              what actually sells the night, so it earns its own step. */}
+          <FormProgress
+            steps={[
+              {
+                label: t('composer.step.basics', { defaultValue: 'Basics' }),
+                done: Boolean(title.trim() && startDate && (isOnline || address.trim() || venueName.trim() || city.trim())),
+              },
+              {
+                label: t('composer.step.tickets', { defaultValue: 'Tickets' }),
+                done:
+                  sellMode === 'rsvp' ||
+                  tiers.some((tr) => tr.name.trim() && String(tr.price).trim() !== ''),
+              },
+              {
+                label: t('composer.step.poster', { defaultValue: 'Poster' }),
+                done: Boolean(bannerUrl),
+              },
+            ]}
+          />
+
           {/* Region payout-profile nudge — which profile this event pays through. */}
           {payoutProfileGap && (
             <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
@@ -2453,7 +2547,7 @@ export default function EventComposer({
         </div>
 
         {/* ===================== RIGHT — flyer + style ===================== */}
-        <div className="order-1 lg:order-2">
+        <div className="order-1 lg:col-start-2 lg:row-start-1">
           <div className="space-y-4 lg:sticky lg:top-24">
             {/* Flyer. Guests upload through the API route (storage rules
                 require auth for the client SDK); the file waits under
@@ -2493,24 +2587,31 @@ export default function EventComposer({
                   <option value="Sans">{t('composer.fonts.Sans', { defaultValue: 'Sans' })}</option>
                 </select>
               </div>
+              {/* The accent is TAKEN FROM THE POSTER, not chosen.
+                  A seven-swatch picker used to sit here. It was dead: the
+                  chosen hex was written to `accent_color` and read by nothing
+                  in the app, so the organizer picked a colour and nothing ever
+                  used it. And a colour picked in isolation rarely matches the
+                  artwork anyway. The dominant colour of the flyer is extracted
+                  client-side and shown here as a read-out, so it is honest
+                  about being automatic. */}
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-white/80">
-                  <Palette className="h-4 w-4 text-white/50" /> {t('composer.accentColor', { defaultValue: 'Accent Color' })}
+                  <Palette className="h-4 w-4 text-white/50" />{' '}
+                  {t('composer.accentFromPoster', { defaultValue: 'Accent from poster' })}
                 </span>
-                <div className="flex items-center gap-1.5">
-                  {ACCENTS.map(({ hex, name }) => (
-                    <button
-                      key={hex}
-                      type="button"
-                      onClick={() => setAccentColor(hex)}
-                      aria-label={t(`composer.colors.${name}`, { defaultValue: name })}
-                      aria-pressed={accentColor === hex}
-                      title={t(`composer.colors.${name}`, { defaultValue: name })}
-                      className={`h-5 w-5 rounded-full transition-transform ${accentColor === hex ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0a0a0a]' : ''}`}
-                      style={{ backgroundColor: hex }}
-                    />
-                  ))}
-                </div>
+                <span className="flex items-center gap-2">
+                  <span
+                    aria-hidden
+                    className="h-5 w-5 rounded-full ring-1 ring-white/20"
+                    style={{ backgroundColor: accentColor }}
+                  />
+                  <span className="font-mono text-[11px] uppercase text-white/40">
+                    {bannerUrl
+                      ? accentColor
+                      : t('composer.accentAwaitingPoster', { defaultValue: 'add a flyer' })}
+                  </span>
+                </span>
               </div>
             </div>
 
@@ -2548,6 +2649,15 @@ export default function EventComposer({
               </label>
             )}
 
+          </div>
+        </div>
+
+        {/* ACTIONS — their own grid cell so mobile can put them last.
+            On desktop they sit under the poster in column two, exactly where
+            they were; on a phone they follow the form, which is the only place
+            a "publish" button makes sense. */}
+        <div className="order-3 lg:col-start-2 lg:row-start-2">
+          <div className="space-y-4">
             {/* Save / Create */}
             <button
               type="button"
