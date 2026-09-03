@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { firebaseDb as supabase } from '@/lib/firebase-db/client'
 import Image from 'next/image'
+import { useTranslation } from 'react-i18next'
+import FlyerLibraryPicker from '@/components/organizer/FlyerLibraryPicker'
 
 interface ImageUploadProps {
   currentImage?: string | null
@@ -28,7 +30,9 @@ export default function ImageUpload({
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImage || null)
   const [error, setError] = useState<string | null>(null)
+  const [libraryOpen, setLibraryOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { t } = useTranslation('common')
 
   // A parent can set currentImage AFTER mount (the composer's draft restore
   // does) — without this sync the slot renders empty while the form actually
@@ -46,13 +50,13 @@ export default function ImageUpload({
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      setError('Please select an image file')
+      setError(t('upload.errType', { defaultValue: 'Please select an image file' }))
       return
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be less than 5MB')
+      setError(t('upload.errSize', { defaultValue: 'Image must be less than 5MB' }))
       return
     }
 
@@ -140,10 +144,29 @@ export default function ImageUpload({
     }
   }
 
+  // Picking library artwork is not an upload: the image already lives on a CDN
+  // the app allows, so the URL goes straight to the form. That is what makes it
+  // work for signed-out visitors on /create with no round trip at all.
+  function pickFromLibrary(url: string) {
+    setError(null)
+    setPreview(url)
+    onImageUploaded(url)
+    setLibraryOpen(false)
+  }
+
   const isFlyer = variant === 'flyer'
   const isSquare = variant === 'square'
   const frame = isFlyer ? 'aspect-[4/5]' : isSquare ? 'aspect-square' : 'h-64'
-  const ctaLabel = isFlyer ? 'Upload your flyer' : isSquare ? 'Upload logo' : 'Upload image'
+  const ctaLabel = isFlyer
+    ? t('upload.flyer', { defaultValue: 'Upload your flyer' })
+    : isSquare
+      ? t('upload.logo', { defaultValue: 'Upload logo' })
+      : t('upload.image', { defaultValue: 'Upload image' })
+  const changeLabel = isFlyer
+    ? t('upload.changeFlyer', { defaultValue: 'Change flyer' })
+    : isSquare
+      ? t('upload.changeLogo', { defaultValue: 'Change logo' })
+      : t('upload.changeImage', { defaultValue: 'Change image' })
 
   // Cool, Posh-style dropzone backdrop: a teal glow over a faint perspective grid.
   const coolBg: React.CSSProperties =
@@ -173,28 +196,62 @@ export default function ImageUpload({
                 className="rounded-2xl  object-cover"
               />
             </div>
-            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-white/90"
               >
-                {isFlyer ? 'Change flyer' : isSquare ? 'Change logo' : 'Change image'}
+                {changeLabel}
               </button>
+              {isFlyer && (
+                <button
+                  type="button"
+                  onClick={() => setLibraryOpen(true)}
+                  className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  {t('upload.browseLibrary', { defaultValue: 'Browse library' })}
+                </button>
+              )}
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
+          // The empty state offers both doors. Upload stays the primary
+          // action — most organizers have a flyer — but "browse the library"
+          // is the escape hatch for the ones who don't, who would otherwise
+          // publish an event with no image at all.
+          <div
             style={coolBg}
-            className={`group/flyer relative flex w-full ${frame} flex-col items-center justify-center overflow-hidden rounded-2xl  text-white/50 transition hover:border-brand-400/40`}
+            className={`group/flyer relative flex w-full ${frame} flex-col items-center justify-center overflow-hidden rounded-2xl text-white/50`}
           >
-            <span className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 shadow-lg transition-transform group-hover/flyer:scale-105">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 shadow-lg transition-transform group-hover/flyer:scale-105"
+            >
               {ctaLabel}
+            </button>
+            <span className="mt-3 text-xs text-white/45">
+              {t('upload.formats', { defaultValue: 'PNG or JPG · up to 5MB' })}
             </span>
-            <span className="mt-3 text-xs text-white/45">PNG or JPG · up to 5MB</span>
-          </button>
+            {isFlyer && (
+              <button
+                type="button"
+                onClick={() => setLibraryOpen(true)}
+                className="mt-4 text-xs font-semibold text-white/70 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
+              >
+                {t('upload.noFlyer', { defaultValue: 'No flyer? Choose from our library' })}
+              </button>
+            )}
+          </div>
+        )}
+
+        {libraryOpen && (
+          <FlyerLibraryPicker
+            current={preview}
+            onPick={pickFromLibrary}
+            onClose={() => setLibraryOpen(false)}
+          />
         )}
 
         <input
@@ -210,7 +267,7 @@ export default function ImageUpload({
       {uploading && (
         <div className="flex items-center justify-center py-2">
           <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-brand-400"></div>
-          <span className="ml-2 text-sm text-white/60">Uploading…</span>
+          <span className="ml-2 text-sm text-white/60">{t('upload.uploading', { defaultValue: 'Uploading…' })}</span>
         </div>
       )}
 

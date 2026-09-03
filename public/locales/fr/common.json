@@ -326,7 +326,8 @@
     "fees_included": "Frais inclus",
     "fees_included_detail": "Inclut des frais de {{fee}} {{currency}}",
     "no_account_needed": "Aucun compte nécessaire — votre billet vous est envoyé par email.",
-    "venue_map_open": "Ouvrir {{venue}} dans Google Maps"
+    "venue_map_open": "Ouvrir {{venue}} dans Google Maps",
+    "lineup": "Affiche"
   },
   "favorites": {
     "title": "Mes favoris",
@@ -1253,6 +1254,46 @@
       "unlimitedQty": "Quantité illimitée",
       "waitlist": "Liste d’attente une fois complet",
       "waitlistHint": "Recueillez des noms pour ce billet dès qu’il est complet. Chaque type de billet a sa propre liste."
+    },
+    "editGuest": "Modifier {{name}}",
+    "moveUp": "Déplacer plus tôt",
+    "moveDown": "Déplacer plus tard",
+    "flyerLibrary": "Bibliothèque de flyers",
+    "flyerLibraryHint": "Des visuels gratuits, utilisables tels quels. Remplacez-les par votre flyer quand vous voulez.",
+    "flyerLib": {
+      "stageLights": "Lumières de scène",
+      "crowdGold": "Foule dorée",
+      "confetti": "Confettis",
+      "fromTheStage": "Vue de la scène",
+      "handsUp": "Mains en l’air",
+      "smokeAndLight": "Fumée et lumière",
+      "brass": "Cuivres",
+      "festival": "Nuit de festival",
+      "paint": "Peinture",
+      "table": "La table",
+      "worship": "Louange",
+      "startLine": "Ligne de départ",
+      "darkRoom": "Salle comble",
+      "workshop": "Atelier",
+      "classroom": "Salle de classe"
+    },
+    "guest": {
+      "addTitle": "Ajouter à l’affiche",
+      "editTitle": "Modifier l’affiche",
+      "photo": "Ajouter une photo",
+      "photoType": "Veuillez choisir un fichier image.",
+      "photoSize": "L’image doit faire moins de 5 Mo.",
+      "photoFailed": "Le téléversement a échoué. Réessayez.",
+      "change": "Changer",
+      "add": "Ajouter",
+      "name": "Nom",
+      "link": "Lien",
+      "linkPlaceholder": "Instagram, Spotify, site web…",
+      "role": "Rôle",
+      "description": "Description",
+      "descriptionPlaceholder": "Une ligne à leur sujet — qui ils sont, ce qu’ils jouent.",
+      "startTime": "Heure de début",
+      "endTime": "Heure de fin"
     }
   },
   "promoter": {
@@ -1471,5 +1512,19 @@
     "role_person": "Sur Tikèm",
     "city_filter_hint": "Filtrer les événements par ville",
     "searching": "Recherche…"
+  },
+  "upload": {
+    "flyer": "Téléversez votre flyer",
+    "logo": "Téléversez le logo",
+    "image": "Téléversez une image",
+    "changeFlyer": "Changer le flyer",
+    "changeLogo": "Changer le logo",
+    "changeImage": "Changer l’image",
+    "browseLibrary": "Parcourir la bibliothèque",
+    "noFlyer": "Pas de flyer ? Choisissez dans notre bibliothèque",
+    "formats": "PNG ou JPG · jusqu’à 5 Mo",
+    "errType": "Veuillez choisir un fichier image",
+    "errSize": "L’image doit faire moins de 5 Mo",
+    "uploading": "Téléversement…"
   }
 }

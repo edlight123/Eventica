@@ -13,6 +13,7 @@ import MobileAccordions from './MobileAccordions'
 import WhosGoing from '@/components/events/WhosGoing'
 import SpotifyEmbed from '@/components/events/SpotifyEmbed'
 import VenueMap from '@/components/events/VenueMap'
+import EventLineup from '@/components/events/EventLineup'
 import { Shield } from 'lucide-react'
 import { format } from 'date-fns'
 import Image from 'next/image'
@@ -320,6 +321,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         }
       />
 
+      {/* The bill — mobile placement, above the song: who is playing is a
+          bigger reason to buy than what the event sounds like. Renders nothing
+          when the organizer added no lineup. */}
+      <EventLineup guestlist={(event as any).guestlist} className="px-4 pt-6 md:hidden" />
+
       {/* The event's song — mobile placement, under the accordions. */}
       <SpotifyEmbed url={event.spotify_url} className="px-4 pt-4 md:hidden" />
 
@@ -347,6 +353,17 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               {/* The event's song — desktop placement, under the about text. */}
               <SpotifyEmbed url={event.spotify_url} className="mt-6 max-w-[65ch]" />
             </div>
+
+            {/* The bill — desktop. Between About and the venue: the reader has
+                just learned what the event is, and who is on it is the next
+                question. Self-hiding when there is no lineup, hence the wrapper
+                carrying no heading or border of its own. */}
+            {Array.isArray((event as any).guestlist) &&
+              (event as any).guestlist.length > 0 && (
+                <div className="hidden border-b border-white/10 py-8 md:block">
+                  <EventLineup guestlist={(event as any).guestlist} />
+                </div>
+              )}
 
             {/* Venue Details - Desktop */}
             <div className="hidden md:block border-b border-white/10 py-8">

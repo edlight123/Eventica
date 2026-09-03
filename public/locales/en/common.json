@@ -326,7 +326,8 @@
     "fees_included": "Fees included",
     "fees_included_detail": "Includes {{fee}} {{currency}} fee",
     "no_account_needed": "No account needed — your ticket is emailed to you.",
-    "venue_map_open": "Open {{venue}} on Google Maps"
+    "venue_map_open": "Open {{venue}} on Google Maps",
+    "lineup": "Lineup"
   },
   "favorites": {
     "title": "My Favorites",
@@ -1253,6 +1254,46 @@
       "unlimitedQty": "Unlimited quantity",
       "waitlist": "Waitlist when sold out",
       "waitlistHint": "Collect names for this ticket once it sells out. Each ticket type has its own list."
+    },
+    "editGuest": "Edit {{name}}",
+    "moveUp": "Move earlier",
+    "moveDown": "Move later",
+    "flyerLibrary": "Flyer library",
+    "flyerLibraryHint": "Free artwork you can use as-is. Swap it for your own flyer any time.",
+    "flyerLib": {
+      "stageLights": "Stage lights",
+      "crowdGold": "Crowd in gold",
+      "confetti": "Confetti",
+      "fromTheStage": "From the stage",
+      "handsUp": "Hands up",
+      "smokeAndLight": "Smoke and light",
+      "brass": "Brass",
+      "festival": "Festival night",
+      "paint": "Paint",
+      "table": "The table",
+      "worship": "Worship",
+      "startLine": "Start line",
+      "darkRoom": "Full room",
+      "workshop": "Workshop",
+      "classroom": "Classroom"
+    },
+    "guest": {
+      "addTitle": "Add to lineup",
+      "editTitle": "Edit lineup entry",
+      "photo": "Add a photo",
+      "photoType": "Please choose an image file.",
+      "photoSize": "Image must be under 5MB.",
+      "photoFailed": "Upload failed. Please try again.",
+      "change": "Change",
+      "add": "Add",
+      "name": "Name",
+      "link": "Link",
+      "linkPlaceholder": "Instagram, Spotify, website…",
+      "role": "Role",
+      "description": "Description",
+      "descriptionPlaceholder": "A line about them — who they are, what they play.",
+      "startTime": "Start time",
+      "endTime": "End time"
     }
   },
   "promoter": {
@@ -1471,5 +1512,19 @@
     "role_person": "On Tikèm",
     "city_filter_hint": "Filter events by city",
     "searching": "Searching…"
+  },
+  "upload": {
+    "flyer": "Upload your flyer",
+    "logo": "Upload logo",
+    "image": "Upload image",
+    "changeFlyer": "Change flyer",
+    "changeLogo": "Change logo",
+    "changeImage": "Change image",
+    "browseLibrary": "Browse library",
+    "noFlyer": "No flyer? Choose from our library",
+    "formats": "PNG or JPG · up to 5MB",
+    "errType": "Please select an image file",
+    "errSize": "Image must be less than 5MB",
+    "uploading": "Uploading…"
   }
 }

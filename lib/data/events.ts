@@ -225,6 +225,12 @@ export async function getEventById(eventId: string): Promise<Event | null> {
         is_password_protected: data?.is_password_protected ?? false,
         // The event's song (rendered by SpotifyEmbed on the event page).
         spotify_url: data?.spotify_url || null,
+        // The bill — who is performing (rendered by EventLineup). This object is
+        // an explicit whitelist, so a field absent here is invisible to every
+        // reader no matter what the doc holds; the lineup an organizer typed was
+        // dead on the page for exactly that reason.
+        guestlist:
+          data?.guestlist && Array.isArray(data.guestlist) ? data.guestlist : undefined,
         tags: data?.tags && Array.isArray(data.tags) ? data.tags.filter((tag: any) => typeof tag === 'string') : undefined,
         created_at: data?.created_at?.toDate?.()?.toISOString() || data?.created_at,
         updated_at: data?.updated_at?.toDate?.()?.toISOString() || data?.updated_at,

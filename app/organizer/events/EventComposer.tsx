@@ -13,6 +13,14 @@ import { isDemoMode } from '@/lib/demo'
 import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
 import SpotifySongPicker from '@/components/organizer/SpotifySongPicker'
+import GuestEditorSheet from '@/components/organizer/GuestEditorSheet'
+import {
+  GUEST_ROLES,
+  emptyLineupEntry,
+  lineupEntryFromRecord,
+  lineupEntryToRecord,
+  type LineupEntry,
+} from '@/lib/lineup'
 import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
 import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type EventCurrency } from '@/lib/currency-policy'
 import { incidenceForEvent, priceOrder } from '@/lib/checkout/buyer-pricing'
@@ -24,7 +32,10 @@ import { SectionHeader } from '@/components/ui/EditorialRails'
 import {
   CalendarDays,
   ChevronDown,
+  ChevronUp,
+  Clock,
   Copy,
+  Link2,
   Globe,
   Image as ImageIcon,
   Info,
@@ -214,15 +225,6 @@ function localInputToISO(local?: string): string | null {
   if (!local) return null
   const d = new Date(local)
   return Number.isNaN(d.getTime()) ? null : d.toISOString()
-}
-
-type GuestRole = 'Performer' | 'Host' | 'DJ' | 'Special Guest'
-const GUEST_ROLES: GuestRole[] = ['Performer', 'Host', 'DJ', 'Special Guest']
-
-interface Guest {
-  id: string
-  name: string
-  role: GuestRole
 }
 
 const makeId = () => Math.random().toString(36).slice(2, 9)
@@ -529,25 +531,52 @@ export default function EventComposer({
   }, [menuTierId])
 
   // Guestlist — artists / hosts / performers joining the event (the lineup)
-  const [guests, setGuests] = useState<Guest[]>(
-    Array.isArray(event?.guestlist)
-      ? event.guestlist.map((g: any) => ({
-          id: makeId(),
-          name: typeof g === 'string' ? g : g?.name || '',
-          role: (g?.role as GuestRole) || 'Performer',
-        }))
-      : []
+  const [guests, setGuests] = useState<LineupEntry[]>(
+    Array.isArray(event?.guestlist) ? event.guestlist.map(lineupEntryFromRecord) : []
   )
-  const [guestName, setGuestName] = useState('')
-  const [guestRole, setGuestRole] = useState<GuestRole>('Performer')
 
-  const addGuest = () => {
-    const name = guestName.trim()
-    if (!name) return
-    setGuests((prev) => [...prev, { id: makeId(), name, role: guestRole }])
-    setGuestName('')
+  // The entry currently open in the editor sheet — a fresh one when adding, a
+  // copy of an existing one when editing. Editing works on a COPY so Cancel
+  // genuinely discards: mutating the row in place would leave half-typed edits
+  // behind on dismiss.
+  const [guestDraft, setGuestDraft] = useState<LineupEntry | null>(null)
+  const [guestDraftIsNew, setGuestDraftIsNew] = useState(true)
+
+  const openNewGuest = () => {
+    setGuestDraft(emptyLineupEntry())
+    setGuestDraftIsNew(true)
+  }
+  const openEditGuest = (g: LineupEntry) => {
+    setGuestDraft({ ...g })
+    setGuestDraftIsNew(false)
+  }
+  const patchGuestDraft = (patch: Partial<LineupEntry>) =>
+    setGuestDraft((prev) => (prev ? { ...prev, ...patch } : prev))
+
+  const saveGuestDraft = () => {
+    setGuests((prev) => {
+      if (!guestDraft) return prev
+      const entry = { ...guestDraft, name: guestDraft.name.trim() }
+      if (!entry.name) return prev
+      return guestDraftIsNew
+        ? [...prev, entry]
+        : prev.map((g) => (g.id === entry.id ? entry : g))
+    })
+    setGuestDraft(null)
   }
   const removeGuest = (id: string) => setGuests((prev) => prev.filter((g) => g.id !== id))
+
+  // Reorder: a lineup is a running order, so the order the organizer types in
+  // is meaningful and must be adjustable without deleting and re-adding.
+  const moveGuest = (id: string, dir: -1 | 1) =>
+    setGuests((prev) => {
+      const i = prev.findIndex((g) => g.id === id)
+      const j = i + dir
+      if (i < 0 || j < 0 || j >= prev.length) return prev
+      const next = prev.slice()
+      ;[next[i], next[j]] = [next[j], next[i]]
+      return next
+    })
 
   // Visibility extras
   const [showGuestlist, setShowGuestlist] = useState(event?.show_guestlist ?? true)
@@ -655,11 +684,10 @@ export default function EventComposer({
       )
     }
     if (Array.isArray(d.guestlist) && d.guestlist.length > 0) {
-      setGuests(
-        d.guestlist
-          .map((g: any) => ({ id: makeId(), name: g?.name || '', role: (g?.role as GuestRole) || 'Performer' }))
-          .filter((g: any) => g.name)
-      )
+      // Reads the same shape `buildEventData` writes, via the same reader the
+      // edit path uses — so a photo, link, bio or set time typed while signed
+      // out survives sign-up instead of quietly vanishing at the door.
+      setGuests(d.guestlist.map(lineupEntryFromRecord).filter((g: LineupEntry) => g.name))
     }
     if (d.show_guestlist === false) setShowGuestlist(false)
     if (d.show_on_explore === false) setShowOnExplore(false)
@@ -863,7 +891,11 @@ export default function EventComposer({
     }))
     const firstTier = cleanTiers[0] || { name: 'General Admission', price: 0, quantity: 0 }
     const totalQty = cleanTiers.reduce((sum, t) => sum + t.quantity, 0)
-    const cleanGuests = guests.map((g) => ({ name: g.name, role: g.role }))
+    // Persisted snake_case, matching every other field on the event doc. This
+    // is also the shape the guest draft snapshots (snapshotDraft spreads
+    // `data`), so anything dropped here is lost through the sign-up round trip
+    // as well as on the next edit — `guestFromRecord` reads it back.
+    const cleanGuests = guests.map(lineupEntryToRecord)
     const data: Record<string, any> = {
       organizer_id: userId,
       title: title.trim(),
@@ -2164,19 +2196,73 @@ export default function EventComposer({
             </SectionTitle>
 
             <div className="space-y-3 rounded-xl border border-white/10 p-4">
-              {/* Existing guests */}
+              {/* The bill so far, in running order. Each row is the whole entry
+                  in miniature — face, name, role, set time, whether a link is
+                  attached — and clicking it reopens the editor. */}
               {guests.length > 0 && (
                 <div className="space-y-2">
-                  {guests.map((g) => (
-                    <div key={g.id} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-xs font-bold text-white">
-                        {g.name.charAt(0).toUpperCase()}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[15px] font-semibold text-white">{g.name}</span>
-                        <span className="block text-xs text-white/50">
-                          {t(`composer.roles.${g.role}`, { defaultValue: g.role })}
+                  {guests.map((g, i) => (
+                    <div
+                      key={g.id}
+                      className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => openEditGuest(g)}
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                        aria-label={t('composer.editGuest', { defaultValue: 'Edit {{name}}', name: g.name })}
+                      >
+                        {g.photoUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={g.photoUrl}
+                            alt=""
+                            className="h-10 w-10 shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-sm font-bold text-white">
+                            {g.name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[15px] font-semibold text-white">{g.name}</span>
+                          <span className="flex items-center gap-1.5 text-xs text-white/50">
+                            <span>{t(`composer.roles.${g.role}`, { defaultValue: g.role })}</span>
+                            {g.startTime && (
+                              <>
+                                <span aria-hidden>·</span>
+                                <span>
+                                  {g.startTime}
+                                  {g.endTime ? `–${g.endTime}` : ''}
+                                </span>
+                              </>
+                            )}
+                            {g.link && <Link2 className="h-3 w-3" aria-hidden />}
+                          </span>
                         </span>
+                      </button>
+                      {/* Running order. Both arrows always render (disabled at
+                          the ends) so the row's controls never shift position
+                          as entries move. */}
+                      <span className="flex shrink-0 flex-col">
+                        <button
+                          type="button"
+                          onClick={() => moveGuest(g.id, -1)}
+                          disabled={i === 0}
+                          className="rounded p-0.5 text-white/40 transition-colors hover:text-white disabled:opacity-20 disabled:hover:text-white/40"
+                          aria-label={t('composer.moveUp', { defaultValue: 'Move earlier' })}
+                        >
+                          <ChevronUp className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveGuest(g.id, 1)}
+                          disabled={i === guests.length - 1}
+                          className="rounded p-0.5 text-white/40 transition-colors hover:text-white disabled:opacity-20 disabled:hover:text-white/40"
+                          aria-label={t('composer.moveDown', { defaultValue: 'Move later' })}
+                        >
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        </button>
                       </span>
                       <button
                         type="button"
@@ -2191,42 +2277,30 @@ export default function EventComposer({
                 </div>
               )}
 
-              {/* Add new guest */}
-              <input
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addGuest()
-                  }
-                }}
-                placeholder={t('composer.guestNamePlaceholder', { defaultValue: 'Artist or guest name' })}
-                aria-label="Artist or guest name"
-                className={field}
-              />
-              <div className="flex flex-wrap gap-2">
-                {GUEST_ROLES.map((role) => (
-                  <button
-                    key={role}
-                    type="button"
-                    onClick={() => setGuestRole(role)}
-                    className={chipCls(guestRole === role)}
-                  >
-                    {t(`composer.roles.${role}`, { defaultValue: role })}
-                  </button>
-                ))}
-              </div>
               <button
                 type="button"
-                onClick={addGuest}
-                disabled={!guestName.trim()}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                onClick={openNewGuest}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white"
               >
                 <Plus className="h-4 w-4" /> {t('composer.addToGuestlist', { defaultValue: 'Add to guestlist' })}
               </button>
             </div>
           </div>
+
+          {/* The entry editor. Signed-out visitors upload the photo through the
+              same guest-upload route as the poster, so a lineup can be built
+              before there is an account. */}
+          {guestDraft && (
+            <GuestEditorSheet
+              draft={guestDraft}
+              roles={GUEST_ROLES}
+              isNew={guestDraftIsNew}
+              endpoint={guest ? '/api/guest-upload' : undefined}
+              onPatch={patchGuestDraft}
+              onSave={saveGuestDraft}
+              onCancel={() => setGuestDraft(null)}
+            />
+          )}
 
           {/* ADVANCED — one control instead of two more sections shouting on
               first load. Title, dates, location and tickets stay open above;
@@ -2255,24 +2329,13 @@ export default function EventComposer({
 
           {advancedOpen && (
             <>
-          {/* Event Features */}
-          <div className="mt-8 border-t border-white/10 pt-6">
-            <SectionTitle icon={Star}>{t('composer.features', { defaultValue: 'Event Features' })}</SectionTitle>
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 px-4 py-4">
-              <span className="text-sm text-white/70">
-                {t('composer.featuresHint', { defaultValue: 'Showcase your event’s performers, sponsors and more.' })}
-              </span>
-              <span className="inline-flex select-none items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-                {t('composer.comingSoon', { defaultValue: 'Coming soon' })}
-              </span>
-            </div>
-            <p className="mt-2 px-1 text-xs text-white/70">
-              {t('composer.featuresNote', { defaultValue: 'Available in the editor after you create the event.' })}
-            </p>
-          </div>
+          {/* The "Event Features — coming soon" row that used to sit here
+              promised exactly what the Guestlist section above now does
+              (performers with photos, links and set times), so it was removed
+              rather than left contradicting a shipped feature. */}
 
           {/* Media rows */}
-          <div className="mt-6 space-y-3">
+          <div className="mt-8 space-y-3 border-t border-white/10 pt-6">
             {/* Promo video — optional link (persisted as video_url). */}
             <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
               <Youtube className="h-[18px] w-[18px] shrink-0 text-white/50" />

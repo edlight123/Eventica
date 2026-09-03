@@ -326,7 +326,8 @@
     "fees_included": "Frè enkli",
     "fees_included_detail": "Gen yon frè {{fee}} {{currency}} ladan",
     "no_account_needed": "Pa bezwen kont — nou voye tikè ou nan imel ou.",
-    "venue_map_open": "Louvri {{venue}} nan Google Maps"
+    "venue_map_open": "Louvri {{venue}} nan Google Maps",
+    "lineup": "Pwogram"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -1253,6 +1254,46 @@
       "unlimitedQty": "Kantite san limit",
       "waitlist": "Lis datant lè l fini vann",
       "waitlistHint": "Pran non moun pou tikè sa a depi l fini vann. Chak kalite tikè gen lis pa l."
+    },
+    "editGuest": "Modifye {{name}}",
+    "moveUp": "Mete pi bonè",
+    "moveDown": "Mete pi ta",
+    "flyerLibrary": "Bibliyotèk flyer",
+    "flyerLibraryHint": "Imaj gratis ou ka sèvi konsa. Ou ka mete flyer pa w nenpòt lè.",
+    "flyerLib": {
+      "stageLights": "Limyè sèn",
+      "crowdGold": "Foul nan lò",
+      "confetti": "Konfeti",
+      "fromTheStage": "Depi sou sèn",
+      "handsUp": "Men anlè",
+      "smokeAndLight": "Lafimen ak limyè",
+      "brass": "Kwiv",
+      "festival": "Sware festival",
+      "paint": "Penti",
+      "table": "Tab la",
+      "worship": "Adorasyon",
+      "startLine": "Liy depa",
+      "darkRoom": "Sal plen",
+      "workshop": "Atelye",
+      "classroom": "Salklas"
+    },
+    "guest": {
+      "addTitle": "Ajoute nan pwogram nan",
+      "editTitle": "Modifye antre a",
+      "photo": "Mete yon foto",
+      "photoType": "Tanpri chwazi yon fichye imaj.",
+      "photoSize": "Imaj la dwe mwens pase 5MB.",
+      "photoFailed": "Chajman an pa mache. Eseye ankò.",
+      "change": "Chanje",
+      "add": "Mete",
+      "name": "Non",
+      "link": "Lyen",
+      "linkPlaceholder": "Instagram, Spotify, sit wèb…",
+      "role": "Wòl",
+      "description": "Deskripsyon",
+      "descriptionPlaceholder": "Yon ti liy sou li — kiyès li ye, kisa l jwe.",
+      "startTime": "Lè li kòmanse",
+      "endTime": "Lè li fini"
     }
   },
   "promoter": {
@@ -1471,5 +1512,19 @@
     "role_person": "Sou Tikèm",
     "city_filter_hint": "Filtre evènman pa vil",
     "searching": "N ap chèche…"
+  },
+  "upload": {
+    "flyer": "Mete flyer ou",
+    "logo": "Mete logo a",
+    "image": "Mete yon imaj",
+    "changeFlyer": "Chanje flyer a",
+    "changeLogo": "Chanje logo a",
+    "changeImage": "Chanje imaj la",
+    "browseLibrary": "Gade bibliyotèk la",
+    "noFlyer": "Ou pa gen flyer? Chwazi youn nan bibliyotèk nou an",
+    "formats": "PNG oswa JPG · jiska 5MB",
+    "errType": "Tanpri chwazi yon fichye imaj",
+    "errSize": "Imaj la dwe mwens pase 5MB",
+    "uploading": "Y ap chaje…"
   }
 }
