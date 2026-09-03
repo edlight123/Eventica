@@ -15,7 +15,12 @@ export const dynamic = 'force-dynamic'
  * Needs SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET (a free app at
  * developer.spotify.com; no user scopes, no redirect URI required). Without
  * them the route answers 503 `not_configured` and the UI quietly falls back to
- * the paste-a-URL input, so an organizer is never blocked.
+ * the paste-a-URL input, so an organizer is never blocked. Run
+ * `node scripts/verify-spotify.mjs` to check a pair of credentials.
+ *
+ * Open to signed-out callers, throttled per IP — see the note on
+ * `guestThrottled`. /create is the guest composer, so requiring auth here
+ * disabled song search for most of the people who reach it.
  */
 
 const TOKEN_URL = 'https://accounts.spotify.com/api/token'
@@ -46,6 +51,40 @@ let cachedTokenExpiry = 0
 let inflight: Promise<string> | null = null
 
 const EXPIRY_SKEW_MS = 60_000
+
+/**
+ * Best-effort per-IP throttle for SIGNED-OUT callers (per warm serverless
+ * instance): 40 searches / 5 min. Same shape and same caveat as
+ * /api/guest-upload, which exists for exactly the same reason.
+ *
+ * This replaces a flat `if (!user) 401`. The gate was there to stop this
+ * becoming an open Spotify proxy, which is a real concern — but /create is
+ * DELIBERATELY the signed-out composer ("anyone can compose their event here,
+ * signed out"), so the gate rejected precisely the people the page is built
+ * for. Every guest got a 401, the picker read that as "search unavailable" and
+ * dropped to its paste-a-URL fallback, and the two symptoms the owner reported
+ * are that fallback exactly: a URL keyboard (inputMode="url", correct for
+ * pasting a link) and no suggestions (there is no typeahead in that mode).
+ *
+ * 40 in five minutes is far more than a person typing behind a 250ms debounce
+ * will ever spend, and useless as a scraping proxy at 8/min.
+ */
+const guestHits = new Map<string, number[]>()
+const GUEST_WINDOW_MS = 5 * 60_000
+const GUEST_MAX = 40
+
+function guestThrottled(ip: string): boolean {
+  const now = Date.now()
+  const list = (guestHits.get(ip) || []).filter((t) => t > now - GUEST_WINDOW_MS)
+  if (list.length >= GUEST_MAX) {
+    guestHits.set(ip, list)
+    return true
+  }
+  list.push(now)
+  guestHits.set(ip, list)
+  if (guestHits.size > 5000) guestHits.clear() // crude memory bound
+  return false
+}
 
 function credentials(): { id: string; secret: string } | null {
   const id = process.env.SPOTIFY_CLIENT_ID
@@ -125,10 +164,14 @@ function mapTrack(track: any): SpotifyTrackResult | null {
 }
 
 export async function GET(request: Request) {
-  // Organizer-only: keeps this from becoming an open Spotify proxy.
-  const user = await getCurrentUser()
+  // Signed-in organizers pass freely; guests are throttled per IP rather than
+  // turned away, because the guest composer is a first-class surface here.
+  const user = await getCurrentUser().catch(() => null)
   if (!user) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    const ip = (request.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim()
+    if (guestThrottled(ip)) {
+      return NextResponse.json({ error: 'rate_limited' }, { status: 429 })
+    }
   }
 
   const creds = credentials()

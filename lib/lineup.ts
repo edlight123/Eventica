@@ -8,6 +8,8 @@
  * keeps an old event from rendering blank.
  */
 
+import { safeExternalUrl } from '@/lib/safeUrl'
+
 export type GuestRole = 'Performer' | 'Host' | 'DJ' | 'Special Guest'
 
 export const GUEST_ROLES: readonly GuestRole[] = ['Performer', 'Host', 'DJ', 'Special Guest']
@@ -81,18 +83,10 @@ export const lineupEntryToRecord = (g: LineupEntry): LineupRecord => ({
  * Returns null for anything that isn't plainly http(s) — a lineup link is
  * rendered as an anchor, so `javascript:` and friends must never survive.
  */
+// Delegates now: the promo video needed the same rule, and two copies of a
+// security check drift apart. See lib/safeUrl.
 export function safeLineupLink(raw: string | null | undefined): string | null {
-  const s = (raw || '').trim()
-  if (!s) return null
-  const withScheme = /^https?:\/\//i.test(s) ? s : `https://${s}`
-  try {
-    const u = new URL(withScheme)
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null
-    if (!u.hostname.includes('.')) return null
-    return u.toString()
-  } catch {
-    return null
-  }
+  return safeExternalUrl(raw)
 }
 
 /** How a link reads when shown as text: host plus path, no scheme or www. */

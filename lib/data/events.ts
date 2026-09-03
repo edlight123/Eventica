@@ -43,6 +43,8 @@ export interface Event {
   status: 'draft' | 'published' | 'cancelled'
   capacity?: number
   ticket_price?: number
+  /** Organizer-supplied promo video link (YouTube, Vimeo…). Unvalidated. */
+  video_url?: string
   image_url?: string
   created_at: string
   updated_at: string
@@ -238,6 +240,11 @@ export async function getEventById(eventId: string): Promise<Event | null> {
         accent_color: typeof data?.accent_color === 'string' ? data.accent_color : undefined,
         // Whitelisted because this reader is explicit: a field absent here is a
         // field the event page never sees, however faithfully it was saved.
+        // The promo video. The composer has always SAVED this and the web
+        // event page has never shown it, because it was missing here — the
+        // mobile app reads Firestore directly, so it worked there and only
+        // there. Fifth field this explicit reader has silently swallowed.
+        video_url: typeof data?.video_url === 'string' ? data.video_url : undefined,
         guestlist_visibility:
           data?.guestlist_visibility === 'faces' ||
           data?.guestlist_visibility === 'count' ||

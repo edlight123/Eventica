@@ -331,7 +331,8 @@
     "no_account_needed": "No account needed. Your ticket is emailed to you.",
     "venue_map_open": "Open {{venue}} on Google Maps",
     "lineup": "Lineup",
-    "hero_search_placeholder_short": "Search events…"
+    "hero_search_placeholder_short": "Search events…",
+    "watchTrailer": "Watch the trailer"
   },
   "favorites": {
     "title": "My Favorites",
@@ -1132,7 +1133,7 @@
     "promoVideoPlaceholder": "Promo video link (YouTube, Vimeo…)",
     "imageGallery": "Image Gallery",
     "pageSettings": "Page Settings",
-    "showOnExplore": "Show on Explore",
+    "showOnExplore": "Show on Discover",
     "passwordProtected": "Password Protected Event",
     "accessCodePlaceholderNew": "Access code (min 6 characters)",
     "accessCodePlaceholderEdit": "New access code (blank keeps current)",

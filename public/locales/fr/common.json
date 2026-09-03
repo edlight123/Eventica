@@ -331,7 +331,8 @@
     "no_account_needed": "Aucun compte nécessaire. Votre billet vous est envoyé par email.",
     "venue_map_open": "Ouvrir {{venue}} dans Google Maps",
     "lineup": "Affiche",
-    "hero_search_placeholder_short": "Rechercher…"
+    "hero_search_placeholder_short": "Rechercher…",
+    "watchTrailer": "Voir la bande-annonce"
   },
   "favorites": {
     "title": "Mes favoris",
@@ -1132,7 +1133,7 @@
     "promoVideoPlaceholder": "Lien vidéo promo (YouTube, Vimeo…)",
     "imageGallery": "Galerie d’images",
     "pageSettings": "Paramètres de la page",
-    "showOnExplore": "Afficher dans Explorer",
+    "showOnExplore": "Afficher dans Découvrir",
     "passwordProtected": "Événement protégé par mot de passe",
     "accessCodePlaceholderNew": "Code d’accès (6 caractères minimum)",
     "accessCodePlaceholderEdit": "Nouveau code d’accès (vide garde l’actuel)",

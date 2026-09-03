@@ -2549,7 +2549,13 @@ export default function EventComposer({
             <SectionTitle icon={Settings}>{t('composer.pageSettings', { defaultValue: 'Page Settings' })}</SectionTitle>
             <div className="space-y-3">
               <div className="flex items-center justify-between rounded-xl bg-white/[0.03] px-4 py-3.5">
-                <span className="text-[15px] text-white/80">{t('composer.showOnExplore', { defaultValue: 'Show on Explore' })}</span>
+                {/* "Discover", not "Explore". The field is `show_on_explore`
+                    and the toggle said Explore, but there is no Explore
+                    surface on the web — it governs /discover, the homepage
+                    rails and the sitemap. The stored key keeps its name; the
+                    label now matches what an organizer can actually go and
+                    look at. */}
+                <span className="text-[15px] text-white/80">{t('composer.showOnExplore', { defaultValue: 'Show on Discover' })}</span>
                 <Toggle on={showOnExplore} onChange={setShowOnExplore} label="Show on Explore" />
               </div>
               <div className="rounded-xl bg-white/[0.03] px-4 py-3.5">

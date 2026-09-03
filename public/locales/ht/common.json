@@ -331,7 +331,8 @@
     "no_account_needed": "Pa bezwen kont. Nou voye tikè ou nan imel ou.",
     "venue_map_open": "Louvri {{venue}} nan Google Maps",
     "lineup": "Pwogram",
-    "hero_search_placeholder_short": "Chèche evènman…"
+    "hero_search_placeholder_short": "Chèche evènman…",
+    "watchTrailer": "Gade videyo a"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -1132,7 +1133,7 @@
     "promoVideoPlaceholder": "Lyen videyo pwomo (YouTube, Vimeo…)",
     "imageGallery": "Galri imaj",
     "pageSettings": "Paramèt paj la",
-    "showOnExplore": "Montre nan Eksplore",
+    "showOnExplore": "Montre nan Dekouvri",
     "passwordProtected": "Evènman pwoteje ak modpas",
     "accessCodePlaceholderNew": "Kòd aksè (omwen 6 karaktè)",
     "accessCodePlaceholderEdit": "Nouvo kòd aksè (kite l vid pou kenbe sa k la a)",

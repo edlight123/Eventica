@@ -19,6 +19,7 @@
 import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns'
 import Badge from '@/components/ui/Badge'
+import PromoVideoLink from '@/components/events/PromoVideoLink'
 import { dateLocaleFor } from '@/lib/dateLocale'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -34,6 +35,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 interface MobileSectionsProps {
   description: string
+  /** Organizer's promo video link, if any. */
+  videoUrl?: string
   tags?: string[]
   venueName: string
   address: string
@@ -57,6 +60,7 @@ interface MobileSectionsProps {
 
 export default function MobileSections({
   description,
+  videoUrl,
   tags,
   venueName,
   address,
@@ -86,6 +90,8 @@ export default function MobileSections({
             {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
           </p>
         )}
+        {/* Under the description, exactly where the app puts it. */}
+        <PromoVideoLink url={videoUrl} className="mt-3" />
         {tags && tags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {tags.map((tag: string) => (

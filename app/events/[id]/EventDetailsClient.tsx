@@ -11,6 +11,7 @@ import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
 import MobileSections from './MobileSections'
 import WhosGoing from '@/components/events/WhosGoing'
+import PromoVideoLink from '@/components/events/PromoVideoLink'
 import { guestlistVisibilityFrom } from '@/lib/guestlistVisibility'
 import SpotifyEmbed from '@/components/events/SpotifyEmbed'
 import VenueMap from '@/components/events/VenueMap'
@@ -306,6 +307,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
       <MobileSections
         description={event.description}
+        videoUrl={(event as any).video_url}
         tags={event.tags}
         venueName={event.venue_name}
         address={event.address || ''}
@@ -368,6 +370,8 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
                 </p>
               )}
+              {/* The trailer, then the song — both under the about text. */}
+              <PromoVideoLink url={(event as any).video_url} className="mt-5" />
               {/* The event's song — desktop placement, under the about text. */}
               <SpotifyEmbed url={event.spotify_url} className="mt-6 max-w-[65ch]" />
             </div>
