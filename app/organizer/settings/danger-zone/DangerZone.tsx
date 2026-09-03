@@ -212,7 +212,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
       {/* Deactivate Confirmation Modal */}
       {showDeactivateModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white/[0.03] rounded-xl max-w-md w-full p-6">
+          <div className="bg-[#111] rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-amber-300" />
               <h3 className="font-display text-xl text-white">Deactivate Account?</h3>
@@ -243,7 +243,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white/[0.03] rounded-xl max-w-md w-full p-6">
+          <div className="bg-[#111] rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-red-300" />
               <h3 className="font-display text-xl text-white">Delete Account Forever?</h3>

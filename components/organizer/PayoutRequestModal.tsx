@@ -55,7 +55,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={close} />
-      <div className="relative w-full max-w-md rounded-2xl bg-white/[0.03] shadow-xl">
+      <div className="relative w-full max-w-md rounded-2xl bg-[#111] shadow-xl">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <h3 className="font-display text-xl text-white">Request payout</h3>
           <button onClick={close} disabled={status === 'loading'} aria-label="Close" className="text-white/40 transition-colors hover:text-white/60 disabled:opacity-50">

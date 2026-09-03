@@ -124,7 +124,7 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white/[0.03] rounded-2xl max-w-md w-full p-6">
+          <div className="bg-[#111] rounded-2xl max-w-md w-full p-6">
             {/* Icon */}
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-8 h-8 text-red-600" />
