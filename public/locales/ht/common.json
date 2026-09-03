@@ -68,7 +68,9 @@
     "optional": "opsyonèl",
     "complete": "Fini",
     "done": "Fini",
-    "clear": "Efase"
+    "clear": "Efase",
+    "haiti": "Ayiti",
+    "diaspora": "Dyaspora"
   },
   "categories": {
     "Music": "Mizik",
@@ -1134,7 +1136,7 @@
     "accessCodePlaceholderEdit": "Nouvo kòd aksè (kite l vid pou kenbe sa k la a)",
     "accessCodeError": "Kòd aksè dwe gen omwen 6 karaktè.",
     "accessCodeHint": "Patisipan yo dwe antre kòd sa a pou wè ak achte. Li sere kòde (hash). Nou pa janm kenbe kòd la an klè.",
-    "posterKept": "N ap kenbe afich ou pandan 7 jou pandan w ap fin regle tout bagay.",
+    "posterKept": "N ap kenbe l 7 jou pandan w ap fini.",
     "spotifyPlaceholder": "Ajoute yon chante Spotify",
     "titleFont": "Font tit la",
     "fonts": {

@@ -6,7 +6,7 @@
 // the filtered band share the same field and its instant autocomplete.
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { format, isValid } from 'date-fns'
 import { Search, ChevronDown, ArrowUpRight } from 'lucide-react'
@@ -39,8 +39,17 @@ export default function HeroSearch({
 }) {
   const { t } = useTranslation('common')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [query, setQuery] = useState('')
-  const [city, setCity] = useState('')
+  // Seeded from the URL so the control REFLECTS the active filter. It used to
+  // start empty always, so on /?city=Paris the field read "All Haiti" while
+  // the page showed Paris — and there was no way to clear the filter from
+  // here. That did not matter while the city chips existed beside it; it
+  // matters now that this is the only city control on the page.
+  const [city, setCity] = useState(() => searchParams?.get('city') || '')
+  useEffect(() => {
+    setCity(searchParams?.get('city') || '')
+  }, [searchParams])
 
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -49,6 +58,16 @@ export default function HeroSearch({
   const listboxId = useId()
 
   const cities = useMemo(() => getCitiesForCountry('HT'), [])
+  /**
+   * The four diaspora cities, kept as a separate group.
+   *
+   * These are not decoration: picking one also switches the homepage's country
+   * scope (see DIASPORA_CITY_COUNTRY in app/page.tsx), so Miami shows US events
+   * rather than an empty Haitian list. They were only ever reachable through
+   * the chip row, so dropping the chips without adding them here would have
+   * quietly removed the diaspora from the homepage.
+   */
+  const DIASPORA = useMemo(() => ['Miami', 'New York', 'Montréal', 'Paris'], [])
   const source = useMemo(() => (Array.isArray(events) ? events.filter(Boolean) : []), [events])
   const autocompleteEnabled = source.length > 0
 
@@ -109,6 +128,27 @@ export default function HeroSearch({
     },
     []
   )
+
+  /**
+   * Picking a city acts immediately — a chip navigated on click, and this
+   * select replaced the chips. Before, `onChange` only set state, so a reader
+   * chose "Miami", nothing happened, and the control looked broken.
+   *
+   * City-only selections stay on the homepage at /?city=X, which is where the
+   * chips pointed and the only place the diaspora country switch is applied.
+   * Once there is a query, the pair belongs on /discover.
+   */
+  const applyCity = (next: string) => {
+    setCity(next)
+    const q = query.trim()
+    if (q) {
+      const params = new URLSearchParams({ search: q })
+      if (next) params.set('city', next)
+      router.push(`/discover?${params.toString()}`)
+      return
+    }
+    router.push(next ? `/?city=${encodeURIComponent(next)}` : '/')
+  }
 
   const submitSearch = () => {
     const params = new URLSearchParams()
@@ -186,7 +226,10 @@ export default function HeroSearch({
           placeholder={t('events.hero_search_placeholder', {
             defaultValue: 'Search events, organizers, cities…',
           })}
-          className="min-w-0 flex-1 bg-transparent text-[15px] text-white outline-none placeholder:text-white/45"
+          // 16px, not 15: iOS Safari zooms the page when a focused field is
+          // under 16px. globals.css enforces a floor for every input, but the
+          // stated size should match what the browser actually uses.
+          className="min-w-0 flex-1 bg-transparent text-[16px] text-white outline-none placeholder:text-white/45"
           aria-label={t('common.search')}
           role="combobox"
           aria-expanded={open && suggestions.length > 0}
@@ -210,18 +253,27 @@ export default function HeroSearch({
           <ChevronDown className="h-3.5 w-3.5 shrink-0 text-white/40" />
           <select
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => applyCity(e.target.value)}
             aria-label={t('filters.all_cities', { defaultValue: 'All cities' })}
             className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent text-transparent opacity-0 outline-none"
           >
             <option value="" className="bg-white/[0.03] text-white">
               {t('common.all_locations', { defaultValue: 'All Haiti' })}
             </option>
-            {cities.map((c) => (
-              <option key={c} value={c} className="bg-white/[0.03] text-white">
-                {c}
-              </option>
-            ))}
+            <optgroup label={t('common.haiti', { defaultValue: 'Haiti' })}>
+              {cities.map((c) => (
+                <option key={c} value={c} className="bg-white/[0.03] text-white">
+                  {c}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label={t('common.diaspora', { defaultValue: 'Diaspora' })}>
+              {DIASPORA.map((c) => (
+                <option key={c} value={c} className="bg-white/[0.03] text-white">
+                  {c}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </label>
 

@@ -51,7 +51,7 @@ export default function Footer() {
       aria-label={t('footer.landmark', { defaultValue: 'Site footer' })}
       className="bg-[#0a0a0a]"
     >
-      <div className="mx-auto max-w-7xl px-4 pb-28 pt-12 sm:px-6 md:pb-12 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pb-[calc(3rem+var(--mobile-nav-h))] pt-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-4">
           {/* Brand + tagline + the diaspora, written into the identity */}
           <div className="col-span-2 md:col-span-2">

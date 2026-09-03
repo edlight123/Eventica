@@ -2587,8 +2587,11 @@ export default function EventComposer({
             />
             {guest && (
               <p className="-mt-1 text-center text-[11px] text-white/40">
+                {/* Short enough to hold one line at 11px in the 360px poster
+                    column and on a phone, in all three locales — the longer
+                    sentence wrapped to two and read as a warning. */}
                 {t('composer.posterKept', {
-                  defaultValue: 'Your poster is kept for 7 days while you finish setting up.',
+                  defaultValue: 'Kept for 7 days while you finish.',
                 })}
               </p>
             )}

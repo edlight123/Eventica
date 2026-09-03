@@ -13,7 +13,6 @@ import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
 import { usePosterAccent } from '@/components/ui/usePosterAccent'
 import HeroSearch from '@/components/home/HeroSearch'
-import { CityChips } from '@/components/HeroSection'
 
 interface HeroPoster {
   id: string
@@ -79,26 +78,48 @@ function FloatingPoster({
 /** Scatter layout for up to five posters; each entry is [wrapper, rotate,
     depth, floatDur, floatDelay]. Deliberately loose — a wall, not a grid. */
 const SLOTS: [string, string, number, string, string][] = [
-  // Each slot is written mobile-first: a smaller, quieter poster nearer the
-  // edge, then the full desktop placement from `sm`. On a phone three posters
-  // sit behind the type as atmosphere — enough that the hero reads as a room
-  // rather than a black screen, faint enough that SAK PASE? still leads.
+  // Each slot is written mobile-first, then given its desktop placement from
+  // `sm`. Two things changed on 2026-09-03, both owner asks: there are more of
+  // them, and the phone ones are no longer hung off the right edge at
+  // right-[-8%] — half a poster bleeding into the bezel read as a rendering
+  // fault rather than as depth. Everything now sits inside the frame, and the
+  // scatter reaches both sides instead of pinning to one.
   [
-    'right-[-8%] top-[6%] z-0 w-[124px] opacity-45 sm:right-[5%] sm:top-[10%] sm:w-[190px] sm:opacity-100 xl:w-[220px]',
+    'right-[2%] top-[3%] z-0 w-[132px] opacity-50 sm:right-[5%] sm:top-[10%] sm:w-[190px] sm:opacity-100 xl:w-[220px]',
     'rotate-3', 22, '7s', '0s',
   ],
   [
-    // Kept off the centre on a phone: at right-34% it drifted under the city
-    // chips and read as clutter behind them rather than depth beside them.
-    'right-[4%] bottom-[-2%] z-0 w-[86px] opacity-25 sm:right-[26%] sm:bottom-[12%] sm:w-[150px] sm:opacity-90',
+    'right-[5%] bottom-[16%] z-0 w-[104px] opacity-30 sm:right-[26%] sm:bottom-[12%] sm:w-[150px] sm:opacity-90',
     '-rotate-6', 34, '8s', '1.1s',
   ],
   [
-    'right-[-6%] bottom-[24%] z-0 w-[88px] opacity-25 sm:right-[3%] sm:bottom-[20%] sm:w-[128px] sm:opacity-80',
+    'left-[2%] bottom-[2%] z-0 w-[92px] opacity-25 sm:left-auto sm:right-[3%] sm:bottom-[20%] sm:w-[128px] sm:opacity-80',
     'rotate-6', 46, '9s', '0.5s',
   ],
-  ['left-[40%] top-[7%] z-0 hidden w-[110px] opacity-60 xl:block', '-rotate-3', 28, '8.5s', '1.7s'],
-  ['right-[43%] top-[30%] z-0 hidden w-[96px] opacity-50 xl:block', 'rotate-2', 52, '10s', '2.2s'],
+  [
+    // Left of centre and high — the counterweight to the top-right poster, so
+    // the headline sits inside the scatter rather than beside it.
+    'right-[38%] bottom-[-3%] z-0 w-[80px] opacity-20 sm:bottom-auto sm:left-[40%] sm:right-auto sm:top-[7%] sm:w-[110px] sm:opacity-60',
+    '-rotate-3', 28, '8.5s', '1.7s',
+  ],
+  [
+    'hidden sm:block sm:right-[43%] sm:top-[34%] sm:w-[96px] sm:opacity-50 z-0',
+    'rotate-2', 52, '10s', '2.2s',
+  ],
+  [
+    // Bottom-left, and 2xl only — a left-gutter poster can only exist where
+    // there is a left gutter. Below 1536px the centred max-w-7xl copy column
+    // runs to within 32px of the edge, so at lg this poster was painted
+    // directly behind the search field: the one control on the page that has
+    // to read cleanly. From 1536 the container stops growing and leaves 128px
+    // of real margin, which is where this belongs.
+    'hidden 2xl:block 2xl:left-[1.5%] 2xl:bottom-[8%] 2xl:w-[124px] 2xl:opacity-40 z-0',
+    'rotate-[-4deg]', 38, '9.5s', '2.6s',
+  ],
+  [
+    'hidden xl:block xl:right-[20%] xl:top-[2%] xl:w-[92px] xl:opacity-40 z-0',
+    'rotate-[5deg]', 60, '11s', '3s',
+  ],
 ]
 
 export default function HeroPase({
@@ -189,9 +210,12 @@ export default function HeroPase({
         >
           <HeroSearch events={events} />
         </div>
-        <div className="plt-enter pointer-events-auto relative z-10 mt-5" style={{ ['--d' as any]: '0.36s' }}>
-          <CityChips />
-        </div>
+        {/* The city chips used to sit here. Removed on owner ask: a reader in
+            Port-au-Prince does not need a row of buttons telling them Miami
+            exists, and the search bar beside this already carries a city
+            dropdown — so the chips were a second, louder copy of a control the
+            hero already had. Their removal also gives the posters the vertical
+            room the scatter above now uses. */}
       </div>
 
       {/* scroll cue — a breathing hairline */}

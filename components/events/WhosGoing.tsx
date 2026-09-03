@@ -17,6 +17,13 @@ interface WhosGoingProps {
    * there are attendees.
    */
   visibility?: GuestlistVisibility
+  /**
+   * Spacing, applied to this component's own root rather than to a wrapper
+   * around it. A wrapper's `mt-8` survives when this returns null — which it
+   * does whenever nobody is going yet — and left 32px of unexplained black
+   * above the footer on every quiet event page. Same trap the venue map hit.
+   */
+  className?: string
 }
 
 interface SocialData {
@@ -48,6 +55,7 @@ export default function WhosGoing({
   eventId,
   currentUserId,
   visibility = 'faces',
+  className = '',
 }: WhosGoingProps) {
   const { t } = useTranslation('common')
   const [data, setData] = useState<SocialData | null>(null)
@@ -81,7 +89,7 @@ export default function WhosGoing({
 
   if (loading) {
     return (
-      <div className="rounded-2xl  p-4 md:p-6">
+      <div className={`rounded-2xl p-4 md:p-6 ${className}`}>
         <div className="h-5 w-32 rounded mb-4 animate-pulse" />
         <div className="flex -space-x-3">
           {[0, 1, 2, 3].map((i) => (
@@ -102,7 +110,7 @@ export default function WhosGoing({
   // names, no friend row: those are exactly what this mode exists to withhold.
   if (visibility === 'count') {
     return (
-      <div className="rounded-2xl p-4 md:p-6">
+      <div className={`rounded-2xl p-4 md:p-6 ${className}`}>
         <h2 className="flex items-center gap-2 text-lg font-bold text-white md:text-xl">
           <Users className="h-5 w-5 text-brand-400" />
           {t('whos_going.going_count', { count: totalGoing, defaultValue: '{{count}} going' })}
@@ -121,7 +129,7 @@ export default function WhosGoing({
   const remaining = Math.max(0, totalGoing - namedCount - (viewerIsGoing ? 1 : 0))
 
   return (
-    <div className="rounded-2xl  p-4 md:p-6">
+    <div className={`rounded-2xl p-4 md:p-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
           <Users className="w-5 h-5 text-brand-400" />

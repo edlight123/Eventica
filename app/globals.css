@@ -62,10 +62,41 @@ select:-webkit-autofill {
   .mobile-typography .space-y-4 > * + * { @apply mt-2; }
 }
 
-/* Mobile bottom nav spacing */
+/* Mobile bottom nav spacing.
+   Conditional, and it has to be: MobileBottomNav returns null for a signed-out
+   visitor (only two tabs would show), but the 80px strip reserved for it was
+   unconditional on all 48 pages that ask for it. Every signed-out reader — the
+   majority on an event page — got 80px of dead black above the footer with
+   nothing floating over it. The nav now stamps `data-mobile-nav` on <body> when
+   it actually renders, and the strip follows the nav instead of assuming it.
+   Kept as a variable so the footer can add its own padding on top of it. */
+:root {
+  --mobile-nav-h: 0px;
+}
 @media (max-width: 768px) {
-  .pb-mobile-nav {
-    padding-bottom: 80px;
+  body[data-mobile-nav] {
+    --mobile-nav-h: 80px;
+  }
+}
+.pb-mobile-nav {
+  padding-bottom: var(--mobile-nav-h);
+}
+
+/* iOS focus zoom, prevented at the cause rather than by disabling zoom.
+   Safari on iOS zooms the whole page when a focused field's font-size is under
+   16px — the hero search sat at 15px, so tapping it lurched the page and left
+   the reader pinched in. The usual "fix" is maximum-scale=1 on the viewport,
+   which also takes pinch-zoom away from anyone who needs it; the actual fix is
+   to stop handing Safari a reason. 16px is the right floor for a field on a
+   phone anyway, and no input in the app is deliberately larger, so this only
+   ever raises a size. Specificity: three :not([attr]) selectors give (0,3,1),
+   which beats a `text-[15px]` utility class — a bare `input` selector would
+   have lost silently. */
+@media (max-width: 768px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  textarea,
+  select {
+    font-size: 16px;
   }
 }
 

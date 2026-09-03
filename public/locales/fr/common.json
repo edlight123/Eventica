@@ -68,7 +68,9 @@
     "optional": "optionnel",
     "complete": "Terminé",
     "done": "Terminé",
-    "clear": "Effacer"
+    "clear": "Effacer",
+    "haiti": "Haïti",
+    "diaspora": "Diaspora"
   },
   "categories": {
     "Music": "Musique",
@@ -1134,7 +1136,7 @@
     "accessCodePlaceholderEdit": "Nouveau code d’accès (vide garde l’actuel)",
     "accessCodeError": "Le code d’accès doit contenir au moins 6 caractères.",
     "accessCodeHint": "Les participants doivent entrer ce code pour voir et acheter. Il est stocké haché. Nous ne gardons jamais le code en clair.",
-    "posterKept": "Votre affiche est conservée 7 jours pendant que vous finalisez la configuration.",
+    "posterKept": "Conservé 7 jours le temps de finir.",
     "spotifyPlaceholder": "Ajouter une chanson Spotify",
     "titleFont": "Police du titre",
     "fonts": {

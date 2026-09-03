@@ -1,43 +1,38 @@
 'use client'
 
-// The mobile detail sections: a hairline-divided list, no boxes, no row icons
-// (owner call, 2026-08-29). The chevron is the only chrome; content inside is
-// plain language set in the sans — mono stays reserved for identifiers.
+/**
+ * The mobile detail sections — flat, all open, hairline-divided.
+ *
+ * These were accordions, every one of them shut except "About". That cost more
+ * than it saved: the venue map, the end time and the organizer were all one tap
+ * away from existing at all, and on a page whose whole job is to convince
+ * someone to buy, the information that convinces them was hidden behind chrome.
+ * It also meant the static map "stopped working" — it was simply inside a
+ * collapsed row. The mobile app never did this: it lays the same material out
+ * as flat sections with a serif heading and a hairline above, and you scroll.
+ * This is that, so the two read as the same product (owner ask, 2026-09-03).
+ *
+ * Headings follow the house convention — Instrument Serif, lowercased, matching
+ * mobile/components/SectionHeader — not the bold sans this file used before.
+ */
 
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import Badge from '@/components/ui/Badge'
 import { dateLocaleFor } from '@/lib/dateLocale'
 
-interface AccordionSectionProps {
-  title: string
-  defaultOpen?: boolean
-  children: React.ReactNode
-}
-
-function AccordionSection({ title, defaultOpen = false, children }: AccordionSectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
-
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between py-4 text-left"
-        aria-expanded={isOpen}
-      >
-        <span className="text-[15px] font-medium text-white">{title}</span>
-        <ChevronDown
-          className={`h-4 w-4 text-white/40 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-      {isOpen && <div className="pb-5">{children}</div>}
-    </div>
+    <section className="py-6">
+      <h2 className="mb-3 font-display lowercase italic !text-[22px] !leading-none text-white">
+        {title}
+      </h2>
+      {children}
+    </section>
   )
 }
 
-interface MobileAccordionsProps {
+interface MobileSectionsProps {
   description: string
   tags?: string[]
   venueName: string
@@ -60,7 +55,7 @@ interface MobileAccordionsProps {
   venueMap?: React.ReactNode
 }
 
-export default function MobileAccordions({
+export default function MobileSections({
   description,
   tags,
   venueName,
@@ -74,20 +69,20 @@ export default function MobileAccordions({
   isVerified,
   shareButton,
   venueMap
-}: MobileAccordionsProps) {
+}: MobileSectionsProps) {
   const { t, i18n } = useTranslation('common')
   const dfLocale = dateLocaleFor(i18n.language)
 
   const mapsQuery = encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)
 
   return (
-    <div className="md:hidden divide-y divide-white/10 border-b border-white/10 px-4">
+    <div className="divide-y divide-white/10 border-b border-white/10 px-4 md:hidden">
       {/* About */}
-      <AccordionSection title={t('events.about_event')} defaultOpen>
+      <Section title={t('events.about_event')}>
         {description && description.trim() ? (
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">{description}</p>
+          <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/70">{description}</p>
         ) : (
-          <p className="text-sm italic leading-relaxed text-white/40">
+          <p className="text-[15px] italic leading-relaxed text-white/40">
             {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
           </p>
         )}
@@ -100,21 +95,41 @@ export default function MobileAccordions({
             ))}
           </div>
         )}
-      </AccordionSection>
+      </Section>
+
+      {/* Date & Time — before the venue now: "when" is the question a reader
+          asks first, and the app orders it the same way. */}
+      <Section title={t('events.date_time')}>
+        {/* The server renders in UTC and the browser in the reader's zone, so
+            a formatted time legitimately differs between the two passes. */}
+        <p className="text-[15px] text-white" suppressHydrationWarning>
+          <span className="text-white/50">{t('events.start', { defaultValue: 'Starts' })}</span>{' '}
+          {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
+        </p>
+        {/* Only when the end is a different instant from the start. An event
+            with no end set mirrors the start, and printing both read as
+            "ends at the moment it begins". */}
+        {new Date(endDatetime).getTime() !== new Date(startDatetime).getTime() && (
+          <p className="mt-1.5 text-[15px] text-white" suppressHydrationWarning>
+            <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
+            {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
+          </p>
+        )}
+      </Section>
 
       {/* Venue */}
-      <AccordionSection title={t('events.venue_directions')}>
-        <p className="text-sm font-medium text-white">{venueName}</p>
-        {address && <p className="mt-1 break-words text-sm text-white/60">{address}</p>}
-        <p className="text-sm text-white/60">
+      <Section title={t('events.venue_directions')}>
+        <p className="text-[15px] font-medium text-white">{venueName}</p>
+        {address && <p className="mt-1 break-words text-[15px] text-white/60">{address}</p>}
+        <p className="text-[15px] text-white/60">
           {[commune, city].filter(Boolean).join(', ')}
         </p>
         {/* Same placement idea as desktop: address, then the tile, then the two
             map links. Rendered bare (no wrapper div) because the tile returns
             null with no provider key configured, a wrapper would leave its
-            margin behind as unexplained blank space inside the accordion. */}
+            margin behind as unexplained blank space inside the section. */}
         {venueMap}
-        <p className="mt-3 text-sm">
+        <p className="mt-3 text-[15px]">
           <a
             href={`https://maps.apple.com/?q=${mapsQuery}`}
             target="_blank"
@@ -133,29 +148,10 @@ export default function MobileAccordions({
             {t('events.google_maps')}
           </a>
         </p>
-      </AccordionSection>
-
-      {/* Date & Time */}
-      <AccordionSection title={t('events.date_time')}>
-        {/* The server renders in UTC and the browser in the reader's zone, so
-            a formatted time legitimately differs between the two passes. */}
-        <p className="text-sm text-white" suppressHydrationWarning>
-          <span className="text-white/50">{t('events.start', { defaultValue: 'Starts' })}</span>{' '}
-          {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
-        </p>
-        {/* Only when the end is a different instant from the start. An event
-            with no end set mirrors the start, and printing both read as
-            "ends at the moment it begins". */}
-        {new Date(endDatetime).getTime() !== new Date(startDatetime).getTime() && (
-          <p className="mt-1.5 text-sm text-white" suppressHydrationWarning>
-            <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
-            {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
-          </p>
-        )}
-      </AccordionSection>
+      </Section>
 
       {/* Organizer */}
-      <AccordionSection title={t('events.organizer')}>
+      <Section title={t('events.organizer')}>
         <a
           href={`/profile/organizer/${organizerId}`}
           className="flex items-center gap-3 transition-opacity hover:opacity-80"
@@ -170,10 +166,10 @@ export default function MobileAccordions({
             )}
           </div>
         </a>
-      </AccordionSection>
+      </Section>
 
       {/* Share */}
-      <AccordionSection title={t('events.share_event')}>{shareButton}</AccordionSection>
+      <Section title={t('events.share_event')}>{shareButton}</Section>
     </div>
   )
 }

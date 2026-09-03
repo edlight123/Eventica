@@ -68,7 +68,9 @@
     "optional": "optional",
     "complete": "Complete",
     "done": "Done",
-    "clear": "Clear"
+    "clear": "Clear",
+    "haiti": "Haiti",
+    "diaspora": "Diaspora"
   },
   "categories": {
     "Music": "Music",
@@ -1134,7 +1136,7 @@
     "accessCodePlaceholderEdit": "New access code (blank keeps current)",
     "accessCodeError": "Access codes must be at least 6 characters.",
     "accessCodeHint": "Attendees must enter this code to view and buy. It’s stored hashed, so we never keep the plain code.",
-    "posterKept": "Your poster is kept for 7 days while you finish setting up.",
+    "posterKept": "Kept for 7 days while you finish.",
     "spotifyPlaceholder": "Add song from Spotify",
     "titleFont": "Title Font",
     "fonts": {

@@ -9,7 +9,7 @@ import ShareIconButton from './ShareIconButton'
 import ShareButtonInline from './ShareButtonInline'
 import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
-import MobileAccordions from './MobileAccordions'
+import MobileSections from './MobileSections'
 import WhosGoing from '@/components/events/WhosGoing'
 import { guestlistVisibilityFrom } from '@/lib/guestlistVisibility'
 import SpotifyEmbed from '@/components/events/SpotifyEmbed'
@@ -304,7 +304,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         isSoldOut={isSoldOut}
       />
 
-      <MobileAccordions
+      <MobileSections
         description={event.description}
         tags={event.tags}
         venueName={event.venue_name}
@@ -343,8 +343,13 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
       <SpotifyEmbed url={event.spotify_url} className="px-4 pt-4 md:hidden" />
 
       {/* MAIN CONTENT - Desktop */}
-      <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 px-4 md:px-0">
+      <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-0 md:py-8">
+        {/* `hidden md:grid`: every child here is desktop-only (mobile reads the
+            flat sections above), but the wrapper's padding and the grid gap
+            still laid out ~80px of empty black between Share and the footer.
+            The breakpoint is the exact complement of MobileSections' md:hidden,
+            so nothing is dropped at any width. */}
+        <div className="hidden md:grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 px-4 md:px-0">
           
           {/* Left Column - Event Details. No boxes: sections separated by
               hairlines, headings in the editorial serif voice. */}
@@ -583,13 +588,12 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         </div>
 
         {/* Who's Going - social attendance */}
-        <div className="mt-8 px-4 md:px-0">
-          <WhosGoing
-            eventId={event.id}
-            currentUserId={user?.id || null}
-            visibility={guestlistVisibilityFrom(event as any)}
-          />
-        </div>
+        <WhosGoing
+          eventId={event.id}
+          currentUserId={user?.id || null}
+          visibility={guestlistVisibilityFrom(event as any)}
+          className="mt-8"
+        />
 
         {/* Related Events Section */}
         {relatedEvents?.length > 0 && (

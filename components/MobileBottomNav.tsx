@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Compass, Ticket, User, Briefcase, Shield, Users } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface MobileBottomNavProps {
@@ -31,7 +31,25 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
   ].filter(tab => tab.show), [isLoggedIn, isOrganizer, isAdmin, t])
 
   // Don't show if not logged in and only 2 tabs would show
-  if (!isLoggedIn && tabs.length <= 2) {
+  const visible = !(!isLoggedIn && tabs.length <= 2)
+
+  /**
+   * Tell the page whether the strip at the bottom is real.
+   *
+   * `.pb-mobile-nav` reserves 80px on 48 pages, and it used to reserve it
+   * whether or not this component rendered anything — so every signed-out
+   * reader got 80px of dead space above the footer. The attribute makes the
+   * reservation follow the nav; see globals.css.
+   */
+  useEffect(() => {
+    if (!visible) return
+    document.body.dataset.mobileNav = '1'
+    return () => {
+      delete document.body.dataset.mobileNav
+    }
+  }, [visible])
+
+  if (!visible) {
     return null
   }
 

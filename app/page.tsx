@@ -303,7 +303,9 @@ export default async function HomePage({
     ...cinemaPool.filter((e: any) => e.featured === true || e.is_featured === true),
     ...cinemaPool.filter((e: any) => e.featured !== true && e.is_featured !== true),
   ].filter((e: any) => e.banner_image_url)
-  const heroPosters = heroPosterPool.slice(0, 5).map(posterShape)
+  // Seven, matching HeroPase's slot count — the scatter grew and a short pool
+  // silently leaves its later slots empty.
+  const heroPosters = heroPosterPool.slice(0, 7).map(posterShape)
 
   // "Inside the app" (AppScrub): the pinned phone whose screen is driven by
   // page scroll. Feed = the artwork pool with city captions; the story opens
