@@ -24,7 +24,7 @@ export default function Loading() {
         {/* Sections skeleton */}
         <div className="space-y-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-28 bg-[#0a0a0a] border border-white/10 rounded-xl" />
+            <div key={i} className="h-28 bg-white/[0.03] border border-white/10 rounded-xl" />
           ))}
         </div>
       </div>

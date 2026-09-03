@@ -60,7 +60,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 p-6">
+    <form onSubmit={handleSubmit} className="bg-white/[0.03] rounded-xl shadow-sm border border-white/10 p-6">
       <h3 className="text-xl font-bold text-white mb-4">
         {t('review_form.heading', { defaultValue: 'Review: {{eventTitle}}', eventTitle })}
       </h3>

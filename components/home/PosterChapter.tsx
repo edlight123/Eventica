@@ -80,7 +80,7 @@ export default function PosterChapter({ events }: { events: ChapterEvent[] }) {
   const captionB = smooth(progress, 0.54, 0.68)
 
   return (
-    <div ref={wrapRef} className="relative h-[260vh] bg-[#0a0a0a]">
+    <div ref={wrapRef} className="relative h-[260vh] bg-white/[0.03]">
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
         {/* Posters drifting through at different speeds. */}
         {posters.map((ev, i) => {

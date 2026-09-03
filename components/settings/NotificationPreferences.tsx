@@ -93,7 +93,7 @@ export default function NotificationPreferences({ userId }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-soft p-6 space-y-5">
+      <div className="bg-white/[0.03] rounded-2xl border border-white/10 shadow-soft p-6 space-y-5">
         <div>
           <h2 className="text-lg font-bold text-white">Push Subscription</h2>
           <p className="text-sm text-white/65 mt-1">Real-time notifications delivered to your device.</p>
@@ -131,7 +131,7 @@ export default function NotificationPreferences({ userId }: Props) {
             <button
               onClick={sendTest}
               disabled={loading}
-              className="h-11 px-4 rounded-lg bg-[#0a0a0a] border text-sm font-medium shadow disabled:opacity-60"
+              className="h-11 px-4 rounded-lg bg-white/[0.03] border text-sm font-medium shadow disabled:opacity-60"
             >{loading ? 'Sending…' : 'Send Test'}</button>
           )}
         </div>
@@ -141,7 +141,7 @@ export default function NotificationPreferences({ userId }: Props) {
           <div className="text-[10px] text-white/50 break-all">Endpoint: {endpoint}</div>
         )}
       </div>
-      <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-soft p-6 space-y-4">
+      <div className="bg-white/[0.03] rounded-2xl border border-white/10 shadow-soft p-6 space-y-4">
         <h3 className="text-sm font-semibold text-white">Topic Details</h3>
         <ul className="space-y-2 text-xs text-white/65">
           {TOPICS.map(t => (

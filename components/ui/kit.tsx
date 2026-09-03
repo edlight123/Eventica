@@ -12,7 +12,7 @@ export function Card({
   children: React.ReactNode
 }) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-soft ${className}`}>
+    <div className={`rounded-2xl border border-white/10 bg-white/[0.03] shadow-soft ${className}`}>
       {children}
     </div>
   )
@@ -33,7 +33,7 @@ export function StatTile({
   className?: string
 }) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-[#0a0a0a] p-4 ${className}`}>
+    <div className={`rounded-2xl border border-white/10 bg-white/[0.03] p-4 ${className}`}>
       <div className="mb-2 flex items-center gap-2">
         {Icon && (
           <span className="grid h-8 w-8 place-items-center rounded-lg text-brand-300">
@@ -96,7 +96,7 @@ export function EmptyState({
   className?: string
 }) {
   return (
-    <div className={`rounded-2xl border border-dashed border-white/10 bg-[#0a0a0a] p-10 text-center ${className}`}>
+    <div className={`rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center ${className}`}>
       {Icon && (
         <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl text-brand-300">
           <Icon className="h-7 w-7" />

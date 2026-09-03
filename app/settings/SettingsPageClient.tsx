@@ -41,7 +41,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
       <div className="space-y-6">
         
         {/* Personal Information */}
-        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
+        <div className="bg-white/[0.03] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center">
               <User className="w-5 h-5 text-brand-300" />
@@ -56,13 +56,13 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-white/70 mb-2">{t('personal_info.full_name')}</label>
-                <div className="px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/10">
+                <div className="px-4 py-3 bg-white/[0.03] rounded-xl border border-white/10">
                   <p className="text-white font-medium">{user.full_name}</p>
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-white/70 mb-2">{t('personal_info.email')}</label>
-                <div className="px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/10">
+                <div className="px-4 py-3 bg-white/[0.03] rounded-xl border border-white/10">
                   <p className="text-white font-medium">{user.email}</p>
                 </div>
               </div>
@@ -70,13 +70,13 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
 
             <div>
               <label className="block text-sm font-semibold text-white/70 mb-2">{t('personal_info.phone')}</label>
-              <div className="px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/10">
+              <div className="px-4 py-3 bg-white/[0.03] rounded-xl border border-white/10">
                 <p className="text-white font-medium">{user.phone_number || t('personal_info.not_provided')}</p>
               </div>
             </div>
 
             <div className="pt-4">
-              <p className="text-sm text-white/65 bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
+              <p className="text-sm text-white/65 bg-white/[0.03] border border-white/10 rounded-xl p-4">
                 <strong className="text-white">{t('personal_info.note')}:</strong> {t('personal_info.note_text')}
               </p>
             </div>
@@ -84,7 +84,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         </div>
 
         {/* Account Security */}
-        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
+        <div className="bg-white/[0.03] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center">
               <Shield className="w-5 h-5 text-brand-300" />
@@ -141,7 +141,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         </div>
 
         {/* Notification Preferences */}
-        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
+        <div className="bg-white/[0.03] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
               <Bell className="w-5 h-5 text-green-400" />
@@ -155,7 +155,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
           <div className="space-y-4">
             <Link 
               href="/settings/notifications"
-              className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl hover:bg-white/[0.04] transition-colors"
+              className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl hover:bg-white/[0.04] transition-colors"
             >
               <div>
                 <p className="font-semibold text-white">{t('notifications.preferences')}</p>
@@ -169,7 +169,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         </div>
 
         {/* Danger Zone */}
-        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-red-500/20 p-6">
+        <div className="bg-white/[0.03] rounded-2xl shadow-soft border border-red-500/20 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
               <Trash2 className="w-5 h-5 text-red-400" />

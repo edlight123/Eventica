@@ -55,7 +55,7 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
 
   return (
     <>
-      <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
+      <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-white mb-1">{t('account.title')}</h2>
@@ -66,7 +66,7 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
           {/* Staff (hidden from global nav; accessible from Profile) */}
           <Link
             href="/staff"
-            className="w-full flex items-center gap-3 px-4 py-3 bg-[#0a0a0a] hover:bg-white/[0.04] border border-white/10 rounded-xl transition-colors group"
+            className="w-full flex items-center gap-3 px-4 py-3 bg-white/[0.03] hover:bg-white/[0.04] border border-white/10 rounded-xl transition-colors group"
           >
             <div className="w-10 h-10 bg-white/[0.04] group-hover:bg-white/[0.06] rounded-lg flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white/65" />
@@ -80,7 +80,7 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
           {/* Sign Out */}
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 bg-[#0a0a0a] hover:bg-white/[0.04] border border-white/10 rounded-xl transition-colors group"
+            className="w-full flex items-center gap-3 px-4 py-3 bg-white/[0.03] hover:bg-white/[0.04] border border-white/10 rounded-xl transition-colors group"
           >
             <div className="w-10 h-10 bg-white/[0.04] group-hover:bg-white/[0.06] rounded-lg flex items-center justify-center">
               <LogOut className="w-5 h-5 text-white/65" />
@@ -124,7 +124,7 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#0a0a0a] rounded-2xl max-w-md w-full p-6">
+          <div className="bg-white/[0.03] rounded-2xl max-w-md w-full p-6">
             {/* Icon */}
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-8 h-8 text-red-600" />

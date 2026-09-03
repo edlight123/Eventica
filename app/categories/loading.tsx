@@ -21,14 +21,14 @@ export default function Loading() {
         {/* Category grid skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-36 md:h-44 bg-[#0a0a0a] border border-white/10 rounded-xl" />
+            <div key={i} className="h-36 md:h-44 bg-white/[0.03] border border-white/10 rounded-xl" />
           ))}
         </div>
 
         {/* Selected category events skeleton (static rows) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="h-48 md:h-56 bg-[#0a0a0a] border border-white/10 rounded-xl" />
+            <div key={i} className="h-48 md:h-56 bg-white/[0.03] border border-white/10 rounded-xl" />
           ))}
         </div>
       </div>

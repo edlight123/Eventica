@@ -162,7 +162,7 @@ export default function SupportContent() {
                 <button
                   key={category.id}
                   onClick={() => scrollToCategory(category.id)}
-                  className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all text-left group"
+                  className="bg-white/[0.03] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all text-left group"
                 >
                   <div className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center mb-3">
                     <category.icon className="w-5 h-5 text-brand-300" />
@@ -183,7 +183,7 @@ export default function SupportContent() {
         <div className="space-y-12">
           {searchQuery && filteredFAQs.length === 0 && (
             <div className="text-center py-16">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#0a0a0a] border border-white/10 shadow-soft flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] border border-white/10 shadow-soft flex items-center justify-center">
                 <Search className="w-7 h-7 text-white/50" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-2">
@@ -198,7 +198,7 @@ export default function SupportContent() {
           {filteredFAQs.map((category) => (
             <div key={category.id} id={category.id} className="scroll-mt-20">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-[#0a0a0a] border border-white/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center">
                   <category.icon className="w-5 h-5 text-white/70" />
                 </div>
                 <div>
@@ -209,7 +209,7 @@ export default function SupportContent() {
                 </div>
               </div>
 
-              <div className="bg-[#0a0a0a] rounded-xl border border-white/10 divide-y divide-white/10 overflow-hidden">
+              <div className="bg-white/[0.03] rounded-xl border border-white/10 divide-y divide-white/10 overflow-hidden">
                 {category.faqs.map((faq, index) => {
                   const key = `${category.id}-${index}`
                   const isOpen = openFAQs.has(key)
@@ -218,7 +218,7 @@ export default function SupportContent() {
                     <div key={index}>
                       <button
                         onClick={() => toggleFAQ(category.id, index)}
-                        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[#0a0a0a] transition-colors"
+                        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-white/[0.03] transition-colors"
                       >
                         <span className="font-semibold text-white pr-4">
                           {faq.question}
@@ -257,7 +257,7 @@ export default function SupportContent() {
             {/* Email Support */}
             <a
               href="mailto:support@tikem.co"
-              className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
+              className="bg-white/[0.03] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
                 <Mail className="w-6 h-6 text-brand-300" />
@@ -274,7 +274,7 @@ export default function SupportContent() {
               href="https://wa.me/50938675309"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
+              className="bg-white/[0.03] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
                 <MessageCircle className="w-6 h-6 text-green-600" />
@@ -289,7 +289,7 @@ export default function SupportContent() {
             {/* Submit a Request */}
             <Link
               href="/support/request"
-              className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
+              className="bg-white/[0.03] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
                 <FileText className="w-6 h-6 text-brand-300" />

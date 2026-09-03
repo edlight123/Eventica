@@ -132,7 +132,7 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
   }
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
+    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl font-bold text-white mb-1">{t('preferences.title')}</h2>
@@ -144,7 +144,7 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
         {defaultCountry && defaultCity && defaultSubarea && (
           <div className="border border-brand-100 rounded-xl p-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#0a0a0a] rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-white/[0.03] rounded-lg flex items-center justify-center flex-shrink-0">
                 <MapPin className="w-5 h-5 text-brand-600" />
               </div>
               <div>

@@ -89,7 +89,7 @@ export default async function PurchaseFailedPage({
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <PurchasePopupBridge status="failed" reason={reason} />
       <div className="max-w-md w-full">
-        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6 md:p-8 text-center">
+        <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6 md:p-8 text-center">
           {/* Error Icon */}
           <div className="w-14 h-14 md:w-16 md:h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -125,7 +125,7 @@ export default async function PurchaseFailedPage({
 
             <Link
               href="/tickets"
-              className="block w-full border border-white/10 hover:bg-[#0a0a0a] text-white/70 font-semibold py-3 md:py-3.5 px-6 rounded-lg transition-colors text-base"
+              className="block w-full border border-white/10 hover:bg-white/[0.03] text-white/70 font-semibold py-3 md:py-3.5 px-6 rounded-lg transition-colors text-base"
             >
               {t('purchase.view_my_tickets', 'View My Tickets')}
             </Link>

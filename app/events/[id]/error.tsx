@@ -19,7 +19,7 @@ export default function EventDetailError({
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-[#0a0a0a] rounded-2xl shadow-lg p-8 text-center">
+      <div className="max-w-md w-full bg-white/[0.03] rounded-2xl shadow-lg p-8 text-center">
         <div className="mb-6 flex justify-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
             <AlertCircle className="w-8 h-8 text-red-600" />
@@ -38,7 +38,7 @@ export default function EventDetailError({
         </p>
 
         {error.message && (
-          <div className="mb-6 p-4 bg-[#0a0a0a] rounded-lg text-left">
+          <div className="mb-6 p-4 bg-white/[0.03] rounded-lg text-left">
             <p className="text-xs text-white/50 mb-1">
               {t('checkout.error_details_label', { defaultValue: 'Error details:' })}
             </p>
@@ -59,7 +59,7 @@ export default function EventDetailError({
 
           <Link
             href="/"
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white/10 text-white/70 rounded-lg hover:bg-[#0a0a0a] transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white/10 text-white/70 rounded-lg hover:bg-white/[0.03] transition-colors"
           >
             <Home className="w-4 h-4" />
             {t('checkout.go_home', { defaultValue: 'Go Home' })}

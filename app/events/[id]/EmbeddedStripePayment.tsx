@@ -354,7 +354,7 @@ export default function EmbeddedStripePayment({
         role="dialog"
         aria-modal="true"
         aria-label={t('events.complete_payment')}
-        className="bg-[#0a0a0a] w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto"
+        className="bg-white/[0.03] w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
         <div className="sticky top-0 bg-[#0a0a0a] border-b border-white/10 px-6 py-4 flex items-center justify-between">

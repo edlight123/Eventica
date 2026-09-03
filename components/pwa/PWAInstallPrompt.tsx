@@ -45,7 +45,7 @@ export function PWAInstallPrompt() {
 
   return (
     <div
-      className="fixed inset-x-4 bottom-4 z-50 rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-lg backdrop-blur p-4 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2"
+      className="fixed inset-x-4 bottom-4 z-50 rounded-2xl border border-white/10 bg-[#111] shadow-lg backdrop-blur p-4 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2"
       role="region"
       aria-label={t('app_cta.title')}
     >

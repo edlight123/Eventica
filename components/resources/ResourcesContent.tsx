@@ -178,7 +178,7 @@ export default function ResourcesContent() {
     <>
       {/* ACT 0 — the statement. This is a playbook, not a help center.
           The guides themselves float around it, like the homepage's posters. */}
-      <section className="relative overflow-hidden bg-[#0a0a0a]">
+      <section className="relative overflow-hidden bg-white/[0.03]">
         <FloatingGuides />
         <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pb-24 sm:pt-32 lg:px-8">
           <p

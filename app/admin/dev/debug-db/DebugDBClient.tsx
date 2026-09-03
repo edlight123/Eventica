@@ -143,7 +143,7 @@ export default function DebugDBClient() {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-[#0a0a0a] rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+        <div className="bg-white/[0.03] rounded-xl shadow-lg p-8 max-w-md w-full text-center">
           <h1 className="font-display text-2xl text-white mb-4">Please sign in</h1>
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function DebugDBClient() {
     <>
       <div className="min-h-screen bg-[#0a0a0a] p-4 pb-mobile-nav">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-[#0a0a0a] rounded-xl shadow-lg p-4 sm:p-8">
+          <div className="bg-white/[0.03] rounded-xl shadow-lg p-4 sm:p-8">
             <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-4 sm:mb-6">Database Debug Tool</h1>
 
             <button

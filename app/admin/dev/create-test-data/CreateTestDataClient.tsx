@@ -382,7 +382,7 @@ export default function CreateTestDataClient() {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-[#0a0a0a] rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+        <div className="bg-white/[0.03] rounded-xl shadow-lg p-8 max-w-md w-full text-center">
           <div className="text-6xl mb-4">🔒</div>
           <h1 className="font-display text-2xl text-white mb-4">Authentication Required</h1>
           <p className="text-white/60 mb-6">
@@ -403,7 +403,7 @@ export default function CreateTestDataClient() {
     <>
       <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
         <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
-          <div className="bg-[#0a0a0a] rounded-xl shadow-lg overflow-hidden">
+          <div className="bg-white/[0.03] rounded-xl shadow-lg overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-brand-600 to-brand-700 px-4 sm:px-8 py-4 sm:py-6">
               <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-1 sm:mb-2">
@@ -431,7 +431,7 @@ export default function CreateTestDataClient() {
                 <h2 className="text-lg font-semibold text-white mb-3">
                   Events to be created ({testEvents.length}):
                 </h2>
-                <div className="bg-[#0a0a0a] rounded-lg p-4 max-h-48 overflow-y-auto">
+                <div className="bg-white/[0.03] rounded-lg p-4 max-h-48 overflow-y-auto">
                   <ul className="space-y-2 text-sm text-white/70">
                     {testEvents.map((event, index) => (
                       <li key={index} className="flex items-start">

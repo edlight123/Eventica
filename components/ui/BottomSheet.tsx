@@ -45,7 +45,7 @@ export default function BottomSheet({
         className="fixed inset-0 z-[101] flex items-center justify-center p-4"
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
-        <div className="bg-[#0a0a0a] rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
+        <div className="bg-white/[0.03] rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col">
           {/* Header */}
           {(title || showCloseButton) && (
             <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/10 flex-shrink-0">

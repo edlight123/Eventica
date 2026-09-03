@@ -211,7 +211,7 @@ export function DataTable<T>({
       className={
         isConsole
           ? `overflow-hidden rounded-lg bg-console-panel ${className}`
-          : `overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-soft ${className}`
+          : `overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-soft ${className}`
       }
     >
       {toolbar && (
@@ -299,7 +299,7 @@ export function DataTable<T>({
                     <tr
                       key={id}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
-                      className={`transition-colors ${isConsole ? 'hover:bg-console-raise' : 'hover:bg-[#0a0a0a]'} ${
+                      className={`transition-colors ${isConsole ? 'hover:bg-console-raise' : 'hover:bg-white/[0.03]'} ${
                         onRowClick ? 'cursor-pointer' : ''
                       }`}
                     >
@@ -404,7 +404,7 @@ export function DataTable<T>({
               className={
                 isConsole
                   ? 'inline-flex items-center gap-1 rounded bg-console-raise px-3 py-1.5 text-sm font-medium text-console-mut transition-colors hover:text-console-text disabled:cursor-not-allowed disabled:opacity-40'
-                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-40'
+                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.03] disabled:cursor-not-allowed disabled:opacity-40'
               }
             >
               <ChevronLeft className="h-4 w-4" />
@@ -417,7 +417,7 @@ export function DataTable<T>({
               className={
                 isConsole
                   ? 'inline-flex items-center gap-1 rounded bg-console-raise px-3 py-1.5 text-sm font-medium text-console-mut transition-colors hover:text-console-text disabled:cursor-not-allowed disabled:opacity-40'
-                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-40'
+                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.03] disabled:cursor-not-allowed disabled:opacity-40'
               }
             >
               Next

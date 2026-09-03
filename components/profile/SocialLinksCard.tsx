@@ -61,7 +61,7 @@ export function SocialLinksCard({ profile, onUpdate }: SocialLinksCardProps) {
   const hasAnyLink = PLATFORMS.some((p) => (profile.socialLinks?.[p.key] || '').trim())
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
+    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-start gap-3">
@@ -131,7 +131,7 @@ export function SocialLinksCard({ profile, onUpdate }: SocialLinksCardProps) {
           if (!isEditing && !value) return null
           return (
             <div key={key} className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-white/[0.03] flex items-center justify-center flex-shrink-0">
                 <Icon className={`w-5 h-5 ${color}`} />
               </div>
               {isEditing ? (

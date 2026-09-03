@@ -35,7 +35,7 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
   }
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
+    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -65,7 +65,7 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white/[0.03] transition-transform ${
                 notify.reminders ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
@@ -88,7 +88,7 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white/[0.03] transition-transform ${
                 notify.updates ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
@@ -111,7 +111,7 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white/[0.03] transition-transform ${
                 notify.promos ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
@@ -120,7 +120,7 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
       </div>
 
       {/* Info */}
-      <div className="mt-6 bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
+      <div className="mt-6 bg-white/[0.03] border border-white/10 rounded-lg p-4">
         <p className="text-xs text-white/65">
           {t('notifications.note')}
         </p>

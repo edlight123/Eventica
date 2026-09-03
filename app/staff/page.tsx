@@ -94,7 +94,7 @@ export default async function StaffHomePage() {
         <p className="mt-1 text-sm text-white/65">Your assigned events</p>
 
         {checkInEvents.length === 0 ? (
-          <div className="mt-6 bg-[#0a0a0a] border border-white/10 rounded-xl p-5">
+          <div className="mt-6 bg-white/[0.03] border border-white/10 rounded-xl p-5">
             <p className="text-sm text-white/70">No staff events assigned yet.</p>
           </div>
         ) : (
@@ -103,7 +103,7 @@ export default async function StaffHomePage() {
               <a
                 key={e.eventId}
                 href={`/organizer/scan/${encodeURIComponent(e.eventId)}`}
-                className="block bg-[#0a0a0a] border border-white/10 rounded-xl p-4 hover:border-white/10 transition-colors"
+                className="block bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-white/10 transition-colors"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">

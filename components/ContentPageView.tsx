@@ -102,7 +102,7 @@ export default function ContentPageView({
           </p>
         ) : null}
 
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 p-3 sm:p-4 md:p-6 lg:p-8 prose prose-sm sm:prose prose-teal max-w-none">
+        <div className="bg-white/[0.03] rounded-xl shadow-sm border border-white/10 p-3 sm:p-4 md:p-6 lg:p-8 prose prose-sm sm:prose prose-teal max-w-none">
           {page && page.blocks.length > 0 ? (
             page.blocks.map((block, i) => <Block key={i} block={block} />)
           ) : (

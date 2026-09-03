@@ -97,7 +97,7 @@ export function CategoryChips({ selectedCategories }: CategoryChipsProps) {
             aria-label={t('filters.categories', { defaultValue: 'Category' })}
           >
             <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" onClick={() => setOpen(false)} aria-hidden="true" />
-            <div className="relative z-[101] w-full max-w-sm rounded-t-2xl border border-white/10 bg-[#0a0a0a] p-4 shadow-2xl sm:rounded-2xl">
+            <div className="relative z-[101] w-full max-w-sm rounded-t-2xl border border-white/10 bg-[#111] p-4 shadow-2xl sm:rounded-2xl">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-base font-semibold text-white">{t('filters.categories', { defaultValue: 'Category' })}</h3>
                 <button

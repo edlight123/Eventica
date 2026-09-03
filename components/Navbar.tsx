@@ -194,7 +194,7 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
                     <div
                       role="menu"
                       aria-label={user.full_name}
-                      className="absolute right-0 mt-2 w-56 rounded-lg border border-white/10 bg-[#0a0a0a] py-1 shadow-xl"
+                      className="absolute right-0 mt-2 w-56 rounded-lg border border-white/10 bg-[#111] py-1 shadow-xl"
                     >
                       <Link
                         href="/tickets"

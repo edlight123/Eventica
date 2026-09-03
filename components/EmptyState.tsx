@@ -23,7 +23,7 @@ export default function EmptyState({
 }: EmptyStateProps) {
   const dark = tone === 'dark'
   return (
-    <div className={`rounded-2xl border-2 border-dashed p-12 text-center hover:border-brand-400 transition-colors duration-300 ${dark ? 'border-white/15' : 'bg-[#0a0a0a] border-white/10'}`}>
+    <div className={`rounded-2xl border-2 border-dashed p-12 text-center hover:border-brand-400 transition-colors duration-300 ${dark ? 'border-white/15' : 'bg-white/[0.03] border-white/10'}`}>
       {/* Icon with Premium Styling */}
       <div className="relative inline-block mb-6">
         <div className="absolute inset-0 rounded-full blur-xl opacity-50"></div>

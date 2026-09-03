@@ -39,7 +39,7 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
     >
       {/* True phone proportions (9:19.5); taller content crops like a real
           screenshot instead of stretching the frame. */}
-      <div className="relative aspect-[9/19.5] overflow-hidden rounded-[32px] bg-[#0a0a0a]">
+      <div className="relative aspect-[9/19.5] overflow-hidden rounded-[32px] bg-white/[0.03]">
         {/* dynamic island */}
         <div className="absolute left-1/2 top-2.5 z-10 h-[18px] w-[76px] -translate-x-1/2 rounded-full bg-[#161616]" />
         {children}

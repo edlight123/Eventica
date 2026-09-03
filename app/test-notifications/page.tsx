@@ -36,7 +36,7 @@ export default function TestNotificationsPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <div className="bg-[#0a0a0a] rounded-lg shadow-lg p-8">
+        <div className="bg-white/[0.03] rounded-lg shadow-lg p-8">
           <h1 className="text-3xl font-bold text-white mb-2">
             🧪 Test Notifications
           </h1>
@@ -68,7 +68,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('event_reminder')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-[#0a0a0a] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 bg-white/[0.03] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">⏰</span>
               <span className="font-semibold text-white">Event Reminder</span>
@@ -78,7 +78,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('new_event')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-[#0a0a0a] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 bg-white/[0.03] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">📅</span>
               <span className="font-semibold text-white">New Event</span>
@@ -88,7 +88,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('email')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-[#0a0a0a] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 bg-white/[0.03] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">📧</span>
               <span className="font-semibold text-white">Email Test</span>
@@ -97,7 +97,7 @@ export default function TestNotificationsPage() {
 
             <button
               onClick={() => router.push('/notifications')}
-              className="flex flex-col items-start p-6 bg-[#0a0a0a] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition"
+              className="flex flex-col items-start p-6 bg-white/[0.03] hover:bg-white/[0.04] border-2 border-white/10 rounded-lg transition"
             >
               <span className="text-2xl mb-2">🔔</span>
               <span className="font-semibold text-white">View Notifications</span>
@@ -106,7 +106,7 @@ export default function TestNotificationsPage() {
           </div>
 
           {loading && (
-            <div className="mt-6 p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">
+            <div className="mt-6 p-4 bg-white/[0.03] border border-white/10 rounded-lg">
               <p className="text-white/70">Sending notification...</p>
             </div>
           )}
@@ -130,7 +130,7 @@ export default function TestNotificationsPage() {
             </div>
           )}
 
-          <div className="mt-8 p-4 bg-[#0a0a0a] rounded-lg border border-white/10">
+          <div className="mt-8 p-4 bg-white/[0.03] rounded-lg border border-white/10">
             <h2 className="font-semibold text-white mb-2">💡 How to Test:</h2>
             <ol className="text-sm text-white/65 space-y-1 list-decimal list-inside">
               <li>Click any notification type above</li>

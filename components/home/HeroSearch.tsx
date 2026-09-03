@@ -214,11 +214,11 @@ export default function HeroSearch({
             aria-label={t('filters.all_cities', { defaultValue: 'All cities' })}
             className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent text-transparent opacity-0 outline-none"
           >
-            <option value="" className="bg-[#0a0a0a] text-white">
+            <option value="" className="bg-white/[0.03] text-white">
               {t('common.all_locations', { defaultValue: 'All Haiti' })}
             </option>
             {cities.map((c) => (
-              <option key={c} value={c} className="bg-[#0a0a0a] text-white">
+              <option key={c} value={c} className="bg-white/[0.03] text-white">
                 {c}
               </option>
             ))}
@@ -236,7 +236,7 @@ export default function HeroSearch({
           id={listboxId}
           role="listbox"
           aria-label={t('common.search')}
-          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a]/95 shadow-poster-sm backdrop-blur-md"
+          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#111]/95 shadow-poster-sm backdrop-blur-md"
         >
           {suggestions.length === 0 ? (
             <li className="px-4 py-3 text-[13px] text-white/50">

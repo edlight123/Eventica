@@ -76,7 +76,7 @@ export default function SeedEventsClient() {
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
-      <div className="bg-[#0a0a0a] dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <div className="bg-white/[0.03] dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="mb-6">
           <h1 className="font-display text-2xl mb-2">Seed Template Events</h1>
           <p className="text-white/60 dark:text-white/50">
@@ -85,7 +85,7 @@ export default function SeedEventsClient() {
         </div>
 
         <div className="mb-6 grid gap-3">
-          <div className="rounded-lg border p-3 text-sm bg-[#0a0a0a]">
+          <div className="rounded-lg border p-3 text-sm bg-white/[0.03]">
             <div className="font-semibold mb-1">Quick diagnostics</div>
             <div className="text-white/70">
               Demo mode (client build): <span className="font-mono">{String(process.env.NEXT_PUBLIC_DEMO_MODE)}</span>
@@ -149,7 +149,7 @@ export default function SeedEventsClient() {
                   <p className="text-sm mb-2">Created events:</p>
                   <div className="space-y-2">
                     {result.events.map((event, idx) => (
-                      <div key={event.id} className="text-xs bg-[#0a0a0a] p-2 rounded border">
+                      <div key={event.id} className="text-xs bg-white/[0.03] p-2 rounded border">
                         <div className="font-medium">
                           {idx + 1}. {event.title}
                         </div>
@@ -167,13 +167,13 @@ export default function SeedEventsClient() {
           {result?.success && (
             <div className="flex gap-2">
               <button
-                className="flex-1 bg-[#0a0a0a] hover:bg-white/[0.04] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
+                className="flex-1 bg-white/[0.03] hover:bg-white/[0.04] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
                 onClick={() => (window.location.href = '/discover')}
               >
                 View Events
               </button>
               <button
-                className="flex-1 bg-[#0a0a0a] hover:bg-white/[0.04] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
+                className="flex-1 bg-white/[0.03] hover:bg-white/[0.04] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
                 onClick={() => (window.location.href = '/organizer/events')}
               >
                 Manage Events

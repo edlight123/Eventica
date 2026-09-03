@@ -147,7 +147,7 @@ export default function InvitePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">
-      <div className="w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-xl p-6 shadow-sm">
+      <div className="w-full max-w-md bg-white/[0.03] border border-white/10 rounded-xl p-6 shadow-sm">
         <h1 className="text-xl font-bold text-white">{t('invite.title', 'Event Invite')}</h1>
         <p className="mt-2 text-sm text-white/65">
           {status === 'loading' && t('invite.loading', 'Loading…')}

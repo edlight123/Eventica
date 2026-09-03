@@ -38,7 +38,7 @@ function parseDateValue(value?: string): Date | null {
 }
 
 const triggerBase =
-  'inline-flex items-center gap-2 rounded-lg border bg-[#0a0a0a] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
+  'inline-flex items-center gap-2 rounded-lg border bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
 
 /**
  * Centered modal, portaled to <body> so it can never be clipped by an ancestor
@@ -77,7 +77,7 @@ function PickerModal({
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
-      <div className={`relative z-[101] w-full ${maxWidth} rounded-t-2xl border border-white/10 bg-[#0a0a0a] p-4 shadow-2xl sm:rounded-2xl`}>
+      <div className={`relative z-[101] w-full ${maxWidth} rounded-t-2xl border border-white/10 bg-[#111] p-4 shadow-2xl sm:rounded-2xl`}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-base font-semibold text-white">{title}</h3>
           <button

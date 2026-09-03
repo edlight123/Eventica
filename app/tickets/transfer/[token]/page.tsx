@@ -43,7 +43,7 @@ export default async function TransferAcceptPage({ params }: { params: Promise<{
       <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
         <Navbar user={user} />
         <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
-          <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
+          <div className="bg-white/[0.03] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
             <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">❌</div>
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Transfer Not Found</h1>
             <p className="text-[13px] sm:text-base text-white/60 mb-4 sm:mb-6">
@@ -88,7 +88,7 @@ export default async function TransferAcceptPage({ params }: { params: Promise<{
       <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
         <Navbar user={user} />
         <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
-          <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
+          <div className="bg-white/[0.03] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
             <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">⏰</div>
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Transfer Expired</h1>
             <p className="text-[13px] sm:text-base text-white/60 mb-4 sm:mb-6">
@@ -115,7 +115,7 @@ export default async function TransferAcceptPage({ params }: { params: Promise<{
       <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
         <Navbar user={user} />
         <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
-          <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
+          <div className="bg-white/[0.03] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
             <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">
               {transfer.status === 'accepted' ? '✅' : '❌'}
             </div>
@@ -146,7 +146,7 @@ export default async function TransferAcceptPage({ params }: { params: Promise<{
       <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
         <Navbar user={user} />
         <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
-          <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
+          <div className="bg-white/[0.03] rounded-xl sm:rounded-2xl border border-white/10 p-6 sm:p-8 text-center">
             <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">❌</div>
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Ticket Not Found</h1>
             <p className="text-[13px] sm:text-base text-white/60">

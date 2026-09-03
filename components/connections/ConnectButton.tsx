@@ -94,7 +94,7 @@ export default function ConnectButton({
       <button
         onClick={remove}
         disabled={loading}
-        className={`group inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-[#0a0a0a] text-white/80 hover:border-red-400/40 hover:text-red-300 transition-colors disabled:opacity-50`}
+        className={`group inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-white/[0.03] text-white/80 hover:border-red-400/40 hover:text-red-300 transition-colors disabled:opacity-50`}
         title="Remove friend"
       >
         <Check className="w-4 h-4 group-hover:hidden" />
@@ -110,7 +110,7 @@ export default function ConnectButton({
       <button
         onClick={remove}
         disabled={loading}
-        className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-[#0a0a0a] text-white/50 hover:text-white/80 transition-colors disabled:opacity-50`}
+        className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-white/[0.03] text-white/50 hover:text-white/80 transition-colors disabled:opacity-50`}
         title="Cancel request"
       >
         <Clock className="w-4 h-4" />
@@ -133,7 +133,7 @@ export default function ConnectButton({
         <button
           onClick={() => respond('decline')}
           disabled={loading}
-          className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04] transition-colors disabled:opacity-50`}
+          className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-white/[0.03] text-white/70 hover:bg-white/[0.04] transition-colors disabled:opacity-50`}
         >
           Decline
         </button>

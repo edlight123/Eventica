@@ -60,7 +60,7 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
   const toggleDiscoverable = () => persist({ ...privacy, discoverable_by_phone: !privacy.discoverable_by_phone })
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
+    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -87,7 +87,7 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
                 className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-colors disabled:opacity-60 ${
                   active
                     ? 'border-teal-500 ring-1 ring-teal-500'
-                    : 'border-white/10 hover:bg-[#0a0a0a]'
+                    : 'border-white/10 hover:bg-white/[0.03]'
                 }`}
               >
                 <div
@@ -129,7 +129,7 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
           aria-pressed={privacy.profile_visibility === 'public'}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform ${
+            className={`inline-block h-4 w-4 transform rounded-full bg-white/[0.03] transition-transform ${
               privacy.profile_visibility === 'public' ? 'translate-x-6' : 'translate-x-1'
             }`}
           />
@@ -156,7 +156,7 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
           aria-pressed={privacy.discoverable_by_phone}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform ${
+            className={`inline-block h-4 w-4 transform rounded-full bg-white/[0.03] transition-transform ${
               privacy.discoverable_by_phone ? 'translate-x-6' : 'translate-x-1'
             }`}
           />

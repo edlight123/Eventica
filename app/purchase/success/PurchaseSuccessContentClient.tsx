@@ -73,7 +73,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
       </div>
 
       {props.hasTicket && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden mb-6">
+        <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-brand-600 to-brand-700 p-4 md:p-6 text-white">
             <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-1.5 md:mb-2 line-clamp-2">{props.eventTitle}</h2>
             <p className="text-sm md:text-base text-brand-100">{startText}</p>
@@ -103,9 +103,9 @@ export default function PurchaseSuccessContentClient(props: Props) {
             </div>
           </div>
 
-          <div className="p-4 md:p-6 bg-[#0a0a0a] border-t border-white/10">
+          <div className="p-4 md:p-6 bg-white/[0.03] border-t border-white/10">
             {props.qrCodeDataUrl ? (
-              <div className="flex flex-col items-center justify-center bg-[#0a0a0a] rounded-lg border border-white/10 p-4 md:p-6">
+              <div className="flex flex-col items-center justify-center bg-white/[0.03] rounded-lg border border-white/10 p-4 md:p-6">
                 <Image
                   src={props.qrCodeDataUrl}
                   alt={t('tickets:purchase_success.qr_alt')}
@@ -118,7 +118,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
                 <p className="text-[11px] md:text-xs text-white/50 mt-1">{t('tickets:purchase_success.qr_subtitle')}</p>
               </div>
             ) : (
-              <div className="flex items-center justify-center h-40 md:h-48 bg-[#0a0a0a] rounded-lg border-2 border-dashed border-white/10">
+              <div className="flex items-center justify-center h-40 md:h-48 bg-white/[0.03] rounded-lg border-2 border-dashed border-white/10">
                 <div className="text-center">
                   <svg
                     className="w-12 h-12 md:w-16 md:h-16 mx-auto text-white/40 mb-2"
@@ -143,7 +143,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
       )}
 
       {!props.hasTicket && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-8 md:p-12 text-center mb-6">
+        <div className="bg-white/[0.03] rounded-xl border border-white/10 p-8 md:p-12 text-center mb-6">
           <p className="text-sm md:text-base text-white/65">{t('tickets:purchase_success.no_ticket_message')}</p>
         </div>
       )}
@@ -157,7 +157,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
         </Link>
         <Link
           href="/"
-          className="px-6 md:px-8 py-3 md:py-3.5 rounded-lg border border-white/10 text-white/70 text-base font-semibold hover:bg-[#0a0a0a] transition-colors text-center"
+          className="px-6 md:px-8 py-3 md:py-3.5 rounded-lg border border-white/10 text-white/70 text-base font-semibold hover:bg-white/[0.03] transition-colors text-center"
         >
           {t('tickets:purchase_success.find_more_events')}
         </Link>

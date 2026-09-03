@@ -239,7 +239,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-[13px]">
-              <span className="px-2 bg-[#0a0a0a] text-white/45">{t('login.or_continue_with')}</span>
+              <span className="px-2 bg-white/[0.03] text-white/45">{t('login.or_continue_with')}</span>
             </div>
           </div>
 

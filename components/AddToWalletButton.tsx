@@ -375,10 +375,10 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
 
       {/* Options Dropdown */}
       {showOptions && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a] rounded-xl shadow-2xl border-2 border-white/10 overflow-hidden z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] rounded-xl shadow-2xl border-2 border-white/10 overflow-hidden z-50">
           <button
             onClick={handleDownloadPDF}
-            className="w-full flex items-center gap-3 px-6 py-4 hover:bg-[#0a0a0a] transition-colors text-left border-b border-white/10"
+            className="w-full flex items-center gap-3 px-6 py-4 hover:bg-white/[0.03] transition-colors text-left border-b border-white/10"
           >
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <Download className="w-5 h-5 text-red-600" />
@@ -393,7 +393,7 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
             <button
               onClick={handleAddToAppleWallet}
               disabled={isAddingToWallet !== null}
-              className="w-full flex items-center gap-3 px-6 py-4 hover:bg-[#0a0a0a] transition-colors text-left border-b border-white/10 disabled:opacity-50"
+              className="w-full flex items-center gap-3 px-6 py-4 hover:bg-white/[0.03] transition-colors text-left border-b border-white/10 disabled:opacity-50"
             >
               <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
                 <Wallet className="w-5 h-5 text-white" />
@@ -411,7 +411,7 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
             <button
               onClick={handleAddToGooglePay}
               disabled={isAddingToWallet !== null}
-              className="w-full flex items-center gap-3 px-6 py-4 hover:bg-[#0a0a0a] transition-colors text-left disabled:opacity-50"
+              className="w-full flex items-center gap-3 px-6 py-4 hover:bg-white/[0.03] transition-colors text-left disabled:opacity-50"
             >
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                 <Smartphone className="w-5 h-5 text-blue-600" />

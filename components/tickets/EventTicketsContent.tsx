@@ -89,7 +89,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* Event Hero Card */}
-      <div className="relative bg-[#0a0a0a] rounded-none border border-white/10 overflow-hidden mb-6">
+      <div className="relative bg-white/[0.03] rounded-none border border-white/10 overflow-hidden mb-6">
         {/* Banner Image */}
         {event.banner_image_url ? (
           <div className="relative h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-700 to-[#0C5E57]">
@@ -210,7 +210,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
               return (
                 <div
                   key={ticket.id || index}
-                  className="rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-xl"
+                  className="rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] shadow-xl"
                 >
                   {/* Inverted white physical stub */}
                   <div className="bg-white text-black p-5 md:p-6">
@@ -325,7 +325,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
             type="button"
             onClick={() => setShowUsed((v) => !v)}
             aria-expanded={showUsed}
-            className="w-full flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-left hover:border-white/20 transition-colors"
+            className="w-full flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left hover:border-white/20 transition-colors"
           >
             <span className="flex items-center gap-2 text-sm md:text-base font-bold text-white">
               <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -347,7 +347,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
               {usedTickets.map((ticket, index) => (
                 <li
                   key={ticket.id || index}
-                  className="flex items-center justify-between gap-3 px-4 py-3 bg-[#0a0a0a]"
+                  className="flex items-center justify-between gap-3 px-4 py-3 bg-white/[0.03]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -376,7 +376,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
       <div className="mt-6 flex flex-col sm:flex-row gap-2.5">
         <a
           href={`/events/${event.id}`}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0a0a0a] hover:bg-white/[0.04] text-white/70 border border-white/10 hover:border-brand-400 text-sm font-semibold rounded-lg transition-all"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white/[0.03] hover:bg-white/[0.04] text-white/70 border border-white/10 hover:border-brand-400 text-sm font-semibold rounded-lg transition-all"
         >
           {t('event_tickets.view_event_details')}
           <ArrowRight className="w-4 h-4" />

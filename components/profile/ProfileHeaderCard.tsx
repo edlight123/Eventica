@@ -47,7 +47,7 @@ export function ProfileHeaderCard({ profile, onUpdate }: ProfileHeaderCardProps)
     : 'Recently'
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
+    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <h2 className="text-xl font-bold text-white">{t('header.title')}</h2>

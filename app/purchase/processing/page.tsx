@@ -70,7 +70,7 @@ export default function PurchaseProcessingPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6 md:p-8 text-center">
+        <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6 md:p-8 text-center">
           {!timedOut ? (
             <>
               <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-4 flex items-center justify-center">

@@ -145,7 +145,7 @@ export function Marquee() {
     </span>
   )
   return (
-    <div aria-hidden className="relative overflow-hidden border-y border-white/[0.06] bg-[#0a0a0a] py-7">
+    <div aria-hidden className="relative overflow-hidden border-y border-white/[0.06] bg-white/[0.03] py-7">
       <div className="tk-marquee flex w-max">
         {half}
         {half}

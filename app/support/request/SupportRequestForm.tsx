@@ -84,7 +84,7 @@ export default function SupportRequestForm() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white/[0.03] rounded-xl border border-white/10 p-6 sm:p-8 space-y-6">
           {/* User Type */}
           <div>
             <label className="block text-sm font-semibold text-white/70 mb-3">
@@ -97,7 +97,7 @@ export default function SupportRequestForm() {
                 className={`flex-1 px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                   formData.userType === 'attendee'
                     ? 'border-brand-500 text-brand-300'
-                    : 'border-white/10 bg-[#0a0a0a] text-white/70 hover:border-white/10'
+                    : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/10'
                 }`}
               >
                 <span className="inline-flex items-center justify-center gap-2">
@@ -111,7 +111,7 @@ export default function SupportRequestForm() {
                 className={`flex-1 px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                   formData.userType === 'organizer'
                     ? 'border-brand-500 text-brand-300'
-                    : 'border-white/10 bg-[#0a0a0a] text-white/70 hover:border-white/10'
+                    : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/10'
                 }`}
               >
                 <span className="inline-flex items-center justify-center gap-2">
@@ -231,7 +231,7 @@ export default function SupportRequestForm() {
         </form>
 
         {/* Info Box */}
-        <div className="mt-6 p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">
+        <div className="mt-6 p-4 bg-white/[0.03] border border-white/10 rounded-lg">
           <p className="text-sm text-white/65">
             <strong className="inline-flex items-center gap-2">
               <Info className="w-4 h-4" />

@@ -96,13 +96,13 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
   return (
     <div
       ref={trackRef}
-      className="relative bg-[#0a0a0a]"
+      className="relative bg-white/[0.03]"
       style={still ? undefined : { height: `${n * VH_PER_CITY + 100}vh` }}
     >
       <section
         ref={stageRef}
         aria-label={t('home.cities_title', { defaultValue: 'Cities' })}
-        className={`isolate overflow-hidden bg-[#0a0a0a] ${
+        className={`isolate overflow-hidden bg-white/[0.03] ${
           still ? 'relative' : 'sticky top-0 flex h-screen items-center'
         }`}
         style={{ ['--p' as any]: 0.5, ['--within' as any]: 0 }}
