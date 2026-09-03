@@ -31,7 +31,8 @@ export function CityChips({ className = '' }: { className?: string }) {
             key={c}
             href={isActive ? '/' : `/?city=${encodeURIComponent(c)}`}
             aria-pressed={isActive}
-            className={`rounded-[10px] border px-3.5 py-1.5 text-[13px] font-normal transition-colors duration-200 ${
+            // See FilterChip: 44px touch floor on phones, unchanged above sm.
+            className={`inline-flex min-h-11 items-center rounded-[10px] border px-3.5 py-1.5 text-[13px] font-normal transition-colors duration-200 sm:min-h-0 ${
               isActive
                 ? 'border-brand-500/40 bg-brand-500/[0.08] text-brand-300 hover:border-brand-400/60'
                 : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/25 hover:text-white'

@@ -79,7 +79,8 @@ export function CategoryChips({ selectedCategories }: CategoryChipsProps) {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+        // 44px touch floor on phones, matching the date chips beside it.
+        className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-all sm:min-h-0 ${
           count > 0 ? 'border-brand-400 text-brand-300' : 'border-white/15 text-white/75 hover:bg-white/10'
         }`}
       >

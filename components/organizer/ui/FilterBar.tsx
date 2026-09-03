@@ -23,17 +23,23 @@ export function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+      // The inactive state was `bg-[#0a0a0a]` — the page's own background —
+      // with a stray leading space where a border class had been removed, so an
+      // unselected chip was invisible and only the active one could be seen.
+      // A real fill fixes that; h-11 on phones meets the touch floor.
+      className={`inline-flex h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:h-9 ${
         active
           ? 'bg-brand-600 text-white'
-          : ' bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04] hover:text-white'
+          : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
       }`}
     >
       {children}
       {count !== undefined && count > 0 && (
         <span
           className={`ml-0.5 rounded-full px-1.5 py-0.5 font-mono tabular-nums text-[10px] font-bold leading-none ${
-            active ? 'bg-white/20 text-white' : 'bg-[#0a0a0a] text-white/60'
+            // Same fix as the chip: this badge's inactive fill was the page
+            // background, so the count floated with no shape around it.
+            active ? 'bg-white/20 text-white' : 'bg-white/15 text-white/70'
           }`}
         >
           {count}

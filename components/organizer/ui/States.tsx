@@ -84,12 +84,12 @@ export function OrgLoadingSkeleton({
     <div className={`animate-pulse space-y-0 divide-y divide-white/5 ${className}`}>
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} className="flex items-center gap-4 px-4 py-4 sm:px-6">
-          <div className="h-10 w-10 shrink-0 rounded-lg bg-[#0a0a0a]" />
+          <div className="h-10 w-10 shrink-0 rounded-lg bg-white/[0.06]" />
           <div className="flex-1 space-y-2">
-            <div className="h-3.5 w-2/5 rounded bg-[#0a0a0a]" />
-            <div className="h-3 w-1/4 rounded bg-[#0a0a0a]" />
+            <div className="h-3.5 w-2/5 rounded bg-white/[0.06]" />
+            <div className="h-3 w-1/4 rounded bg-white/[0.06]" />
           </div>
-          <div className="h-6 w-16 rounded-full bg-[#0a0a0a]" />
+          <div className="h-6 w-16 rounded-full bg-white/[0.06]" />
         </div>
       ))}
     </div>
@@ -105,14 +105,14 @@ export function OrgPageSkeleton({ rows = 8 }: { rows?: number }) {
       {/* Header skeleton */}
       <div className="space-y-2">
         <div className="h-3 w-16 rounded " />
-        <div className="h-9 w-56 rounded-lg bg-[#0a0a0a]" />
-        <div className="h-4 w-80 rounded bg-[#0a0a0a]" />
+        <div className="h-9 w-56 rounded-lg bg-white/[0.06]" />
+        <div className="h-4 w-80 rounded bg-white/[0.06]" />
       </div>
       {/* Content skeleton */}
       <div className="overflow-hidden rounded-2xl border border-white/10">
         {/* Toolbar */}
         <div className="border-b border-white/10 px-4 py-3">
-          <div className="h-9 w-52 rounded-lg bg-[#0a0a0a]" />
+          <div className="h-9 w-52 rounded-lg bg-white/[0.06]" />
         </div>
         <OrgLoadingSkeleton rows={rows} />
       </div>

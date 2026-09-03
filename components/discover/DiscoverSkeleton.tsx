@@ -41,7 +41,7 @@ export function EventRailSkeleton({ cards = 5 }: { cards?: number }) {
 /** Placeholder for the sticky discover header (search row + quick-filter strip). */
 export function DiscoverFilterBarSkeleton() {
   return (
-    <div className="bg-[#0a0a0a] border-b border-white/10 animate-pulse">
+    <div className="bg-white/[0.06] border-b border-white/10 animate-pulse">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2">
         <div className="flex items-center gap-3">
           <div className="h-11 flex-1 rounded-lg" />

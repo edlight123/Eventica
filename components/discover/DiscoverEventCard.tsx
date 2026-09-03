@@ -56,7 +56,10 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
   const badge = (
     <div className="flex flex-col items-start gap-1">
       <span
-        className={`eyebrow inline-flex rounded-md px-2 py-1 text-[9px] tracking-[0.1em] backdrop-blur-md ${
+        // 9px with 0.1em tracking was below readable on a phone, where this
+        // chip is often the only thing naming the event's type. 10px is still a
+        // micro-label but it can actually be read.
+        className={`eyebrow inline-flex rounded-md px-2 py-1 text-[10px] tracking-[0.1em] backdrop-blur-md ${
           cue
             ? cue.variant === 'warning'
               ? 'bg-amber-400/90 text-amber-950'
@@ -94,9 +97,16 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
         type="button"
         onClick={handleBookmarkToggle}
         aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
-        className="absolute right-2.5 top-2.5 z-20 grid h-8 w-8 place-items-center rounded-full bg-black/30 backdrop-blur-md transition-transform duration-200 active:scale-90"
+        // 44px on a phone, 32px above. The visible disc stays 32px either way
+        // — the extra size is transparent padding around it, so save doesn't
+        // become a thumb-sized black circle sitting on the poster art.
+        className="absolute right-2.5 top-2.5 z-20 grid h-11 w-11 place-items-center rounded-full transition-transform duration-200 active:scale-90 sm:h-8 sm:w-8"
       >
-        <Bookmark className={`h-[15px] w-[15px] ${isBookmarked ? 'fill-white text-white' : 'text-white'}`} />
+        {/* The disc moved in here so the button's larger hit area stays
+            invisible while the affordance keeps its original size. */}
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-black/30 backdrop-blur-md">
+          <Bookmark className={`h-[15px] w-[15px] ${isBookmarked ? 'fill-white text-white' : 'text-white'}`} />
+        </span>
       </button>
     </div>
   )

@@ -84,9 +84,15 @@ export function DiscoverPageContent({
     { key: 'saved', label: t('discover.saved', 'Saved') },
   ]
 
+  // One column on a phone, which is what the header comment above always
+  // claimed and what the app actually does. Two columns at 390px gave each card
+  // ~170px, and at that width the venue AND the date both truncated on every
+  // card — "Karibe Convention Ce…", "· Sep…" — so the feed hid the two facts a
+  // person scans for. Full width also lets the poster carry the card, which is
+  // the point of a poster. Two-up returns at 420px, where the metadata fits.
   const renderFeed = (list: any[]) =>
     list.length > 0 ? (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6">
+      <div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6">
         {list.map((event) => (
           <DiscoverEventCard key={event.id} event={event} />
         ))}
@@ -104,7 +110,11 @@ export function DiscoverPageContent({
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
-              className={`relative pb-2 text-[15px] font-medium transition-colors ${
+              // 44px tall on a phone. These were 31px — the smallest tap
+              // target on the page and the one that switches the whole feed.
+              // The underline still sits on the text's own baseline, so the
+              // bigger box costs nothing visually.
+              className={`relative inline-flex min-h-11 items-end pb-2 text-[15px] font-medium transition-colors sm:min-h-0 ${
                 tab === t.key ? 'text-white' : 'text-white/60 hover:text-white'
               }`}
             >

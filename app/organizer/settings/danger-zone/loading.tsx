@@ -2,10 +2,10 @@ export default function DangerZoneLoading() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="h-6 w-32 bg-[#0a0a0a] rounded mb-6 animate-pulse" />
+        <div className="h-6 w-32 bg-white/[0.06] rounded mb-6 animate-pulse" />
         <div className="mb-8">
-          <div className="h-9 w-64 bg-[#0a0a0a] rounded mb-2 animate-pulse" />
-          <div className="h-5 w-96 bg-[#0a0a0a] rounded animate-pulse" />
+          <div className="h-9 w-64 bg-white/[0.06] rounded mb-2 animate-pulse" />
+          <div className="h-5 w-96 bg-white/[0.06] rounded animate-pulse" />
         </div>
         
         {/* Warning Banner Skeleton */}
@@ -25,11 +25,11 @@ export default function DangerZoneLoading() {
             <div key={i} className="bg-[#0a0a0a] rounded-xl border-2 border-white/10 p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-3">
-                  <div className="h-6 w-56 bg-[#0a0a0a] rounded animate-pulse" />
-                  <div className="h-4 w-full bg-[#0a0a0a] rounded animate-pulse" />
-                  <div className="h-4 w-3/4 bg-[#0a0a0a] rounded animate-pulse" />
+                  <div className="h-6 w-56 bg-white/[0.06] rounded animate-pulse" />
+                  <div className="h-4 w-full bg-white/[0.06] rounded animate-pulse" />
+                  <div className="h-4 w-3/4 bg-white/[0.06] rounded animate-pulse" />
                 </div>
-                <div className="h-10 w-32 bg-[#0a0a0a] rounded-lg animate-pulse" />
+                <div className="h-10 w-32 bg-white/[0.06] rounded-lg animate-pulse" />
               </div>
             </div>
           ))}
