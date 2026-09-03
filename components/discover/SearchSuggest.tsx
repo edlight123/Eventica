@@ -367,7 +367,7 @@ export function SearchSuggest({
           id={listboxId}
           role="listbox"
           aria-label={t('suggest.aria_label', { defaultValue: 'Search suggestions' })}
-          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-white/10 bg-[#111]/95 shadow-xl backdrop-blur-md"
+          className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-white/10 bg-[#111] shadow-xl backdrop-blur-md"
         >
           {showNoMatches && (
             <p role="presentation" className="px-4 py-3 text-[13px] text-white/50">

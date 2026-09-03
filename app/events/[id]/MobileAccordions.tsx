@@ -143,10 +143,15 @@ export default function MobileAccordions({
           <span className="text-white/50">{t('events.start', { defaultValue: 'Starts' })}</span>{' '}
           {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
         </p>
-        <p className="mt-1.5 text-sm text-white" suppressHydrationWarning>
-          <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
-          {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
-        </p>
+        {/* Only when the end is a different instant from the start. An event
+            with no end set mirrors the start, and printing both read as
+            "ends at the moment it begins". */}
+        {new Date(endDatetime).getTime() !== new Date(startDatetime).getTime() && (
+          <p className="mt-1.5 text-sm text-white" suppressHydrationWarning>
+            <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
+            {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
+          </p>
+        )}
       </AccordionSection>
 
       {/* Organizer */}

@@ -56,7 +56,11 @@ export default function HeroSection({ events }: { events?: any[] }) {
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
         <h1 className="sr-only">{t('events.find_perfect_event')}</h1>
         <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:gap-6">
-          <div className="w-full lg:max-w-md">
+          {/* Same guard as HeroPase: the search sits above the chips so its
+              suggestion dropdown can never be painted through by them. There
+              is no transform here today, so this is belt-and-braces, but it is
+              the pairing that broke on the hero. */}
+          <div className="relative z-20 w-full lg:max-w-md">
             <HeroSearch events={events} compact />
           </div>
           <CityChips />

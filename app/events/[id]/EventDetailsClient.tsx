@@ -423,7 +423,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     {format(new Date(event.start_datetime), 'h:mm a', { locale: dfLocale })}
                   </p>
                 </div>
-                {event.end_datetime && (
+                {/* Same rule as the mobile accordion: an end equal to the
+                    start is not information. */}
+                {event.end_datetime &&
+                  new Date(event.end_datetime).getTime() !==
+                    new Date(event.start_datetime).getTime() && (
                   <div>
                     <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.end')}</p>
                     <p className="text-[15px] text-white" suppressHydrationWarning>

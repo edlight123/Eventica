@@ -155,10 +155,21 @@ export default function HeroPase({
             defaultValue: 'concerts, fèt and festivals in Haiti and the diaspora.',
           })}
         </p>
-        <div className="plt-enter pointer-events-auto mt-9 max-w-xl" style={{ ['--d' as any]: '0.28s' }}>
+        {/* `relative z-20` on the SEARCH wrapper, not on the dropdown.
+            `plt-enter` animates a transform, and a transform creates a
+            stacking context — so the suggestion list's own z-30 was trapped
+            inside this wrapper and could not rise above the city chips below,
+            whose wrapper is a sibling stacking context later in the DOM at the
+            same z-auto. The chips painted straight through the dropdown and
+            the suggestions were unreadable. Raising the wrapper lifts the
+            whole context, dropdown included. */}
+        <div
+          className="plt-enter pointer-events-auto relative z-20 mt-9 max-w-xl"
+          style={{ ['--d' as any]: '0.28s' }}
+        >
           <HeroSearch events={events} />
         </div>
-        <div className="plt-enter pointer-events-auto mt-5" style={{ ['--d' as any]: '0.36s' }}>
+        <div className="plt-enter pointer-events-auto relative z-10 mt-5" style={{ ['--d' as any]: '0.36s' }}>
           <CityChips />
         </div>
       </div>
