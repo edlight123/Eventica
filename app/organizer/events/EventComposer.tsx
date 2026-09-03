@@ -824,15 +824,20 @@ export default function EventComposer({
     ((!isEdit && trimmedCode.length < 6) || (trimmedCode.length > 0 && trimmedCode.length < 6))
 
   // The organizer's own UTC offset, shown beside the date fields so "8pm" is
-  // unambiguous. This is deliberately CLIENT-truth: the times they type are
-  // wall-clock in their own zone, so the label must be their zone, not the
-  // server's. That makes it a guaranteed hydration mismatch — the server has no
-  // way to know the offset and renders its own (GMT+0 on Vercel) — so every
-  // render site carries suppressHydrationWarning and the client value wins.
-  const tzLabel = (() => {
-    const off = -new Date().getTimezoneOffset() / 60
-    return `GMT${off >= 0 ? '+' : ''}${off}`
-  })()
+  // unambiguous. Only the browser knows it — the server renders in its own zone
+  // (UTC on Vercel) — so this is rendered AFTER mount and the server emits
+  // nothing. suppressHydrationWarning would be the wrong tool here: it silences
+  // the mismatch by keeping the SERVER's text, which left every organizer
+  // outside UTC reading "GMT+0" beside their own local times. A wrong timezone
+  // on a date field is worse than a console warning.
+  const [tzReady, setTzReady] = useState(false)
+  useEffect(() => setTzReady(true), [])
+  const tzLabel = tzReady
+    ? (() => {
+        const off = -new Date().getTimezoneOffset() / 60
+        return `GMT${off >= 0 ? '+' : ''}${off}`
+      })()
+    : ''
 
   const isPaid = sellMode === 'tickets' && tiers.some((t) => Number(t.price) > 0)
 
@@ -1542,7 +1547,7 @@ export default function EventComposer({
                   {t('composer.start', { defaultValue: 'Start' })} <span className="text-red-300" aria-hidden="true">*</span>
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span suppressHydrationWarning className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
+                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker
                     value={startDate}
                     onChange={setStartDate}
@@ -1555,7 +1560,7 @@ export default function EventComposer({
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">{t('composer.end', { defaultValue: 'End' })}</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span suppressHydrationWarning className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
+                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker
                     value={endDate}
                     onChange={setEndDate}
