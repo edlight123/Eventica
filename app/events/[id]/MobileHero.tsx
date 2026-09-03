@@ -36,8 +36,13 @@ export default function MobileHero({
 
   return (
     <div className="md:hidden">
-      {/* Hero Image - 16:9 aspect ratio */}
-      <div className="relative w-full aspect-video bg-gray-900">
+      {/* The poster, in the house 4:5 portrait shape.
+          This was `aspect-video` — a 16:9 landscape box — with object-cover, so
+          every vertical poster was cropped to a horizontal band through its
+          middle: the title and the artwork's composition both cut away. The
+          desktop hero has always used aspect-[4/5]; mobile was the outlier,
+          and mobile is where the poster matters most. */}
+      <div className="relative aspect-[4/5] w-full bg-gray-900">
         {bannerUrl ? (
           <>
             <Image
