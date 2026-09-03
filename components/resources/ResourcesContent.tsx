@@ -234,7 +234,7 @@ export default function ResourcesContent() {
       <section className="relative overflow-hidden">
         <div
           aria-hidden
-          className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400/[0.07] blur-[120px]"
+          className="absolute left-1/2 top-1/2 h-[420px] w-[420px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400/[0.07] blur-[120px]"
         />
         <div className="relative mx-auto max-w-4xl px-5 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
           <OuPare />

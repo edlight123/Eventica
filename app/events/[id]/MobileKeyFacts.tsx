@@ -76,7 +76,15 @@ export default function MobileKeyFacts({
       <p className="mt-1.5 text-[14px] text-white/60">
         {venueName}
         <span className="text-white/25"> · </span>
-        <button onClick={handleOpenMaps} className="text-brand-400 hover:text-brand-300">
+        {/* py-3/-my-3 grows the hit area past 44px without moving the line: the
+            padding is cancelled by the negative margin. It sits inline in a
+            sentence, so it cannot simply be made 44px tall, and at 21px it was
+            the smallest target on the page an organizer's guests actually
+            need — "how do I get there". */}
+        <button
+          onClick={handleOpenMaps}
+          className="inline-block -my-3 py-3 text-brand-400 hover:text-brand-300"
+        >
           {t('events.open_in_maps')} →
         </button>
       </p>

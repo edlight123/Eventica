@@ -151,7 +151,7 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a] px-4 py-10">
-      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-20%] h-[460px] w-[460px] -translate-x-1/2 rounded-full blur-[150px]" />
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-20%] h-[460px] w-[460px] max-w-full -translate-x-1/2 rounded-full blur-[150px]" />
       <div className="relative max-w-md w-full space-y-7">
         <div className="text-center">
           <Link href="/" className="inline-flex justify-center">

@@ -39,7 +39,7 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
       {/* Left — textured brand panel */}
       <div className="relative hidden overflow-hidden lg:block">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0c2b28] via-[#0a0a0a] to-[#0a0a0a]" />
-        <div aria-hidden className="absolute left-1/3 top-1/4 h-[420px] w-[420px] rounded-full blur-[140px]" />
+        <div aria-hidden className="absolute left-1/3 top-1/4 h-[420px] w-[420px] max-w-full rounded-full blur-[140px]" />
         {/* No wordmark here — the site navbar above already carries the logo. */}
         <div className="relative flex h-full flex-col justify-end p-10">
           <div>
