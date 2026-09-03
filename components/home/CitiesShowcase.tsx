@@ -23,8 +23,18 @@ export interface CityShowcaseEntry {
   posters: string[]
 }
 
-/** Scroll each city owns, in vh. */
-const VH_PER_CITY = 55
+/**
+ * Scroll each city owns, in vh.
+ *
+ * Halved on phones. Six cities at 55vh each plus the run-out is 430vh of track,
+ * and together with the other two scrub sections it made the homepage 15,863px
+ * on a 390×844 screen — around nineteen screens of thumb work for effects a
+ * small viewport barely shows. The scrub reads its progress from
+ * (track height − viewport height), so a shorter track simply moves faster
+ * through the same rooms; nothing else changes.
+ */
+const VH_PER_CITY_DESKTOP = 55
+const VH_PER_CITY_MOBILE = 28
 
 export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[] }) {
   const { t } = useTranslation('common')
@@ -32,6 +42,9 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
   const [seen, setSeen] = useState(false)
   const [still, setStill] = useState(false)
+  // Starts at the desktop value so the server-rendered track matches the first
+  // client render; the effect narrows it on a phone right after mount.
+  const [vhPerCity, setVhPerCity] = useState(VH_PER_CITY_DESKTOP)
   const trackRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLElement>(null)
 
@@ -89,6 +102,16 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
     }
   }, [n])
 
+  // Track length follows the viewport, and follows it on rotate/resize too.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(min-width: 640px)')
+    const apply = () => setVhPerCity(mq.matches ? VH_PER_CITY_DESKTOP : VH_PER_CITY_MOBILE)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+
   if (n === 0) return null
 
   const active = hoverIdx ?? scrollActive
@@ -97,7 +120,7 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
     <div
       ref={trackRef}
       className="relative bg-white/[0.03]"
-      style={still ? undefined : { height: `${n * VH_PER_CITY + 100}vh` }}
+      style={still ? undefined : { height: `${n * vhPerCity + 100}vh` }}
     >
       <section
         ref={stageRef}
@@ -121,15 +144,26 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
                 i === active ? 'scale-100 opacity-100' : 'scale-[1.06] opacity-0'
               }`}
             >
+              {/* Backdrop poster wall.
+                  Each tile holds the house 4:5 poster shape. It used to be a
+                  `h-full` grid with the rows stretched to fill the stage, which
+                  meant the tiles took whatever shape was left over: 4 posters
+                  in 2 columns on a phone came out at 0.46, and on a wide screen
+                  `sm:grid-cols-4` across the full height reached 0.35 — a 4:5
+                  poster cropped to a vertical sliver, unrecognisable as a
+                  poster. `content-center` keeps the wall centred in the stage
+                  while the rows size themselves to the aspect instead. */}
               {c.posters.length > 0 && (
-                <div className="grid h-full grid-cols-2 gap-2 p-2 opacity-40 sm:grid-cols-4">
+                <div className="grid h-full grid-cols-2 content-center gap-2 p-2 opacity-40 sm:grid-cols-4">
                   {c.posters.slice(0, 4).map((src, j) => (
-                    <div key={`${c.city}-${j}`} className="relative overflow-hidden rounded">
+                    <div key={`${c.city}-${j}`} className="relative aspect-[4/5] overflow-hidden rounded">
                       <Image
                         src={src}
                         alt=""
                         fill
-                        sizes="25vw"
+                        // Two columns on a phone, four above — the old flat 25vw
+                        // under-requested on mobile and fetched a soft image.
+                        sizes="(max-width: 639px) 50vw, 25vw"
                         quality={45}
                         className={`object-cover ${still ? '' : 'tk-kenburns'}`}
                         style={{ animationDelay: `${j * -2.2}s` }}

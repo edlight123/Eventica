@@ -21,9 +21,16 @@ import { useTranslation } from 'react-i18next'
 function VignetteStage({ glow, children }: { glow: string; children: React.ReactNode }) {
   return (
     <div className="relative isolate">
+      {/* max-w-full caps the bloom at the stage width. As a fixed 480px circle
+          centred on a ~390px phone stage it reached 45px past each edge, and
+          with nothing clipping it the DOCUMENT grew to 427px — the whole
+          /platform page scrolled sideways. Capping rather than clipping the
+          parent, because the phone frame inside casts a shadow that is meant
+          to bleed; only the horizontal axis matters, so the height is left
+          alone. */}
       <div
         aria-hidden
-        className="plt-breathe absolute left-1/2 top-1/2 -z-10 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[110px]"
+        className="plt-breathe absolute left-1/2 top-1/2 -z-10 h-[480px] w-[480px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full blur-[110px]"
         style={{ background: glow }}
       />
       {children}

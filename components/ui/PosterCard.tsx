@@ -16,7 +16,9 @@ interface PosterCardProps {
   /** Floating overlay node on the image (status pill, category, etc.). */
   badge?: React.ReactNode
   /** Poster ratio. Default 4/5 (Tikèm's editorial portrait). */
-  aspect?: '2/3' | '4/5'
+  /** The house poster format is 4:5 and is the only shape offered — a
+   *  second option here just let a caller drift off-format. */
+  aspect?: '4/5'
   /** When set, the whole card becomes a keyboard-accessible link. */
   href?: string
   onClick?: () => void
@@ -62,7 +64,7 @@ export function PosterCard({
   // URL leaves an empty black poster instead of the intended fallback.
   const [imgError, setImgError] = useState(false)
   const hasImage = Boolean(imageUrl) && !imgError
-  const aspectClass = aspect === '2/3' ? 'aspect-[2/3]' : 'aspect-[4/5]'
+  const aspectClass = 'aspect-[4/5]'
   // The artwork's dominant color, as an "r,g,b" triple for the glow.
   const accent = usePosterAccent(glow && hasImage ? imageUrl : undefined)
 

@@ -329,7 +329,7 @@ function Section({
   flip?: boolean
 }) {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20 lg:px-8">
+    <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div className={flip ? 'lg:order-2' : ''}>
           <Reveal>
@@ -387,7 +387,7 @@ export default async function PlatformPage() {
       {/* HERO — poster voice (uppercase lives here only) + one serif line,
           with real artwork fanning out across the right half. The copy
           rises in on load, line by line; the fan follows and then floats. */}
-      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-5 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20 lg:grid-cols-[1.1fr,0.9fr] lg:gap-16 lg:px-8">
+      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20 lg:grid-cols-[1.1fr,0.9fr] lg:gap-16 lg:px-8">
         <div>
           <p
             className="plt-enter text-[11px] font-medium uppercase tracking-[0.14em] text-white/40"
@@ -439,7 +439,7 @@ export default async function PlatformPage() {
       <PosterFilmStrip events={stripEvents} />
 
       {/* Value props — a quiet hairline row, not boxes */}
-      <section className="mx-auto max-w-6xl px-5 pb-6 pt-10 sm:px-6 sm:pt-12 lg:px-8">
+      <section className="mx-auto max-w-6xl px-4 pb-6 pt-10 sm:px-6 sm:pt-12 lg:px-8">
         <div className="grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3">
           {t.props.map((s, i) => (
             <Reveal key={s.label} delay={i * 110}>
@@ -459,7 +459,7 @@ export default async function PlatformPage() {
         vignette={<EventPageVignette />}
       />
 
-      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="hairline" />
       </div>
 
@@ -473,7 +473,7 @@ export default async function PlatformPage() {
         flip
       />
 
-      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="hairline" />
       </div>
 
@@ -488,7 +488,7 @@ export default async function PlatformPage() {
 
       {/* SIGN-OFF — de-boxed, the editorial close */}
       <section className="border-t border-white/10">
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <Reveal>
             <h2 className="font-display lowercase italic !text-[clamp(36px,6vw,72px)] !leading-[1.02] text-white">
               {t.signoffTitle}

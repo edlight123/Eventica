@@ -211,7 +211,7 @@ export default function AppScrub({
   ]
 
   return (
-    <div ref={wrapRef} className="relative h-[320vh] bg-[#0a0a0a]">
+    <div ref={wrapRef} className="relative h-[170vh] bg-[#0a0a0a] sm:h-[320vh]">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
           {/* Captions hold the left; each line hands off to the next. */}

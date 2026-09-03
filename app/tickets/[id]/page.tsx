@@ -111,7 +111,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
     <div className="min-h-screen bg-[#0a0a0a] pb-20 sm:pb-24">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
 
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <TicketDetailContent 
           ticket={serializedTicket}
           event={serializedEvent}
