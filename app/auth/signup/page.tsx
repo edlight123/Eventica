@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { BRAND } from '@/config/brand'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
 import type { UserRole } from '@/types/database'
+import PhoneField from '@/components/ui/PhoneField'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -173,7 +174,7 @@ export default function SignupPage() {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="block w-full px-4 py-3 text-base border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                className="block w-full px-4 py-3 text-base rounded-lg bg-white/[0.06] text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                 placeholder={t('signup.full_name_placeholder')}
               />
             </div>
@@ -190,7 +191,7 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full px-4 py-3 text-base border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                className="block w-full px-4 py-3 text-base rounded-lg bg-white/[0.06] text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                 placeholder={t('signup.email_placeholder')}
               />
             </div>
@@ -199,15 +200,15 @@ export default function SignupPage() {
               <label htmlFor="phoneNumber" className="block text-[13px] font-medium text-white/70 mb-1.5">
                 {t('signup.phone_number')} <span className="text-white/40">({t('signup.phone_number_optional')})</span>
               </label>
-              <input
+              {/* A country picker plus the number, stored as E.164. A bare
+                  tel input let the same person's number be saved three
+                  different ways ("34 12 56 78", "+509 3412", "011509…"), none
+                  of them reliably dialable. */}
+              <PhoneField
                 id="phoneNumber"
                 name="phoneNumber"
-                type="tel"
-                autoComplete="tel"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="block w-full px-4 py-3 text-base border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
-                placeholder={t('signup.phone_number_placeholder')}
+                onChange={setPhoneNumber}
               />
             </div>
 
@@ -224,7 +225,7 @@ export default function SignupPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-4 py-3 pr-11 text-base border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                  className="block w-full px-4 py-3 pr-11 text-base rounded-lg bg-white/[0.06] text-white placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                   placeholder={t('signup.password_placeholder')}
                   minLength={6}
                 />

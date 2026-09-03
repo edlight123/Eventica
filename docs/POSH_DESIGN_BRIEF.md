@@ -381,5 +381,48 @@ Design tokens + canvas discipline, and the core reusable components.
 
 ---
 
+## Surfaces: a fill, not a hairline around nothing
+
+**Rule (owner, repeated three times now — treat it as settled): a box does not
+earn a border just for being a box. If an element needs to read as its own
+surface, give it a FILL. Reach for a hairline only when a fill genuinely cannot
+carry the separation.**
+
+The failure mode this exists to stop: `border border-white/10` over a
+`bg-white/[0.03]` fill so faint it reads as empty, repeated down a column, so
+the whole screen looks like a wireframe of itself rather than a designed page.
+It has been corrected in the composer's left column, its date and time
+triggers, the guest editor sheet, and the buyer's ticket selector. Each time the
+report was some version of *"not everything needs to be a border w no fill."*
+
+The ladder, darkest to lightest — all on the `#0a0a0a` page:
+
+| Token | Use |
+|---|---|
+| `bg-white/[0.03]` | a row or a card sitting on the page |
+| `bg-white/[0.055]` – `bg-white/[0.07]` | a form field, a picker trigger, an inset inside a card |
+| `bg-white/[0.08]` + `ring-1 ring-inset ring-brand-400/50` | that card, selected |
+| `bg-white/[0.12]` – `bg-white/[0.14]` | hover on any of the above |
+| `bg-white text-black` | a chosen chip or a primary button — the only pure white |
+
+Corollaries that keep biting:
+
+- **`bg-[#0a0a0a]` on a card is invisible.** It is the page colour. There are
+  ~500 instances of this app-wide; do not add one.
+- **A selected state needs more than one pixel of teal.** The ticket tiers were
+  `border-brand-500` with no fill at all, so chosen and unchosen tiers differed
+  by a hairline. Selection changes the FILL, and the ring is the accent on top.
+- **Never a border only in the disabled state.** The promo input was
+  `disabled:bg-white/[0.04]`: a fill that appeared exactly when the field
+  stopped being usable.
+- **No filled status pills** (separate standing rule). A status is a dot plus a
+  label. Fills are for surfaces and for real toggles, not for badges that only
+  report.
+- **A hairline under sticky chrome reads as a seam.** If a sticky bar sits a few
+  pixels below the navbar's own border, the two lines read as a crack across the
+  page. Let the blur and the padding separate them.
+
+---
+
 *Guiding line, when in doubt: the app is a black frame; the poster is the color; teal only ever
 means something.*

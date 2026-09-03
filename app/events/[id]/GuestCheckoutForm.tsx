@@ -9,6 +9,7 @@
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import PhoneField from '@/components/ui/PhoneField'
 
 export interface GuestContactInput {
   name: string
@@ -91,8 +92,12 @@ export default function GuestCheckoutForm({
     onSubmit({ name: trimmedName, email: trimmedEmail, phone: trimmedPhone })
   }
 
+  // A real fill, matching the PhoneField below it and the house rule (see
+  // docs/POSH_DESIGN_BRIEF, "Surfaces"). This was a hairline over a 3% fill,
+  // which next to the filled phone control read as two different form systems
+  // in one sheet. 16px so iOS does not zoom the sheet on focus.
   const inputClass =
-    'w-full rounded-lg bg-white/[0.03] border border-white/10 px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-brand-500 disabled:opacity-50'
+    'w-full rounded-lg bg-white/[0.06] px-4 py-3 text-[16px] text-white placeholder-white/35 focus:outline-none focus:ring-2 focus:ring-brand-400/50 disabled:opacity-50'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -187,16 +192,17 @@ export default function GuestCheckoutForm({
             </span>
           )}
         </label>
-        <input
+        {/* The same picker as sign-up. This is the field a MonCash number is
+            typed into, so the country has to be explicit and the stored value
+            canonical — "3412 3456" and "+509 3412 3456" were both accepted
+            here and only one of them can be texted. */}
+        <PhoneField
           id="guest-phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
+          name="guest-phone"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={setPhone}
+          required={requirePhone}
           disabled={busy}
-          className={inputClass}
-          placeholder={requirePhone ? '3412 3456' : '+1 555 000 0000'}
         />
         <p className="mt-1.5 text-xs text-white/40">
           {requirePhone

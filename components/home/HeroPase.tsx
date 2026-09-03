@@ -28,6 +28,7 @@ function FloatingPoster({
   floatDur,
   floatDelay,
   enterDelay,
+  priority = false,
 }: {
   ev: HeroPoster
   wrapper: string
@@ -37,6 +38,18 @@ function FloatingPoster({
   floatDur: string
   floatDelay: string
   enterDelay: string
+  /**
+   * Above the fold, so fetch it during HTML parse instead of after hydration.
+   *
+   * Measured on production: all 89 images on this page were `loading="lazy"`
+   * with none marked priority, and the FIRST image request did not start until
+   * 1279ms — while each image itself took only 36-64ms for 6-19KB. Nothing was
+   * slow; nothing was asked for. `priority` emits a `<link rel="preload">` in
+   * the server-rendered head plus `fetchpriority="high"`, which moves the
+   * request to page-parse time. Only the first few slots get it: 89 preloads
+   * would just move the queue, not shorten it.
+   */
+  priority?: boolean
 }) {
   const accent = usePosterAccent(ev.banner_image_url)
   return (
@@ -66,6 +79,7 @@ function FloatingPoster({
               fill
               sizes="220px"
               quality={65}
+              priority={priority}
               className="object-cover"
             />
           </Link>
@@ -167,6 +181,9 @@ export default function HeroPase({
             floatDur={SLOTS[i][3]}
             floatDelay={SLOTS[i][4]}
             enterDelay={`${0.35 + i * 0.12}s`}
+            // The first three are the ones on screen at load on every width
+            // (slots 4+ are gated behind sm/lg/2xl breakpoints).
+            priority={i < 3}
           />
         ))}
       </div>

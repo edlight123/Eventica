@@ -45,6 +45,17 @@ export default function PosterFilmStrip({ events }: { events: StripEvent[] }) {
               fill
               sizes="180px"
               quality={55}
+              /**
+               * Eager for the first row, lazy after.
+               *
+               * This is a marquee: a poster enters the viewport ALREADY MOVING,
+               * so lazy loading means the reader watches an empty frame slide
+               * in and fill. `eager` (not `priority`) drops the deferral
+               * without adding six more preload links competing with the
+               * hero's — every image on this page was lazy, and the first
+               * request on production did not fire until 1279ms.
+               */
+              loading={i < 6 ? 'eager' : 'lazy'}
               className="object-cover"
             />
           </Link>

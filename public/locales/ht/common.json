@@ -332,7 +332,8 @@
     "venue_map_open": "Louvri {{venue}} nan Google Maps",
     "lineup": "Pwogram",
     "hero_search_placeholder_short": "Chèche evènman…",
-    "watchTrailer": "Gade videyo a"
+    "watchTrailer": "Gade videyo a",
+    "promo_code_prompt": "Ou gen yon kòd pwomo?"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -1333,7 +1334,9 @@
     },
     "progressLabel": "Pwogrè konfigirasyon evènman an",
     "completeToPublish": "Ranpli {{count}} lòt nan kat yo pou pibliye. N ap kenbe l kòm bouyon jiskaske w fini.",
-    "saveDraft": "Kenbe kòm bouyon"
+    "saveDraft": "Kenbe kòm bouyon",
+    "flyerNoMatchAll": "Anyen pa matche — men tout sa nou genyen.",
+    "flyerMore": "Plis zimaj"
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",
@@ -1566,5 +1569,10 @@
     "errType": "Tanpri chwazi yon fichye imaj",
     "errSize": "Imaj la dwe mwens pase 5MB",
     "uploading": "Y ap chaje…"
+  },
+  "phone": {
+    "country": "Kòd peyi",
+    "number": "Nimewo telefòn",
+    "placeholder": "34 12 56 78"
   }
 }

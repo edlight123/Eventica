@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Check, Search, X } from 'lucide-react'
 import {
@@ -18,6 +18,14 @@ import {
  * point: an organizer with no poster gets one in a single click, and a signed
  * out visitor on /create gets one without an account.
  */
+/** Case and diacritics, so "fete" reaches "fèt" and "kreyol" reaches "kreyòl". */
+const fold = (v: string) =>
+  (v || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+
 export default function FlyerLibraryPicker({
   current,
   onPick,
@@ -44,17 +52,30 @@ export default function FlyerLibraryPicker({
     return () => mq.removeEventListener('change', sync)
   }, [])
 
-  // Match the label AND the tags, so "konpa", "dj" or "gala" find artwork whose
-  // name says none of those.
-  const items = useMemo(() => {
-    const needle = q.trim().toLowerCase()
-    if (!needle) return FLYER_LIBRARY
-    return FLYER_LIBRARY.filter(
-      (i) =>
-        i.label.toLowerCase().includes(needle) ||
-        i.id.toLowerCase().includes(needle) ||
-        i.tags.some((tg) => tg.includes(needle))
-    )
+  /**
+   * Ranked, not filtered — matches lead, everything else follows.
+   *
+   * This used to be a hard `.filter`, so a specific query ("konpa", "gala")
+   * left two or three tiles in a grid built for fifteen and the picker looked
+   * broken: "when i search, it should maybe show more options then the few
+   * that is displayed". Nobody searching a library of artwork wants LESS
+   * artwork — they want the likely ones first. So matches sort to the front
+   * and the rest stay available underneath, with `matchCount` telling the
+   * caller where to draw the divider.
+   *
+   * Accents are folded because the tags an organizer types are Kreyòl and
+   * French — "fete" has to reach "fèt", and nobody types the grave on a phone.
+   */
+  const { items, matchCount } = useMemo(() => {
+    const needle = fold(q)
+    if (!needle) return { items: [...FLYER_LIBRARY], matchCount: 0 }
+    const hits: FlyerLibraryItem[] = []
+    const rest: FlyerLibraryItem[] = []
+    for (const i of FLYER_LIBRARY) {
+      const hay = fold([i.label, i.id, ...i.tags].join(' '))
+      ;(hay.includes(needle) ? hits : rest).push(i)
+    }
+    return { items: [...hits, ...rest], matchCount: hits.length }
   }, [q])
 
   useEffect(() => {
@@ -78,7 +99,7 @@ export default function FlyerLibraryPicker({
     t(`composer.flyerLib.${item.id}`, { defaultValue: item.label })
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center">
+    <div className="fixed inset-0 z-[70] flex items-end justify-center pt-[var(--chrome-h)] sm:items-center sm:pt-0">
       <button
         type="button"
         onClick={onClose}
@@ -89,7 +110,16 @@ export default function FlyerLibraryPicker({
         role="dialog"
         aria-modal="true"
         aria-label={t('composer.flyerLibrary', { defaultValue: 'Flyer library' })}
-        className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#0d0f0e] shadow-2xl sm:rounded-3xl"
+        /* Height capped against svh MINUS the navbar, not 90vh.
+           On iOS `100vh` is the viewport WITHOUT the browser chrome, so it is
+           larger than what you can actually see — 90vh on a 660px-visible
+           screen resolves to ~660px, the bottom-anchored sheet's top edge goes
+           above y=56, and the header ("Free artwork you can use as-is…")
+           renders underneath the navbar. `svh` is the small viewport height,
+           which is the honest number, and --chrome-h is the navbar's own
+           height (globals.css). Same class of bug as the homepage phone
+           mockup. */
+        className="relative flex max-h-[calc(100svh-var(--chrome-h)-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#0d0f0e] shadow-2xl sm:max-h-[85svh] sm:rounded-3xl"
       >
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
           <div>
@@ -170,20 +200,32 @@ export default function FlyerLibraryPicker({
             bar only ever appeared as a grey stripe over the right column of
             posters. */}
         <div className="scrollbar-hide grid min-h-0 flex-1 auto-rows-min grid-cols-2 content-start gap-3 overflow-y-auto overscroll-contain p-5 sm:grid-cols-3">
-          {items.length === 0 && (
-            <p className="col-span-full py-8 text-center text-sm text-white/45">
-              {t('composer.flyerNoMatch', { defaultValue: 'No artwork matches that. Try “party”, “konpa” or “gala”.' })}
+          {/* The grid is never empty now, so "no artwork matches" would be a
+              lie — a query with no hits just shows the whole library under
+              this line instead. */}
+          {q.trim() !== '' && matchCount === 0 && (
+            <p className="col-span-full pb-1 text-sm text-white/45">
+              {t('composer.flyerNoMatchAll', {
+                defaultValue: 'Nothing matched that — here is everything.',
+              })}
             </p>
           )}
-          {items.map((item) => {
+          {items.map((item, i) => {
             const full = flyerLibraryFullUrl(item)
             const selected = current === full
+            // Where the matches stop and the rest of the library begins.
+            const startsRest = matchCount > 0 && i === matchCount
             return (
               // The poster frame is the tile itself, not the picture inside it:
               // the button is the box that clips, so the box is what has to be
               // 4:5. `self-start` keeps a row from ever stretching it.
+              <Fragment key={item.id}>
+              {startsRest && (
+                <p className="label-mono col-span-full pt-2 text-[10px] uppercase tracking-wider text-white/35">
+                  {t('composer.flyerMore', { defaultValue: 'More artwork' })}
+                </p>
+              )}
               <button
-                key={item.id}
                 type="button"
                 onClick={() => onPick(full)}
                 aria-pressed={selected}
@@ -203,6 +245,10 @@ export default function FlyerLibraryPicker({
                   src={flyerLibraryThumbUrl(item)}
                   alt={labelFor(item)}
                   loading="lazy"
+                  // 55 thumbs are 1.73MB in total; lazy means only the visible
+                  // ~6 are paid for on open, and `async` keeps decoding off the
+                  // main thread as the rest scroll in.
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
                 {/* One line, always. The band is absolute so a wrapped label
@@ -219,6 +265,7 @@ export default function FlyerLibraryPicker({
                   </span>
                 )}
               </button>
+              </Fragment>
             )
           })}
         </div>

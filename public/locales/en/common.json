@@ -332,7 +332,8 @@
     "venue_map_open": "Open {{venue}} on Google Maps",
     "lineup": "Lineup",
     "hero_search_placeholder_short": "Search events…",
-    "watchTrailer": "Watch the trailer"
+    "watchTrailer": "Watch the trailer",
+    "promo_code_prompt": "Have a promo code?"
   },
   "favorites": {
     "title": "My Favorites",
@@ -1333,7 +1334,9 @@
     },
     "progressLabel": "Event setup progress",
     "completeToPublish": "Fill in {{count}} more of the four to publish. Saved as a draft until then.",
-    "saveDraft": "Save as draft"
+    "saveDraft": "Save as draft",
+    "flyerNoMatchAll": "Nothing matched that — here is everything.",
+    "flyerMore": "More artwork"
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",
@@ -1566,5 +1569,10 @@
     "errType": "Please select an image file",
     "errSize": "Image must be less than 5MB",
     "uploading": "Uploading…"
+  },
+  "phone": {
+    "country": "Country code",
+    "number": "Phone number",
+    "placeholder": "34 12 56 78"
   }
 }

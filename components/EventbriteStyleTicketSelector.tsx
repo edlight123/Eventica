@@ -85,6 +85,8 @@ export default function EventbriteStyleTicketSelector({
   const [promoValidation, setPromoValidation] = useState<PromoCodeValidation | null>(null)
   const [validatingPromo, setValidatingPromo] = useState(false)
   const [promoError, setPromoError] = useState<string | null>(null)
+  /** Whether the promo input is revealed. Collapsed by default — see below. */
+  const [promoOpen, setPromoOpen] = useState(false)
 
   const fetchTiers = useCallback(async () => {
     try {
@@ -263,12 +265,17 @@ export default function EventbriteStyleTicketSelector({
           return (
             <div
               key={tier.id}
-              className={`border rounded-lg p-4 transition-all ${
+              /* A FILL, not a hairline around an empty box — the house rule
+                 ("not everything needs to be a border w no fill"). The
+                 selected state used to be `border-brand-500` with no
+                 background at all, so a chosen tier and an unchosen one
+                 differed by one pixel of teal. */
+              className={`rounded-xl p-4 transition-colors ${
                 quantity > 0
-                  ? 'border-brand-500 '
+                  ? 'bg-white/[0.08] ring-1 ring-inset ring-brand-400/50'
                   : isAvailable
-                  ? 'border-white/10 hover:border-white/20'
-                  : 'border-white/10 opacity-50'
+                  ? 'bg-white/[0.03] hover:bg-white/[0.06]'
+                  : 'bg-white/[0.03] opacity-50'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -278,22 +285,26 @@ export default function EventbriteStyleTicketSelector({
                   {tier.description && (
                     <p className="text-sm text-white/65 mt-1">{tier.description}</p>
                   )}
-                  <div className="flex items-center gap-3 mt-2 text-sm">
-                    <span className="font-medium text-brand-400">
-                      {isFreeTier(tier) ? t('common.free') : `${tier.price.toFixed(2)} ${currency}`}
-                      {/* Never let a bare face value read as the total. The all-in
-                          number is itemized in the summary below, where the fee can be
-                          stated for the order as a whole. */}
-                      {!isFreeTier(tier) && orderPricing.feeOnTop && (
-                        <span className="ml-1 font-normal text-white/50">
-                          {t('checkout.plus_fees', { defaultValue: '+ fees' })}
-                        </span>
-                      )}
-                    </span>
-                    <span className={available > 0 ? 'text-white/65' : 'text-red-400'}>
-                      {available > 0 ? `${available} ${t('ticket.available')}` : t('ticket.sold_out')}
-                    </span>
-                  </div>
+                  {/* Two lines on purpose. These shared one `flex gap-3` row,
+                      and once the stepper has taken its ~140px the tier column
+                      is about 200px wide on a phone — so "10.00 HTG + fees"
+                      and "100 available" wrapped INSIDE their spans and the
+                      price broke across two lines. Price leads on its own
+                      line; availability is a quiet second. */}
+                  <p className="mt-2 text-sm font-medium text-brand-400">
+                    {isFreeTier(tier) ? t('common.free') : `${tier.price.toFixed(2)} ${currency}`}
+                    {/* Never let a bare face value read as the total. The all-in
+                        number is itemized in the summary below, where the fee can be
+                        stated for the order as a whole. */}
+                    {!isFreeTier(tier) && orderPricing.feeOnTop && (
+                      <span className="ml-1 font-normal text-white/50">
+                        {t('checkout.plus_fees', { defaultValue: '+ fees' })}
+                      </span>
+                    )}
+                  </p>
+                  <p className={`mt-0.5 text-xs ${available > 0 ? 'text-white/50' : 'text-red-400'}`}>
+                    {available > 0 ? `${available} ${t('ticket.available')}` : t('ticket.sold_out')}
+                  </p>
                   {!isAvailable && available > 0 && (
                     <p className="text-xs text-amber-400 mt-1">
                       {tier.sales_start && new Date(tier.sales_start) > new Date()
@@ -310,9 +321,9 @@ export default function EventbriteStyleTicketSelector({
                       onClick={() => updateQuantity(tier.id, -1)}
                       disabled={quantity === 0}
                       aria-label={`${t('events.decrease_quantity', { defaultValue: 'Decrease quantity' })}, ${tier.name}`}
-                      className="h-11 w-11 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-brand-500 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition sm:h-9 sm:w-9"
+                      className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/[0.07] transition-colors hover:bg-white/[0.14] disabled:opacity-30 disabled:cursor-not-allowed sm:h-9 sm:w-9"
                     >
-                      <Minus className="w-4 h-4 text-white/65" />
+                      <Minus className="w-4 h-4 text-white/80" />
                     </button>
                     <span className="w-12 text-center font-semibold text-white text-lg">
                       {quantity}
@@ -321,9 +332,9 @@ export default function EventbriteStyleTicketSelector({
                       onClick={() => updateQuantity(tier.id, 1)}
                       disabled={quantity >= available}
                       aria-label={`${t('events.increase_quantity', { defaultValue: 'Increase quantity' })}, ${tier.name}`}
-                      className="h-11 w-11 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-brand-500 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition sm:h-9 sm:w-9"
+                      className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/[0.07] transition-colors hover:bg-white/[0.14] disabled:opacity-30 disabled:cursor-not-allowed sm:h-9 sm:w-9"
                     >
-                      <Plus className="w-4 h-4 text-white/65" />
+                      <Plus className="w-4 h-4 text-white/80" />
                     </button>
                   </div>
                 )}
@@ -333,43 +344,65 @@ export default function EventbriteStyleTicketSelector({
         })}
       </div>
 
-      {/* Promo Code Section */}
-      <div className="border border-white/10 rounded-lg p-4">
-        <label htmlFor="promo-code" className="block font-medium text-white mb-3">{t('events.promo_code_optional')}</label>
-        <div className="flex gap-2">
-          <input
-            id="promo-code"
-            type="text"
-            value={promoCode}
-            onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(null) }}
-            placeholder={t('events.enter_code')}
-            disabled={!canPurchase || validatingPromo}
-            className="flex-1 px-3 py-2 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-white/[0.04]"
-          />
-          <button
-            onClick={validatePromoCode}
-            disabled={!canPurchase || !promoCode.trim() || validatingPromo}
-            className="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed min-w-[80px]"
-          >
-            {validatingPromo ? '...' : t('events.apply')}
-          </button>
+      {/* Promo code — one line until somebody wants it.
+          It was a bordered card with its own heading and 16px of padding above
+          an input row: roughly 110px of a phone sheet spent on a field most
+          buyers never touch, pushing the total and the checkout button below
+          the fold. Now it is a text link that expands in place, and it stays
+          expanded once a code is applied so the discount is never hidden. */}
+      {!promoOpen && !promoValidation?.valid ? (
+        <button
+          type="button"
+          onClick={() => setPromoOpen(true)}
+          disabled={!canPurchase}
+          className="min-h-11 text-left text-sm font-medium text-brand-400 transition-colors hover:text-brand-300 disabled:opacity-40"
+        >
+          {/* An invitation, not a field label: "Promo Code (optional)" is what
+              the heading above an input says, and reads oddly as a link. */}
+          {t('events.promo_code_prompt', { defaultValue: 'Have a promo code?' })}
+        </button>
+      ) : (
+        <div>
+          <label htmlFor="promo-code" className="mb-1.5 block text-xs uppercase tracking-wider text-white/50">
+            {t('events.promo_code_optional')}
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="promo-code"
+              type="text"
+              autoFocus={promoOpen && !promoValidation?.valid}
+              value={promoCode}
+              onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(null) }}
+              placeholder={t('events.enter_code')}
+              disabled={!canPurchase || validatingPromo}
+              /* Filled, and 16px so iOS does not zoom the sheet on focus. */
+              className="min-w-0 flex-1 rounded-lg bg-white/[0.055] px-3 py-2.5 text-[16px] uppercase text-white placeholder:text-white/35 placeholder:normal-case focus:outline-none focus:ring-2 focus:ring-brand-400/50 disabled:opacity-50"
+            />
+            <button
+              onClick={validatePromoCode}
+              disabled={!canPurchase || !promoCode.trim() || validatingPromo}
+              className="min-h-11 shrink-0 rounded-lg bg-white px-4 text-sm font-semibold text-black transition-colors hover:bg-white/90 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed"
+            >
+              {validatingPromo ? '…' : t('events.apply')}
+            </button>
+          </div>
+          {promoError && (
+            <div className="mt-2 text-sm text-red-300" role="alert">
+              {promoError}
+            </div>
+          )}
+          {promoValidation?.valid && (
+            <div className="mt-2 flex items-center gap-1 text-sm text-green-400">
+              <span aria-hidden>✓</span>
+              <span>{promoValidation.promoCode?.description || t('events.promo_code_applied')}</span>
+            </div>
+          )}
         </div>
-        {promoError && (
-          <div className="mt-2 text-sm text-red-300" role="alert">
-            {promoError}
-          </div>
-        )}
-        {promoValidation?.valid && (
-          <div className="mt-2 text-sm text-green-400 flex items-center gap-1">
-            <span>✓</span>
-            <span>{promoValidation.promoCode?.description || t('events.promo_code_applied')}</span>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Total Summary */}
       {totalTickets > 0 && (
-        <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4">
+        <div className="rounded-xl bg-white/[0.03] p-4">
           <div className="space-y-2">
             {tiers
               .filter(tier => quantities[tier.id] > 0)
@@ -422,7 +455,7 @@ export default function EventbriteStyleTicketSelector({
       <button
         onClick={handlePurchase}
         disabled={!canPurchase || totalTickets === 0}
-        className="w-full bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed"
+        className="min-h-11 w-full rounded-xl bg-brand-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed"
       >
         {!canPurchase
           ? t('events.sign_in_to_purchase')

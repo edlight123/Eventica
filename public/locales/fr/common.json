@@ -332,7 +332,8 @@
     "venue_map_open": "Ouvrir {{venue}} dans Google Maps",
     "lineup": "Affiche",
     "hero_search_placeholder_short": "Rechercher…",
-    "watchTrailer": "Voir la bande-annonce"
+    "watchTrailer": "Voir la bande-annonce",
+    "promo_code_prompt": "Vous avez un code promo ?"
   },
   "favorites": {
     "title": "Mes favoris",
@@ -1333,7 +1334,9 @@
     },
     "progressLabel": "Progression de la configuration",
     "completeToPublish": "Encore {{count}} des quatre à remplir pour publier. Enregistré comme brouillon d'ici là.",
-    "saveDraft": "Enregistrer le brouillon"
+    "saveDraft": "Enregistrer le brouillon",
+    "flyerNoMatchAll": "Aucun résultat — voici tout le catalogue.",
+    "flyerMore": "Plus de visuels"
   },
   "promoter": {
     "portal_eyebrow": "Portail promoteur",
@@ -1566,5 +1569,10 @@
     "errType": "Veuillez choisir un fichier image",
     "errSize": "L’image doit faire moins de 5 Mo",
     "uploading": "Téléversement…"
+  },
+  "phone": {
+    "country": "Indicatif pays",
+    "number": "Numéro de téléphone",
+    "placeholder": "34 12 56 78"
   }
 }
