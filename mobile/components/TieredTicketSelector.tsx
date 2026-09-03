@@ -118,6 +118,9 @@ export default function TieredTicketSelector({
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const displayCurrency = String(currency || 'HTG').toUpperCase();
   const [tiers, setTiers] = useState<TicketTier[]>([]);
+  /** True when the tier fetch itself failed, as opposed to an event that
+   *  genuinely has no tiers. The two look identical without it. */
+  const [loadError, setLoadError] = useState(false);
   const [groupDiscounts, setGroupDiscounts] = useState<GroupDiscount[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -142,6 +145,7 @@ export default function TieredTicketSelector({
   const fetchTiers = async () => {
     try {
       setLoading(true);
+      setLoadError(false);
       console.log('[TieredTicketSelector] Fetching tiers for event:', eventId);
       
       const tiersQuery = query(
@@ -160,8 +164,14 @@ export default function TieredTicketSelector({
       setTiers(tiersData);
     } catch (error) {
       console.error('[TieredTicketSelector] Error fetching tiers:', error);
-      // Set empty tiers on error so modal still shows
+      // Record the failure rather than swallowing it. This used to just
+      // setTiers([]) with the note "so modal still shows", which turned any
+      // fetch error — a missing composite index, a rules change, a dropped
+      // connection — into a sheet with a "CHOOSE TICKETS" heading and nothing
+      // under it. A buyer sees no tickets and no reason, and the failure is
+      // invisible in a TestFlight screenshot.
       setTiers([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -373,6 +383,27 @@ export default function TieredTicketSelector({
                   </Text>
                 )}
               </View>
+
+              {/* A failed fetch and an event with no tiers used to look
+                  identical: an empty list. Say which it is, and give the buyer
+                  the retry that turns a dead sheet into a second chance. */}
+              {loadError && tiers.length === 0 && (
+                <View style={styles.tierRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.tierName}>
+                      {t('ticketSelector.loadFailed')}
+                    </Text>
+                    <Text style={styles.tierMeta}>
+                      {t('ticketSelector.loadFailedHint')}
+                    </Text>
+                  </View>
+                  <TouchableOpacity onPress={fetchTiers} accessibilityRole="button">
+                    <Text style={[styles.tierName, { color: colors.primary }]}>
+                      {t('ticketSelector.retry')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
 
               {tiers.map((tier, index) => {
                 const available = getAvailableQuantity(tier);
