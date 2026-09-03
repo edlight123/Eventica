@@ -77,7 +77,6 @@ export default async function PayoutsSettingsPage({
         <PayoutsPageNew
           haitiConfig={serializedHaitiConfig}
           stripeConfig={serializedStripeConfig}
-          showEarningsAndPayouts={false}
           organizerId={authUser.uid}
           organizerDefaultCountry={organizerDefaultCountry}
           declaredMarkets={declaredMarkets}
@@ -104,7 +103,6 @@ export default async function PayoutsSettingsPage({
       organizerDefaultCountry={organizerDefaultCountry}
       declaredMarkets={declaredMarkets}
       initialActiveProfile={stripeParam ? 'stripe_connect' : undefined}
-      showEarningsAndPayouts={false}
     />
   )
 }

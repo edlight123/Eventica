@@ -79,7 +79,6 @@ interface PayoutsPageProps {
     eventCount: number
   }
   organizerId: string
-  showEarningsAndPayouts?: boolean
   organizerDefaultCountry?: string
   /** Countries the organizer says they run events in. UI hint only — see
    *  lib/organizer-markets.ts. Empty/undeclared shows every rail. */
@@ -93,7 +92,6 @@ export default function PayoutsPageNew({
   eventSummaries,
   upcomingPayout,
   organizerId,
-  showEarningsAndPayouts,
   organizerDefaultCountry,
   declaredMarkets,
   initialActiveProfile,
@@ -101,7 +99,6 @@ export default function PayoutsPageNew({
   const router = useRouter()
   const { t } = useTranslation('organizer')
 
-  const shouldShowEarningsAndPayouts = showEarningsAndPayouts !== false
   const normalizedEventSummaries = Array.isArray(eventSummaries) ? eventSummaries : []
 
   const normalizedOrganizerCountry = String(organizerDefaultCountry || '').toUpperCase()
@@ -999,9 +996,7 @@ export default function PayoutsPageNew({
             {t('payouts_page.title', { defaultValue: 'Payouts' })}
           </h1>
           <p className="text-white/60">
-            {shouldShowEarningsAndPayouts
-              ? t('payouts_page.subtitle_full', { defaultValue: 'Set up where your money goes and track earnings by event.' })
-              : t('payouts_page.subtitle_setup_only', { defaultValue: 'Set up where your payouts go.' })}
+            {t('payouts_page.subtitle_setup_only', { defaultValue: 'Set up where your payouts go.' })}
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -1072,16 +1067,10 @@ export default function PayoutsPageNew({
           </div>
         ) : null}
 
-        <div
-          className={
-            shouldShowEarningsAndPayouts
-              ? 'grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8'
-              : 'grid grid-cols-1 gap-6 lg:gap-8'
-          }
-        >
+        <div className="grid grid-cols-1 gap-6 lg:gap-8">
           
           {/* Left Column - Payout Setup + Fees */}
-          <div className={`flex flex-col gap-6 ${shouldShowEarningsAndPayouts ? 'lg:col-span-1' : ''}`}>
+          <div className="flex flex-col gap-6">
 
             {isFocusedEdit ? (
               /* ── STEPPER LAYOUT (focused edit: ?edit=haiti or ?edit=stripe_connect) ── */
@@ -2293,191 +2282,27 @@ export default function PayoutsPageNew({
 
           </div>
 
-          {/* Right Column - Earnings + Payouts */}
-          {shouldShowEarningsAndPayouts && (
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* Earnings by Event Card */}
-            <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
-              <div className="p-6 border-b border-white/10">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-white">
-                    {t('payouts_page.earnings_by_event', { defaultValue: 'Earnings by event' })}
-                  </h2>
-                  <select
-                    aria-label={t('payouts_page.earnings_period', { defaultValue: 'Earnings period' })}
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value as any)}
-                    className="px-3 py-1.5 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                  >
-                    <option value="this_month">{t('payouts_page.period_this_month', { defaultValue: 'This month' })}</option>
-                    <option value="last_3_months">{t('payouts_page.period_last_3_months', { defaultValue: 'Last 3 months' })}</option>
-                    <option value="all_time">{t('payouts_page.all_time', { defaultValue: 'All time' })}</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Desktop Table */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-white/[0.03] border-b border-white/10">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                        {t('payouts_page.th_event', { defaultValue: 'Event' })}
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                        {t('payouts_page.th_date', { defaultValue: 'Date' })}
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        {t('payouts_page.th_tickets', { defaultValue: 'Tickets' })}
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        {t('payouts_page.th_gross', { defaultValue: 'Gross' })}
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        {t('payouts_page.th_fees', { defaultValue: 'Fees' })}
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        {t('payouts_page.th_net', { defaultValue: 'Net' })}
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                        {t('payouts_page.th_status', { defaultValue: 'Status' })}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/10">
-                    {filteredEarnings.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="px-6 py-12 text-center text-white/50">
-                          {t('payouts_page.no_events_period', { defaultValue: 'No events found for this period' })}
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredEarnings.map((event) => (
-                        <tr key={event.eventId} className="hover:bg-white/[0.04]">
-                          <td className="px-6 py-4">
-                            <Link
-                              href={`/organizer/events/${event.eventId}/earnings`}
-                              className="text-sm font-medium text-brand-300 hover:text-brand-300"
-                            >
-                              {event.name}
-                            </Link>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-white/50">
-                            {formatDate(event.date)}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-white text-right">
-                            {event.ticketsSold}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-white text-right">
-                            {formatCurrency(event.grossSales, event.currency)}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-white/50 text-right">
-                            {formatCurrency(event.fees, event.currency)}
-                          </td>
-                          <td className="px-6 py-4 text-sm font-medium text-white text-right">
-                            {formatCurrency(event.netPayout, event.currency)}
-                          </td>
-                          <td className="px-6 py-4">
-                            {getStatusPill(event.payoutStatus)}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Cards */}
-              <div className="md:hidden divide-y divide-white/10">
-                {filteredEarnings.length === 0 ? (
-                  <div className="px-6 py-12 text-center text-white/50">
-                    {t('payouts_page.no_events_period', { defaultValue: 'No events found for this period' })}
-                  </div>
-                ) : (
-                  filteredEarnings.map((event) => (
-                    <Link
-                      key={event.eventId}
-                      href={`/organizer/events/${event.eventId}/earnings`}
-                      className="block p-6 hover:bg-white/[0.04]"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-sm font-medium text-brand-300">
-                          {event.name}
-                        </h3>
-                        {getStatusPill(event.payoutStatus)}
-                      </div>
-                      <div className="text-sm text-white/50 mb-3">
-                        {t('payouts_page.event_meta', { date: formatDate(event.date), count: event.ticketsSold, defaultValue: '{{date}} · {{count}} tickets' })}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-xs text-white/50">{t('payouts_page.net_payout', { defaultValue: 'Net payout' })}</div>
-                          <div className="text-lg font-semibold text-white">
-                            {formatCurrency(event.netPayout, event.currency)}
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-white/40" />
-                      </div>
-                    </Link>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Payouts Summary Card */}
-            <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
-              <div className="p-6">
-                <h2 className="text-lg font-semibold text-white mb-4">
-                  {t('payouts_page.title', { defaultValue: 'Payouts' })}
-                </h2>
-
-                {upcomingPayout ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 border border-brand-500/30 rounded-lg">
-                      <Clock className="w-5 h-5 text-brand-300 flex-shrink-0" />
-                      <div>
-                        <div className="text-sm font-medium text-brand-300">
-                          {t('payouts_page.next_payout_line', { amount: formatCurrency(upcomingPayout.amount, upcomingPayout.currency), date: formatDate(upcomingPayout.date), defaultValue: 'Next payout: {{amount}} · {{date}}' })}
-                        </div>
-                        <div className="text-xs text-brand-300 mt-0.5">
-                          {upcomingPayout.eventCount === 1
-                            ? t('payouts_page.includes_event_one', { count: upcomingPayout.eventCount, defaultValue: 'Includes {{count}} event' })
-                            : t('payouts_page.includes_event_other', { count: upcomingPayout.eventCount, defaultValue: 'Includes {{count}} events' })}
-                        </div>
-                      </div>
-                    </div>
-
-                    <Link
-                      href="/organizer/settings/payouts/history"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-300 hover:text-brand-300"
-                    >
-                      {t('payouts_page.view_payout_history', { defaultValue: 'View payout history' })}
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-white/[0.03]  rounded-lg">
-                      <AlertCircle className="w-5 h-5 text-white/40 flex-shrink-0" />
-                      <div className="text-sm text-white/60">
-                        {t('payouts_page.no_upcoming_payouts', { defaultValue: 'No upcoming payouts yet.' })}
-                      </div>
-                    </div>
-
-                    <Link
-                      href="/organizer/settings/payouts/history"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-300 hover:text-brand-300"
-                    >
-                      {t('payouts_page.view_payout_history', { defaultValue: 'View payout history' })}
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* The "Earnings + Payouts" right column was here — 185 lines of an
+              earnings-by-event table and a payouts summary. It was already
+              dead: both call sites pass showEarningsAndPayouts={false}, so it
+              had not rendered in a long time, and /organizer/finance now owns
+              that view properly (against the balance a withdrawal is actually
+              judged against). Removed rather than left as a second, drifting
+              copy of the same numbers; the link below goes to the real one. */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
+            <p className="text-[13px] text-white/45">
+              {t('payouts_page.earnings_moved', {
+                defaultValue: 'Looking for what you’ve earned and what’s been paid out?',
+              })}
+            </p>
+            <Link
+              href="/organizer/finance"
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white/80 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
+            >
+              {t('payouts_page.go_to_finance', { defaultValue: 'Go to Finance' })}
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </Link>
           </div>
-          )}
         </div>
       </div>
     </div>

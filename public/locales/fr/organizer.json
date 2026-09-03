@@ -363,7 +363,9 @@
     "error_select_bank_to_verify": "Veuillez sélectionner le compte bancaire à vérifier",
     "error_submit_bank_verification": "Impossible de soumettre la vérification bancaire",
     "error_update_setting": "Impossible de mettre à jour le paramètre",
-    "error_update_prefunding": "Impossible de mettre à jour la préférence de préfinancement"
+    "error_update_prefunding": "Impossible de mettre à jour la préférence de préfinancement",
+    "earnings_moved": "Vous cherchez vos revenus et vos versements ?",
+    "go_to_finance": "Aller à Finance"
   },
   "settings": {
     "back_to_events": "← Retour aux événements",

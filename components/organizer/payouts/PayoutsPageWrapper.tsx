@@ -47,7 +47,6 @@ interface PayoutsPageWrapperProps {
   /** Countries the organizer says they run events in — UI hint only. */
   declaredMarkets?: string[]
   initialActiveProfile?: 'haiti' | 'stripe_connect'
-  showEarningsAndPayouts?: boolean
 }
 
 export default function PayoutsPageWrapper({
@@ -57,7 +56,6 @@ export default function PayoutsPageWrapper({
   organizerDefaultCountry,
   declaredMarkets,
   initialActiveProfile,
-  showEarningsAndPayouts,
 }: PayoutsPageWrapperProps) {
   const router = useRouter()
   const [viewMode, setViewMode] = useState<'dashboard' | 'setup' | 'edit'>('dashboard')

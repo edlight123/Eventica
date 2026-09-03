@@ -363,7 +363,9 @@
     "error_select_bank_to_verify": "Tanpri chwazi kont bank ou vle verifye a",
     "error_submit_bank_verification": "Nou pa ka voye verifikasyon bank lan",
     "error_update_setting": "Nou pa ka chanje paramèt la",
-    "error_update_prefunding": "Nou pa ka chanje preferans prefinansman an"
+    "error_update_prefunding": "Nou pa ka chanje preferans prefinansman an",
+    "earnings_moved": "W ap chèche sa w te fè ak sa yo te peye w?",
+    "go_to_finance": "Ale nan Finans"
   },
   "settings": {
     "back_to_events": "← Retounen nan evènman",
