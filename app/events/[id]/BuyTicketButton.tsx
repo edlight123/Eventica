@@ -54,12 +54,14 @@ interface BuyTicketButtonProps {
   isFree: boolean
   ticketPrice: number
   eventTitle?: string
+  /** Event start, for the ticket selector's "selling fast" pace rule. */
+  eventStartsAt?: string | null
   currency?: string
   country?: string
   isPasswordProtected?: boolean
 }
 
-export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, eventTitle = 'Event', currency = 'HTG', country, isPasswordProtected = false }: BuyTicketButtonProps) {
+export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, eventTitle = 'Event', currency = 'HTG', country, eventStartsAt, isPasswordProtected = false }: BuyTicketButtonProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
   const { showToast } = useToast()
@@ -1153,6 +1155,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                 userId={userId}
                 currency={currency}
                 country={country}
+                eventStartsAt={eventStartsAt}
                 allowGuest={isGuestCheckout}
                 onPurchase={handleTieredPurchase}
               />

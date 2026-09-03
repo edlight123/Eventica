@@ -19,7 +19,7 @@
 import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns'
 import Badge from '@/components/ui/Badge'
-import PromoVideoLink from '@/components/events/PromoVideoLink'
+import PromoVideo from '@/components/events/PromoVideo'
 import { dateLocaleFor } from '@/lib/dateLocale'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -91,7 +91,7 @@ export default function MobileSections({
           </p>
         )}
         {/* Under the description, exactly where the app puts it. */}
-        <PromoVideoLink url={videoUrl} className="mt-3" />
+        <PromoVideo url={videoUrl} className="mt-4" />
         {tags && tags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {tags.map((tag: string) => (

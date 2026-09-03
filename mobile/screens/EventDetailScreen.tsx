@@ -30,6 +30,7 @@ import { getPromoterRef, setPromoterRef } from '../lib/promoterRef';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { parseVideoEmbed } from '../lib/videoEmbed';
 import { colors as T, radius, withAlpha } from '../theme/tokens';
 import { safeFormatForLanguage } from '../lib/dates';
 import { isValidDate } from '../lib/dates';
@@ -336,9 +337,32 @@ export default function EventDetailScreen({ route, navigation }: any) {
     );
   };
 
+  /**
+   * Play the trailer WITHOUT leaving the app (owner ask).
+   *
+   * This used to be `Linking.openURL`, which hands the viewer to Safari or the
+   * YouTube app — they watch, and then they are somewhere else, several taps
+   * from the ticket they were about to buy. A recognised YouTube or Vimeo link
+   * now opens in the app's own WebView screen with the player embedded, so
+   * Back returns to the event.
+   *
+   * `Linking` stays as the fallback for a link we cannot embed: for an
+   * unrecognised host, an external browser is better than a bare WebView with
+   * no chrome pointed at an arbitrary page.
+   */
   const openPromoVideo = async () => {
     const raw = (event as any)?.video_url;
     if (typeof raw !== 'string' || !raw.trim()) return;
+
+    const embed = parseVideoEmbed(raw);
+    if (embed) {
+      navigation.navigate('InAppWebView', {
+        url: embed.embedUrl,
+        title: t('organizerCreateEventFlow.canvas.trailer'),
+      });
+      return;
+    }
+
     const trimmed = raw.trim();
     // The URL is organizer-supplied. Only open web links — a bare domain gets
     // https:// prepended, but anything carrying another scheme (javascript:,
@@ -738,7 +762,12 @@ export default function EventDetailScreen({ route, navigation }: any) {
             >
               <PlayCircle size={20} color={colors.primary} />
               <Text style={styles.promoVideoText}>{t('organizerCreateEventFlow.canvas.trailer')}</Text>
-              <ExternalLink size={15} color={colors.textSecondary} />
+              {/* The external-link glyph only when the tap ACTUALLY leaves the
+                  app. A recognised YouTube/Vimeo link now plays in-app, and
+                  promising an exit it does not make is worse than no icon. */}
+              {!parseVideoEmbed((event as any).video_url) && (
+                <ExternalLink size={15} color={colors.textSecondary} />
+              )}
             </TouchableOpacity>
           )}
 

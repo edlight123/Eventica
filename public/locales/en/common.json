@@ -333,7 +333,8 @@
     "lineup": "Lineup",
     "hero_search_placeholder_short": "Search events…",
     "watchTrailer": "Watch the trailer",
-    "promo_code_prompt": "Have a promo code?"
+    "promo_code_prompt": "Have a promo code?",
+    "trailer": "trailer"
   },
   "favorites": {
     "title": "My Favorites",
@@ -595,7 +596,8 @@
     "only_x_left": "Only {{count}} left",
     "x_available": "{{count}} available",
     "total_tickets": "{{count}} total",
-    "unlimited": "Unlimited"
+    "unlimited": "Unlimited",
+    "selling_fast": "Selling fast"
   },
   "app_cta": {
     "title": "Get the Tikèm app",

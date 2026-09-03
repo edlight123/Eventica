@@ -11,7 +11,8 @@ import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
 import MobileSections from './MobileSections'
 import WhosGoing from '@/components/events/WhosGoing'
-import PromoVideoLink from '@/components/events/PromoVideoLink'
+import PromoVideo from '@/components/events/PromoVideo'
+import { ticketScarcity, scarcityCopy, isUrgent } from '@/lib/ticketScarcity'
 import { guestlistVisibilityFrom } from '@/lib/guestlistVisibility'
 import SpotifyEmbed from '@/components/events/SpotifyEmbed'
 import VenueMap from '@/components/events/VenueMap'
@@ -61,7 +62,18 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   // Premium badge logic
   const isVIP = (event.ticket_price || 0) > 100
   const isTrending = (event.tickets_sold || 0) > 10
-  const selloutSoon = !isSoldOut && ticketsRemaining !== null && ticketsRemaining < 10
+  /**
+   * One ladder for the whole app now (lib/ticketScarcity). This was a bare
+   * `ticketsRemaining < 10` here and a second copy in page.tsx reading a
+   * different source — the classic way two surfaces come to disagree about
+   * the same event.
+   */
+  const scarcity = ticketScarcity({
+    total: event.total_tickets,
+    sold: event.tickets_sold,
+    startsAt: event.start_datetime,
+  })
+  const selloutSoon = !isSoldOut && isUrgent(scarcity)
   const posterTheme = getPosterTheme(event.id || event.title, event.category)
   // Organization brand overrides the personal name wherever the organizer is
   // shown (falls back to full_name, then a generic label).
@@ -168,7 +180,13 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   <div className="absolute left-3 top-3">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
                       <span className={`h-1.5 w-1.5 rounded-full ${isSoldOut ? 'bg-red-400' : 'bg-amber-400'}`} />
-                      {isSoldOut ? t('ticket.sold_out') : t('ticket.almost_sold_out')}
+                      {(() => {
+                        if (isSoldOut) return t('ticket.sold_out')
+                        const copy = scarcityCopy(scarcity)
+                        return copy
+                          ? t(copy.key, { defaultValue: copy.defaultValue, count: copy.count })
+                          : t('ticket.almost_sold_out')
+                      })()}
                     </span>
                   </div>
                 )}
@@ -274,6 +292,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 eventTitle={event.title}
                 currency={event.currency || 'HTG'}
                 country={event.country}
+                eventStartsAt={event.start_datetime}
                 isPasswordProtected={!!event.is_password_protected}
               />
             )}
@@ -371,7 +390,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 </p>
               )}
               {/* The trailer, then the song — both under the about text. */}
-              <PromoVideoLink url={(event as any).video_url} className="mt-5" />
+              <PromoVideo url={(event as any).video_url} className="mt-6 max-w-[65ch]" />
               {/* The event's song — desktop placement, under the about text. */}
               <SpotifyEmbed url={event.spotify_url} className="mt-6 max-w-[65ch]" />
             </div>
@@ -572,7 +591,8 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     eventTitle={event.title}
                     currency={event.currency || 'HTG'}
                     country={event.country}
-                    isPasswordProtected={!!event.is_password_protected}
+                    eventStartsAt={event.start_datetime}
+                isPasswordProtected={!!event.is_password_protected}
                   />
                   {user ? (
                     <div className="mt-4">

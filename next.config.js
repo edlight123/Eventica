@@ -78,7 +78,11 @@ const nextConfig = {
       // i.scdn.co is Spotify's album-art CDN, used by the composer's song picker
       // (components/organizer/SpotifySongPicker.tsx). Searching itself goes
       // through our own /api/spotify/search, so no connect-src entry is needed.
-      "img-src 'self' data: blob: https://images.unsplash.com https://storage.googleapis.com https://firebasestorage.googleapis.com https://*.googleusercontent.com https://maps.googleapis.com https://api.mapbox.com https://i.scdn.co",
+      // i.ytimg.com is YouTube's thumbnail CDN — the still behind the promo
+      // video's play button (components/events/PromoVideo.tsx). Image only:
+      // the poster is shown before anyone presses play, so the player's own
+      // hosts are in frame-src and nowhere else.
+      "img-src 'self' data: blob: https://images.unsplash.com https://storage.googleapis.com https://firebasestorage.googleapis.com https://*.googleusercontent.com https://maps.googleapis.com https://api.mapbox.com https://i.scdn.co https://i.ytimg.com",
       "font-src 'self' data:",
       // Next.js injects inline styles; recharts sets inline SVG styles.
       "style-src 'self' 'unsafe-inline'",
@@ -86,7 +90,16 @@ const nextConfig = {
       // tighten to a nonce/hash-based policy as a follow-up.
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://apis.google.com https://www.gstatic.com",
       "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.stripe.com https://m.stripe.network https://*.stripe.com",
-      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com https://accounts.google.com https://open.spotify.com",
+      // youtube-nocookie.com and player.vimeo.com host the promo video player
+      // (components/events/PromoVideo.tsx). These two entries are the whole
+      // reason lib/videoEmbed exists: the frame's src is BUILT from a template
+      // against a validated id, never taken from the organizer's pasted
+      // string, so admitting these hosts admits exactly two players and not
+      // "whatever an organizer typed". youtube.com itself is listed because
+      // the nocookie host redirects there for a small number of videos.
+      // Adding a third provider means editing this line too — which is the
+      // point of keeping the list short.
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com https://accounts.google.com https://open.spotify.com https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
       "worker-src 'self' blob:",
       "manifest-src 'self'",
       "media-src 'self' blob:",

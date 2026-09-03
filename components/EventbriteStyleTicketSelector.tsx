@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Minus, Plus } from 'lucide-react'
 import { allSelectionsFree, computeSelectionTotal, isFreeTier } from '@/lib/ticketPricing'
 import { priceOrder } from '@/lib/checkout/buyer-pricing'
+import { ticketScarcity, scarcityCopy, isUrgent } from '@/lib/ticketScarcity'
 
 interface TicketTier {
   id: string
@@ -45,6 +46,8 @@ interface EventbriteStyleTicketSelectorProps {
    * face value, exactly as before.
    */
   country?: string
+  /** Event start, for the "selling fast" pace rule. Omit and it never fires. */
+  eventStartsAt?: string | null
   /**
    * Let a logged-OUT visitor select and check out as a guest. The contact details
    * (name / email / phone) are collected by the parent right after this, so the
@@ -72,6 +75,7 @@ export default function EventbriteStyleTicketSelector({
   userId,
   currency = 'HTG',
   country,
+  eventStartsAt,
   allowGuest = false,
   onPurchase
 }: EventbriteStyleTicketSelectorProps) {
@@ -133,6 +137,17 @@ export default function EventbriteStyleTicketSelector({
   const getAvailableQuantity = (tier: TicketTier): number => {
     return tier.total_quantity - (tier.sold_quantity || 0)
   }
+
+  /** This tier's scarcity, from the shared ladder. */
+  const scarcityFor = (tier: TicketTier) =>
+    ticketScarcity({
+      total: tier.total_quantity,
+      sold: tier.sold_quantity,
+      // Pace needs the horizon. Absent (the caller did not pass it), the
+      // "selling fast" rung simply never fires — which is correct: we would
+      // have no evidence for the claim.
+      startsAt: eventStartsAt,
+    })
 
   const updateQuantity = (tierId: string, delta: number) => {
     const tier = tiers.find(t => t.id === tierId)
@@ -302,9 +317,29 @@ export default function EventbriteStyleTicketSelector({
                       </span>
                     )}
                   </p>
-                  <p className={`mt-0.5 text-xs ${available > 0 ? 'text-white/50' : 'text-red-400'}`}>
-                    {available > 0 ? `${available} ${t('ticket.available')}` : t('ticket.sold_out')}
-                  </p>
+                  {/* Scarcity, not inventory. This printed the raw count on
+                      every tier — "100 available" — which tells a buyer to come
+                      back later. The exact number now appears only when it is
+                      genuinely small; see lib/ticketScarcity for why each rung
+                      has to be true. Nothing is rendered when there is plenty,
+                      so the line's presence is itself the signal. */}
+                  {(() => {
+                    const copy = scarcityCopy(scarcityFor(tier))
+                    if (!copy) return null
+                    const urgent = isUrgent(scarcityFor(tier))
+                    return (
+                      <p
+                        className={`mt-1 inline-flex items-center gap-1.5 text-xs font-medium ${
+                          urgent ? 'text-amber-300' : 'text-red-400'
+                        }`}
+                      >
+                        {urgent && (
+                          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />
+                        )}
+                        {t(copy.key, { defaultValue: copy.defaultValue, count: copy.count })}
+                      </p>
+                    )
+                  })()}
                   {!isAvailable && available > 0 && (
                     <p className="text-xs text-amber-400 mt-1">
                       {tier.sales_start && new Date(tier.sales_start) > new Date()

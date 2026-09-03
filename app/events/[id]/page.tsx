@@ -10,6 +10,7 @@ import MobileNavWrapper from '@/components/MobileNavWrapper'
 import EventDetailsClient from './EventDetailsClient'
 import { cookies } from 'next/headers'
 import { intlLocaleFor } from '@/lib/dateLocale'
+import { ticketScarcity, isUrgent } from '@/lib/ticketScarcity'
 
 export const runtime = 'nodejs'
 export const revalidate = 300 // Cache for 5 minutes
@@ -157,7 +158,13 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   // Premium badge logic
   const isVIP = (event.ticket_price || 0) > 100
   const isTrending = (event.tickets_sold || 0) > 10
-  const selloutSoon = !isSoldOut && remainingTickets < 10
+  // Shared ladder — see lib/ticketScarcity. Was a second, independent
+  // `remainingTickets < 10` that could disagree with the client component's.
+  const selloutSoon = !isSoldOut && isUrgent(ticketScarcity({
+    total: (event as any).total_tickets,
+    sold: (event as any).tickets_sold,
+    startsAt: (event as any).start_datetime,
+  }))
 
   // Fetch related events and user status in parallel
   let relatedEvents: any[] = []

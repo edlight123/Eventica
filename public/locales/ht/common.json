@@ -333,7 +333,8 @@
     "lineup": "Pwogram",
     "hero_search_placeholder_short": "Chèche evènman…",
     "watchTrailer": "Gade videyo a",
-    "promo_code_prompt": "Ou gen yon kòd pwomo?"
+    "promo_code_prompt": "Ou gen yon kòd pwomo?",
+    "trailer": "videyo"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -595,7 +596,8 @@
     "only_x_left": "{{count}} rete",
     "x_available": "{{count}} gen",
     "total_tickets": "{{count}} total",
-    "unlimited": "San limit"
+    "unlimited": "San limit",
+    "selling_fast": "Ap vann vit"
   },
   "app_cta": {
     "title": "Jwenn aplikasyon Tikèm nan",
