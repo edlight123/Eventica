@@ -11,6 +11,7 @@ import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
 import MobileAccordions from './MobileAccordions'
 import WhosGoing from '@/components/events/WhosGoing'
+import { guestlistVisibilityFrom } from '@/lib/guestlistVisibility'
 import SpotifyEmbed from '@/components/events/SpotifyEmbed'
 import VenueMap from '@/components/events/VenueMap'
 import EventLineup from '@/components/events/EventLineup'
@@ -583,7 +584,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
         {/* Who's Going - social attendance */}
         <div className="mt-8 px-4 md:px-0">
-          <WhosGoing eventId={event.id} currentUserId={user?.id || null} />
+          <WhosGoing
+            eventId={event.id}
+            currentUserId={user?.id || null}
+            visibility={guestlistVisibilityFrom(event as any)}
+          />
         </div>
 
         {/* Related Events Section */}

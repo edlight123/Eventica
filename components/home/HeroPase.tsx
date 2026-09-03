@@ -79,9 +79,24 @@ function FloatingPoster({
 /** Scatter layout for up to five posters; each entry is [wrapper, rotate,
     depth, floatDur, floatDelay]. Deliberately loose — a wall, not a grid. */
 const SLOTS: [string, string, number, string, string][] = [
-  ['right-[5%] top-[10%] z-0 w-[190px] xl:w-[220px]', 'rotate-3', 22, '7s', '0s'],
-  ['right-[26%] bottom-[12%] z-0 w-[150px] opacity-90', '-rotate-6', 34, '8s', '1.1s'],
-  ['right-[3%] bottom-[20%] z-0 w-[128px] opacity-80', 'rotate-6', 46, '9s', '0.5s'],
+  // Each slot is written mobile-first: a smaller, quieter poster nearer the
+  // edge, then the full desktop placement from `sm`. On a phone three posters
+  // sit behind the type as atmosphere — enough that the hero reads as a room
+  // rather than a black screen, faint enough that SAK PASE? still leads.
+  [
+    'right-[-8%] top-[6%] z-0 w-[124px] opacity-45 sm:right-[5%] sm:top-[10%] sm:w-[190px] sm:opacity-100 xl:w-[220px]',
+    'rotate-3', 22, '7s', '0s',
+  ],
+  [
+    // Kept off the centre on a phone: at right-34% it drifted under the city
+    // chips and read as clutter behind them rather than depth beside them.
+    'right-[4%] bottom-[-2%] z-0 w-[86px] opacity-25 sm:right-[26%] sm:bottom-[12%] sm:w-[150px] sm:opacity-90',
+    '-rotate-6', 34, '8s', '1.1s',
+  ],
+  [
+    'right-[-6%] bottom-[24%] z-0 w-[88px] opacity-25 sm:right-[3%] sm:bottom-[20%] sm:w-[128px] sm:opacity-80',
+    'rotate-6', 46, '9s', '0.5s',
+  ],
   ['left-[40%] top-[7%] z-0 hidden w-[110px] opacity-60 xl:block', '-rotate-3', 28, '8.5s', '1.7s'],
   ['right-[43%] top-[30%] z-0 hidden w-[96px] opacity-50 xl:block', 'rotate-2', 52, '10s', '2.2s'],
 ]
@@ -113,9 +128,14 @@ export default function HeroPase({
       onMouseMove={onMouseMove}
       className="relative isolate flex min-h-[78vh] items-center overflow-hidden sm:min-h-[84vh]"
     >
-      {/* the floating room — desktop only; mobile stays type-first, the film
-          strip right below carries the artwork */}
-      <div className="absolute inset-0 hidden md:block">
+      {/* The floating room, now on every screen. It used to be `hidden md:block`
+          on the theory that mobile should stay type-first, but that left the
+          phone hero a plain black rectangle while desktop got the poster wall
+          the brand is built on. The slots above carry their own mobile sizing,
+          so the phone gets three faint posters instead of five loud ones.
+          pointer-events-none: they are atmosphere, and on a small screen a
+          poster drifting under the search box must never steal its taps. */}
+      <div className="pointer-events-none absolute inset-0 sm:pointer-events-auto">
         {posters.slice(0, SLOTS.length).map((ev, i) => (
           <FloatingPoster
             key={ev.id}

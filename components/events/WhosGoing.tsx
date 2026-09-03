@@ -5,10 +5,18 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { Users, Lock } from 'lucide-react'
 import type { PublicUserSummary } from '@/types/social'
+import type { GuestlistVisibility } from '@/lib/guestlistVisibility'
 
 interface WhosGoingProps {
   eventId: string
   currentUserId: string | null
+  /**
+   * What the organizer chose in the composer. 'hidden' renders nothing at all
+   * — not a privacy note, not a count: the organizer asked for the section to
+   * be absent, and a note saying "attendance is private" still announces that
+   * there are attendees.
+   */
+  visibility?: GuestlistVisibility
 }
 
 interface SocialData {
@@ -36,12 +44,23 @@ function Avatar({ user, size = 40 }: { user: PublicUserSummary; size?: number })
   )
 }
 
-export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
+export default function WhosGoing({
+  eventId,
+  currentUserId,
+  visibility = 'faces',
+}: WhosGoingProps) {
   const { t } = useTranslation('common')
   const [data, setData] = useState<SocialData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // No request when the section will not render: the social endpoint returns
+    // who is attending, and fetching that for a page that must not show it is
+    // both wasted and the kind of thing that leaks through a network tab.
+    if (visibility === 'hidden') {
+      setLoading(false)
+      return
+    }
     let active = true
     setLoading(true)
     fetch(`/api/events/${eventId}/social`)
@@ -56,7 +75,9 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
     return () => {
       active = false
     }
-  }, [eventId])
+  }, [eventId, visibility])
+
+  if (visibility === 'hidden') return null
 
   if (loading) {
     return (
@@ -76,6 +97,25 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
   }
 
   const { totalGoing, viewerIsGoing, friendsGoing, publicGoing } = data
+
+  // 'count' — the number, and nothing that identifies anyone. No avatars, no
+  // names, no friend row: those are exactly what this mode exists to withhold.
+  if (visibility === 'count') {
+    return (
+      <div className="rounded-2xl p-4 md:p-6">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-white md:text-xl">
+          <Users className="h-5 w-5 text-brand-400" />
+          {t('whos_going.going_count', { count: totalGoing, defaultValue: '{{count}} going' })}
+        </h2>
+        {viewerIsGoing && (
+          <p className="mt-1 text-sm text-white/55">
+            {t('whos_going.youre_going', "You're going")}
+          </p>
+        )}
+      </div>
+    )
+  }
+
   const pile = publicGoing.slice(0, 8)
   const namedCount = friendsGoing.length + pile.length
   const remaining = Math.max(0, totalGoing - namedCount - (viewerIsGoing ? 1 : 0))
@@ -140,10 +180,23 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
               </div>
             )}
           </div>
+          {/* "Rutshelle and 24 others going" — naming the first face makes the
+              pile a sentence someone can read, instead of a number beside a
+              row of strangers. Falls back to the bare count when nobody in the
+              pile is public. */}
           <p className="text-sm text-white/55">
-            {viewerIsGoing
-              ? t('whos_going.youre_going', "You're going")
-              : t('whos_going.going_count', { count: totalGoing, defaultValue: '{{count}} going' })}
+            {(() => {
+              const lead = friendsGoing[0]?.displayName || pile[0]?.displayName
+              const others = Math.max(0, totalGoing - 1)
+              if (viewerIsGoing) return t('whos_going.youre_going', "You're going")
+              if (lead && others > 0)
+                return t('whos_going.lead_and_others', {
+                  name: lead.split(' ')[0],
+                  count: others,
+                  defaultValue: '{{name}} and {{count}} others going',
+                })
+              return t('whos_going.going_count', { count: totalGoing, defaultValue: '{{count}} going' })
+            })()}
           </p>
         </div>
       )}

@@ -236,6 +236,15 @@ export async function getEventById(eventId: string): Promise<Event | null> {
         // whitelist the field would be written and never seen — which is
         // exactly what happened to guestlist, spotify_url and theme_key.
         accent_color: typeof data?.accent_color === 'string' ? data.accent_color : undefined,
+        // Whitelisted because this reader is explicit: a field absent here is a
+        // field the event page never sees, however faithfully it was saved.
+        guestlist_visibility:
+          data?.guestlist_visibility === 'faces' ||
+          data?.guestlist_visibility === 'count' ||
+          data?.guestlist_visibility === 'hidden'
+            ? data.guestlist_visibility
+            : undefined,
+        show_guestlist: data?.show_guestlist === false ? false : undefined,
         tags: data?.tags && Array.isArray(data.tags) ? data.tags.filter((tag: any) => typeof tag === 'string') : undefined,
         created_at: data?.created_at?.toDate?.()?.toISOString() || data?.created_at,
         updated_at: data?.updated_at?.toDate?.()?.toISOString() || data?.updated_at,

@@ -1306,7 +1306,20 @@
     "accentFromPoster": "Koulè afich la",
     "accentAwaitingPoster": "mete yon flyer",
     "flyerSearchPlaceholder": "Chèche yon imaj: konpa, fèt, gala, espò…",
-    "flyerNoMatch": "Pa gen imaj ki matche. Eseye “fèt”, “konpa” oswa “gala”."
+    "flyerNoMatch": "Pa gen imaj ki matche. Eseye “fèt”, “konpa” oswa “gala”.",
+    "guestVis": {
+      "legend": "Kiyès ki ka wè lis envite a",
+      "previewLabel": "Sou paj evènman w",
+      "previewHidden": "Pa gen anyen ki parèt",
+      "previewCount": "{{count}} moun ap vini",
+      "previewFaces": "{{name}} ak {{count}} lòt moun ap vini",
+      "faces": "Figi ak non",
+      "facesHint": "Kiyès k ap vini, ak foto yo",
+      "count": "Sèlman kantite a",
+      "countHint": "Konbyen, san non",
+      "hidden": "Pa montre",
+      "hiddenHint": "Kenbe patisipasyon an prive"
+    }
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",
@@ -1373,7 +1386,8 @@
     "privacy_note": "{{count}} moun ap ale. Moun k ap patisipe yo kenbe patisipasyon yo prive.",
     "privacy_note_plural": "{{count}} moun ap ale. Moun k ap patisipe yo kenbe patisipasyon yo prive.",
     "show_going_cta": "Montre w ap ale",
-    "you_badge": "Ou"
+    "you_badge": "Ou",
+    "lead_and_others": "{{name}} ak {{count}} lòt moun ap vini"
   },
   "follow": {
     "loading": "Chajman...",

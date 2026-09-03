@@ -1306,7 +1306,20 @@
     "accentFromPoster": "Couleur de l’affiche",
     "accentAwaitingPoster": "ajoutez un flyer",
     "flyerSearchPlaceholder": "Chercher un visuel : konpa, fête, gala, sport…",
-    "flyerNoMatch": "Aucun visuel ne correspond. Essayez « fête », « konpa » ou « gala »."
+    "flyerNoMatch": "Aucun visuel ne correspond. Essayez « fête », « konpa » ou « gala ».",
+    "guestVis": {
+      "legend": "Qui peut voir la liste d'invités",
+      "previewLabel": "Sur votre page d'événement",
+      "previewHidden": "Rien affiché",
+      "previewCount": "{{count}} participants",
+      "previewFaces": "{{name}} et {{count}} autres y vont",
+      "faces": "Visages et noms",
+      "facesHint": "Qui y va, avec les photos",
+      "count": "Nombre seulement",
+      "countHint": "Combien, sans les noms",
+      "hidden": "Masquée",
+      "hiddenHint": "Garder la participation privée"
+    }
   },
   "promoter": {
     "portal_eyebrow": "Portail promoteur",
@@ -1373,7 +1386,8 @@
     "privacy_note": "{{count}} personne y va. Les participants gardent leur présence privée.",
     "privacy_note_plural": "{{count}} personnes y vont. Les participants gardent leur présence privée.",
     "show_going_cta": "Montrez que vous y allez",
-    "you_badge": "Vous"
+    "you_badge": "Vous",
+    "lead_and_others": "{{name}} et {{count}} autres y vont"
   },
   "follow": {
     "loading": "Chargement...",

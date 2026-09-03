@@ -1306,7 +1306,20 @@
     "accentFromPoster": "Accent from poster",
     "accentAwaitingPoster": "add a flyer",
     "flyerSearchPlaceholder": "Search artwork: konpa, party, gala, sports…",
-    "flyerNoMatch": "No artwork matches that. Try “party”, “konpa” or “gala”."
+    "flyerNoMatch": "No artwork matches that. Try “party”, “konpa” or “gala”.",
+    "guestVis": {
+      "legend": "Who can see the guest list",
+      "previewLabel": "On your event page",
+      "previewHidden": "Nothing shown",
+      "previewCount": "{{count}} going",
+      "previewFaces": "{{name}} and {{count}} others going",
+      "faces": "Faces and names",
+      "facesHint": "Who is going, with photos",
+      "count": "Count only",
+      "countHint": "How many, no names",
+      "hidden": "Not showing",
+      "hiddenHint": "Keep attendance private"
+    }
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",
@@ -1373,7 +1386,8 @@
     "privacy_note": "{{count}} person is going. Attendees keep their attendance private.",
     "privacy_note_plural": "{{count}} people are going. Attendees keep their attendance private.",
     "show_going_cta": "Show that you're going",
-    "you_badge": "You"
+    "you_badge": "You",
+    "lead_and_others": "{{name}} and {{count}} others going"
   },
   "follow": {
     "loading": "Loading...",

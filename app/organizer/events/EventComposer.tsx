@@ -22,6 +22,13 @@ import {
   lineupEntryToRecord,
   type LineupEntry,
 } from '@/lib/lineup'
+import {
+  guestlistVisibilityFrom,
+  showGuestlistFor,
+  GUESTLIST_VISIBILITIES,
+  type GuestlistVisibility,
+} from '@/lib/guestlistVisibility'
+import GuestlistVisibilityPicker from '@/components/organizer/GuestlistVisibility'
 import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
 import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type EventCurrency } from '@/lib/currency-policy'
 import { incidenceForEvent, priceOrder } from '@/lib/checkout/buyer-pricing'
@@ -621,7 +628,11 @@ export default function EventComposer({
     })
 
   // Visibility extras
-  const [showGuestlist, setShowGuestlist] = useState(event?.show_guestlist ?? true)
+  // Three states, not a boolean — see lib/guestlistVisibility. Legacy events
+  // carry only `show_guestlist`, which the resolver folds in.
+  const [guestlistVisibility, setGuestlistVisibility] = useState<GuestlistVisibility>(() =>
+    guestlistVisibilityFrom((event ?? {}) as any)
+  )
   const [showOnExplore, setShowOnExplore] = useState(event?.show_on_explore ?? true)
   // Password gate — public flag on the doc; the secret lives hashed in the
   // private/access subdoc, never on the event doc. The code input stays blank in
@@ -757,7 +768,8 @@ export default function EventComposer({
       // out survives sign-up instead of quietly vanishing at the door.
       setGuests(d.guestlist.map(lineupEntryFromRecord).filter((g: LineupEntry) => g.name))
     }
-    if (d.show_guestlist === false) setShowGuestlist(false)
+    if (d.guestlist_visibility || d.show_guestlist === false)
+      setGuestlistVisibility(guestlistVisibilityFrom(d))
     if (d.show_on_explore === false) setShowOnExplore(false)
     // The access CODE is never persisted (secret) — restoring the flag makes
     // accessCodeInvalid demand a fresh code before create, instead of silently
@@ -1007,7 +1019,11 @@ export default function EventComposer({
       // "any tier has one" — so nothing that already reads it (mobile, older
       // events) is orphaned by the change in granularity.
       enable_waitlist: cleanTiers.some((t) => t.enable_waitlist),
-      show_guestlist: showGuestlist,
+      guestlist_visibility: guestlistVisibility,
+      // Written alongside, deliberately: mobile and older readers still key off
+      // the boolean, and a rollback then degrades to hidden-vs-shown rather
+      // than to "everyone's faces are public".
+      show_guestlist: showGuestlistFor(guestlistVisibility),
       show_on_explore: showOnExplore,
       is_password_protected: passwordProtected,
       // Stamped on the event so checkout, the ticket record and the earnings
@@ -2329,7 +2345,17 @@ export default function EventComposer({
               {t('composer.guestlist', { defaultValue: 'Guestlist' })}
             </SectionTitle>
 
-            <div className="space-y-3 rounded-xl bg-white/[0.025] p-4">
+            <div className="space-y-4 rounded-xl bg-white/[0.025] p-4">
+              {/* How the list appears to the public, chosen against a live
+                  preview of the row the event page will draw. */}
+              <GuestlistVisibilityPicker
+                value={guestlistVisibility}
+                onChange={setGuestlistVisibility}
+                faces={guests.map((g) => ({ id: g.id, name: g.name, photoUrl: g.photoUrl }))}
+              />
+
+              <div className="h-px bg-white/[0.07]" />
+
               {/* The bill so far, in running order. Each row is the whole entry
                   in miniature, face, name, role, set time, whether a link is
                   attached, and clicking it reopens the editor. */}
