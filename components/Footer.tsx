@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
@@ -64,6 +65,13 @@ export default function Footer() {
             <p className="mt-4 max-w-sm text-[11px] font-medium uppercase tracking-[0.16em] leading-relaxed text-white/35">
               Port-au-Prince · Cap-Haïtien · Miami · New York · Montréal · Paris
             </p>
+            {/* Language sits here, under the cities, rather than in the bottom
+                row where it first went: the app-install banner is
+                `fixed inset-x-4 bottom-4` and covers that row on a phone
+                until it is dismissed, so a control put there is invisible to
+                exactly the first-time visitor most likely to need it. Beside
+                the places we cover is also simply where a reader looks. */}
+            <LanguageSwitcher className="mt-6 -ml-1.5" />
           </div>
 
           {/* Discover column */}

@@ -616,7 +616,8 @@
     "terms": "Conditions",
     "refunds": "Remboursements",
     "tagline_short": "là où haïti sort.",
-    "vision": "Vision"
+    "vision": "Vision",
+    "language": "Langue"
   },
   "admin": {
     "search_placeholder": "Rechercher des événements...",
@@ -1337,7 +1338,7 @@
     "progressLabel": "Progression de la configuration",
     "completeToPublish": "Encore {{count}} des quatre à remplir pour publier. Enregistré comme brouillon d'ici là.",
     "saveDraft": "Enregistrer le brouillon",
-    "flyerNoMatchAll": "Aucun résultat — voici tout le catalogue.",
+    "flyerNoMatchAll": "Aucun résultat. Voici tout le catalogue.",
     "flyerMore": "Plus de visuels",
     "tierNameLabel": "Nom",
     "tierPriceLabel": "Prix",

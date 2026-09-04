@@ -1,6 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Check, Search, X } from 'lucide-react'
 import {
@@ -98,8 +99,31 @@ export default function FlyerLibraryPicker({
   const labelFor = (item: FlyerLibraryItem) =>
     t(`composer.flyerLib.${item.id}`, { defaultValue: item.label })
 
-  return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center pt-[var(--chrome-h)] sm:items-center sm:pt-0">
+  /**
+   * Portalled to <body>, and full-height rather than tucked under the chrome.
+   *
+   * Two rounds of this bug. First the sheet was capped at `90vh`, and on iOS
+   * `vh` excludes the browser chrome — so it overshot the visible area and its
+   * header went up behind the navbar. The fix for that reserved the navbar
+   * with `pt-[var(--chrome-h)]`, and that was still wrong, because the
+   * composer has a SECOND piece of sticky chrome: the four-quarter progress
+   * bar, measured at 57->85px. Reserving only the navbar left the sheet's top
+   * edge at 80 and its header tucked under the bar again.
+   *
+   * Reserving both would be a third number to keep in sync. A modal is allowed
+   * to cover the chrome — that is what BottomSheet does — so this one does
+   * too: no top padding, `100svh` for the cap, and the header lands at the top
+   * of the screen with nothing above it to hide behind.
+   *
+   * The portal is the other half. This was the last `fixed inset-0` overlay in
+   * the app still rendered in place, and `inset-0` only means the viewport
+   * while no ancestor creates a containing block. Nothing traps it today, but
+   * the composer grows transforms and blurs regularly, and this exact failure
+   * has already been fixed three times elsewhere (BottomSheet, PickerModal,
+   * DateChips).
+   */
+  return createPortal(
+    <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center">
       <button
         type="button"
         onClick={onClose}
@@ -119,7 +143,7 @@ export default function FlyerLibraryPicker({
            which is the honest number, and --chrome-h is the navbar's own
            height (globals.css). Same class of bug as the homepage phone
            mockup. */
-        className="relative flex max-h-[calc(100svh-var(--chrome-h)-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#0d0f0e] shadow-2xl sm:max-h-[85svh] sm:rounded-3xl"
+        className="relative flex max-h-[calc(100svh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl bg-[#0d0f0e] shadow-2xl ring-1 ring-white/10 sm:max-h-[85svh] sm:rounded-3xl"
       >
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/[0.07] px-5 py-4">
           <div>
@@ -131,7 +155,7 @@ export default function FlyerLibraryPicker({
             <p className="mt-0.5 text-xs text-white/50">
               <span className="sm:hidden">
                 {t('composer.flyerLibraryHintShort', {
-                  defaultValue: 'Free artwork — swap it any time.',
+                  defaultValue: 'Free artwork. Swap it any time.',
                 })}
               </span>
               <span className="hidden sm:inline">
@@ -206,7 +230,7 @@ export default function FlyerLibraryPicker({
           {q.trim() !== '' && matchCount === 0 && (
             <p className="col-span-full pb-1 text-sm text-white/45">
               {t('composer.flyerNoMatchAll', {
-                defaultValue: 'Nothing matched that — here is everything.',
+                defaultValue: 'Nothing matched that. Here is everything.',
               })}
             </p>
           )}
@@ -270,6 +294,7 @@ export default function FlyerLibraryPicker({
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

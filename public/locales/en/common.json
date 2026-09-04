@@ -616,7 +616,8 @@
     "terms": "Terms",
     "refunds": "Refunds",
     "tagline_short": "where haiti goes out.",
-    "vision": "Vision"
+    "vision": "Vision",
+    "language": "Language"
   },
   "admin": {
     "search_placeholder": "Search events...",
@@ -1271,7 +1272,7 @@
     "moveDown": "Move later",
     "flyerLibrary": "Flyer library",
     "flyerLibraryHint": "Free artwork you can use as-is. Swap it for your own flyer any time.",
-    "flyerLibraryHintShort": "Free artwork — swap it any time.",
+    "flyerLibraryHintShort": "Free artwork. Swap it any time.",
     "flyerLib": {
       "stageLights": "Stage lights",
       "crowdGold": "Crowd in gold",
@@ -1337,7 +1338,7 @@
     "progressLabel": "Event setup progress",
     "completeToPublish": "Fill in {{count}} more of the four to publish. Saved as a draft until then.",
     "saveDraft": "Save as draft",
-    "flyerNoMatchAll": "Nothing matched that — here is everything.",
+    "flyerNoMatchAll": "Nothing matched that. Here is everything.",
     "flyerMore": "More artwork",
     "tierNameLabel": "Name",
     "tierPriceLabel": "Price",

@@ -76,7 +76,9 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
       icon: DollarSign,
     },
     { label: 'Tickets sold', value: sold.toLocaleString(), sub: capacity > 0 ? `of ${capacity.toLocaleString()}` : 'no cap', icon: Ticket },
-    { label: 'Checked in', value: checkedIn.toLocaleString(), sub: sold > 0 ? `${Math.round((checkedIn / sold) * 100)}%` : ', ', icon: CheckCircle2 },
+    { label: 'Checked in', value: checkedIn.toLocaleString(), /* '–', not ', ' — see OrganizerEventCard: the em-dash cleanup pass
+       replaced standalone placeholder dashes with a comma-space. */
+      sub: sold > 0 ? `${Math.round((checkedIn / sold) * 100)}%` : '\u2013', icon: CheckCircle2 },
     { label: 'Capacity sold', value: `${pctSold}%`, icon: TrendingUp },
   ]
 

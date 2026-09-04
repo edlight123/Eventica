@@ -42,6 +42,9 @@ interface OrganizerEventCardProps {
  * management page, where every detail and action lives — so the list itself
  * stays calm and clutter-free (Posh-style).
  */
+/** Stands in for a value we genuinely do not have. */
+const NO_VALUE = '\u2013'
+
 export default function OrganizerEventCard({ event, showNeedsAttention = true }: OrganizerEventCardProps) {
   const { t } = useTranslation('organizer')
 
@@ -56,7 +59,14 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
       return formatPrimaryMoneyFromCentsByCurrency(breakdown, event.currency, 'en-US', { currencyDisplay: 'code' })
     }
     const major = typeof event.revenue === 'number' ? event.revenue : Number(event.revenue || 0)
-    if (!Number.isFinite(major) || major === 0) return ', '
+    // '–' (en dash), not ', '. These placeholders were em dashes until the
+    // "remove the em dashes so it doesn't read as AI-generated" pass swapped
+    // every '—' for ', ' — including the standalone ones that were not
+    // punctuation at all, which left a stray comma-space in the UI. That pass
+    // was about PROSE; a dash standing in for a missing value in a data cell
+    // is a typographic convention, so an en dash restores the meaning without
+    // bringing the em dash back.
+    if (!Number.isFinite(major) || major === 0) return NO_VALUE
     return formatMoneyFromCents(Math.round(major * 100), normalizeCurrency(event.currency, 'HTG'), 'en-US', { currencyDisplay: 'code' })
   })()
 
@@ -116,11 +126,11 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
         <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-[12.5px] text-white/50">
           <span className="inline-flex items-center gap-1.5 font-mono tabular-nums">
             <Calendar className="h-3.5 w-3.5 shrink-0" />
-            {dateValid ? format(new Date(event.start_datetime), 'MMM d, yyyy · h:mm a') : ', '}
+            {dateValid ? format(new Date(event.start_datetime), 'MMM d, yyyy · h:mm a') : NO_VALUE}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{event.location_name || event.commune || event.city || ', '}</span>
+            <span className="truncate">{event.location_name || event.commune || event.city || NO_VALUE}</span>
           </span>
         </div>
       </div>

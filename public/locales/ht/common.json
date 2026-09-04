@@ -616,7 +616,8 @@
     "terms": "Kondisyon",
     "refunds": "Ranbousman",
     "tagline_short": "kote ayiti soti.",
-    "vision": "Vizyon"
+    "vision": "Vizyon",
+    "language": "Lang"
   },
   "admin": {
     "search_placeholder": "Chèche evènman...",
@@ -1337,7 +1338,7 @@
     "progressLabel": "Pwogrè konfigirasyon evènman an",
     "completeToPublish": "Ranpli {{count}} lòt nan kat yo pou pibliye. N ap kenbe l kòm bouyon jiskaske w fini.",
     "saveDraft": "Kenbe kòm bouyon",
-    "flyerNoMatchAll": "Anyen pa matche — men tout sa nou genyen.",
+    "flyerNoMatchAll": "Anyen pa matche. Men tout sa nou genyen.",
     "flyerMore": "Plis zimaj",
     "tierNameLabel": "Non",
     "tierPriceLabel": "Pri",
