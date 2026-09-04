@@ -30,14 +30,22 @@ export default function Loading() {
       </div>
 
       {/* ── MOBILE ────────────────────────────────────────────────────────
-          The poster is INSET (mx-4, rounded-2xl) — it used to be full-bleed
-          here while the real one had margins, so the whole page jumped
-          sideways the moment it painted. */}
+          The poster is INSET (mx-4) — it used to be full-bleed here while the
+          real one had margins, so the whole page jumped sideways the moment it
+          painted. `mt-4` and `rounded` (4px) track MobileHero: it gained a gap
+          below the navbar and dropped from `rounded-2xl` to the house
+          PosterCard radius, and a skeleton that keeps the old numbers is just
+          a differently-wrong page. */}
       <div className="md:hidden">
-        <div className="skeleton mx-4 aspect-[4/5] rounded-2xl" />
+        <div className="skeleton mx-4 mt-4 aspect-[4/5] rounded" />
         <div className="px-4 py-4">
           <Bar className="h-6 w-24 rounded-lg" />
-          <Bar className="mt-3 h-7 w-3/4" />
+          {/* Two lines, not one. The real h1 is 26px `break-words` and most
+              event names wrap on a 370px column, so a single-line bar meant
+              the organizer row and everything under it jumped down by ~27px
+              on nearly every event. */}
+          <Bar className="mt-3 h-[27px] w-full" />
+          <Bar className="mt-1 h-[27px] w-3/5" />
           <div className="mt-3 flex items-center gap-2.5">
             <div className="skeleton h-10 w-10 shrink-0 rounded-full" />
             <Bar className="h-4 w-32" />
@@ -50,19 +58,27 @@ export default function Loading() {
           <div className="skeleton h-11 w-11 shrink-0 rounded-xl" />
         </div>
 
-        {/* Key facts — date, venue, price, in a quiet strip. */}
-        <div className="space-y-2 px-4 py-5">
-          <Bar className="h-4 w-2/3" />
-          <Bar className="h-4 w-1/2" />
-          <Bar className="h-4 w-24" />
+        {/* Key facts — date, venue, price. Traced off MobileKeyFacts rather
+            than eyeballed: `border-b border-white/10 px-4 py-5`, then a 15px
+            date line, a 14px venue line at mt-1.5, and a 15px price at mt-3.
+            The old version used a flat `space-y-2` and no bottom rule, so the
+            rule appeared out of nowhere when the real strip landed. */}
+        <div className="border-b border-white/10 px-4 py-5">
+          <Bar className="h-5 w-2/3" />
+          <Bar className="mt-1.5 h-[18px] w-1/2" />
+          <Bar className="mt-3 h-5 w-28" />
         </div>
 
-        {/* The flat sections: a serif heading and its lines, five times over,
-            hairline-divided exactly as MobileSections draws them. */}
+        {/* The flat sections: MobileSections renders exactly five — about,
+            date & time, venue & directions, organizer, share — in a
+            `divide-y divide-white/[0.06] px-4` stack, each `py-6` with a
+            22px Instrument Serif heading at `mb-3`. The heading bar is
+            h-[22px], not h-5: at 20px every heading down the page sat two
+            pixels high, which compounds into a visible jump by the fifth. */}
         <div className="divide-y divide-white/[0.06] px-4">
           {[3, 2, 3, 1, 1].map((lines, i) => (
             <div key={i} className="py-6">
-              <Bar className="h-5 w-36" />
+              <Bar className="h-[22px] w-36" />
               <div className="mt-3 space-y-2">
                 {Array.from({ length: lines }).map((_, l) => (
                   <Bar key={l} className={`h-4 ${l === lines - 1 ? 'w-2/3' : 'w-full'}`} />
@@ -78,7 +94,9 @@ export default function Loading() {
       <div className="hidden md:block">
         <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-12">
-            <div className="skeleton aspect-[4/5] w-full rounded-2xl" />
+            {/* Square, matching the desktop hero's framed-print treatment
+                (`rounded-none shadow-poster ring-1`) — this was rounded-2xl. */}
+            <div className="skeleton aspect-[4/5] w-full rounded-none ring-1 ring-white/10" />
             <div>
               <Bar className="h-3 w-40" />
               <Bar className="mt-4 h-12 w-4/5" />

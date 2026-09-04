@@ -33,7 +33,36 @@ export default function MobileHero({
   const posterTheme = getPosterTheme(title, category)
 
   return (
-    <div className="md:hidden">
+    /* `isolate` + `overflow-hidden` scope the aura: isolate creates the
+       stacking context that keeps the -z-10 backdrop behind the poster rather
+       than behind the page itself (where it would be invisible), and
+       overflow-hidden stops a 64px blur from bleeding down over the sections.
+       The aura lives on THIS element, not on the poster's own wrapper — the
+       poster is only inset by 16px, so an aura scoped to it would show through
+       a hairline margin and nowhere else. Spanning the poster AND the title
+       block is what makes it read as light coming off the artwork. */
+    <div className="relative isolate overflow-hidden md:hidden">
+      {/* The aura: the poster itself, scaled up and blurred out behind the
+          whole hero, the way the phone app lights the top of the screen with
+          the artwork's own colours. `sizes="32px"` makes Next hand back the
+          smallest srcset candidate — a couple of kB, which is all a blur-3xl
+          can show — and there is deliberately no `priority`, so the sharp
+          poster keeps the bandwidth. The gradient lands it on the page colour
+          so the bottom edge is a fade, not a seam. */}
+      {bannerUrl && (
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <Image
+            src={bannerUrl}
+            alt=""
+            fill
+            sizes="32px"
+            quality={20}
+            className="scale-125 object-cover opacity-60 blur-3xl"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/30 via-[#0a0a0a]/55 to-[#0a0a0a]" />
+        </div>
+      )}
+
       {/* The poster, in the house 4:5 portrait shape.
           This was `aspect-video` — a 16:9 landscape box — with object-cover, so
           every vertical poster was cropped to a horizontal band through its
@@ -44,47 +73,58 @@ export default function MobileHero({
           rounded frame with the page breathing around it — the discover cards,
           the film strip, the hero scatter — and this one ran edge to edge,
           which made the event page look like a different product. Same px-4
-          as the sections below it, so the left edges line up down the page. */}
-      <div className="relative mx-4 aspect-[4/5] overflow-hidden rounded-2xl bg-white/[0.04]">
-        {bannerUrl ? (
-          <>
-            <Image
-              src={bannerUrl}
-              alt={title}
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          </>
-        ) : (
-          <div className="poster-vignette absolute inset-0" style={{ backgroundImage: posterTheme.bg }}>
-            <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-              <span className="font-display text-[28px] leading-[0.98] text-white/90 drop-shadow line-clamp-3">
-                {title}
-              </span>
-            </div>
-          </div>
-        )}
+          as the sections below it, so the left edges line up down the page.
 
-        {/* Badges Overlay - Top Right */}
-        <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
-          {isSoldOut && (
-            <Badge variant="error" size="sm">
-              {t('ticket.sold_out').toUpperCase()}
-            </Badge>
+          `pt-4` is the gap under the navbar. The poster used to start flush
+          against the chrome, which read as the artwork being cropped by the
+          navbar rather than sitting on the page. */}
+      <div className="pt-4">
+        {/* `rounded`, not `rounded-2xl`. The house poster frame is
+            components/ui/PosterCard, which every discover card and the film
+            strip render through, and it uses `rounded` — 4px in this config,
+            where `rounded-2xl` is 10px. At 10px this one poster read visibly
+            softer than every other poster on the site. */}
+        <div className="relative mx-4 aspect-[4/5] overflow-hidden rounded bg-white/[0.04]">
+          {bannerUrl ? (
+            <>
+              <Image
+                src={bannerUrl}
+                alt={title}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            </>
+          ) : (
+            <div className="poster-vignette absolute inset-0" style={{ backgroundImage: posterTheme.bg }}>
+              <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
+                <span className="font-display text-[28px] leading-[0.98] text-white/90 drop-shadow line-clamp-3">
+                  {title}
+                </span>
+              </div>
+            </div>
           )}
-          {!isSoldOut && selloutSoon && (
-            <Badge variant="warning" size="sm">
-              {t('ticket.almost_sold_out')}
-            </Badge>
-          )}
-          {isTrending && (
-            <Badge variant="trending" size="sm" icon={<TrendingUp className="w-3 h-3" />}>
-              {t('events.trending')}
-            </Badge>
-          )}
+
+          {/* Badges Overlay - Top Right */}
+          <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
+            {isSoldOut && (
+              <Badge variant="error" size="sm">
+                {t('ticket.sold_out').toUpperCase()}
+              </Badge>
+            )}
+            {!isSoldOut && selloutSoon && (
+              <Badge variant="warning" size="sm">
+                {t('ticket.almost_sold_out')}
+              </Badge>
+            )}
+            {isTrending && (
+              <Badge variant="trending" size="sm" icon={<TrendingUp className="w-3 h-3" />}>
+                {t('events.trending')}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 
