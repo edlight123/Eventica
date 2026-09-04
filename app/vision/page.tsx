@@ -218,7 +218,7 @@ export default async function VisionPage() {
              the editorial serif. Teal appears once on this page, on the rule
              below the eyebrow, and nowhere else. ── */}
       <section className="mx-auto max-w-6xl px-4 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8">
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
+        <p className="!text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
           {c.heroEyebrow}
         </p>
         <span aria-hidden className="mt-3 block h-px w-10 bg-brand-400" />
@@ -259,8 +259,8 @@ export default async function VisionPage() {
                   key={i}
                   className={
                     i === 0
-                      ? 'text-[17px] leading-relaxed text-white/75 sm:text-[19px]'
-                      : 'text-[15px] leading-relaxed text-white/55'
+                      ? '!text-[17px] !leading-relaxed text-white/75 sm:!text-[19px]'
+                      : '!text-[15px] !leading-relaxed text-white/55'
                   }
                 >
                   {p}
@@ -276,7 +276,7 @@ export default async function VisionPage() {
       <Reveal>
       <section className="border-t border-white/10">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
+          <p className="!text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
             {c.principlesEyebrow}
           </p>
           {/* Reveal is NOT used per item here: it renders a <div>, and
@@ -293,16 +293,16 @@ export default async function VisionPage() {
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     <div className="min-w-0">
-                      <h3 className="font-grotesk text-[19px] font-bold leading-tight text-white sm:text-[22px]">
+                      <h3 className="font-grotesk !text-[19px] font-bold leading-tight text-white sm:!text-[22px]">
                         {p.kreyol}
                       </h3>
                       {/* The gloss sits under the Kreyòl, quieter, so a reader
                           who needs it has it and a reader who doesn't isn't
                           talked down to. */}
-                      <p className="mt-1 font-display lowercase italic text-[15px] text-white/45">
+                      <p className="mt-1 font-display lowercase italic !text-[15px] text-white/45">
                         {p.gloss}
                       </p>
-                      <p className="mt-4 max-w-[60ch] text-[15px] leading-relaxed text-white/60">
+                      <p className="mt-4 max-w-[60ch] !text-[15px] !leading-relaxed text-white/60">
                         {p.body}
                       </p>
                     </div>
@@ -321,14 +321,14 @@ export default async function VisionPage() {
             <h2 className="font-display lowercase italic !text-[clamp(26px,4vw,40px)] !leading-[1.05] text-white/90">
               {c.citiesHead}
             </h2>
-            <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-white/55">
+            <p className="mt-4 max-w-[58ch] !text-[15px] !leading-relaxed text-white/55">
               {c.citiesBody}
             </p>
             <ul className="mt-9 flex flex-wrap gap-x-8 gap-y-3">
               {c.cities.map((city) => (
                 <li
                   key={city}
-                  className="font-grotesk text-[clamp(20px,3.4vw,34px)] font-bold uppercase leading-none tracking-tight text-white/80"
+                  className="font-grotesk !text-[clamp(20px,3.4vw,34px)] font-bold uppercase !leading-none tracking-tight text-white/80"
                 >
                   {city}
                 </li>
@@ -345,10 +345,10 @@ export default async function VisionPage() {
             <h2 className="font-grotesk font-bold uppercase !text-[clamp(30px,5.5vw,60px)] !leading-[1.02] tracking-tight text-white">
               {c.closingKreyol}
             </h2>
-            <p className="mt-3 font-display lowercase italic text-[17px] text-white/45">
+            <p className="mt-3 font-display lowercase italic !text-[17px] text-white/45">
               {c.closingGloss}
             </p>
-            <p className="mt-7 max-w-[56ch] text-[15px] leading-relaxed text-white/60">
+            <p className="mt-7 max-w-[56ch] !text-[15px] !leading-relaxed text-white/60">
               {c.closingBody}
             </p>
             <Link
