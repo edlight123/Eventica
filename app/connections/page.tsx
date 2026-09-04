@@ -1,3 +1,14 @@
+/**
+ * /connections — auth-gated friends surface.
+ *
+ * The shell only: auth gate, one server read, and the dark public canvas. All
+ * of the UI (header, tabs, lists, search, contact matching) lives in
+ * ConnectionsClient so the page's visual structure is readable in one file.
+ *
+ * `max-w-2xl` rather than 3xl: every row here is avatar + name + one action,
+ * so a wider column just stretches a 15px name across dead space. A reading
+ * measure keeps the list feeling like a list.
+ */
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth'
 import { isAdmin } from '@/lib/admin'
@@ -27,7 +38,7 @@ export default async function ConnectionsPage() {
     <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
+      <div className="mx-auto w-full max-w-2xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
         <ConnectionsClient initialOverview={overview} />
       </div>
 

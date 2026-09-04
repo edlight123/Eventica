@@ -1,9 +1,46 @@
 'use client'
 
+/**
+ * /connections — the friends surface, rebuilt to the POSH direction.
+ *
+ * What this was: a bold-sans `<h1>` with a teal Users icon glued to it, three
+ * equal tab buttons in a `p-1 rounded-xl` track that had no fill (so the
+ * padding wrapped nothing), a red filled pill for the pending count, and every
+ * list rendered as `bg-white/[0.03]` behind `border border-white/10` — the
+ * wireframe-of-itself failure the design brief exists to stop. Both text
+ * inputs had had their background classes stripped at some point and rendered
+ * as invisible fields (`py-3 rounded-xl  focus:ring-2`, note the double
+ * space). The contact-match card carried a hand-rolled `font-bold` h2, a teal
+ * primary button (teal is semantic-only, never a button fill), a
+ * `border-2 border-white/10` secondary with no fill at all, and an empty
+ * 40×40 box holding an icon.
+ *
+ * What it is now, per docs/POSH_DESIGN_BRIEF.md:
+ * - the shared EditorialHeader (serif page title) + the shared SectionHeader
+ *   (Instrument Serif, lowercased) for every in-page section. No hand-rolled
+ *   headings.
+ * - surfaces get a FILL: lists and cards are `bg-white/[0.03]` with no border,
+ *   fields are `bg-white/[0.055]`, the disclosed manual panel is an inset.
+ *   The only borders left are the tablist rule, the row dividers and the
+ *   divider above the contact results — places where a hairline IS the meaning.
+ * - the pending count is an amber dot + numeral ("action needed" in the locked
+ *   §2.7 colour map), not a filled red pill.
+ * - teal appears exactly twice: the active tab underline, and the verified
+ *   check on a name. The primary action is a white pill.
+ * - the incoming-request row stacks its Accept/Decline pair onto its own line
+ *   under 640px, so a 402px phone never crams two buttons against a name.
+ *
+ * Behaviour is untouched: same props, same endpoints, same debounce, same
+ * optimistic ConnectButton state, same silent-failure paths.
+ */
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { Users, UserPlus, Search, Phone, Loader2, Inbox, Send } from 'lucide-react'
+import { BadgeCheck, Inbox, Loader2, Phone, Search, UserPlus, Users } from 'lucide-react'
 import ConnectButton from '@/components/connections/ConnectButton'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { SectionHeader } from '@/components/ui/EditorialRails'
+import { EmptyState } from '@/components/ui/kit'
 import type { PublicUserSummary, FriendshipState } from '@/types/social'
 
 interface Overview {
@@ -18,19 +55,46 @@ interface SearchResult extends PublicUserSummary {
 
 type Tab = 'friends' | 'requests' | 'find'
 
+/** The one pure-white surface on the page: the primary action. */
+const PILL_PRIMARY =
+  'inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-white px-4 text-[13px] font-semibold text-black transition-colors hover:bg-white/90 disabled:opacity-50'
+
+/** Secondary action — a filled grey pill, never an outline around nothing. */
+const PILL_SECONDARY =
+  'inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-white/[0.055] px-4 text-[13px] font-semibold text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white disabled:opacity-50'
+
+/** A step up from secondary, for a submit that is not the screen's primary. */
+const PILL_STRONG =
+  'inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-white/[0.14] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-white/[0.2] disabled:opacity-50'
+
+const FIELD =
+  'w-full rounded-xl bg-white/[0.055] text-white placeholder:text-white/30 transition-colors focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-brand-400/60'
+
 function Avatar({ user, size = 44 }: { user: PublicUserSummary; size?: number }) {
   const initial = (user.displayName || 'U').charAt(0).toUpperCase()
   return (
     <div
-      className="rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-semibold flex-shrink-0"
-      style={{ width: size, height: size, fontSize: size * 0.4 }}
+      className="flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/[0.08] font-grotesk font-bold text-white/60"
+      style={{ width: size, height: size, fontSize: size * 0.38 }}
     >
       {user.photoURL ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={user.photoURL} alt={user.displayName} className="w-full h-full object-cover" />
+        <img src={user.photoURL} alt={user.displayName} className="h-full w-full object-cover" />
       ) : (
         initial
       )}
+    </div>
+  )
+}
+
+/**
+ * A filled list surface with hairline-divided rows. The fill is what makes it
+ * a surface; the dividers are the only legitimate borders here.
+ */
+function PeopleList({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="divide-y divide-white/[0.06] overflow-hidden rounded-2xl bg-white/[0.03] px-3 sm:px-4">
+      {children}
     </div>
   )
 }
@@ -46,22 +110,42 @@ function PersonRow({
   state: FriendshipState
   onChange?: (s: FriendshipState) => void
 }) {
+  const href = `/profile/organizer/${user.uid}`
+  // An incoming request renders two buttons (Accept + Decline). Against a name
+  // on a 402px phone that leaves ~150px for the name, so the pair drops to its
+  // own line under sm and returns inline above it. One ConnectButton instance
+  // either way — duplicating it would fork the optimistic state.
+  const stackActions = state === 'request_received'
+
   return (
-    <div className="flex items-center gap-3 py-3">
-      <Link href={`/profile/organizer/${user.uid}`}>
+    <div className={`flex flex-wrap items-center gap-x-3 gap-y-2.5 ${stackActions ? 'py-3' : 'py-2.5'}`}>
+      <Link href={href} className="shrink-0" aria-label={user.displayName} tabIndex={-1}>
         <Avatar user={user} />
       </Link>
-      <Link href={`/profile/organizer/${user.uid}`} className="flex-1 min-w-0">
-        <p className="font-semibold text-white truncate">{user.displayName}</p>
-        {user.isVerified && <p className="text-xs text-blue-600">Verified</p>}
+
+      <Link href={href} className="min-w-0 flex-1 basis-0">
+        <span className="flex items-center gap-1.5">
+          <span className="truncate text-[15px] font-semibold tracking-tight text-white decoration-white/30 underline-offset-4 hover:underline">
+            {user.displayName}
+          </span>
+          {user.isVerified && (
+            <>
+              <BadgeCheck className="h-4 w-4 shrink-0 text-brand-400" aria-hidden />
+              <span className="sr-only">Verified</span>
+            </>
+          )}
+        </span>
       </Link>
-      <ConnectButton
-        targetUserId={user.uid}
-        initialState={state}
-        isAuthenticated={isAuthenticated}
-        size="sm"
-        onChange={onChange}
-      />
+
+      <div className={stackActions ? 'w-full pl-14 sm:w-auto sm:shrink-0 sm:pl-0' : 'shrink-0'}>
+        <ConnectButton
+          targetUserId={user.uid}
+          initialState={state}
+          isAuthenticated={isAuthenticated}
+          size="sm"
+          onChange={onChange}
+        />
+      </div>
     </div>
   )
 }
@@ -80,107 +164,140 @@ export default function ConnectionsClient({ initialOverview }: { initialOverview
   }, [])
 
   const pendingCount = overview.incoming.length
+  const goFind = useCallback(() => setTab('find'), [])
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-5">
-        <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
-          <Users className="w-7 h-7 text-brand-300" />
-          Friends
-        </h1>
-        <p className="text-sm text-white/60 mt-1">
-          Connect with people and see which friends are going to events.
-        </p>
+      <EditorialHeader
+        tone="dark"
+        eyebrow="Connections"
+        title="Friends"
+        subtitle="Connect with people and see which friends are going to events."
+      />
+
+      {/* The tablist rule is a section divider — the one hairline this band earns.
+          -mx-4 lets it span the page gutter on a phone; overflow-x-auto keeps any
+          future label from pushing the body sideways. */}
+      <div
+        role="tablist"
+        aria-label="Connections"
+        className="-mx-4 mb-6 mt-6 flex gap-5 overflow-x-auto border-b border-white/10 px-4 sm:mx-0 sm:mb-7 sm:mt-7 sm:gap-7 sm:px-0"
+      >
+        <TabButton id="friends" active={tab === 'friends'} onClick={() => setTab('friends')} label="Friends">
+          <Count value={overview.friends.length} />
+        </TabButton>
+        <TabButton id="requests" active={tab === 'requests'} onClick={() => setTab('requests')} label="Requests">
+          <Count value={pendingCount} attention />
+        </TabButton>
+        <TabButton id="find" active={tab === 'find'} onClick={() => setTab('find')} label="Find friends" />
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl mb-5">
-        <TabButton active={tab === 'friends'} onClick={() => setTab('friends')}>
-          Friends
-          {overview.friends.length > 0 && <Count>{overview.friends.length}</Count>}
-        </TabButton>
-        <TabButton active={tab === 'requests'} onClick={() => setTab('requests')}>
-          Requests
-          {pendingCount > 0 && <Count highlight>{pendingCount}</Count>}
-        </TabButton>
-        <TabButton active={tab === 'find'} onClick={() => setTab('find')}>
-          Find friends
-        </TabButton>
+      <div role="tabpanel" id="panel-friends" aria-labelledby="tab-friends" hidden={tab !== 'friends'}>
+        {tab === 'friends' && <FriendsTab overview={overview} onChange={refreshOverview} onFind={goFind} />}
       </div>
-
-      {tab === 'friends' && (
-        <FriendsTab overview={overview} onChange={refreshOverview} />
-      )}
-      {tab === 'requests' && (
-        <RequestsTab overview={overview} onChange={refreshOverview} />
-      )}
-      {tab === 'find' && <FindTab onChange={refreshOverview} />}
+      <div role="tabpanel" id="panel-requests" aria-labelledby="tab-requests" hidden={tab !== 'requests'}>
+        {tab === 'requests' && <RequestsTab overview={overview} onChange={refreshOverview} />}
+      </div>
+      <div role="tabpanel" id="panel-find" aria-labelledby="tab-find" hidden={tab !== 'find'}>
+        {tab === 'find' && <FindTab onChange={refreshOverview} />}
+      </div>
     </div>
   )
 }
 
+/**
+ * A tab is a label with a teal underline when active — one of the sanctioned
+ * semantic uses of teal (§1). No filled track, so nothing frames empty space.
+ */
 function TabButton({
+  id,
   active,
   onClick,
+  label,
   children,
 }: {
+  id: Tab
   active: boolean
   onClick: () => void
-  children: React.ReactNode
+  label: string
+  children?: React.ReactNode
 }) {
   return (
     <button
+      type="button"
+      role="tab"
+      id={`tab-${id}`}
+      aria-selected={active}
+      aria-controls={`panel-${id}`}
       onClick={onClick}
-      className={`flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors ${
-        active ? 'bg-white/[0.03] text-brand-300' : 'text-white/60 hover:text-white'
+      className={`relative -mb-px shrink-0 whitespace-nowrap pb-3 pt-1 text-[13px] font-semibold tracking-tight transition-colors ${
+        active ? 'text-white' : 'text-white/45 hover:text-white/75'
       }`}
     >
-      {children}
+      <span className="inline-flex items-baseline gap-1.5">
+        {label}
+        {children}
+      </span>
+      <span
+        aria-hidden
+        className={`absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-brand-400 transition-opacity ${
+          active ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
     </button>
   )
 }
 
-function Count({ children, highlight }: { children: React.ReactNode; highlight?: boolean }) {
+/**
+ * A count beside a tab label. `attention` is a pending inbox: an amber dot plus
+ * the numeral, per the locked status-colour map (amber = action needed). It
+ * replaces a `bg-red-500` filled pill — a status is a dot and a label, never a
+ * fill that reads as a button.
+ */
+function Count({ value, attention }: { value: number; attention?: boolean }) {
+  if (value <= 0) return null
   return (
     <span
-      className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold ${
-        highlight ? 'bg-red-500 text-white' : 'text-white/70'
+      className={`label-mono inline-flex items-center gap-1 text-[11px] ${
+        attention ? 'text-amber-300' : 'text-white/35'
       }`}
     >
-      {children}
+      {attention && <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400" />}
+      {value}
     </span>
   )
 }
 
-function EmptyState({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
-  return (
-    <div className="text-center py-12">
-      <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center text-white/40 mb-3">
-        {icon}
-      </div>
-      <p className="font-semibold text-white">{title}</p>
-      <p className="text-sm text-white/50 mt-1">{subtitle}</p>
-    </div>
-  )
-}
-
-function FriendsTab({ overview, onChange }: { overview: Overview; onChange: () => void }) {
+function FriendsTab({
+  overview,
+  onChange,
+  onFind,
+}: {
+  overview: Overview
+  onChange: () => void
+  onFind: () => void
+}) {
   if (overview.friends.length === 0) {
     return (
       <EmptyState
-        icon={<Users className="w-7 h-7" />}
+        icon={Users}
         title="No friends yet"
-        subtitle="Find friends from your contacts or by searching their name."
+        description="Find friends from your contacts, or search for someone by name."
+        action={
+          <button type="button" onClick={onFind} className={PILL_PRIMARY}>
+            <UserPlus className="h-4 w-4" />
+            Find friends
+          </button>
+        }
       />
     )
   }
   return (
-    <div className="bg-white/[0.03] rounded-2xl border border-white/10 px-4 divide-y divide-white/10">
+    <PeopleList>
       {overview.friends.map((f) => (
         <PersonRow key={f.uid} user={f} isAuthenticated state="friends" onChange={onChange} />
       ))}
-    </div>
+    </PeopleList>
   )
 }
 
@@ -189,37 +306,33 @@ function RequestsTab({ overview, onChange }: { overview: Overview; onChange: () 
   if (incoming.length === 0 && outgoing.length === 0) {
     return (
       <EmptyState
-        icon={<Inbox className="w-7 h-7" />}
+        icon={Inbox}
         title="No pending requests"
-        subtitle="Friend requests you send or receive will appear here."
+        description="Friend requests you send or receive will appear here."
       />
     )
   }
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {incoming.length > 0 && (
-        <div>
-          <h2 className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2 flex items-center gap-2">
-            <Inbox className="w-4 h-4" /> Received
-          </h2>
-          <div className="bg-white/[0.03] rounded-2xl border border-white/10 px-4 divide-y divide-white/10">
+        <section>
+          <SectionHeader eyebrow={`${incoming.length} waiting`} title="received" />
+          <PeopleList>
             {incoming.map((u) => (
               <PersonRow key={u.uid} user={u} isAuthenticated state="request_received" onChange={onChange} />
             ))}
-          </div>
-        </div>
+          </PeopleList>
+        </section>
       )}
       {outgoing.length > 0 && (
-        <div>
-          <h2 className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2 flex items-center gap-2">
-            <Send className="w-4 h-4" /> Sent
-          </h2>
-          <div className="bg-white/[0.03] rounded-2xl border border-white/10 px-4 divide-y divide-white/10">
+        <section>
+          <SectionHeader eyebrow={`${outgoing.length} sent`} title="sent" />
+          <PeopleList>
             {outgoing.map((u) => (
               <PersonRow key={u.uid} user={u} isAuthenticated state="request_sent" onChange={onChange} />
             ))}
-          </div>
-        </div>
+          </PeopleList>
+        </section>
       )}
     </div>
   )
@@ -314,110 +427,136 @@ function FindTab({ onChange }: { onChange: () => void }) {
     submitPhones(phones)
   }, [manualText, submitPhones])
 
+  // Without the Contact Picker (every desktop browser, and iOS Safari) the
+  // paste-a-list path is the only path, so its submit is the screen's one white
+  // pill. Where Sync exists, Sync is primary and this steps down a rung.
+  const manualIsPrimary = !supportsContactPicker
+  const showsNoResults = query.trim().length >= 2 && !searching && results.length === 0
+
   return (
-    <div className="space-y-6">
-      {/* Search by name */}
-      <div>
+    <div className="space-y-8">
+      <section>
+        <label htmlFor="connections-search" className="sr-only">
+          Search people by name or email
+        </label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+          <Search
+            aria-hidden
+            className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-white/40"
+          />
           <input
+            id="connections-search"
+            type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name or email"
-            className="w-full pl-10 pr-4 py-3 rounded-xl  focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className={`${FIELD} py-3 pl-11 pr-11`}
           />
           {searching && (
-            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 animate-spin" />
+            <Loader2 className="absolute right-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 animate-spin text-white/40" />
           )}
         </div>
 
         {results.length > 0 && (
-          <div className="mt-2 bg-white/[0.03] rounded-2xl border border-white/10 px-4 divide-y divide-white/10">
-            {results.map((r) => (
-              <PersonRow key={r.uid} user={r} isAuthenticated state={r.friendship} onChange={onChange} />
-            ))}
+          <div className="mt-3">
+            <PeopleList>
+              {results.map((r) => (
+                <PersonRow key={r.uid} user={r} isAuthenticated state={r.friendship} onChange={onChange} />
+              ))}
+            </PeopleList>
           </div>
         )}
-        {query.trim().length >= 2 && !searching && results.length === 0 && (
-          <p className="text-sm text-white/50 mt-3 text-center">No people found for “{query}”.</p>
+        {showsNoResults && (
+          <p className="mt-4 text-center !text-[13px] text-white/45">No people found for “{query}”.</p>
         )}
-      </div>
+      </section>
 
-      {/* Contact matching */}
-      <div className="bg-white/[0.03] rounded-2xl border border-white/10 p-5">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Phone className="w-5 h-5 text-brand-300" />
+      <section>
+        <SectionHeader
+          eyebrow="Contact match"
+          title="from your contacts"
+          description="We only match numbers you already have. Your contacts are never stored."
+        />
+
+        <div className="rounded-2xl bg-white/[0.03] p-4 sm:p-5">
+          <div className="flex flex-wrap gap-2">
+            {supportsContactPicker && (
+              <button onClick={syncContacts} disabled={contactLoading} className={PILL_PRIMARY}>
+                {contactLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UserPlus className="h-4 w-4" />
+                )}
+                Sync contacts
+              </button>
+            )}
+            <button
+              onClick={() => setManualOpen((v) => !v)}
+              aria-expanded={manualOpen}
+              className={PILL_SECONDARY}
+            >
+              <Phone className="h-4 w-4" />
+              {supportsContactPicker ? 'Enter numbers manually' : 'Paste phone numbers'}
+            </button>
           </div>
-          <div className="flex-1">
-            <h2 className="font-bold text-white">Find friends from contacts</h2>
-            <p className="text-sm text-white/60 mt-0.5">
-              We only match numbers you already have. Your contacts are never stored.
-            </p>
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              {supportsContactPicker && (
-                <button
-                  onClick={syncContacts}
-                  disabled={contactLoading}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-teal-600 text-white hover:bg-teal-700 transition-colors disabled:opacity-50"
-                >
-                  {contactLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-                  Sync contacts
-                </button>
-              )}
+          {/* No inset wrapper on the disclosed panel: an extra 0.04 surface
+              between the 0.03 card and the 0.055 field would leave two of the
+              three rungs a hair apart and read as noise. The field's own fill
+              is the grouping. */}
+          {manualOpen && (
+            <div className="mt-3">
+              <label htmlFor="connections-phones" className="sr-only">
+                Phone numbers, one per line
+              </label>
+              <textarea
+                id="connections-phones"
+                value={manualText}
+                onChange={(e) => setManualText(e.target.value)}
+                rows={4}
+                placeholder={'Paste phone numbers, one per line\n+509 1234 5678\n...'}
+                className={`${FIELD} resize-none px-3 py-2.5`}
+              />
               <button
-                onClick={() => setManualOpen((v) => !v)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border-2 border-white/10 text-white/70 hover:bg-white/[0.04] transition-colors"
+                onClick={submitManual}
+                disabled={contactLoading}
+                className={`mt-2.5 ${manualIsPrimary ? PILL_PRIMARY : PILL_STRONG}`}
               >
-                {supportsContactPicker ? 'Enter numbers manually' : 'Paste phone numbers'}
+                {contactLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Find matches
               </button>
             </div>
+          )}
 
-            {manualOpen && (
-              <div className="mt-3">
-                <textarea
-                  value={manualText}
-                  onChange={(e) => setManualText(e.target.value)}
-                  rows={4}
-                  placeholder={'Paste phone numbers, one per line\n+509 1234 5678\n...'}
-                  className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none text-sm"
-                />
-                <button
-                  onClick={submitManual}
-                  disabled={contactLoading}
-                  className="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl bg-teal-600 text-white hover:bg-teal-700 transition-colors disabled:opacity-50"
-                >
-                  {contactLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Find matches
-                </button>
-              </div>
-            )}
+          {contactError && <p className="mt-3 !text-[13px] text-red-300">{contactError}</p>}
 
-            {contactError && <p className="text-sm text-red-300 mt-3">{contactError}</p>}
-          </div>
-        </div>
-
-        {/* Contact match results */}
-        {contactMatches !== null && (
-          <div className="mt-4 border-t border-white/10 pt-2">
-            {contactMatches.length === 0 ? (
-              <p className="text-sm text-white/50 py-3 text-center">
-                None of your contacts are on Tikèm yet, invite them!
-              </p>
-            ) : (
-              <div className="divide-y divide-white/10">
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wide py-2">
-                  {contactMatches.length} on Tikèm
+          {contactMatches !== null && (
+            <div className="mt-4 border-t border-white/[0.08] pt-3">
+              {contactMatches.length === 0 ? (
+                <p className="py-2 text-center !text-[13px] text-white/45">
+                  None of your contacts are on Tikèm yet, invite them!
                 </p>
-                {contactMatches.map((m) => (
-                  <PersonRow key={m.uid} user={m} isAuthenticated state={m.friendship} onChange={onChange} />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              ) : (
+                <>
+                  {/* A div, not a p: `.mobile-typography p` would drag .eyebrow back to 14px. */}
+                  <div className="eyebrow mb-1.5 text-white/40">{contactMatches.length} on Tikèm</div>
+                  <div className="divide-y divide-white/[0.06]">
+                    {contactMatches.map((m) => (
+                      <PersonRow
+                        key={m.uid}
+                        user={m}
+                        isAuthenticated
+                        state={m.friendship}
+                        onChange={onChange}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   )
 }

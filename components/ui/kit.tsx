@@ -102,7 +102,9 @@ export function EmptyState({
           <Icon className="h-7 w-7" />
         </div>
       )}
-      <h3 className="font-display text-xl text-white">{title}</h3>
+      {/* `!text-xl`: `.mobile-typography h3` (0,1,1) outranks `text-xl` (0,1,0),
+          so the serif headline was rendering at 16px on every phone. */}
+      <h3 className="font-display !text-xl text-white">{title}</h3>
       {description && <p className="mx-auto mt-1.5 max-w-md text-sm text-white/50">{description}</p>}
       {action && <div className="mt-5 flex justify-center">{action}</div>}
     </div>
