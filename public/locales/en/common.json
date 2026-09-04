@@ -1341,7 +1341,8 @@
     "flyerMore": "More artwork",
     "tierNameLabel": "Name",
     "tierPriceLabel": "Price",
-    "tierQtyLabel": "Qty"
+    "tierQtyLabel": "Qty",
+    "endRequired": "Add when your event ends, so attendees know how long it runs."
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",

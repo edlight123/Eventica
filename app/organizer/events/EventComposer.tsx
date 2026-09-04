@@ -885,9 +885,23 @@ export default function EventComposer({
   )
   const needsLocation = !isOnline && !venueName.trim() && !address.trim() && !city.trim()
 
+  /**
+   * The end is REQUIRED now (owner call, 2026-09-03).
+   *
+   * It was optional, and the result was that 25 of 27 events in production
+   * carried no `end_datetime` at all — so the public event page had no end to
+   * show, every reader was left guessing when the night finished, and the
+   * "Date & time" section could only ever print half a fact.
+   *
+   * `endMissing` is deliberately separate from `endBeforeStart`: they are
+   * different mistakes and deserve different sentences. Missing also covers a
+   * date with no time, since a bare date would compose to midnight and quietly
+   * mean "ends as it begins".
+   */
+  const endMissing = !endDate || !endTime
   const titleInvalid = attempted && title.trim().length < 3
   const startInvalid = attempted && !startDate
-  const endInvalid = attempted && endBeforeStart
+  const endInvalid = attempted && (endMissing || endBeforeStart)
   const locationInvalid = attempted && needsLocation
 
   // Per-tier sale window: when BOTH bounds are set, end must be after start.
@@ -1152,6 +1166,17 @@ export default function EventComposer({
         title: t('composer.toasts.almostTitle', { defaultValue: 'Almost there' }),
         message: t('composer.toasts.almostMsg', {
           defaultValue: 'Add an event name and a start date to continue.',
+        }),
+        duration: 4000,
+      })
+      return
+    }
+    if (endMissing) {
+      showToast({
+        type: 'error',
+        title: t('composer.toasts.datesTitle', { defaultValue: 'Check your dates' }),
+        message: t('composer.endRequired', {
+          defaultValue: 'Add when your event ends, so attendees know how long it runs.',
         }),
         duration: 4000,
       })
@@ -1583,7 +1608,11 @@ export default function EventComposer({
   const quarters = [
     Boolean(bannerUrl),
     Boolean(title.trim()),
-    Boolean(startDate && (isOnline || address.trim() || venueName.trim() || city.trim())),
+    // When AND where — the end counts now that it is required, so the meter
+    // cannot read 100% on an event that will not save.
+    Boolean(
+      startDate && endDate && endTime && (isOnline || address.trim() || venueName.trim() || city.trim())
+    ),
     sellMode === 'rsvp' || tiers.some((tr) => tr.name.trim() && String(tr.price).trim() !== ''),
   ]
   const quartersDone = quarters.filter(Boolean).length
@@ -1730,13 +1759,16 @@ export default function EventComposer({
                 </div>
               </div>
               <div className="flex flex-col gap-2 border-t border-white/10 px-4 py-3.5 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-3">
-                <span className="text-[15px] font-medium text-white">{t('composer.end', { defaultValue: 'End' })}</span>
+                <span className="text-[15px] font-medium text-white">
+                  {t('composer.end', { defaultValue: 'End' })} <span className="text-red-300" aria-hidden="true">*</span>
+                </span>
                 <div className="flex flex-nowrap items-center gap-2">
                   <span className="label-mono shrink-0 text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker
                     value={endDate}
                     onChange={setEndDate}
                     min={startDate || undefined}
+                    invalid={endInvalid}
                     /* The single most useful control on an END field: 25 of
                        27 production events have no end set at all, and for
                        most of them the answer is "the same night". */
@@ -1754,7 +1786,13 @@ export default function EventComposer({
             )}
             {endInvalid && (
               <p className="mt-1.5 text-sm text-red-300">
-                {t('composer.endError', { defaultValue: 'The end time must be after the start time.' })}
+                {endMissing
+                  ? t('composer.endRequired', {
+                      defaultValue: 'Add when your event ends, so attendees know how long it runs.',
+                    })
+                  : t('composer.endError', {
+                      defaultValue: 'The end time must be after the start time.',
+                    })}
               </p>
             )}
 

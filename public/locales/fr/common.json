@@ -1341,7 +1341,8 @@
     "flyerMore": "Plus de visuels",
     "tierNameLabel": "Nom",
     "tierPriceLabel": "Prix",
-    "tierQtyLabel": "Qté"
+    "tierQtyLabel": "Qté",
+    "endRequired": "Indiquez quand votre événement se termine, pour que les participants sachent combien de temps il dure."
   },
   "promoter": {
     "portal_eyebrow": "Portail promoteur",

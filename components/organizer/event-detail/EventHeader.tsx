@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, MapPin, Globe, Edit, Share2, Eye, MoreVertical, Copy, XCircle, Trash2 } from 'lucide-react'
+import { Calendar, MapPin, Globe, Edit, Share2, Eye } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -27,7 +27,6 @@ export function EventHeader({ event }: EventHeaderProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
   const { showToast } = useToast()
-  const [showMenu, setShowMenu] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
 
   const handlePublishToggle = async () => {
@@ -157,31 +156,17 @@ export function EventHeader({ event }: EventHeaderProps) {
                 {isPublishing ? t('organizer.processing') : event.is_published ? t('organizer.unpublish') : t('organizer.publish')}
               </button>
               
-              {/* Overflow Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowMenu(!showMenu)}
-                  className="grid h-11 w-11 place-items-center rounded-[10px] bg-white/[0.08] transition-colors hover:bg-white/[0.14]"
-                >
-                  <MoreVertical className="w-5 h-5 text-white/70" />
-                </button>
-                {showMenu && (
-                  <div className="absolute right-0 z-50 mt-2 w-48 rounded-xl bg-[#171717] py-1 shadow-2xl">
-                    <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white">
-                      <Copy className="w-4 h-4" />
-                      {t('organizer.duplicate')}
-                    </button>
-                    <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white">
-                      <XCircle className="w-4 h-4" />
-                      {t('organizer.cancel_event')}
-                    </button>
-                    <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-300 transition-colors hover:bg-red-500/15">
-                      <Trash2 className="w-4 h-4" />
-                      {t('organizer.delete')}
-                    </button>
-                  </div>
-                )}
-              </div>
+              {/* The overflow ⋮ menu was removed on owner ask (2026-09-03).
+                  All three of its items — Duplicate, Cancel event, Delete —
+                  were `<button>`s with NO onClick: they opened, they looked
+                  live, and every one of them did nothing. A control that
+                  promises a destructive action and silently declines is worse
+                  than an absent one, so the whole menu goes rather than being
+                  disabled in place. The strings (`organizer.duplicate`,
+                  `organizer.cancel_event`, `organizer.delete`) stay in the
+                  locales for whoever implements them. Delete already exists
+                  and works in the organizer's events list; cancel and
+                  duplicate do not exist anywhere yet. */}
             </div>
           </div>
         </div>

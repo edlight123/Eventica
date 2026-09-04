@@ -1341,7 +1341,8 @@
     "flyerMore": "Plis zimaj",
     "tierNameLabel": "Non",
     "tierPriceLabel": "Pri",
-    "tierQtyLabel": "Kantite"
+    "tierQtyLabel": "Kantite",
+    "endRequired": "Mete lè evènman w fini, pou moun yo konnen konbyen tan l ap dire."
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",
