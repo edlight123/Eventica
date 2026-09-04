@@ -37,7 +37,6 @@ const nextConfig = {
     return `build-${Date.now()}`
   },
   
-  distDir: process.env.NEXT_DIST_DIR || '.next', // TEMP-VERIFY
   // Compression and performance
   compress: true,
   poweredByHeader: false,
