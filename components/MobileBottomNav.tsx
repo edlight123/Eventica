@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, Ticket, User, Briefcase, Shield, Users } from 'lucide-react'
+import { Home, Compass, Ticket, User } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -21,14 +21,32 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
     return pathname?.startsWith(path)
   }
 
+  /**
+   * FOUR tabs, deliberately — and the labels stay.
+   *
+   * This used to build up to six (Friends, and Organizer/Admin, on top of
+   * these four). Six tabs across a 402px phone is ~67px each, and the 11px
+   * labels are `truncate`d, so "My Tickets" and "Événements" were rendering as
+   * clipped fragments: the labels were already broken rather than helping.
+   * Four tabs gives ~100px each, which fits the longest label in all three
+   * locales ("Événements" measures ~60px), so nothing truncates.
+   *
+   * Nothing is orphaned by the cut. Both the desktop dropdown and the mobile
+   * hamburger in components/Navbar already link /connections, /organizer,
+   * /promoter, /admin and /favorites, so the two dropped destinations keep a
+   * home — a bottom bar is for the few places you go constantly, not for
+   * every place you can go.
+   *
+   * `isOrganizer` / `isAdmin` are still accepted but no longer affect the tab
+   * set. They stay in the signature because ~30 call sites pass them and
+   * churning those files buys the reader nothing.
+   */
   const tabs = useMemo(() => [
     { href: '/', label: t('nav.home'), icon: Home, show: true },
     { href: '/discover', label: t('nav.discover'), icon: Compass, show: true },
     { href: '/tickets', label: t('nav.myTickets'), icon: Ticket, show: isLoggedIn },
-    { href: '/connections', label: t('nav.friends', { defaultValue: 'Friends' }), icon: Users, show: isLoggedIn },
     { href: '/profile', label: t('nav.profile'), icon: User, show: isLoggedIn },
-    { href: isAdmin ? '/admin' : '/organizer', label: isAdmin ? t('nav.admin') : t('nav.organizer'), icon: isAdmin ? Shield : Briefcase, show: isLoggedIn && (isOrganizer || isAdmin) },
-  ].filter(tab => tab.show), [isLoggedIn, isOrganizer, isAdmin, t])
+  ].filter(tab => tab.show), [isLoggedIn, t])
 
   // Don't show if not logged in and only 2 tabs would show
   const visible = !(!isLoggedIn && tabs.length <= 2)
