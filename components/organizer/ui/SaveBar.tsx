@@ -40,7 +40,7 @@ export function SaveBar({
             type="button"
             onClick={onDiscard}
             disabled={saving}
-            className="rounded-lg  px-4 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
+            className="rounded-lg bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
           >
             {discardLabel}
           </button>

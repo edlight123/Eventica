@@ -24,7 +24,9 @@ export function MetricCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/10 p-5 ${className}`}
+      // A KPI tile is a card sitting on the page, so it gets the page-card fill
+      // rather than a hairline drawn around nothing.
+      className={`rounded-2xl bg-white/[0.03] p-5 ${className}`}
     >
       <div className="mb-3 flex items-center gap-2">
         {Icon && (

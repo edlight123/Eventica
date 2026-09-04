@@ -109,10 +109,20 @@ export function FacePile({
 const unsplashFace = (photo: string) =>
   `https://images.unsplash.com/photo-${photo}?w=96&h=96&fit=crop&q=80`
 
+/**
+ * Three women and one man (owner ask). Every id was fetched AND looked at
+ * before it went in — a resolving Unsplash id can still be a landscape, a
+ * silhouette or somebody's back, and two of the candidates for this list were
+ * exactly that.
+ */
 const SAMPLE_FACES: FacePileFace[] = [
+  // light-skin Black woman, curly hair, broad smile
   { id: 's1', name: 'Mika', photoUrl: unsplashFace('1662850886700-4ec19bd30d11') },
-  { id: 's2', name: 'Jonas', photoUrl: unsplashFace('1522529599102-193c0d76b5b6') },
-  { id: 's3', name: 'Widlyn', photoUrl: unsplashFace('1646658104783-2eec2433c1d1') },
+  // dark-skin Black woman, facing camera, white collar over African print
+  { id: 's2', name: 'Sherlie', photoUrl: unsplashFace('1531123897727-8f129e1688ce') },
+  // the one man: medium-brown skin, short locs, beard, smiling outdoors
+  { id: 's3', name: 'Jonas', photoUrl: unsplashFace('1522529599102-193c0d76b5b6') },
+  // dark-skin Black woman, locs, round glasses, smiling
   { id: 's4', name: 'Farah', photoUrl: unsplashFace('1507152832244-10d45c7eda57') },
 ]
 
@@ -211,19 +221,39 @@ export default function GuestlistVisibilityPicker({
           defaultValue: 'Guest list on your event page: {{current}}. Activate to switch to {{next}}.',
         })}
         title={label(value)}
-        // h-11 is the 44px minimum touch target. The caption under the glyph is
-        // the mode name in words, so the meaning never rests on the icon alone.
-        // min-w rather than a fixed width: the caption is translated, and
-        // "KANTITE" is wider than "COUNT".
-        className={`flex h-11 min-w-[56px] shrink-0 flex-col items-center justify-center gap-1 rounded-lg px-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414] ${
+        // h-11 is the 44px minimum touch target.
+        //
+        // The width no longer changes when you tap it. `min-w-[56px]` was not
+        // enough: the caption IS the mode name, so it went FACES → COUNT →
+        // HIDDEN (and KANTITE, MASQUÉ in the other locales), the button
+        // resized on every press, and the row jumped under the finger — "each
+        // time i click on the eye icon, it keeps changing sizes and all".
+        //
+        // Every caption is now rendered into the SAME grid cell with all but
+        // the live one `invisible`, so the button is permanently as wide as
+        // its own widest label — measured by CSS in the real font and the real
+        // locale, rather than by a magic number I would have to keep correct
+        // in three languages. Same technique as <StableWidth> in
+        // components/ui/DateTimePickers, for the same reason.
+        className={`flex h-11 shrink-0 flex-col items-center justify-center gap-1 rounded-xl px-2.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414] ${
           dimmed
             ? 'bg-white/[0.06] text-white/45 hover:bg-white/[0.12] hover:text-white/70'
             : 'bg-white/[0.11] text-white hover:bg-white/[0.18]'
         }`}
       >
         <Icon className="h-[17px] w-[17px]" aria-hidden />
-        <span className="label-mono whitespace-nowrap text-[9px] uppercase leading-none tracking-wide">
-          {shortLabel(value)}
+        <span className="label-mono grid text-[9px] uppercase leading-none tracking-wide">
+          {GUESTLIST_VISIBILITIES.map((v) => (
+            <span
+              key={v}
+              aria-hidden={v !== value}
+              className={`col-start-1 row-start-1 whitespace-nowrap ${
+                v === value ? '' : 'invisible'
+              }`}
+            >
+              {shortLabel(v)}
+            </span>
+          ))}
         </span>
       </button>
     </div>

@@ -85,7 +85,7 @@ export default function EventStaffHub({
                 <select
                   value={selectedEventId}
                   onChange={(e) => handleChange(e.target.value)}
-                  className="w-full sm:w-[420px] px-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full sm:w-[420px] px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                 >
                   {events.map((e) => (
                     <option key={e.id} value={e.id}>

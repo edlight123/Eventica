@@ -79,8 +79,21 @@ export default function MobileSections({
 
   const mapsQuery = encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)
 
+  // An end that equals the start is the page's own fallback for "not set", so
+  // it is not an end. Both are compared as instants, not strings.
+  const startMs = new Date(startDatetime).getTime()
+  const endMs = new Date(endDatetime).getTime()
+  const hasEnd = Number.isFinite(endMs) && endMs > startMs
+  const sameDay =
+    hasEnd && new Date(startDatetime).toDateString() === new Date(endDatetime).toDateString()
+
+  // Dividers between sections, softened, and no rule at the bottom. Four
+  // `white/10` hairlines down a phone screen plus the container's own closing
+  // border read as stripes; at `/[0.06]` they mark structure without becoming
+  // the structure, and nothing needs closing at the end — the lineup and the
+  // song follow immediately.
   return (
-    <div className="divide-y divide-white/10 border-b border-white/10 px-4 md:hidden">
+    <div className="divide-y divide-white/[0.06] px-4 md:hidden">
       {/* About */}
       <Section title={t('events.about_event')}>
         {description && description.trim() ? (
@@ -103,24 +116,39 @@ export default function MobileSections({
         )}
       </Section>
 
-      {/* Date & Time — before the venue now: "when" is the question a reader
-          asks first, and the app orders it the same way. */}
+      {/* Date & Time — before the venue: "when" is what a reader asks first,
+          and the app orders it the same way.
+
+          Rewritten because the old shape read as "START Friday, August 28,
+          2026 · 2:00 PM" — an all-caps label butted against the date with a
+          single space, which is what the owner meant by the start displaying
+          "kinda weird". The date now leads on its own line and the time sits
+          under it as a RANGE, which is how anyone reads an event listing.
+
+          The end is genuinely absent on most events (25 of 27 in production
+          carry no end_datetime at all), so the range collapses to a single
+          time rather than printing a fake one. */}
       <Section title={t('events.date_time')}>
         {/* The server renders in UTC and the browser in the reader's zone, so
             a formatted time legitimately differs between the two passes. */}
-        <p className="text-[15px] text-white" suppressHydrationWarning>
-          <span className="text-white/50">{t('events.start', { defaultValue: 'Starts' })}</span>{' '}
-          {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
-        </p>
-        {/* Only when the end is a different instant from the start. An event
-            with no end set mirrors the start, and printing both read as
-            "ends at the moment it begins". */}
-        {new Date(endDatetime).getTime() !== new Date(startDatetime).getTime() && (
-          <p className="mt-1.5 text-[15px] text-white" suppressHydrationWarning>
-            <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
-            {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
+        <div suppressHydrationWarning>
+          <p className="text-[17px] font-medium leading-snug text-white">
+            {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy', { locale: dfLocale })}
           </p>
-        )}
+          <p className="mt-1 text-[15px] text-white/70">
+            {format(new Date(startDatetime), 'h:mm a', { locale: dfLocale })}
+            {hasEnd && (
+              <>
+                {' – '}
+                {/* Same day: the time alone. A different day needs its date,
+                    or "2:00 PM – 2:00 AM" silently loses the overnight. */}
+                {sameDay
+                  ? format(new Date(endDatetime), 'h:mm a', { locale: dfLocale })
+                  : format(new Date(endDatetime), 'EEE, MMM d · h:mm a', { locale: dfLocale })}
+              </>
+            )}
+          </p>
+        </div>
       </Section>
 
       {/* Venue */}

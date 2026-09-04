@@ -188,7 +188,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           ← Back to All Earnings
         </Link>
         
-        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-8 text-center">
+        <div className="rounded-xl bg-white/[0.03] p-8 text-center">
           <span className="text-6xl mb-4 block">💰</span>
           <h2 className="font-display text-2xl text-white mb-2">No Earnings Yet</h2>
           <p className="text-white/60 mb-6">
@@ -419,7 +419,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       </div>
 
       {/* Ticket Tier Breakdown */}
-      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 mb-6">
+      <div className="rounded-xl bg-white/[0.03] p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-display text-xl text-white">🎟️ Ticket Tier Breakdown</h2>
@@ -496,7 +496,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Withdrawal Section */}
       {earnings.settlementStatus === 'ready' && availableToWithdraw > 0 && (
-        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 mb-6">
+        <div className="rounded-xl bg-white/[0.03] p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-display text-xl text-white">💸 Request Withdrawal</h2>
@@ -550,7 +550,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Withdrawal History */}
       {earnings.withdrawnAmount > 0 && (
-        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
+        <div className="rounded-xl bg-white/[0.03] p-6">
           <h2 className="font-display text-xl text-white mb-4">📋 Withdrawal History</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-3 border-b border-white/10">
@@ -576,13 +576,13 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       {/* Withdrawal Modal */}
       {showWithdrawModal && withdrawMethod && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#141414] border border-white/10 rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="rounded-xl bg-[#171717] max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="font-display text-xl text-white mb-4">
               Request {withdrawMethod === 'moncash' ? 'MonCash' : 'Bank'} Withdrawal
             </h3>
             
             <div className="mb-6">
-              <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4 mb-4">
+              <div className="rounded-lg bg-white/[0.06] p-4 mb-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-white/60">Amount:</span>
                   <span className="font-mono tabular-nums font-bold text-white">{formatCurrency(availableToWithdraw, earnings.currency)}</span>
@@ -607,7 +607,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       value={moncashNumber}
                       onChange={(e) => setMoncashNumber(e.target.value)}
                       placeholder="+509 1234 5678"
-                      className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                       required
                     />
                   </div>
@@ -615,8 +615,8 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     <div
                       className={
                         moncashQuote.instantAvailable
-                          ? 'border border-brand-500/30 rounded-lg p-3'
-                          : 'bg-white/[0.03] border border-white/10 rounded-lg p-3'
+                          ? 'rounded-lg bg-white/[0.08] p-3 ring-1 ring-inset ring-brand-400/50'
+                          : 'rounded-lg bg-white/[0.06] p-3'
                       }
                     >
                       <p
@@ -752,14 +752,14 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   </div>
 
                   {(bankMode === 'on_file' || bankMode === 'saved') && bankDestinations ? (
-                    <div className=" rounded-lg p-3 bg-white/[0.03] border border-white/10">
+                    <div className="rounded-lg bg-white/[0.06] p-3">
                       {bankMode === 'saved' ? (
                         <div className="mb-2">
                           <label className="block text-xs font-medium text-white/60 mb-1">Select account</label>
                           <select
                             value={selectedBankDestinationId}
                             onChange={(e) => setSelectedBankDestinationId(e.target.value)}
-                            className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm"
+                            className="w-full px-3 py-3 rounded-[10px] text-[16px] bg-white/[0.08] text-white placeholder:text-white/35 focus:outline-none"
                           >
                             {bankDestinations.map((d) => (
                               <option key={d.id} value={d.id}>
@@ -785,7 +785,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
                   {bankMode === 'new' ? (
                     <div className="space-y-3">
-                      <div className="bg-white/[0.03] border border-white/10 rounded-lg p-3">
+                      <div className="rounded-lg bg-white/[0.06] p-3">
                         <p className="text-sm text-white font-medium">Verification required</p>
                         <p className="text-xs text-white/60 mt-1">
                           Adding a new bank account requires email verification. The account holder name should match your organizer name.
@@ -809,7 +809,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.accountHolder}
                           onChange={(e) => setBankDetails({ ...bankDetails, accountHolder: e.target.value })}
                           placeholder="Full name on account"
-                          className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                           required
                         />
                       </div>
@@ -821,7 +821,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.bankName}
                           onChange={(e) => setBankDetails({ ...bankDetails, bankName: e.target.value })}
                           placeholder="e.g., Unibank"
-                          className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                           required
                         />
                       </div>
@@ -833,7 +833,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.accountNumber}
                           onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
                           placeholder="Account number"
-                          className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                           required
                         />
                       </div>
@@ -845,7 +845,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.routingNumber}
                           onChange={(e) => setBankDetails({ ...bankDetails, routingNumber: e.target.value })}
                           placeholder="For international transfers"
-                          className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                         />
                       </div>
 
@@ -856,7 +856,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.swiftCode}
                           onChange={(e) => setBankDetails({ ...bankDetails, swiftCode: e.target.value })}
                           placeholder="For international transfers"
-                          className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -952,7 +952,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   })
                 }}
                 disabled={isSubmitting}
-                className="px-4 py-3 bg-white/[0.03] border border-white/10 text-white/70 rounded-lg hover:bg-white/10 transition-colors font-medium disabled:cursor-not-allowed"
+                className="px-4 py-3 rounded-[10px] bg-white/[0.08] text-white/80 hover:bg-white/10 transition-colors font-medium disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

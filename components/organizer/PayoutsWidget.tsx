@@ -27,46 +27,46 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       case 'not-setup':
         return {
           icon: <AlertCircle className="w-5 h-5" />,
-          iconBg: '',
+          iconBg: 'bg-white/[0.06]',
           iconColor: 'text-red-300',
           title: t('payouts.not_setup_title'),
           description: t('payouts.not_setup_description'),
           ctaText: t('payouts.setup_payouts'),
           ctaHref: '/organizer/settings/payouts',
-          ctaColor: 'bg-red-600 hover:bg-red-700'
+          ctaColor: 'bg-white text-black hover:bg-white/90'
         }
       case 'setup':
         return {
           icon: <CheckCircle className="w-5 h-5" />,
-          iconBg: '',
+          iconBg: 'bg-white/[0.06]',
           iconColor: 'text-emerald-300',
           title: t('payouts.ready_title'),
           description: t('payouts.ready_description'),
           ctaText: t('payouts.view_settings'),
           ctaHref: '/organizer/settings/payouts',
-          ctaColor: 'bg-green-600 hover:bg-green-700'
+          ctaColor: 'bg-white/[0.08] text-white hover:bg-white/[0.14]'
         }
       case 'pending':
         return {
           icon: <Clock className="w-5 h-5" />,
-          iconBg: '',
+          iconBg: 'bg-white/[0.06]',
           iconColor: 'text-amber-300',
           title: t('payouts.pending_title'),
           description: t('payouts.pending_description'),
           ctaText: t('payouts.view_details'),
           ctaHref: '/organizer/settings/payouts',
-          ctaColor: 'bg-yellow-600 hover:bg-yellow-700'
+          ctaColor: 'bg-white/[0.08] text-white hover:bg-white/[0.14]'
         }
       case 'active':
         return {
           icon: <DollarSign className="w-5 h-5" />,
-          iconBg: '',
+          iconBg: 'bg-white/[0.06]',
           iconColor: 'text-blue-300',
           title: t('payouts.active_title'),
           description: t('payouts.active_description'),
           ctaText: t('payouts.view_history'),
           ctaHref: '/organizer/settings/payouts/history',
-          ctaColor: 'bg-blue-600 hover:bg-blue-700'
+          ctaColor: 'bg-white/[0.08] text-white hover:bg-white/[0.14]'
         }
     }
   }
@@ -74,7 +74,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
   const statusInfo = getStatusInfo()
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-soft  p-6">
+    <div className="rounded-2xl bg-white/[0.03] p-6 shadow-soft">
       <div className="flex items-start gap-4 mb-6">
         <div className={`w-12 h-12 ${statusInfo.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
           <div className={statusInfo.iconColor}>
@@ -91,7 +91,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       {status !== 'not-setup' && (
         <div className="space-y-4 mb-6">
           {/* Pending Balance */}
-          <div className="bg-white/[0.03] rounded-xl p-4">
+          <div className="rounded-xl bg-white/[0.06] p-4">
             <p className="label-mono text-xs uppercase mb-1">{t('payouts.pending_balance')}</p>
             <p className="text-2xl font-bold text-brand-300 font-mono tabular-nums">
               {formatMoneyFromCents(pendingBalance, currency)}
@@ -141,7 +141,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       {/* CTA Button */}
       <Link
         href={statusInfo.ctaHref}
-        className={`block w-full text-center px-4 py-3 ${statusInfo.ctaColor} text-white rounded-xl font-semibold transition-colors`}
+        className={`block w-full rounded-xl px-4 py-3 text-center font-semibold transition-colors ${statusInfo.ctaColor}`}
       >
         {statusInfo.ctaText}
       </Link>

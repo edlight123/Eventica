@@ -1557,8 +1557,17 @@ export default function EventComposer({
    * ---------------------------------------------------------------------- */
   const rowCls =
     'flex min-h-11 w-full items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.06]'
+  // min-w-0, and it is load-bearing: `field` is used by four
+  // `<input type="datetime-local">` (a tier's sales and validity windows). A
+  // native datetime widget carries an intrinsic minimum width it will NOT
+  // shrink below — ~151px at the 16px a phone renders, wider in WebKit — so
+  // inside a grid cell it overflows its own column and the value spills
+  // sideways, which is what the owner saw on sales start/end. `min-width: 0`
+  // releases that automatic minimum so `w-full` can actually bind it. Same
+  // root cause the guest editor sheet hit with its time fields.
+  // 16px not 15px: iOS zooms the page on focus below that.
   const field =
-    'min-h-11 w-full rounded-xl bg-white/[0.05] px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 transition-colors focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
+    'min-h-11 w-full min-w-0 rounded-xl bg-white/[0.05] px-4 py-3 text-[16px] text-white [color-scheme:dark] placeholder:text-white/40 transition-colors focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
   const inset =
     'rounded-lg bg-white/[0.06] px-2.5 py-1.5 text-sm text-white [color-scheme:dark] transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
 
@@ -1697,12 +1706,20 @@ export default function EventComposer({
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={CalendarDays}>{t('composer.dates', { defaultValue: 'Dates' })}</SectionTitle>
             <div className="overflow-hidden rounded-xl bg-white/[0.025]">
-              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
+              {/* Label ABOVE the controls on a phone, beside them from sm.
+                  The label and the two triggers cannot share one line at
+                  402px — the controls need ~300px of the ~338px available, so
+                  a wrapping row split the date from the time. Stacking the
+                  label is what buys the controls a full line of their own; the
+                  inner group is `flex-nowrap` so the date and time can never
+                  separate from each other whatever the locale does to their
+                  widths. */}
+              <div className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-3">
                 <span className="text-[15px] font-medium text-white">
                   {t('composer.start', { defaultValue: 'Start' })} <span className="text-red-300" aria-hidden="true">*</span>
                 </span>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
+                <div className="flex flex-nowrap items-center gap-2">
+                  <span className="label-mono shrink-0 text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker
                     value={startDate}
                     onChange={setStartDate}
@@ -1712,14 +1729,18 @@ export default function EventComposer({
                   <TimePicker value={startTime} onChange={setStartTime} placeholder={t('composer.time', { defaultValue: 'Time' })} />
                 </div>
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3.5">
+              <div className="flex flex-col gap-2 border-t border-white/10 px-4 py-3.5 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-3">
                 <span className="text-[15px] font-medium text-white">{t('composer.end', { defaultValue: 'End' })}</span>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
+                <div className="flex flex-nowrap items-center gap-2">
+                  <span className="label-mono shrink-0 text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker
                     value={endDate}
                     onChange={setEndDate}
                     min={startDate || undefined}
+                    /* The single most useful control on an END field: 25 of
+                       27 production events have no end set at all, and for
+                       most of them the answer is "the same night". */
+                    sameAs={startDate || undefined}
                     placeholder={t('composer.pickDate', { defaultValue: 'Pick a date' })}
                   />
                   <TimePicker value={endTime} onChange={setEndTime} placeholder={t('composer.time', { defaultValue: 'Time' })} />
@@ -1973,8 +1994,21 @@ export default function EventComposer({
                   const rowLabel = tier.name.trim() || `#${i + 1}`
                   return (
                     <div key={tier.id} className="rounded-xl bg-white/[0.03]">
-                      {/* ── SUMMARY ROW ───────────────────────────────── */}
-                      <div className="flex flex-wrap items-center gap-2 p-3">
+                      {/* ── SUMMARY ROW ───────────────────────────────────
+                          An explicit two-line layout, not a wrapping flex.
+                          As `flex flex-wrap` the five controls needed ~408px
+                          in the ~346px a phone gives, so the row wrapped and
+                          the chevron and ⋮ landed wherever there was room —
+                          which is why the ⋮ menu, anchored `right-0` to a
+                          button that had drifted to the middle of the row,
+                          opened off the left edge of the screen. Name on its
+                          own line; price and quantity left, actions pinned
+                          right, so `right-0` is always the card's right edge.
+                          Each cell carries a caption: two right-aligned number
+                          boxes side by side are indistinguishable otherwise
+                          (owner ask). */}
+                      <div className="p-3">
+                        <label className="block">
                         <input
                           value={tier.name}
                           onChange={(e) => updateTier(tier.id, { name: e.target.value })}
@@ -1986,51 +2020,73 @@ export default function EventComposer({
                             defaultValue: 'Ticket type {{n}} name',
                             n: i + 1,
                           })}
-                          className="min-w-[9rem] flex-1 rounded-lg bg-transparent px-2 py-2 text-[15px] text-white placeholder:text-white/35 transition-colors hover:bg-white/[0.05] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
+                          className="w-full rounded-lg bg-white/[0.05] px-2 py-2 text-[15px] text-white placeholder:text-white/35 transition-colors hover:bg-white/[0.08] focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                         />
+                          <span className="label-mono mt-1 block px-2 text-[10px] uppercase tracking-wider text-white/35">
+                            {t('composer.tierNameLabel', { defaultValue: 'Name' })}
+                          </span>
+                        </label>
 
-                        {/* Price — a free tier reads as a dot + label, never an input of 0. */}
-                        {tier.free ? (
-                          <DotLabel>{t('composer.tier.free', { defaultValue: 'Free' })}</DotLabel>
-                        ) : (
-                          <input
-                            type="number"
-                            min="0"
-                            value={tier.price}
-                            onChange={(e) => updateTier(tier.id, { price: e.target.value })}
-                            placeholder={currency}
-                            aria-label={t('composer.tierPriceAria', {
-                              defaultValue: 'Price for {{tier}} ({{currency}})',
-                              tier: rowLabel,
-                              currency,
-                            })}
-                            className="w-[5.5rem] rounded-lg bg-white/[0.06] px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
-                          />
-                        )}
+                        <div className="mt-2.5 flex items-start justify-between gap-2">
+                          <div className="flex min-w-0 items-start gap-2">
 
-                        {/* Quantity — replaced outright by "Unlimited". */}
-                        {tier.unlimited ? (
-                          <DotLabel>{t('composer.tier.unlimited', { defaultValue: 'Unlimited' })}</DotLabel>
-                        ) : (
-                          <input
-                            type="number"
-                            min="0"
-                            value={tier.qty}
-                            onChange={(e) => updateTier(tier.id, { qty: e.target.value })}
-                            placeholder={t('composer.qtyShort', { defaultValue: 'Qty' })}
-                            aria-label={t('composer.tierQtyAria', {
-                              defaultValue: 'Quantity for {{tier}}',
-                              tier: rowLabel,
-                            })}
-                            className="w-[4.5rem] rounded-lg bg-white/[0.06] px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
-                          />
-                        )}
+                            {/* Price — a free tier reads as a dot + label, never an input of 0. */}
+                            {tier.free ? (
+                              <DotLabel>{t('composer.tier.free', { defaultValue: 'Free' })}</DotLabel>
+                            ) : (
+                              <label className="block shrink-0">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={tier.price}
+                                  onChange={(e) => updateTier(tier.id, { price: e.target.value })}
+                                  placeholder={currency}
+                                  aria-label={t('composer.tierPriceAria', {
+                                    defaultValue: 'Price for {{tier}} ({{currency}})',
+                                    tier: rowLabel,
+                                    currency,
+                                  })}
+                                  className="w-[5.5rem] rounded-lg bg-white/[0.06] px-2 py-2 text-right text-[16px] text-white [color-scheme:dark] placeholder:text-white/30 transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
+                                />
+                                <span className="label-mono mt-1 block text-right text-[10px] uppercase tracking-wider text-white/35">
+                                  {t('composer.tierPriceLabel', { defaultValue: 'Price' })}
+                                </span>
+                              </label>
+                            )}
 
-                        {tier.hidden && (
-                          <DotLabel tone="warn">
-                            {t('composer.tier.hidden', { defaultValue: 'Hidden' })}
-                          </DotLabel>
-                        )}
+                            {/* Quantity — replaced outright by "Unlimited". */}
+                            {tier.unlimited ? (
+                              <DotLabel>{t('composer.tier.unlimited', { defaultValue: 'Unlimited' })}</DotLabel>
+                            ) : (
+                              <label className="block shrink-0">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={tier.qty}
+                                  onChange={(e) => updateTier(tier.id, { qty: e.target.value })}
+                                  placeholder={t('composer.qtyShort', { defaultValue: 'Qty' })}
+                                  aria-label={t('composer.tierQtyAria', {
+                                    defaultValue: 'Quantity for {{tier}}',
+                                    tier: rowLabel,
+                                  })}
+                                  className="w-[4.5rem] rounded-lg bg-white/[0.06] px-2 py-2 text-right text-[16px] text-white [color-scheme:dark] placeholder:text-white/30 transition-colors focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
+                                />
+                                <span className="label-mono mt-1 block text-right text-[10px] uppercase tracking-wider text-white/35">
+                                  {t('composer.tierQtyLabel', { defaultValue: 'Qty' })}
+                                </span>
+                              </label>
+                            )}
+
+                            {tier.hidden && (
+                              <DotLabel tone="warn">
+                                {t('composer.tier.hidden', { defaultValue: 'Hidden' })}
+                              </DotLabel>
+                            )}
+                          </div>
+
+                          {/* Actions, pinned right — so the ⋮ menu's `right-0`
+                              is always the card's right edge. */}
+                          <div className="flex shrink-0 items-center gap-0.5 pt-0.5">
 
                         <button
                           type="button"
@@ -2066,7 +2122,10 @@ export default function EventComposer({
                           {menuOpen && (
                             <div
                               role="menu"
-                              className="absolute right-0 top-10 z-30 w-56 overflow-hidden rounded-xl border border-white/15 bg-[#111] py-1 shadow-xl"
+                              /* max-w clamp as a belt: the anchor is now always the card's
+                                 right edge, but a 224px menu must never be able to
+                                 exceed a 402px screen minus its margins. */
+                              className="absolute right-0 top-10 z-30 w-56 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl bg-[#141414] py-1 shadow-2xl ring-1 ring-white/10"
                             >
                               <button
                                 type="button"
@@ -2106,6 +2165,8 @@ export default function EventComposer({
                               )}
                             </div>
                           )}
+                          </div>
+                          </div>
                         </div>
                       </div>
 
@@ -2251,6 +2312,13 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
+                                /* min-w-0: a native datetime widget has an intrinsic
+                                   minimum width it will NOT shrink below (measured
+                                   ~151px at the 16px a phone renders), so in a grid
+                                   cell it overflows its own column and spills
+                                   sideways. min-width:0 releases that automatic
+                                   minimum; w-full then binds it to the cell. Same
+                                   root cause as the guest sheet's time fields. */
                                 value={tier.salesStart || ''}
                                 onChange={(e) => updateTier(tier.id, { salesStart: e.target.value })}
                                 aria-label={`Ticket type ${i + 1} sales start`}
@@ -2263,6 +2331,13 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
+                                /* min-w-0: a native datetime widget has an intrinsic
+                                   minimum width it will NOT shrink below (measured
+                                   ~151px at the 16px a phone renders), so in a grid
+                                   cell it overflows its own column and spills
+                                   sideways. min-width:0 releases that automatic
+                                   minimum; w-full then binds it to the cell. Same
+                                   root cause as the guest sheet's time fields. */
                                 value={tier.salesEnd || ''}
                                 min={tier.salesStart || undefined}
                                 onChange={(e) => updateTier(tier.id, { salesEnd: e.target.value })}
@@ -2285,6 +2360,13 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
+                                /* min-w-0: a native datetime widget has an intrinsic
+                                   minimum width it will NOT shrink below (measured
+                                   ~151px at the 16px a phone renders), so in a grid
+                                   cell it overflows its own column and spills
+                                   sideways. min-width:0 releases that automatic
+                                   minimum; w-full then binds it to the cell. Same
+                                   root cause as the guest sheet's time fields. */
                                 value={tier.validFrom || ''}
                                 onChange={(e) => updateTier(tier.id, { validFrom: e.target.value })}
                                 aria-label={`Ticket type ${i + 1} valid from`}
@@ -2297,6 +2379,13 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
+                                /* min-w-0: a native datetime widget has an intrinsic
+                                   minimum width it will NOT shrink below (measured
+                                   ~151px at the 16px a phone renders), so in a grid
+                                   cell it overflows its own column and spills
+                                   sideways. min-width:0 releases that automatic
+                                   minimum; w-full then binds it to the cell. Same
+                                   root cause as the guest sheet's time fields. */
                                 value={tier.validUntil || ''}
                                 min={tier.validFrom || undefined}
                                 onChange={(e) => updateTier(tier.id, { validUntil: e.target.value })}

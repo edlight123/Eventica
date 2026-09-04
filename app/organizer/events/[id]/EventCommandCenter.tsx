@@ -84,7 +84,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-5 pb-24 md:pb-10">
       {/* Setup banner — only when something's missing */}
       {incomplete.length > 0 && (
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-500/25 px-3.5 py-2.5">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-500/[0.09] px-3.5 py-2.5">
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm">
             <span className="font-medium text-white">Finish setup</span>
             <span className="text-white/40">·</span>
@@ -106,7 +106,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
       )}
 
       {/* KPI strip — single compact divided row */}
-      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 rounded-lg border border-white/10 sm:grid-cols-4 sm:divide-y-0">
+      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-lg bg-white/[0.03] sm:grid-cols-4 sm:divide-y-0">
         {kpis.map((k) => (
           <div key={k.label} className="px-4 py-3">
             <p className="label-mono truncate uppercase text-[11px] text-white/70">{k.label}</p>
@@ -122,9 +122,9 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
         {/* ===== Main column ===== */}
         <div className="min-w-0 space-y-4">
           {/* Sales trend */}
-          <section className="rounded-lg border border-white/10 p-4">
+          <section className="rounded-lg bg-white/[0.03] p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-[13px] font-semibold text-white">
+              <h3 className="font-display text-[16px] lowercase italic leading-none text-white">
                 Sales <span className="ml-1 font-normal font-mono tabular-nums text-white/40">· {soldInWindow} in {TREND_DAYS}d</span>
               </h3>
               <Link href={`/organizer/events/${event.id}/analytics`} className="inline-flex items-center gap-1 text-xs font-medium text-brand-300 hover:text-brand-200">
@@ -155,9 +155,9 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           </section>
 
           {/* Ticket tiers */}
-          <section className="rounded-lg border border-white/10 p-4">
+          <section className="rounded-lg bg-white/[0.03] p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-[13px] font-semibold text-white">Ticket types</h3>
+              <h3 className="font-display text-[16px] lowercase italic leading-none text-white">Ticket types</h3>
               <Link href={`/organizer/events/${event.id}/tickets`} className="inline-flex items-center gap-1 text-xs font-medium text-brand-300 hover:text-brand-200">
                 Manage <ArrowUpRight className="h-3 w-3" />
               </Link>
@@ -190,8 +190,8 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           </section>
 
           {/* Recent activity */}
-          <section className="rounded-lg border border-white/10 p-4">
-            <h3 className="mb-1 text-[13px] font-semibold text-white">Recent activity</h3>
+          <section className="rounded-lg bg-white/[0.03] p-4">
+            <h3 className="mb-2 font-display text-[16px] lowercase italic leading-none text-white">Recent activity</h3>
             {recent.length > 0 ? (
               <ul className="divide-y divide-white/5">
                 {recent.map((t: any) => {
@@ -220,13 +220,13 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
         {/* ===== Right rail — event details ===== */}
         <aside className="space-y-4 lg:sticky lg:top-[132px] lg:self-start">
           {event.banner_image_url ? (
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-none border border-white/10">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-none">
               <Image src={event.banner_image_url} alt={event.title} fill sizes="300px" className="object-cover" />
             </div>
           ) : (
             <Link
               href={`/organizer/events/${event.id}/edit#banner`}
-              className="flex aspect-[4/5] w-full flex-col items-center justify-center rounded-lg border border-dashed border-white/15 text-center text-white/45 transition-colors hover:text-white/70"
+              className="flex aspect-[4/5] w-full flex-col items-center justify-center rounded-lg bg-white/[0.055] text-center text-white/45 transition-colors hover:bg-white/[0.09] hover:text-white/70"
             >
               <ImageIcon className="mb-2 h-8 w-8" />
               <span className="text-sm font-medium">Add a flyer</span>
@@ -256,7 +256,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           </div>
           <Link
             href={`/organizer/events/${event.id}/edit`}
-            className="block w-full rounded-lg border border-white/15 py-2 text-center text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.04]"
+            className="flex h-11 w-full items-center justify-center rounded-[10px] bg-white/[0.08] text-center text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.14] hover:text-white"
           >
             Edit event
           </Link>

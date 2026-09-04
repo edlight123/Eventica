@@ -58,9 +58,9 @@ function StatCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 p-5 shadow-soft">
+    <div className="rounded-2xl bg-white/[0.03] p-5 shadow-soft">
       <div className="flex items-center gap-2 text-white/50">
-        <span className="grid h-8 w-8 place-items-center rounded-lg text-brand-300">{icon}</span>
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/[0.06] text-brand-300">{icon}</span>
         <span className="label-mono text-xs uppercase">{label}</span>
       </div>
       <div className="mt-3 text-white">{children}</div>
@@ -262,7 +262,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
       </div>
 
       {/* Fee structure — compact disclosure to keep the page focused */}
-      <details className="group rounded-2xl border border-white/10 shadow-soft">
+      <details className="group overflow-hidden rounded-2xl bg-white/[0.03] shadow-soft">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
           <span className="flex items-center gap-2 text-sm font-medium text-white">
             <Receipt className="h-4 w-4 text-brand-300" />
@@ -303,12 +303,12 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
         </div>
       </details>
 
-      <div className="bg-white/[0.03] rounded-2xl  shadow-soft overflow-hidden">
+      <div className="overflow-hidden rounded-2xl bg-white/[0.03] shadow-soft">
         {/* Filter Tabs */}
         <div className="border-b border-white/10 px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <div className="text-sm font-semibold text-white">Events</div>
+              <div className="font-display text-[20px] lowercase italic leading-none text-white">events</div>
               <div className="text-xs text-white/50">Filter by settlement status</div>
             </div>
 
@@ -317,10 +317,10 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
+                  className={`relative inline-flex items-center whitespace-nowrap rounded-[10px] px-2.5 py-1.5 text-[13px] font-medium leading-[18px] transition-colors after:absolute after:inset-x-0 after:-inset-y-[7px] after:content-[''] ${
                     filter === status
-                      ? 'bg-brand-700 text-white'
-                      : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
+                      ? 'bg-white text-black'
+                      : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -346,7 +346,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
             </div>
           ) : (
             filteredEvents.map((event) => (
-              <div key={event.eventId} className="p-4 hover:bg-white/[0.04]">
+              <div key={event.eventId} className="p-4 hover:bg-white/[0.07]">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1 min-w-0">
                     <h3 className="truncate font-semibold text-white">{event.eventTitle}</h3>
@@ -398,7 +398,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
         {/* Desktop View - Table */}
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[#0a0a0a]">
+            <thead className="bg-white/[0.05]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs label-mono text-white/50 uppercase">
                   Event
@@ -423,7 +423,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white/[0.03] divide-y divide-white/10">
+            <tbody className="divide-y divide-white/10">
               {filteredEvents.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">
@@ -440,7 +440,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                 </tr>
               ) : (
                 filteredEvents.map((event) => (
-                  <tr key={event.eventId} className="hover:bg-white/[0.04]">
+                  <tr key={event.eventId} className="hover:bg-white/[0.07]">
                     <td className="px-6 py-4">
                       <div className="font-medium text-white">{event.eventTitle}</div>
                     </td>

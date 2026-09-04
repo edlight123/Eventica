@@ -158,7 +158,7 @@ export function OrgDataTable<T>({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-white/10 ${className}`}
+      className={`overflow-hidden rounded-2xl bg-white/[0.03] ${className}`}
     >
       {toolbar && (
         <div className="border-b border-white/10 p-3 sm:p-4">{toolbar}</div>
@@ -173,7 +173,7 @@ export function OrgDataTable<T>({
                 <div className="h-3.5 w-1/3 rounded bg-white/[0.06]" />
                 <div className="h-3 w-1/4 rounded bg-white/[0.06]" />
               </div>
-              <div className="h-6 w-16 rounded-full bg-white/[0.06]" />
+              <div className="h-6 w-16 rounded-[10px] bg-white/[0.06]" />
             </div>
           ))}
         </div>
@@ -189,7 +189,7 @@ export function OrgDataTable<T>({
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full">
               <thead
-                className={`bg-[#0a0a0a] ${stickyHeader ? 'sticky top-0 z-10' : ''}`}
+                className={`bg-[#141414] ${stickyHeader ? 'sticky top-0 z-10' : ''}`}
               >
                 <tr className="border-b border-white/10">
                   {columns.map((col) => (

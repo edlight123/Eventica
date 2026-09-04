@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { adminDb } from '@/lib/firebase/admin'
 import { Pencil, Ticket } from 'lucide-react'
 import { PageHeader, OrgEmptyState } from '@/components/organizer/ui'
+import { StatusChip } from '@/components/ui/kit'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -54,7 +55,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
         actions={
           <Link
             href={`/organizer/events/${id}/edit`}
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Pencil className="h-4 w-4" />
             Edit tickets
@@ -86,20 +87,16 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
               return (
                 <div
                   key={tier.id}
-                  className="rounded-2xl border border-white/10 p-5"
+                  className="rounded-2xl bg-white/[0.03] p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[15px] font-semibold text-white">{tier.name}</p>
                       <p className="mt-0.5 text-sm font-mono tabular-nums text-white/70">{money(tier.price)}</p>
                     </div>
-                    <span
-                      className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
-                        soldOut ? 'text-red-300' : 'text-emerald-300'
-                      }`}
-                    >
+                    <StatusChip tone={soldOut ? 'danger' : 'success'}>
                       {soldOut ? 'Sold out' : 'On sale'}
-                    </span>
+                    </StatusChip>
                   </div>
 
                   <div className="mt-4">
@@ -110,7 +107,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
                         {tier.quantity > 0 && <span className="text-white/70"> / {tier.quantity}</span>}
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.12]">
                       <div
                         className={`h-2 rounded-full ${soldOut ? 'bg-red-500' : 'bg-brand-500'}`}
                         style={{ width: `${pct}%` }}

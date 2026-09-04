@@ -60,7 +60,7 @@ export default function OrganizerDashboardClient({
   if (loadError) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+        <div className="mx-auto max-w-md rounded-2xl bg-white/[0.05] p-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10">
             <AlertTriangle className="h-6 w-6 text-amber-300" />
           </div>

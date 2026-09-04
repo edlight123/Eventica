@@ -116,7 +116,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               id="default_country"
               value={formData.default_country}
               onChange={(e) => handleCountryChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
+              className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 appearance-none bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
             >
               <option value="">Select a country</option>
               {countries.map((country) => (
@@ -139,7 +139,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               id="default_city"
               value={formData.default_city}
               onChange={(e) => setFormData({ ...formData, default_city: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
+              className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 appearance-none bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
               disabled={!formData.default_country}
             >
               <option value="">Select a city</option>
@@ -167,7 +167,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
             id="default_timezone"
             value={formData.default_timezone}
             onChange={(e) => setFormData({ ...formData, default_timezone: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
+            className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 appearance-none bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
           >
             {TIMEZONES.map((tz) => (
               <option key={tz.value} value={tz.value}>
@@ -189,7 +189,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
             id="default_currency"
             value={formData.default_currency}
             onChange={(e) => setFormData({ ...formData, default_currency: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
+            className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 appearance-none bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
           >
             {CURRENCIES.map((currency) => (
               <option key={currency.value} value={currency.value}>

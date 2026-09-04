@@ -72,7 +72,10 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
   return (
     <Link
       href={`/organizer/events/${event.id}`}
-      className="group flex items-center gap-4 rounded-2xl border border-white/10 p-3 transition-colors hover:bg-[#1a1a1a]"
+      // A row sitting on the page is a fill, not an outline: this was a
+      // `border-white/10` box with no background, repeated down the list, which
+      // is the wireframe look the house rule exists to stop.
+      className="group flex items-center gap-4 rounded-2xl bg-white/[0.03] p-3 transition-colors hover:bg-white/[0.07]"
     >
       {/* Poster thumbnail */}
       <div

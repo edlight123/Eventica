@@ -94,7 +94,7 @@ function PayoutHistoryClient({ payouts }: { payouts: PayoutHistoryItem[] }) {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
+        <div className="rounded-xl bg-white/[0.03] overflow-hidden">
           
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">

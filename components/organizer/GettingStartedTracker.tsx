@@ -69,12 +69,12 @@ export default function GettingStartedTracker({
   const nextStep = steps.find((s) => !s.completed);
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-sm  overflow-hidden">
-      {/* Header */}
-      <div className="p-6 border-b border-white/10">
+    <div className="overflow-hidden rounded-2xl bg-white/[0.03] shadow-sm">
+      {/* Header — the rule below divides two stacked regions, so it earns its keep. */}
+      <div className="border-b border-white/10 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="font-display text-[22px] italic lowercase leading-none text-white">
               {t('organizer.gettingStarted.title', 'Getting Started')}
             </h2>
             <p className="text-sm text-white/50 mt-1">
@@ -92,9 +92,9 @@ export default function GettingStartedTracker({
         </div>
 
         {/* Progress Bar */}
-        <div className="h-2 bg-white/[0.03] rounded-full overflow-hidden">
+        <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
           <div
-            className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full transition-all duration-500 ease-out"
+            className="h-full rounded-full bg-brand-400 transition-all duration-500 ease-out"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -105,18 +105,20 @@ export default function GettingStartedTracker({
         {steps.map((step, index) => (
           <div
             key={step.id}
-            className={`p-4 flex items-center gap-4 transition-colors ${
-              step.completed
-                ? 'bg-white/[0.03]'
-                : nextStep?.id === step.id
-                ? 'bg-primary-50/30'
-                : ''
+            // `bg-primary-50/30` was a light-mode token that does not exist in
+            // this palette, so the "do this next" row had no fill at all. The
+            // next step now reads as the selected card: a real fill plus a teal
+            // inset ring.
+            className={`flex items-center gap-4 p-4 transition-colors ${
+              nextStep?.id === step.id
+                ? 'bg-white/[0.08] ring-1 ring-inset ring-brand-400/50'
+                : 'bg-white/[0.03]'
             }`}
           >
             {/* Status Icon */}
             <div className="flex-shrink-0">
               {step.completed ? (
-                <CheckCircle2 className="w-8 h-8 text-green-500" />
+                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
               ) : (
                 <div className="relative">
                   <Circle className="w-8 h-8 text-white/50" />
@@ -143,10 +145,10 @@ export default function GettingStartedTracker({
             {!step.completed && (
               <Link
                 href={step.href}
-                className={`flex-shrink-0 inline-flex items-center gap-1 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                className={`inline-flex flex-shrink-0 items-center gap-1 rounded-[10px] px-4 py-2 text-sm font-medium transition-colors ${
                   nextStep?.id === step.id
-                    ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
-                    : 'bg-white/[0.03] text-white/60 hover:bg-white/[0.04]'
+                    ? 'bg-white text-black hover:bg-white/90'
+                    : 'bg-white/[0.08] text-white/70 hover:bg-white/[0.14] hover:text-white'
                 }`}
               >
                 {step.ctaLabel}

@@ -11,7 +11,12 @@ interface FilterChipProps {
 
 /**
  * Individual filter chip for the dark canvas.
- * `active` fills the chip with the brand teal; inactive is a ghost border.
+ *
+ * Both states are FILLS — the selected one is white, the unselected one is
+ * barely there — because a row of outlined pills reads as a wireframe. This
+ * matches the composer's chip exactly: 30px of ink, `rounded-[10px]` (never a
+ * full pill), and a separate 44px touch box drawn by an ::after that stretches
+ * 7px past the top and bottom edges without adding visible height.
  */
 export function FilterChip({
   active = false,
@@ -23,23 +28,17 @@ export function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      // The inactive state was `bg-white/[0.03]` — the page's own background —
-      // with a stray leading space where a border class had been removed, so an
-      // unselected chip was invisible and only the active one could be seen.
-      // A real fill fixes that; h-11 on phones meets the touch floor.
-      className={`inline-flex h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:h-9 ${
+      className={`relative inline-flex items-center gap-1.5 rounded-[10px] px-2.5 py-1.5 text-[13px] font-medium leading-[18px] transition-colors after:absolute after:inset-x-0 after:-inset-y-[7px] after:content-[''] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
         active
-          ? 'bg-brand-600 text-white'
+          ? 'bg-white text-black'
           : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
       }`}
     >
       {children}
       {count !== undefined && count > 0 && (
         <span
-          className={`ml-0.5 rounded-full px-1.5 py-0.5 font-mono tabular-nums text-[10px] font-bold leading-none ${
-            // Same fix as the chip: this badge's inactive fill was the page
-            // background, so the count floated with no shape around it.
-            active ? 'bg-white/20 text-white' : 'bg-white/15 text-white/70'
+          className={`ml-0.5 rounded-[6px] px-1.5 py-0.5 font-mono text-[10px] font-bold leading-none tabular-nums ${
+            active ? 'bg-black/10 text-black/70' : 'bg-white/15 text-white/70'
           }`}
         >
           {count}

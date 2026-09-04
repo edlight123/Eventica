@@ -193,7 +193,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             id="full_name"
             value={formData.full_name}
             onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
             placeholder="Enter your full name"
             required
           />
@@ -211,7 +211,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             type="email"
             id="email"
             value={formData.email}
-            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg bg-white/[0.03] text-white/50 cursor-not-allowed"
+            className="w-full pl-10 pr-4 py-3 rounded-[10px] bg-white/[0.04] text-white/45 cursor-not-allowed text-[16px] focus:outline-none"
             disabled
           />
         </div>
@@ -232,7 +232,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             id="phone_number"
             value={formData.phone_number}
             onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
             placeholder="+509 1234 5678"
           />
         </div>

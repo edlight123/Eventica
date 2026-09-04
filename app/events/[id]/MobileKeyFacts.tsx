@@ -10,6 +10,7 @@
 import { useTranslation } from 'react-i18next'
 import { dateLocaleFor } from '@/lib/dateLocale'
 import { format } from 'date-fns'
+import { scarcityCopy, isUrgent, type Scarcity } from '@/lib/ticketScarcity'
 
 interface MobileKeyFactsProps {
   startDate: string
@@ -34,6 +35,11 @@ interface MobileKeyFactsProps {
   currency: string
   remainingTickets: number
   isSoldOut: boolean
+  /**
+   * Computed once by the page and passed down, so this line, the hero badge
+   * and the checkout selector cannot disagree. See lib/ticketScarcity.
+   */
+  scarcity?: Scarcity
 }
 
 export default function MobileKeyFacts({
@@ -48,7 +54,8 @@ export default function MobileKeyFacts({
   feesIncluded = false,
   currency,
   remainingTickets,
-  isSoldOut
+  isSoldOut,
+  scarcity
 }: MobileKeyFactsProps) {
   const { t, i18n } = useTranslation('common')
   const dfLocale = dateLocaleFor(i18n.language)
@@ -100,18 +107,21 @@ export default function MobileKeyFacts({
         )}
       </p>
 
-      <p
-        className={`mt-1 text-[13px] ${
-          isSoldOut ? 'text-red-400' : remainingTickets < 10 ? 'text-amber-400' : 'text-white/45'
-        }`}
-      >
-        {isSoldOut
-          ? t('ticket.sold_out', { defaultValue: 'Sold out' })
-          : t('ticket.remaining', { count: remainingTickets, defaultValue: '{{count}} remaining' })}
-        {!isSoldOut && remainingTickets < 10 && (
-          <> · {t('ticket.almost_gone', { defaultValue: 'Almost gone' })}</>
-        )}
-      </p>
+      {/* Scarcity, not inventory. This printed "{{count}} remaining" on every
+          event — "500 remaining" is an advert for the empty room, which is the
+          exact thing the owner asked to stop showing at checkout. It also held
+          a FOURTH copy of the `< 10` rule. Both now come from the shared
+          ladder, and an event with plenty of tickets prints nothing here. */}
+      {(() => {
+        const s = scarcity ?? { level: isSoldOut ? 'soldOut' : 'none' }
+        const copy = scarcityCopy(s)
+        if (!copy) return null
+        return (
+          <p className={`mt-1 text-[13px] font-medium ${isUrgent(s) ? 'text-amber-300' : 'text-red-400'}`}>
+            {t(copy.key, { defaultValue: copy.defaultValue, count: copy.count })}
+          </p>
+        )
+      })()}
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Lock, Key, Monitor, MapPin, Clock, Loader2, Shield } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
+import { StatusChip } from '@/components/ui/kit';
 
 interface LoginRecord {
   id: string;
@@ -87,10 +88,10 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
   return (
     <div className="space-y-6">
       {/* Change Password */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
+      <div className="rounded-xl bg-white/[0.03] p-6">
         <div className="flex items-center gap-2 mb-6">
           <Key className="w-5 h-5 text-brand-300" />
-          <h3 className="text-lg font-semibold text-white">Change Password</h3>
+          <h3 className="font-display text-[20px] lowercase italic leading-none text-white">Change Password</h3>
         </div>
         <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
           <div>
@@ -104,7 +105,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 id="current_password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                 placeholder="Enter current password"
                 required
               />
@@ -121,7 +122,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 id="new_password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                 placeholder="Enter new password"
                 required
                 minLength={8}
@@ -139,7 +140,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 id="confirm_password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                 placeholder="Confirm new password"
                 required
               />
@@ -160,29 +161,29 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
       </div>
 
       {/* Two-Factor Authentication (Future) */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/10 p-6">
+      <div className="rounded-xl bg-white/[0.03] p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-brand-300" />
             <div>
-              <h3 className="text-lg font-semibold text-white">Two-Factor Authentication</h3>
+              <h3 className="font-display text-[20px] lowercase italic leading-none text-white">Two-Factor Authentication</h3>
               <p className="text-sm text-white/60 mt-1">
                 Add an extra layer of security to your account
               </p>
             </div>
           </div>
-          <span className="px-3 py-1 bg-white/[0.03] text-white/60 text-xs font-medium rounded-full">
+          <span className="shrink-0 rounded-[8px] bg-white/[0.08] px-2.5 py-1 text-xs font-medium text-white/60">
             Coming Soon
           </span>
         </div>
       </div>
 
       {/* Login History */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/10 overflow-hidden">
+      <div className="rounded-xl bg-white/[0.03] overflow-hidden">
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-2">
             <Monitor className="w-5 h-5 text-brand-300" />
-            <h3 className="text-lg font-semibold text-white">Recent Login Activity</h3>
+            <h3 className="font-display text-[20px] lowercase italic leading-none text-white">Recent Login Activity</h3>
           </div>
           <p className="text-sm text-white/60 mt-1">
             Monitor recent logins to your account
@@ -196,7 +197,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
         ) : (
           <div className="divide-y divide-white/10">
             {loginHistory.map((record: LoginRecord) => (
-              <div key={record.id} className="p-4 hover:bg-white/[0.04]">
+              <div key={record.id} className="p-4 hover:bg-white/[0.06]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -204,15 +205,9 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                       <span className="font-medium text-white">
                         {record.device || 'Unknown Device'}
                       </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          record.status === 'success'
-                            ? 'text-emerald-300'
-                            : 'text-red-300'
-                        }`}
-                      >
+                      <StatusChip tone={record.status === 'success' ? 'success' : 'danger'}>
                         {record.status}
-                      </span>
+                      </StatusChip>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-white/60">
                       {record.location && (

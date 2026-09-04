@@ -91,8 +91,11 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
         : 'border-transparent text-white/55 hover:border-white/20 hover:text-white'
     }`
 
+  // The one sticky bar on this page, now that EventHeader above it scrolls.
+  // `var(--chrome-h)` is OrganizerTopNav's own height (globals.css sets it to
+  // 56px inside the organizer shell), so this cannot drift if the nav changes.
   return (
-    <div className="sticky top-14 z-20 border-b border-white/10 bg-[#0a0a0a]">
+    <div className="sticky top-[var(--chrome-h)] z-20 border-b border-white/10 bg-[#0a0a0a]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <nav
           aria-label={t('organizer.event_sections_aria', { defaultValue: 'Event sections' })}
@@ -143,7 +146,7 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
             {menuOpen && (
               <div
                 role="menu"
-                className="absolute right-0 top-[calc(100%+1px)] z-30 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#111] py-1 shadow-2xl"
+                className="absolute right-0 top-[calc(100%+1px)] z-30 w-56 overflow-hidden rounded-xl bg-[#171717] py-1 shadow-2xl"
               >
                 {more.map((tab) => {
                   const active = isActive(tab)

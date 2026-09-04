@@ -45,7 +45,7 @@ export default async function OrganizationSettingsPage() {
         />
 
         {/* Organization Form */}
-        <div className="mt-8 rounded-2xl border border-white/10 overflow-hidden">
+        <div className="mt-8 overflow-hidden rounded-2xl bg-white/[0.03]">
           <OrganizationForm 
             userId={user.id}
             initialData={{

@@ -9,8 +9,31 @@
   color-scheme: dark;
 }
 
+/* Stop the document rubber-banding away from the top.
+ *
+ * The owner: "when scrolling down to refresh, can you ensure the nav bar at
+ * the top stays frozen, only the below sections scrolls?" On iOS an overscroll
+ * drags the whole document — a `sticky` navbar peels away with it, and so
+ * would a `fixed` one, because fixed elements track the visual viewport too.
+ * `overscroll-behavior-y: none` suppresses that bounce, so the top of the page
+ * stays put and only content scrolls.
+ *
+ * On `html`, not `body`: per spec the property propagates to the viewport from
+ * the ROOT element only — on `body` it does nothing (unlike `overflow`).
+ * `none`, not `contain`: contain merely stops chaining to a parent scroller,
+ * while none is what suppresses the document's own bounce.
+ *
+ * Accepted side effect: this also disables Chrome-on-Android's pull-to-refresh
+ * gesture site-wide. That is the same gesture the instruction is about, so it
+ * is intended rather than collateral. Safari 16+ and Chrome support it; older
+ * iOS keeps the bounce and there is no CSS lever for it. */
+html {
+  overscroll-behavior-y: none;
+}
+
 body {
   @apply bg-[#0a0a0a] text-white;
+  overscroll-behavior-y: none;
 }
 
 /* Form-control baseline: never fall back to the browser's white inputs.
@@ -36,15 +59,31 @@ input::placeholder,
 textarea::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
-/* Keep autofilled fields dark instead of the browser's yellow/white wash. */
+/* Keep autofilled fields dark instead of the browser's yellow/white wash.
+ *
+ * This used to do it with `box-shadow: 0 0 0 1000px #0a0a0a inset`, and that
+ * was the "black rectangle around the address text": #0a0a0a is the PAGE
+ * colour, the shadow is a flat opaque slab, and it is clipped by the INPUT's
+ * own border-radius — which is 0, because the rounded fill lives on the
+ * wrapper div around it. So an autofilled address turned its field into a
+ * hard-edged black box sitting inside a rounded one, and lost the field's
+ * `bg-white/[0.05]` surface entirely.
+ *
+ * `background-clip: text` is the fix rather than a patch: the browser still
+ * paints its autofill background, but only behind the glyphs, so the field's
+ * real surface shows through and there is no slab to have the wrong colour or
+ * the wrong corners. */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
   -webkit-text-fill-color: #fff;
-  -webkit-box-shadow: 0 0 0px 1000px #0a0a0a inset;
+  -webkit-background-clip: text;
+  background-clip: text;
   caret-color: #fff;
+  /* Kills the fade-to-yellow the UA animates in on autofill. */
+  transition: background-color 0s 600000s;
 }
 
 /* Mobile typography normalization */

@@ -22,7 +22,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   
   if (alerts.length === 0) {
     return (
-      <div className="rounded-2xl  p-6">
+      <div className="rounded-2xl bg-white/[0.03] p-6">
         <div className="flex items-start gap-4">
           <ShieldCheck className="w-6 h-6 shrink-0 text-emerald-300" />
           <div>
@@ -49,25 +49,31 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
     }
   }
 
+  /**
+   * Every one of these used to be `bg: ''` plus a coloured hairline — four
+   * outlined boxes stacked down a column with nothing inside them. The row is a
+   * fill now; the colour of the icon and the CTA is what says which kind of
+   * alert it is, which is where colour was already doing the work.
+   */
   const getColor = (type: Alert['type']) => {
     switch (type) {
       case 'draft':
-        return { bg: '', border: 'border-brand-500/30', text: 'text-brand-300', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
+        return { bg: 'bg-white/[0.055] hover:bg-white/[0.08]', text: 'text-white', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'low-sales':
-        return { bg: '', border: 'border-amber-500/30', text: 'text-white', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
+        return { bg: 'bg-white/[0.055] hover:bg-white/[0.08]', text: 'text-white', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
       case 'payout':
-        return { bg: '', border: 'border-brand-500/30', text: 'text-brand-300', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
+        return { bg: 'bg-white/[0.055] hover:bg-white/[0.08]', text: 'text-white', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'verification':
-        return { bg: '', border: 'border-amber-500/30', text: 'text-white', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
+        return { bg: 'bg-white/[0.055] hover:bg-white/[0.08]', text: 'text-white', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
       default:
-        return { bg: 'bg-white/[0.03]', border: 'border-white/10', text: 'text-white', icon: 'text-white/60', btn: 'bg-gray-600 hover:bg-gray-700' }
+        return { bg: 'bg-white/[0.055] hover:bg-white/[0.08]', text: 'text-white', icon: 'text-white/60', btn: 'bg-white/[0.12] hover:bg-white/[0.18]' }
     }
   }
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-soft  p-6">
+    <div className="rounded-2xl bg-white/[0.03] p-6 shadow-soft">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.06]">
           <AlertCircle className="w-5 h-5 text-red-300" />
         </div>
         <div>
@@ -84,10 +90,10 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
           return (
             <div
               key={alert.id}
-              className={`${colors.bg} ${colors.border} border rounded-xl p-4`}
+              className={`${colors.bg} rounded-xl p-4 transition-colors`}
             >
               <div className="flex items-start gap-3">
-                <div className={`w-8 h-8 bg-white/[0.03] rounded-lg flex items-center justify-center flex-shrink-0 ${colors.icon}`}>
+                <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.08] ${colors.icon}`}>
                   {getIcon(alert.type)}
                 </div>
                 <div className="flex-1 min-w-0">

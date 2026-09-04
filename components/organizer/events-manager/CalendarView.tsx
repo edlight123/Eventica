@@ -60,12 +60,12 @@ export default function CalendarView({
   ]
 
   return (
-    <div className="bg-white/[0.03] rounded-xl  shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-xl bg-white/[0.03] shadow-sm">
       {/* Calendar Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-brand-700 text-white">
         <button
           onClick={handlePreviousMonth}
-          className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors"
+          className="grid h-11 w-11 place-items-center rounded-[10px] transition-colors hover:bg-black/20"
           aria-label="Previous month"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@ export default function CalendarView({
 
         <button
           onClick={handleNextMonth}
-          className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors"
+          className="grid h-11 w-11 place-items-center rounded-[10px] transition-colors hover:bg-black/20"
           aria-label="Next month"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +89,7 @@ export default function CalendarView({
       </div>
 
       {/* Week Days Header */}
-      <div className="grid grid-cols-7 border-b border-white/10 bg-white/[0.03]">
+      <div className="grid grid-cols-7 border-b border-white/10 bg-white/[0.06]">
         {weekDays.map((day) => (
           <div
             key={day}
@@ -104,7 +104,7 @@ export default function CalendarView({
       <div className="grid grid-cols-7">
         {calendarDays.map((day, index) => {
           if (!day) {
-            return <div key={`empty-${index}`} className="h-28 bg-white/[0.03] " />
+            return <div key={`empty-${index}`} className="h-28 border-b border-r border-white/[0.06] bg-black/20" />
           }
 
           const dateKey = format(day, 'yyyy-MM-dd')
@@ -115,8 +115,8 @@ export default function CalendarView({
           return (
             <div
               key={dateKey}
-              className={`min-h-28  p-2 transition-colors ${
-                isCurrentMonth ? 'bg-white/[0.03] hover:bg-white/[0.04]' : 'bg-white/[0.03]'
+              className={`min-h-28 border-b border-r border-white/[0.06] p-2 transition-colors ${
+                isCurrentMonth ? 'hover:bg-white/[0.07]' : 'bg-black/20'
               }`}
             >
               {/* Day Number */}
@@ -133,7 +133,7 @@ export default function CalendarView({
                   {format(day, 'd')}
                 </span>
                 {dayEvents.length > 0 && (
-                  <span className="text-xs font-semibold text-brand-300 px-2 py-0.5 rounded-full font-mono tabular-nums">
+                  <span className="rounded-[6px] bg-white/[0.10] px-1.5 py-0.5 font-mono text-xs font-semibold tabular-nums text-brand-300">
                     {dayEvents.length}
                   </span>
                 )}
@@ -147,8 +147,8 @@ export default function CalendarView({
                     href={`/organizer/events/${event.id}`}
                     className={`block px-2 py-1 rounded text-xs font-medium truncate transition-colors ${
                       event.is_published
-                        ? 'text-brand-300 hover:bg-brand-500/15'
-                        : 'bg-white/[0.03] text-white/70 hover:bg-white/[0.04]'
+                        ? 'bg-brand-500/15 text-brand-200 hover:bg-brand-500/25'
+                        : 'bg-white/[0.08] text-white/70 hover:bg-white/[0.14]'
                     }`}
                     title={event.title}
                   >

@@ -1338,7 +1338,10 @@
     "completeToPublish": "Ranpli {{count}} lòt nan kat yo pou pibliye. N ap kenbe l kòm bouyon jiskaske w fini.",
     "saveDraft": "Kenbe kòm bouyon",
     "flyerNoMatchAll": "Anyen pa matche — men tout sa nou genyen.",
-    "flyerMore": "Plis zimaj"
+    "flyerMore": "Plis zimaj",
+    "tierNameLabel": "Non",
+    "tierPriceLabel": "Pri",
+    "tierQtyLabel": "Kantite"
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",
@@ -1576,5 +1579,17 @@
     "country": "Kòd peyi",
     "number": "Nimewo telefòn",
     "placeholder": "34 12 56 78"
+  },
+  "pickers": {
+    "prev_month": "Mwa anvan",
+    "next_month": "Mwa apre",
+    "choose_month": "Chwazi mwa ak ane",
+    "prev_year": "Ane anvan",
+    "next_year": "Ane apre",
+    "same_day_as_start": "Menm jou ak kòmansman an",
+    "half_day": "AM oswa PM",
+    "hour": "Lè",
+    "minutes": "Minit",
+    "no_time_yet": "Pa gen lè chwazi"
   }
 }

@@ -51,7 +51,7 @@ export default async function NotificationsSettingsPage() {
         />
 
         {/* Notifications Form */}
-        <div className="mt-8 rounded-2xl border border-white/10 overflow-hidden">
+        <div className="mt-8 overflow-hidden rounded-2xl bg-white/[0.03]">
           <NotificationsForm 
             userId={user.id}
             initialData={{

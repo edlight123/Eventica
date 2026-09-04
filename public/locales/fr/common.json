@@ -1338,7 +1338,10 @@
     "completeToPublish": "Encore {{count}} des quatre à remplir pour publier. Enregistré comme brouillon d'ici là.",
     "saveDraft": "Enregistrer le brouillon",
     "flyerNoMatchAll": "Aucun résultat — voici tout le catalogue.",
-    "flyerMore": "Plus de visuels"
+    "flyerMore": "Plus de visuels",
+    "tierNameLabel": "Nom",
+    "tierPriceLabel": "Prix",
+    "tierQtyLabel": "Qté"
   },
   "promoter": {
     "portal_eyebrow": "Portail promoteur",
@@ -1576,5 +1579,17 @@
     "country": "Indicatif pays",
     "number": "Numéro de téléphone",
     "placeholder": "34 12 56 78"
+  },
+  "pickers": {
+    "prev_month": "Mois précédent",
+    "next_month": "Mois suivant",
+    "choose_month": "Choisir le mois et l'année",
+    "prev_year": "Année précédente",
+    "next_year": "Année suivante",
+    "same_day_as_start": "Même jour que le début",
+    "half_day": "AM ou PM",
+    "hour": "Heure",
+    "minutes": "Minutes",
+    "no_time_yet": "Aucune heure choisie"
   }
 }

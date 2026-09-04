@@ -40,7 +40,12 @@ export default function MobileHero({
           middle: the title and the artwork's composition both cut away. The
           desktop hero has always used aspect-[4/5]; mobile was the outlier,
           and mobile is where the poster matters most. */}
-      <div className="relative aspect-[4/5] w-full bg-gray-900">
+      {/* Inset, not full-bleed. Every other poster on this site sits in a
+          rounded frame with the page breathing around it — the discover cards,
+          the film strip, the hero scatter — and this one ran edge to edge,
+          which made the event page look like a different product. Same px-4
+          as the sections below it, so the left edges line up down the page. */}
+      <div className="relative mx-4 aspect-[4/5] overflow-hidden rounded-2xl bg-white/[0.04]">
         {bannerUrl ? (
           <>
             <Image
@@ -64,7 +69,7 @@ export default function MobileHero({
         )}
 
         {/* Badges Overlay - Top Right */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2">
+        <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
           {isSoldOut && (
             <Badge variant="error" size="sm">
               {t('ticket.sold_out').toUpperCase()}

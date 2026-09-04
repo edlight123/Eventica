@@ -223,7 +223,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeactivateModal(false)}
-                className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-white/[0.04]"
+                className="flex-1 px-4 py-3 text-white/70 font-medium rounded-[10px] bg-white/[0.06] hover:bg-white/[0.12] text-[16px] focus:outline-none"
               >
                 Cancel
               </button>
@@ -259,7 +259,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
                 type="text"
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
-                className="w-full px-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-red-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                 placeholder="DELETE MY ACCOUNT"
               />
             </div>
@@ -269,7 +269,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
                   setShowDeleteModal(false);
                   setConfirmText('');
                 }}
-                className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-white/[0.04]"
+                className="flex-1 px-4 py-3 text-white/70 font-medium rounded-[10px] bg-white/[0.06] hover:bg-white/[0.12] text-[16px] focus:outline-none"
               >
                 Cancel
               </button>

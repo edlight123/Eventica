@@ -1338,7 +1338,10 @@
     "completeToPublish": "Fill in {{count}} more of the four to publish. Saved as a draft until then.",
     "saveDraft": "Save as draft",
     "flyerNoMatchAll": "Nothing matched that — here is everything.",
-    "flyerMore": "More artwork"
+    "flyerMore": "More artwork",
+    "tierNameLabel": "Name",
+    "tierPriceLabel": "Price",
+    "tierQtyLabel": "Qty"
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",
@@ -1576,5 +1579,17 @@
     "country": "Country code",
     "number": "Phone number",
     "placeholder": "34 12 56 78"
+  },
+  "pickers": {
+    "prev_month": "Previous month",
+    "next_month": "Next month",
+    "choose_month": "Choose month and year",
+    "prev_year": "Previous year",
+    "next_year": "Next year",
+    "same_day_as_start": "Same day as start",
+    "half_day": "AM or PM",
+    "hour": "Hour",
+    "minutes": "Minutes",
+    "no_time_yet": "No time set"
   }
 }

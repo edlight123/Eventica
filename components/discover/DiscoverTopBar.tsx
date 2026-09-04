@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { MapPin, ChevronDown, SlidersHorizontal } from 'lucide-react'
@@ -21,7 +21,43 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
   const searchParams = useSearchParams()
   const [showCityDropdown, setShowCityDropdown] = useState(false)
   const [showSubareaDropdown, setShowSubareaDropdown] = useState(false)
-  
+
+  // Click-outside for the two location menus.
+  //
+  // These used to be closed by a `fixed inset-0` catcher rendered behind each
+  // panel, which has never actually covered the screen here: the sticky
+  // discover header carries `backdrop-blur-xl`, and a backdrop-filtered element
+  // is a containing block for `position: fixed`, so "inset-0" resolves to the
+  // header's own ~116px box — a catcher that misses every click below the bar.
+  // The header now also translates on scroll, which would confine it the same
+  // way. A document listener depends on neither, and matches how SearchSuggest
+  // beside it already closes.
+  const cityWrapRef = useRef<HTMLDivElement>(null)
+  const subareaWrapRef = useRef<HTMLDivElement>(null)
+  const anyDropdownOpen = showCityDropdown || showSubareaDropdown
+
+  useEffect(() => {
+    if (!anyDropdownOpen) return
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node
+      if (!cityWrapRef.current?.contains(target)) setShowCityDropdown(false)
+      if (!subareaWrapRef.current?.contains(target)) setShowSubareaDropdown(false)
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setShowCityDropdown(false)
+      setShowSubareaDropdown(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('touchstart', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('touchstart', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [anyDropdownOpen])
+
   // Get country-specific cities
   const cities = getCitiesForCountry(userCountry)
 
@@ -89,9 +125,12 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
           {/* Location Pills */}
           <div className="hidden md:flex items-center gap-2">
             {/* City Selector */}
-            <div className="relative">
+            <div ref={cityWrapRef} className="relative">
               <button
-                onClick={() => setShowCityDropdown(!showCityDropdown)}
+                onClick={() => {
+                  setShowSubareaDropdown(false)
+                  setShowCityDropdown(!showCityDropdown)
+                }}
                 className="flex items-center gap-1.5 px-4 py-2 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
               >
                 <MapPin className="w-4 h-4" />
@@ -100,39 +139,36 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
               </button>
 
               {showCityDropdown && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-10" 
-                    onClick={() => setShowCityDropdown(false)}
-                  />
-                  <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl  py-1 min-w-[180px] z-20">
+                <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl  py-1 min-w-[180px] z-20">
+                  <button
+                    onClick={() => handleCitySelect('')}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"
+                  >
+                    {t('filters.all_cities')}
+                  </button>
+                  {cities.map(city => (
                     <button
-                      onClick={() => handleCitySelect('')}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"
+                      key={city}
+                      onClick={() => handleCitySelect(city)}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
+                        filters.city === city ? 'font-medium text-brand-300' : 'text-white/80'
+                      }`}
                     >
-                      {t('filters.all_cities')}
+                      {city}
                     </button>
-                    {cities.map(city => (
-                      <button
-                        key={city}
-                        onClick={() => handleCitySelect(city)}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
-                          filters.city === city ? 'font-medium text-brand-300' : 'text-white/80'
-                        }`}
-                      >
-                        {city}
-                      </button>
-                    ))}
-                  </div>
-                </>
+                  ))}
+                </div>
               )}
             </div>
 
             {/* Subarea Selector */}
             {hasLocation && (
-              <div className="relative">
+              <div ref={subareaWrapRef} className="relative">
                 <button
-                  onClick={() => setShowSubareaDropdown(!showSubareaDropdown)}
+                  onClick={() => {
+                    setShowCityDropdown(false)
+                    setShowSubareaDropdown(!showSubareaDropdown)
+                  }}
                   className="flex items-center gap-1.5 px-4 py-2 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
                 >
                   {filters.commune || `${t('filters.all_areas')} ${locationLabel.toLowerCase()}s`}
@@ -140,31 +176,25 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                 </button>
 
                 {showSubareaDropdown && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-10" 
-                      onClick={() => setShowSubareaDropdown(false)}
-                    />
-                    <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl  py-1 min-w-[180px] z-20">
+                  <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl  py-1 min-w-[180px] z-20">
+                    <button
+                      onClick={() => handleSubareaSelect('')}
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"
+                    >
+                      {t('filters.all_areas')} {locationLabel.toLowerCase()}s
+                    </button>
+                    {subdivisions.map(subarea => (
                       <button
-                        onClick={() => handleSubareaSelect('')}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"
+                        key={subarea}
+                        onClick={() => handleSubareaSelect(subarea)}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
+                          filters.commune === subarea ? 'font-medium text-brand-300' : 'text-white/80'
+                        }`}
                       >
-                        {t('filters.all_areas')} {locationLabel.toLowerCase()}s
+                        {subarea}
                       </button>
-                      {subdivisions.map(subarea => (
-                        <button
-                          key={subarea}
-                          onClick={() => handleSubareaSelect(subarea)}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
-                            filters.commune === subarea ? 'font-medium text-brand-300' : 'text-white/80'
-                          }`}
-                        >
-                          {subarea}
-                        </button>
-                      ))}
-                    </div>
-                  </>
+                    ))}
+                  </div>
                 )}
               </div>
             )}

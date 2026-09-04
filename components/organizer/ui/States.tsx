@@ -22,7 +22,10 @@ export function OrgEmptyState({
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center ${className}`}
+      // The dashed hairline was doing the "nothing here" work that the fill can
+      // do on its own; a dashed box around a near-empty fill is the wireframe
+      // look the house rule exists to stop.
+      className={`flex flex-col items-center justify-center rounded-2xl bg-white/[0.03] p-10 text-center ${className}`}
     >
       {Icon && (
         <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl text-brand-400">
@@ -55,7 +58,9 @@ export function OrgErrorState({
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-2xl border border-red-500/20 p-10 text-center ${className}`}
+      // Was a red hairline around nothing. The tint carries the alarm; the ring
+      // is the accent on top of a fill, not a substitute for one.
+      className={`flex flex-col items-center justify-center rounded-2xl bg-red-500/[0.07] p-10 text-center ${className}`}
     >
       <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl text-red-400">
         <AlertCircle className="h-7 w-7" />
@@ -89,7 +94,7 @@ export function OrgLoadingSkeleton({
             <div className="h-3.5 w-2/5 rounded bg-white/[0.06]" />
             <div className="h-3 w-1/4 rounded bg-white/[0.06]" />
           </div>
-          <div className="h-6 w-16 rounded-full bg-white/[0.06]" />
+          <div className="h-6 w-16 rounded-[10px] bg-white/[0.06]" />
         </div>
       ))}
     </div>
@@ -104,13 +109,13 @@ export function OrgPageSkeleton({ rows = 8 }: { rows?: number }) {
     <div className="animate-pulse space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       {/* Header skeleton */}
       <div className="space-y-2">
-        <div className="h-3 w-16 rounded " />
+        <div className="h-3 w-16 rounded bg-white/[0.06]" />
         <div className="h-9 w-56 rounded-lg bg-white/[0.06]" />
         <div className="h-4 w-80 rounded bg-white/[0.06]" />
       </div>
       {/* Content skeleton */}
-      <div className="overflow-hidden rounded-2xl border border-white/10">
-        {/* Toolbar */}
+      <div className="overflow-hidden rounded-2xl bg-white/[0.03]">
+        {/* Toolbar — the divider stays: it separates two stacked regions. */}
         <div className="border-b border-white/10 px-4 py-3">
           <div className="h-9 w-52 rounded-lg bg-white/[0.06]" />
         </div>

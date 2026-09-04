@@ -72,22 +72,28 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
   }
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-soft  p-4 sm:p-5">
+    <div className="rounded-2xl bg-white/[0.03] p-4 shadow-soft sm:p-5">
       {/* Header with Toggle */}
       <div className="mb-3.5 flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2.5 min-w-0">
           <h3 className="font-display text-lg leading-none text-white sm:text-xl">{t('sales_snapshot.title')}</h3>
           <span className="truncate text-xs text-white/40">{getRangeLabel(range)}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-white/[0.03] p-0.5">
+        {/*
+          The selected range used to be `bg-white/[0.03]` sitting inside a
+          `bg-white/[0.03]` track on a card of the same value — three identical
+          fills, so nothing read as chosen. Selection is a white fill now, and
+          the ::after gives each 30px chip a 44px touch box.
+        */}
+        <div className="flex shrink-0 items-center gap-0.5 rounded-[12px] bg-white/[0.06] p-1">
           {(['7d', '30d', 'lifetime'] as TimeRange[]).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
-              className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
+              className={`relative inline-flex items-center rounded-[10px] px-2.5 py-1.5 text-[13px] font-medium leading-[18px] transition-colors after:absolute after:inset-x-0 after:-inset-y-[7px] after:content-[''] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 range === r
-                  ? 'bg-white/[0.03] text-brand-300 shadow-sm'
-                  : 'text-white/50 hover:text-white'
+                  ? 'bg-white text-black'
+                  : 'text-white/70 hover:bg-white/[0.12] hover:text-white'
               }`}
             >
               {r === '7d' ? '7d' : r === '30d' ? '30d' : 'Lifetime'}
@@ -98,7 +104,7 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
 
       {/* Metrics row — compact chips (icon + label inline, value below) */}
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-        <div className="rounded-xl border border-white/10 px-3.5 py-3">
+        <div className="rounded-xl bg-white/[0.06] px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <Calendar className="h-3.5 w-3.5 text-brand-300" />
             <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.events')}</p>
@@ -107,7 +113,7 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
           <p className="mt-1 text-[11px] text-white/40">{t('sales_snapshot.upcoming')}</p>
         </div>
 
-        <div className="rounded-xl border border-white/10 px-3.5 py-3">
+        <div className="rounded-xl bg-white/[0.06] px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <Users className="h-3.5 w-3.5 text-brand-300" />
             <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.tickets')}</p>
@@ -116,7 +122,7 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
           <p className="mt-1 text-[11px] text-white/40">{t('sales_snapshot.sold')}</p>
         </div>
 
-        <div className="rounded-xl border border-white/10 px-3.5 py-3">
+        <div className="rounded-xl bg-white/[0.06] px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <DollarSign className="h-3.5 w-3.5 text-brand-300" />
             <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.revenue')}</p>
@@ -133,7 +139,7 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/10 px-3.5 py-3">
+        <div className="rounded-xl bg-white/[0.06] px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <TrendingUp className="h-3.5 w-3.5 text-brand-300" />
             <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.avg_event')}</p>

@@ -73,7 +73,7 @@ export function ConfirmationDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
-        className="relative w-full max-w-sm rounded-2xl  bg-[#1e1e1e] p-6 shadow-2xl"
+        className="relative w-full max-w-sm rounded-2xl bg-[#1e1e1e] p-6 shadow-2xl"
         style={{ animation: 'scaleIn 0.18s ease-out' }}
       >
         <button
@@ -106,7 +106,7 @@ export function ConfirmationDialog({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="flex-1 rounded-xl  py-2.5 text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
+            className="h-11 flex-1 rounded-[10px] bg-white/[0.08] text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.14] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
           >
             {cancelLabel}
           </button>
@@ -114,7 +114,7 @@ export function ConfirmationDialog({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={`flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-50 ${
+            className={`h-11 flex-1 rounded-[10px] text-sm font-semibold text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-50 ${
               variant === 'danger'
                 ? 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500'
                 : 'bg-brand-700 hover:bg-brand-800 focus-visible:ring-brand-500'

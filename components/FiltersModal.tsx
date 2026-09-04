@@ -3,11 +3,25 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { X } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { EventFilters, DateFilter, EventTypeFilter } from '@/lib/filters/types'
 import { CATEGORIES, getCitiesForCountry, getPriceSliderConfig, formatPriceForCountry, getSubdivisions, getLocationTypeLabel, hasSubdivisions } from '@/lib/filters/config'
 import { buildPriceRangeFilter, countActiveFilters, filtersEqual, parsePriceRange } from '@/lib/filters/utils'
-import { FilterChip } from './FilterChip'
+// The sheet's chips are the SAME chips as the Discover rail: filled, 10px
+// radius, 30px of ink, 44px of touch. The shared <FilterChip> is still a
+// rounded-full outline whose selected state is a teal hairline — a coloured
+// status pill — so this modal no longer uses it.
+import { discoverChipCls } from './discover/DateChips'
+
+/**
+ * Surfaces here follow the POSH ladder (docs/POSH_DESIGN_BRIEF.md, "Surfaces:
+ * a fill, not a hairline around nothing"): fields and picker triggers get a
+ * fill at white/[0.06], selection changes the FILL, and the only borders left
+ * are the two that divide stacked regions (header/scroller, scroller/actions).
+ */
+const FIELD_CLS =
+  'w-full min-h-11 rounded-xl bg-white/[0.06] px-4 py-2.5 text-[16px] text-white [color-scheme:dark] transition-colors ' +
+  'hover:bg-white/[0.09] focus:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-400/50'
 
 interface FiltersModalProps {
   isOpen: boolean
@@ -196,11 +210,16 @@ export function FiltersModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="filters-modal-title"
-          className="pointer-events-auto bg-[#111] w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster md:border md:border-white/10 flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
+          // svh, not vh, on the desktop cap: iOS's 100vh ignores the browser
+          // chrome, so a 90vh box overshoots what is actually on screen. No
+          // border on the panel either — shadow-poster and the blurred
+          // backdrop already separate it from the page.
+          className="pointer-events-auto bg-[#111] w-full h-full md:h-auto md:max-h-[90svh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#0a0a0a] sticky top-0 z-10">
+          {/* Header. The hairline is a region divider (title bar vs scroller),
+              which earns it; the panel colour runs straight through. */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
             <div className="flex items-baseline gap-2.5">
               <h2 id="filters-modal-title" className="font-display text-2xl leading-none text-white">{t('filters.filters')}</h2>
               {activeCount > 0 && (
@@ -211,7 +230,9 @@ export function FiltersModal({
               ref={closeButtonRef}
               onClick={onClose}
               aria-label={t('common.close', { defaultValue: 'Close' })}
-              className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              // 36px of ink, 44px of target: the ::after stretches 4px past
+              // every edge without adding a visible pixel.
+              className="relative grid h-9 w-9 place-items-center rounded-full bg-white/[0.06] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white after:absolute after:-inset-1 after:content-['']"
             >
               <X className="w-[18px] h-[18px]" />
             </button>
@@ -222,14 +243,20 @@ export function FiltersModal({
             {/* Date Filter */}
             <div className="space-y-3">
               <label className="eyebrow text-[11px] text-white/70">{t('filters.date')}</label>
-              <div className="flex flex-wrap gap-2">
+              {/* gap-y-4: the chips' 44px target overhangs their 30px ink by
+                  7px top and bottom, so wrapped rows need 14px+ between them
+                  or the targets overlap. */}
+              <div className="flex flex-wrap gap-x-2 gap-y-4">
                 {DATE_OPTIONS.map(option => (
-                  <FilterChip
+                  <button
                     key={option.value}
-                    label={option.label}
-                    active={draftFilters.date === option.value}
+                    type="button"
                     onClick={() => handleDateChange(option.value)}
-                  />
+                    aria-pressed={draftFilters.date === option.value}
+                    className={discoverChipCls(draftFilters.date === option.value)}
+                  >
+                    {option.label}
+                  </button>
                 ))}
               </div>
               {showDatePicker && (
@@ -237,7 +264,9 @@ export function FiltersModal({
                   type="date"
                   value={draftFilters.pickedDate || ''}
                   onChange={(e) => onDraftChange({ ...draftFilters, pickedDate: e.target.value })}
-                  className="w-full rounded-xl border border-white/15 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
+                  // 16px is the iOS zoom floor; stating it in the class keeps
+                  // the class honest about what globals.css already enforces.
+                  className={FIELD_CLS}
                 />
               )}
             </div>
@@ -245,15 +274,19 @@ export function FiltersModal({
             {/* Event Type - Segmented Control */}
             <div className="space-y-3">
               <label className="eyebrow text-[11px] text-white/70">{t('filters.event_type')}</label>
-              <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1">
+              {/* A real toggle, so it gets fills: a 0.06 track (44px tall with
+                  its 4px padding) and a white pill on the chosen segment. */}
+              <div className="inline-flex rounded-[14px] bg-white/[0.06] p-1">
                 {EVENT_TYPE_OPTIONS.map(option => (
                   <button
                     key={option.value}
+                    type="button"
                     onClick={() => onDraftChange({ ...draftFilters, eventType: option.value })}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all
+                    aria-pressed={draftFilters.eventType === option.value}
+                    className={`min-h-9 rounded-[10px] px-4 text-[13px] leading-[18px] font-medium transition-colors
                       ${draftFilters.eventType === option.value
-                        ? 'bg-white/15 text-brand-300 shadow-sm'
-                        : 'text-white/70 hover:text-white'
+                        ? 'bg-white text-black'
+                        : 'text-white/70 hover:bg-white/[0.12] hover:text-white'
                       }`}
                   >
                     {option.label}
@@ -272,13 +305,13 @@ export function FiltersModal({
               </div>
 
               <div
-                className={`rounded-2xl border border-white/10 bg-white/[0.02] px-4 pb-3 pt-4 transition-opacity ${
+                className={`rounded-2xl bg-white/[0.055] px-4 pb-3 pt-4 transition-opacity ${
                   isFreeOnly ? 'opacity-40' : 'opacity-100'
                 }`}
               >
                 <div className="relative h-6">
                   {/* Track */}
-                  <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/[0.12]" />
+                  <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/20" />
                   {/* Selected portion */}
                   <div
                     className="pointer-events-none absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-brand-400"
@@ -316,24 +349,32 @@ export function FiltersModal({
               </div>
 
               {/* A slider can't say "free": free is a point, not a span. */}
-              <FilterChip
-                label={t('filters.free_only', { defaultValue: 'Free only' })}
-                active={isFreeOnly}
-                onClick={() => onDraftChange({ ...draftFilters, price: isFreeOnly ? 'any' : 'free' })}
-              />
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => onDraftChange({ ...draftFilters, price: isFreeOnly ? 'any' : 'free' })}
+                  aria-pressed={isFreeOnly}
+                  className={discoverChipCls(isFreeOnly)}
+                >
+                  {t('filters.free_only', { defaultValue: 'Free only' })}
+                </button>
+              </div>
             </div>
 
             {/* Category Filter */}
             <div className="space-y-3">
               <label className="eyebrow text-[11px] text-white/70">{t('filters.categories')}</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-x-2 gap-y-4">
                 {CATEGORIES.map(category => (
-                  <FilterChip
+                  <button
                     key={category}
-                    label={category}
-                    active={draftFilters.categories.includes(category)}
+                    type="button"
                     onClick={() => handleCategoryToggle(category)}
-                  />
+                    aria-pressed={draftFilters.categories.includes(category)}
+                    className={discoverChipCls(draftFilters.categories.includes(category))}
+                  >
+                    {t(`categories.${category}`, { defaultValue: category })}
+                  </button>
                 ))}
               </div>
             </div>
@@ -342,53 +383,71 @@ export function FiltersModal({
             <div className="space-y-3">
               <label className="eyebrow text-[11px] text-white/70">{t('filters.location')}</label>
               <div className="space-y-3">
-                {/* City Dropdown */}
-                <select
-                  value={draftFilters.city}
-                  onChange={(e) => handleCityChange(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
-                >
-                  <option value="">{t('filters.all_cities')}</option>
-                  {cities.map(city => (
-                    <option key={city} value={city}>{city}</option>
-                  ))}
-                </select>
+                {/* City Dropdown. Filled picker trigger, own chevron — the
+                    native arrow goes with appearance-none. */}
+                <div className="relative">
+                  <select
+                    value={draftFilters.city}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    className={`${FIELD_CLS} appearance-none pr-11`}
+                  >
+                    <option value="">{t('filters.all_cities')}</option>
+                    {cities.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                </div>
 
                 {/* Commune/Neighborhood Dropdown */}
                 {hasLocation && (
                   <div className="space-y-2">
                     <label className="eyebrow text-[10px] text-white/70">{locationLabel}</label>
-                    <select
-                      value={draftFilters.commune || ''}
-                      onChange={(e) => handleCommuneChange(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
-                    >
-                      <option value="">{t('filters.all_areas')}</option>
-                      {subdivisions.map(subdivision => (
-                        <option key={subdivision} value={subdivision}>{subdivision}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={draftFilters.commune || ''}
+                        onChange={(e) => handleCommuneChange(e.target.value)}
+                        className={`${FIELD_CLS} appearance-none pr-11`}
+                      >
+                        <option value="">{t('filters.all_areas')}</option>
+                        {subdivisions.map(subdivision => (
+                          <option key={subdivision} value={subdivision}>{subdivision}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Footer - Sticky */}
-          <div className="sticky bottom-0 bg-[#0a0a0a]/85 backdrop-blur border-t border-white/10 p-4 flex items-center justify-between gap-3">
+          {/* Footer — action bar. Panel colour, not the page colour; the
+              hairline divides two stacked regions, so it stays. The bottom
+              padding clears the iPhone home indicator. */}
+          <div className="border-t border-white/10 bg-[#111]/90 backdrop-blur px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] flex items-center justify-between gap-3">
             <button
+              type="button"
               onClick={onReset}
-              className="px-4 py-2.5 text-sm font-semibold text-white/70 hover:text-white transition-colors"
+              className="min-h-11 shrink-0 rounded-xl bg-white/[0.06] px-4 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
             >
               {t('filters.reset')}
             </button>
             <button
+              type="button"
               onClick={onApply}
               disabled={!hasChanges}
-              className={`px-7 py-3 rounded-xl text-sm font-semibold transition-all duration-200
+              // Primary = white on black, the app's one pure white. Nothing
+              // changes only in the disabled state: the fill is there either
+              // way, quieter when there is nothing to apply.
+              // flex-1 on phones: "Appliquer les filtres" next to
+                // "Réinitialiser" is wider than 375px at fixed padding, so the
+                // primary takes the space that is left and wraps rather than
+                // pushing the row sideways.
+              className={`min-h-11 flex-1 rounded-xl px-5 text-sm font-semibold leading-tight transition-colors md:flex-none md:px-7
                 ${hasChanges
-                  ? 'bg-brand-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-brand-700'
-                  : 'text-white/40 cursor-not-allowed'
+                  ? 'bg-white text-black hover:bg-white/90'
+                  : 'bg-white/[0.06] text-white/35 cursor-not-allowed'
                 }`}
             >
               {t('filters.apply_filters')}

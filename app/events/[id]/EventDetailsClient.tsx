@@ -273,15 +273,20 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         </div>
       </div>
 
-      <div className="md:hidden sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-white/10 px-4 py-3">
+      {/* No bottom rule: this bar pins directly under the navbar, whose own
+          border sits a few pixels above it, and two hairlines that close
+          together read as a crack across the page rather than as two bars.
+          The blur plus the page colour separate it from content scrolling
+          underneath. */}
+      <div className="md:hidden sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             {isPastEvent ? (
-              <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+              <div className="block w-full rounded-xl bg-white/[0.06] py-3 text-center font-semibold text-white/70">
                 {t('events.event_ended', { defaultValue: 'Event ended' })}
               </div>
             ) : isSoldOut ? (
-              <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+              <div className="block w-full rounded-xl bg-white/[0.06] py-3 text-center font-semibold text-white/70">
                 {t('ticket.sold_out_caps')}
               </div>
             ) : (
@@ -303,7 +308,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           </div>
         </div>
         {user && (
-          <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="mt-3">
             <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
           </div>
         )}
@@ -323,6 +328,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         currency={event.currency || 'HTG'}
         remainingTickets={ticketsRemaining || 0}
         isSoldOut={isSoldOut}
+        scarcity={scarcity}
       />
 
       <MobileSections

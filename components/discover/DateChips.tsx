@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import type { DateFilter } from '@/lib/filters/types'
 import { InlineCalendar } from '@/components/ui/DateTimePickers'
 import { X } from 'lucide-react'
+import { createPortal } from 'react-dom'
 
 interface DateChipsProps {
   currentDate: DateFilter
@@ -110,34 +111,45 @@ export function DateChips({ currentDate, bare = false }: DateChipsProps) {
         </div>
       </div>
 
-      {/* Calendar modal */}
-      {showDatePicker && (
-        <div
-          className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t('filters.pick_date')}
-        >
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" onClick={() => setShowDatePicker(false)} aria-hidden="true" />
-          <div className="relative z-[101] w-full max-w-sm rounded-t-2xl border border-white/10 bg-[#111] p-4 shadow-2xl sm:rounded-2xl">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-white">{t('filters.pick_date')}</h3>
-              <button
-                onClick={() => setShowDatePicker(false)}
-                aria-label="Close"
-                className="grid h-8 w-8 place-items-center rounded-lg text-white/50 hover:bg-white/[0.06] hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
+      {/* Calendar modal — PORTALLED, and it has to be.
+          Rendered inline this dialog was broken on production: the discover
+          header above it carries `backdrop-blur-xl`, and a backdrop-filtered
+          ancestor becomes the containing block for `position: fixed`. So
+          `inset-0` resolved against the 402x116 header instead of the
+          viewport, and the calendar panel measured at top:-185 — off the top
+          of the screen, unreachable. CategoryModal beside this file already
+          portals the identical markup; that fix was never carried across.
+          A portal removes the whole class of bug rather than compensating for
+          one filter. */}
+      {showDatePicker && typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('filters.pick_date')}
+          >
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" onClick={() => setShowDatePicker(false)} aria-hidden="true" />
+            <div className="relative z-[101] w-full max-w-sm rounded-t-2xl bg-[#141414] p-4 shadow-2xl ring-1 ring-white/10 sm:rounded-2xl">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-base font-semibold text-white">{t('filters.pick_date')}</h3>
+                <button
+                  onClick={() => setShowDatePicker(false)}
+                  aria-label="Close"
+                  className="grid h-11 w-11 place-items-center rounded-lg text-white/50 hover:bg-white/[0.06] hover:text-white sm:h-8 sm:w-8"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <InlineCalendar
+                value={searchParams.get('pickedDate') || ''}
+                min={todayStr}
+                onChange={applyPickedDate}
+              />
             </div>
-            <InlineCalendar
-              value={searchParams.get('pickedDate') || ''}
-              min={todayStr}
-              onChange={applyPickedDate}
-            />
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   )
 }

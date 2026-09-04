@@ -30,8 +30,12 @@ export function DiscoverFilterChipsStrip({
           of the edge instead of stopping half-shaved against it, and `pt-2`
           keeps each chip's 44px ::after touch box inside this scroller's
           padding box — 7px of vertical overflow here would turn an
-          `overflow-x` rail into one that also scrolls a few pixels vertically. */}
-      <div className="scrollbar-hide flex items-center gap-3 overflow-x-auto px-4 pb-3 pt-2 sm:px-6 lg:px-8">
+          `overflow-x` rail into one that also scrolls a few pixels vertically.
+          `overscroll-x-contain` stops a fling that runs off the end of the rail
+          from chaining outward — into the page, or on iOS into the browser's
+          own back-swipe. The rail is the reader's, not a gesture handle for
+          something else. */}
+      <div className="scrollbar-hide flex items-center gap-3 overflow-x-auto overscroll-x-contain px-4 pb-3 pt-2 sm:px-6 lg:px-8">
         <span className="sr-only">{t('common.when')}</span>
         <DateChips currentDate={currentDate} bare />
         <div className="h-5 w-px shrink-0 bg-white/10" aria-hidden="true" />

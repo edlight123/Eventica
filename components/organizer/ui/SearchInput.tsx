@@ -27,7 +27,10 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-10 w-full rounded-lg border border-white/10 bg-transparent pl-9 pr-8 text-sm text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+        // A form field is a FILL, not a hairline around nothing: this was
+        // `border-white/10` over `bg-transparent`, i.e. an outline around the
+        // page. 16px keeps iOS from zooming the page on focus.
+        className="h-11 w-full rounded-[10px] bg-white/[0.06] pl-9 pr-8 text-[16px] text-white placeholder:text-white/30 focus:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500/40"
       />
       {value && (
         <button
