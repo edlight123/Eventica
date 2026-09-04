@@ -73,6 +73,43 @@ textarea::placeholder {
  * paints its autofill background, but only behind the glyphs, so the field's
  * real surface shows through and there is no slab to have the wrong colour or
  * the wrong corners. */
+/* Native date/time controls size themselves, and on iOS they win.
+   ------------------------------------------------------------------
+   WebKit gives input[type=date|time|datetime-local] an intrinsic width tied to
+   its own control metrics and will NOT shrink below it — `width: 100%` and
+   `min-width: 0` are simply ignored, so the field grows past its column and
+   spills out of whatever card holds it. Measured on an iPhone: the per-tier
+   Sales start / Sales end / Valid from / Valid until cells rendered ~365px
+   wide inside a 338px column, hanging ~27px over the card's right edge.
+
+   The tell is that it reproduces on NO desktop browser. In headless Chrome the
+   identical markup lays out at exactly the column width (32 -> 370 in a 338px
+   cell), which is why per-field `min-w-0` looked like it had fixed this twice
+   before and hadn't: the bug was never visible where it was being checked.
+
+   `appearance: none` is what releases the native metrics. It does not cost the
+   picker: the calendar affordance is a separate shadow pseudo-element and
+   survives (verified in Chrome), `showPicker()` still works, and on a phone
+   the picker is opened by the input's TYPE, not its appearance. It also drops
+   iOS's centred value text, so these now read left-aligned like every other
+   field on the form. `max-width` is the belt-and-braces clamp — even if some
+   future engine invents a new intrinsic minimum, it cannot escape the column.
+
+   Fixed here, once, rather than per field: this same root cause has now
+   produced three separate visible bugs (the guest sheet's time cells, the
+   composer's date rows, and the per-tier sale/validity windows). */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='week'] {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,

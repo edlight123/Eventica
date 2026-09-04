@@ -1609,14 +1609,15 @@ export default function EventComposer({
    * ---------------------------------------------------------------------- */
   const rowCls =
     'flex min-h-11 w-full items-center gap-3 rounded-xl bg-white/[0.03] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.06]'
-  // min-w-0, and it is load-bearing: `field` is used by four
-  // `<input type="datetime-local">` (a tier's sales and validity windows). A
-  // native datetime widget carries an intrinsic minimum width it will NOT
-  // shrink below — ~151px at the 16px a phone renders, wider in WebKit — so
-  // inside a grid cell it overflows its own column and the value spills
-  // sideways, which is what the owner saw on sales start/end. `min-width: 0`
-  // releases that automatic minimum so `w-full` can actually bind it. Same
-  // root cause the guest editor sheet hit with its time fields.
+  // min-w-0 is load-bearing but NOT sufficient on its own: `field` is used by
+  // four `<input type="datetime-local">` (a tier's sales and validity
+  // windows), and a native datetime widget carries an intrinsic minimum width
+  // it will not shrink below. min-width:0 releases that in Chrome; iOS ignores
+  // it and keeps its own control metrics, which is how these ended up hanging
+  // ~27px over the card's right edge on a phone while looking correct on every
+  // desktop browser. The `appearance: none` that actually settles it is in
+  // app/globals.css, applied to all date/time inputs at once — see the long
+  // note there before touching sizing on any of these.
   // 16px not 15px: iOS zooms the page on focus below that.
   const field =
     'min-h-11 w-full min-w-0 rounded-xl bg-white/[0.05] px-4 py-3 text-[16px] text-white [color-scheme:dark] placeholder:text-white/40 transition-colors focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50'
@@ -2377,13 +2378,10 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
-                                /* min-w-0: a native datetime widget has an intrinsic
-                                   minimum width it will NOT shrink below (measured
-                                   ~151px at the 16px a phone renders), so in a grid
-                                   cell it overflows its own column and spills
-                                   sideways. min-width:0 releases that automatic
-                                   minimum; w-full then binds it to the cell. Same
-                                   root cause as the guest sheet's time fields. */
+                                /* Sizing for every date/time input lives in
+                                   app/globals.css — `min-w-0` alone does NOT
+                                   hold on iOS, which is why these spilled out
+                                   of the card. Don't re-fix it per field. */
                                 value={tier.salesStart || ''}
                                 onChange={(e) => updateTier(tier.id, { salesStart: e.target.value })}
                                 aria-label={`Ticket type ${i + 1} sales start`}
@@ -2396,13 +2394,10 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
-                                /* min-w-0: a native datetime widget has an intrinsic
-                                   minimum width it will NOT shrink below (measured
-                                   ~151px at the 16px a phone renders), so in a grid
-                                   cell it overflows its own column and spills
-                                   sideways. min-width:0 releases that automatic
-                                   minimum; w-full then binds it to the cell. Same
-                                   root cause as the guest sheet's time fields. */
+                                /* Sizing for every date/time input lives in
+                                   app/globals.css — `min-w-0` alone does NOT
+                                   hold on iOS, which is why these spilled out
+                                   of the card. Don't re-fix it per field. */
                                 value={tier.salesEnd || ''}
                                 min={tier.salesStart || undefined}
                                 onChange={(e) => updateTier(tier.id, { salesEnd: e.target.value })}
@@ -2425,13 +2420,10 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
-                                /* min-w-0: a native datetime widget has an intrinsic
-                                   minimum width it will NOT shrink below (measured
-                                   ~151px at the 16px a phone renders), so in a grid
-                                   cell it overflows its own column and spills
-                                   sideways. min-width:0 releases that automatic
-                                   minimum; w-full then binds it to the cell. Same
-                                   root cause as the guest sheet's time fields. */
+                                /* Sizing for every date/time input lives in
+                                   app/globals.css — `min-w-0` alone does NOT
+                                   hold on iOS, which is why these spilled out
+                                   of the card. Don't re-fix it per field. */
                                 value={tier.validFrom || ''}
                                 onChange={(e) => updateTier(tier.id, { validFrom: e.target.value })}
                                 aria-label={`Ticket type ${i + 1} valid from`}
@@ -2444,13 +2436,10 @@ export default function EventComposer({
                               </span>
                               <input
                                 type="datetime-local"
-                                /* min-w-0: a native datetime widget has an intrinsic
-                                   minimum width it will NOT shrink below (measured
-                                   ~151px at the 16px a phone renders), so in a grid
-                                   cell it overflows its own column and spills
-                                   sideways. min-width:0 releases that automatic
-                                   minimum; w-full then binds it to the cell. Same
-                                   root cause as the guest sheet's time fields. */
+                                /* Sizing for every date/time input lives in
+                                   app/globals.css — `min-w-0` alone does NOT
+                                   hold on iOS, which is why these spilled out
+                                   of the card. Don't re-fix it per field. */
                                 value={tier.validUntil || ''}
                                 min={tier.validFrom || undefined}
                                 onChange={(e) => updateTier(tier.id, { validUntil: e.target.value })}
