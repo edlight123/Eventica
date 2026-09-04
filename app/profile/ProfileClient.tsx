@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { Settings } from 'lucide-react'
 import { type UserProfile } from '@/lib/firestore/user-profile'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { ProfileHeaderCard } from '@/components/profile/ProfileHeaderCard'
 import { SocialLinksCard } from '@/components/profile/SocialLinksCard'
 import { PrivacyCard } from '@/components/profile/PrivacyCard'
@@ -17,6 +19,25 @@ interface ProfileClientProps {
   isVerifiedOrganizer: boolean
 }
 
+/**
+ * The signed-in reader's own profile.
+ *
+ * Structure before: a bold-sans h1 and six identical bordered cards, each with
+ * its own bold-sans h2 and (sometimes) a coloured icon tile, stacked
+ * `space-y-3`. Six equal boxes in a column, so nothing led and nothing
+ * followed; the reader's own name was buried inside box one, at the same weight
+ * as "Promotions & News".
+ *
+ * Structure now: the shared editorial page header, then IDENTITY (who you are —
+ * no heading needed, the page title says it), then five titled sections in the
+ * serif lowercase voice. Each section is one filled panel with hairline-divided
+ * rows, matching the organizer settings hub, so the reader scans five names
+ * before scanning any control.
+ *
+ * `space-y-9`, not `space-y-8`: `.mobile-typography` rewrites space-y-8/6/4 to
+ * much tighter values under 640px, which would have crushed the section rhythm
+ * on the phone this page is reviewed on.
+ */
 export default function ProfileClient({ initialProfile, userId, isVerifiedOrganizer }: ProfileClientProps) {
   const router = useRouter()
   const { t } = useTranslation('profile')
@@ -53,48 +74,39 @@ export default function ProfileClient({ initialProfile, userId, isVerifiedOrgani
 
   return (
     <>
-      {/* Page Header */}
-      <div className="mb-4 sm:mb-6">
-        <div className="flex items-start justify-between gap-2 sm:gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 sm:mb-2">{t('title')}</h1>
-            <p className="text-sm sm:text-base text-white/65 hidden sm:block">{t('subtitle')}</p>
-          </div>
-          {/* Organizer Settings Button - Only show for verified organizers */}
-          {isVerifiedOrganizer && (
+      {/* The shared editorial page header — same primitive /tickets, /favorites
+          and /notifications render, so the four consumer pages open the same way.
+          The old header here was a hand-rolled bold-sans h1. */}
+      <EditorialHeader
+        tone="dark"
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          isVerifiedOrganizer ? (
             <a
               href="/organizer/settings"
-              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm flex-shrink-0"
+              className="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] px-3 py-2.5 text-[13px] font-semibold text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:px-4"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <Settings className="h-4 w-4 shrink-0" aria-hidden />
               <span className="hidden sm:inline">{t('organizer_settings')}</span>
               <span className="sm:hidden">{t('common:nav.settings')}</span>
             </a>
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
-      {/* Profile Cards */}
-      <div className="space-y-3 sm:space-y-6">
-        {/* Profile Header */}
+      <div className="mt-7 space-y-9 sm:mt-9 sm:space-y-12">
+        {/* Identity — the one section with no heading, because the page title is it. */}
         <ProfileHeaderCard profile={profile} onUpdate={handleUpdateProfile} />
 
-        {/* Social & Bio */}
         <SocialLinksCard profile={profile} onUpdate={handleUpdateProfile} />
 
-        {/* Privacy */}
         <PrivacyCard profile={profile} onUpdate={handleUpdateProfile} />
 
-        {/* Preferences */}
         <PreferencesCard profile={profile} onUpdate={handleUpdateProfile} />
 
-        {/* Notifications */}
         <NotificationsCard profile={profile} onUpdate={handleUpdateProfile} />
 
-        {/* Account */}
         <AccountCard />
       </div>
     </>

@@ -3,14 +3,32 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Image from 'next/image'
-import { User, Mail, Phone, Calendar, Edit2, Check, X } from 'lucide-react'
+import { User, Mail, Phone, Check, X, Pencil } from 'lucide-react'
 import type { UserProfile } from '@/lib/firestore/user-profile'
+import { FIELD, GHOST_BTN, WHITE_BTN, Panel, PanelRows, ReadoutRow, FieldLabel } from './ui'
 
 interface ProfileHeaderCardProps {
   profile: UserProfile
   onUpdate: (updates: Partial<UserProfile>) => Promise<void>
 }
 
+/**
+ * Identity. The top of the page, and the only section without a serif heading —
+ * the page title already says "My Profile", so a second "Profile" heading over
+ * the reader's own name was noise.
+ *
+ * Before: a bordered card whose avatar well was `bg-gradient-to-br
+ * from-brand-100 to-brand-50` — two near-white teal tints, i.e. a bright blob on
+ * a black page — with the name at `text-lg` under a `text-xl` card heading, so
+ * the label outranked the person. The two edit inputs were `border
+ * border-white/10` with no fill and no text colour, and "Read-only" was a filled
+ * chip, which the house rule reserves for surfaces and real toggles.
+ *
+ * Now: the name IS the headline (it inherits the reader's own eye first), member
+ * since sits under it as metadata, and email/phone are read-out rows in one
+ * filled panel. Editing swaps each value for a filled field in the same slot, so
+ * nothing jumps.
+ */
 export function ProfileHeaderCard({ profile, onUpdate }: ProfileHeaderCardProps) {
   const { t } = useTranslation('profile')
   const [isEditing, setIsEditing] = useState(false)
@@ -47,119 +65,97 @@ export function ProfileHeaderCard({ profile, onUpdate }: ProfileHeaderCardProps)
     : 'Recently'
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <h2 className="text-xl font-bold text-white">{t('header.title')}</h2>
-        {!isEditing ? (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-brand-300 hover:bg-teal-50 rounded-lg transition-colors"
-          >
-            <Edit2 className="w-4 h-4" />
-            {t('header.edit_profile')}
-          </button>
-        ) : (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleCancel}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white/65 hover:text-white/70 hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
-            >
-              <X className="w-4 h-4" />
-              {t('header.cancel')}
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <Check className="w-4 h-4" />
-              {isLoading ? t('header.saving') : t('header.save')}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Profile Content */}
-      <div className="flex flex-col sm:flex-row gap-6">
-        {/* Avatar */}
-        <div className="flex-shrink-0">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center">
-            {profile.photoURL ? (
-              <Image
-                src={profile.photoURL}
-                alt={profile.displayName}
-                width={96}
-                height={96}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <User className="w-12 h-12 text-white/40" />
-            )}
-          </div>
+    <section>
+      <div className="flex items-start gap-4 sm:gap-5">
+        {/* Avatar well: a fill, not a bright tint. */}
+        <div className="h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full bg-white/[0.06] sm:h-24 sm:w-24">
+          {profile.photoURL ? (
+            <Image
+              src={profile.photoURL}
+              alt={profile.displayName}
+              width={96}
+              height={96}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="grid h-full w-full place-items-center">
+              <User className="h-8 w-8 text-white/30 sm:h-10 sm:w-10" aria-hidden />
+            </div>
+          )}
         </div>
 
-        {/* Info */}
-        <div className="flex-1 space-y-4">
-          {/* Display Name */}
-          <div>
-            <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-1">
-              {t('header.full_name')}
-            </label>
-            {isEditing ? (
+        <div className="min-w-0 flex-1">
+          {isEditing ? (
+            <div>
+              <FieldLabel htmlFor="profile-display-name" className="mb-1.5">
+                {t('header.full_name')}
+              </FieldLabel>
               <input
+                id="profile-display-name"
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className={FIELD}
                 placeholder={t('header.full_name_placeholder')}
               />
-            ) : (
-              <p className="text-lg font-bold text-white">{profile.displayName || t('header.phone_not_set')}</p>
-            )}
-          </div>
-
-          {/* Member Since */}
-          <div className="flex items-center gap-2 text-sm text-white/65">
-            <Calendar className="w-4 h-4" />
-            <span>{t('header.member_since')} {memberSince}</span>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-1">
-              {t('header.email')}
-            </label>
-            <div className="flex items-center gap-2 text-white">
-              <Mail className="w-4 h-4 text-white/40" />
-              <span>{profile.email}</span>
-              <span className="text-xs text-white/50 bg-white/[0.04] px-2 py-0.5 rounded">{t('header.email_readonly')}</span>
             </div>
-          </div>
+          ) : (
+            /* `!` on size and leading: `.mobile-typography h2` would otherwise
+               shrink the reader's own name to 18px on a phone. */
+            <h2 className="!text-[26px] !leading-[1.1] font-bold tracking-[-0.02em] text-white sm:!text-[32px]">
+              {profile.displayName || t('header.phone_not_set')}
+            </h2>
+          )}
+          <p className="mt-2 !text-[13px] text-white/40">
+            {t('header.member_since')} {memberSince}
+          </p>
+        </div>
 
-          {/* Phone */}
-          <div>
-            <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-1">
-              {t('header.phone')}
-            </label>
+        <div className="flex shrink-0 items-center gap-2">
+          {!isEditing ? (
+            <button onClick={() => setIsEditing(true)} className={GHOST_BTN}>
+              <Pencil className="h-3.5 w-3.5" aria-hidden />
+              {t('header.edit_profile')}
+            </button>
+          ) : (
+            <>
+              <button onClick={handleCancel} disabled={isLoading} className={GHOST_BTN}>
+                <X className="h-3.5 w-3.5" aria-hidden />
+                <span className="hidden sm:inline">{t('header.cancel')}</span>
+              </button>
+              <button onClick={handleSave} disabled={isLoading} className={WHITE_BTN}>
+                <Check className="h-3.5 w-3.5" aria-hidden />
+                {isLoading ? t('header.saving') : t('header.save')}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <Panel className="mt-5 sm:mt-6">
+        <PanelRows>
+          <ReadoutRow label={t('header.email')} icon={Mail} note={t('header.email_readonly')}>
+            <p className="!text-[15px] break-all text-white">{profile.email}</p>
+          </ReadoutRow>
+
+          <ReadoutRow label={t('header.phone')} icon={Phone}>
             {isEditing ? (
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className={FIELD}
                 placeholder={t('header.phone_placeholder')}
+                aria-label={t('header.phone')}
               />
             ) : (
-              <div className="flex items-center gap-2 text-white">
-                <Phone className="w-4 h-4 text-white/40" />
-                <span>{profile.phone || t('header.phone_not_set')}</span>
-              </div>
+              <p className={`!text-[15px] ${profile.phone ? 'text-white' : 'text-white/35'}`}>
+                {profile.phone || t('header.phone_not_set')}
+              </p>
             )}
-          </div>
-        </div>
-      </div>
-    </div>
+          </ReadoutRow>
+        </PanelRows>
+      </Panel>
+    </section>
   )
 }

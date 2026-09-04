@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Shield, Lock, Users, Globe, Phone } from 'lucide-react'
+import { Lock, Users, Globe, Phone } from 'lucide-react'
 import type { UserProfile } from '@/lib/firestore/user-profile'
 import { DEFAULT_PRIVACY, type AttendanceVisibility, type ProfileVisibility } from '@/types/social'
+import { ProfileSection, Panel, PanelRows, SwitchRow, FieldLabel } from './ui'
 
 interface PrivacyCardProps {
   profile: UserProfile
@@ -36,6 +37,17 @@ const ATTENDANCE_OPTIONS: Array<{
   },
 ]
 
+/**
+ * Privacy: one three-way choice, then two switches.
+ *
+ * Before: the three choices were `border border-white/10` boxes with no fill,
+ * and the chosen one differed by swapping that hairline for `border-teal-500
+ * ring-1 ring-teal-500` — a one-pixel difference between chosen and unchosen, on
+ * the page's most consequential control. The house rule is explicit about this
+ * exact failure: selection changes the FILL, and the teal ring is the accent on
+ * top. The two switches also painted their knob `bg-white/[0.03]`, so the knob
+ * was invisible at both ends of the track.
+ */
 export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
   const initial = { ...DEFAULT_PRIVACY, ...(profile.privacy || {}) }
   const [privacy, setPrivacy] = useState(initial)
@@ -60,108 +72,81 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
   const toggleDiscoverable = () => persist({ ...privacy, discoverable_by_phone: !privacy.discoverable_by_phone })
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
-      {/* Header */}
-      <div className="flex items-start gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Shield className="w-5 h-5 text-teal-600" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-white mb-1">Privacy</h2>
-          <p className="text-sm text-white/65">You control who sees your activity. Everything is private by default.</p>
-        </div>
-      </div>
-
+    <ProfileSection
+      title="Privacy"
+      description="You control who sees your activity. Everything is private by default."
+    >
       {/* Attendance visibility */}
-      <div className="mb-6">
-        <h3 className="font-semibold text-white mb-1">Who can see events I&apos;m going to</h3>
-        <p className="text-sm text-white/65 mb-3">This controls the &quot;Who&apos;s going&quot; section on events.</p>
-        <div className="space-y-2">
-          {ATTENDANCE_OPTIONS.map(({ value, label, description, Icon }) => {
-            const active = privacy.attendance_visibility === value
-            return (
-              <button
-                key={value}
-                onClick={() => setAttendance(value)}
-                disabled={isUpdating}
-                className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-colors disabled:opacity-60 ${
-                  active
-                    ? 'border-teal-500 ring-1 ring-teal-500'
-                    : 'border-white/10 hover:bg-white/[0.03]'
+      <FieldLabel className="mb-2.5">Who can see events I&apos;m going to</FieldLabel>
+      <div className="space-y-2" role="radiogroup" aria-label="Who can see events I'm going to">
+        {ATTENDANCE_OPTIONS.map(({ value, label, description, Icon }) => {
+          const active = privacy.attendance_visibility === value
+          return (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setAttendance(value)}
+              disabled={isUpdating}
+              className={`flex w-full items-start gap-3 rounded-2xl p-3.5 text-left transition-colors disabled:opacity-60 ${
+                active
+                  ? 'bg-white/[0.08] ring-1 ring-inset ring-brand-400/50'
+                  : 'bg-white/[0.055] hover:bg-white/[0.12]'
+              }`}
+            >
+              <span
+                className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${
+                  active ? 'bg-brand-500/20 text-brand-300' : 'bg-white/[0.06] text-white/50'
                 }`}
               >
-                <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    active ? 'bg-teal-600 text-white' : 'bg-white/[0.04] text-white/50'
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-white">{label}</p>
-                  <p className="text-sm text-white/65">{description}</p>
-                </div>
-                <span
-                  className={`mt-1 w-4 h-4 rounded-full border-2 flex-shrink-0 ${
-                    active ? 'border-teal-600 bg-teal-600' : 'border-white/10'
-                  }`}
-                />
-              </button>
-            )
-          })}
-        </div>
+                <Icon className="h-[18px] w-[18px]" aria-hidden />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block !text-[15px] font-semibold text-white">{label}</span>
+                <span className="mt-0.5 block !text-[13px] !leading-relaxed text-white/50">
+                  {description}
+                </span>
+              </span>
+              {/* The marker: a filled teal dot when chosen, a quiet ring when not. */}
+              <span
+                className={`mt-1 h-4 w-4 shrink-0 rounded-full ${
+                  active
+                    ? 'bg-brand-400 ring-1 ring-brand-400'
+                    : 'ring-1 ring-inset ring-white/25'
+                }`}
+                aria-hidden
+              />
+            </button>
+          )
+        })}
       </div>
+      <p className="mt-2 !text-[12px] text-white/35">
+        This controls the &quot;Who&apos;s going&quot; section on events.
+      </p>
 
-      {/* Profile visibility */}
-      <div className="flex items-start justify-between py-3 border-t border-white/10">
-        <div className="flex-1 pr-4">
-          <h3 className="font-semibold text-white mb-1">Public profile</h3>
-          <p className="text-sm text-white/65">
-            Let anyone view your profile, bio, and social links. When off, only friends can see them.
-          </p>
-        </div>
-        <button
-          onClick={() => setProfileVisibility(privacy.profile_visibility === 'public' ? 'private' : 'public')}
-          disabled={isUpdating}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 ${
-            privacy.profile_visibility === 'public' ? 'bg-teal-600' : 'bg-white/[0.06]'
-          }`}
-          aria-pressed={privacy.profile_visibility === 'public'}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white/[0.03] transition-transform ${
-              privacy.profile_visibility === 'public' ? 'translate-x-6' : 'translate-x-1'
-            }`}
+      {/* The two switches */}
+      <Panel className="mt-4">
+        <PanelRows>
+          <SwitchRow
+            title="Public profile"
+            description="Let anyone view your profile, bio, and social links. When off, only friends can see them."
+            checked={privacy.profile_visibility === 'public'}
+            onChange={() =>
+              setProfileVisibility(privacy.profile_visibility === 'public' ? 'private' : 'public')
+            }
+            disabled={isUpdating}
           />
-        </button>
-      </div>
-
-      {/* Phone discovery */}
-      <div className="flex items-start justify-between py-3 border-t border-white/10">
-        <div className="flex-1 pr-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Phone className="w-4 h-4 text-white/50" />
-            <h3 className="font-semibold text-white">Find me by phone number</h3>
-          </div>
-          <p className="text-sm text-white/65">
-            Let people who already have your number find you when they sync contacts. Your number is never shown.
-          </p>
-        </div>
-        <button
-          onClick={toggleDiscoverable}
-          disabled={isUpdating}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 ${
-            privacy.discoverable_by_phone ? 'bg-teal-600' : 'bg-white/[0.06]'
-          }`}
-          aria-pressed={privacy.discoverable_by_phone}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white/[0.03] transition-transform ${
-              privacy.discoverable_by_phone ? 'translate-x-6' : 'translate-x-1'
-            }`}
+          <SwitchRow
+            title="Find me by phone number"
+            description="Let people who already have your number find you when they sync contacts. Your number is never shown."
+            icon={Phone}
+            checked={privacy.discoverable_by_phone}
+            onChange={toggleDiscoverable}
+            disabled={isUpdating}
           />
-        </button>
-      </div>
-    </div>
+        </PanelRows>
+      </Panel>
+    </ProfileSection>
   )
 }

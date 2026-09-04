@@ -2,14 +2,32 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MapPin, Tag, Globe, Info } from 'lucide-react'
+import { MapPin, Tag, Globe, ChevronDown } from 'lucide-react'
 import { LOCATION_CONFIG, CATEGORIES, getLocationTypeLabel, getSubdivisions, getCitiesForCountry } from '@/lib/filters/config'
 import type { UserProfile } from '@/lib/firestore/user-profile'
+import { ProfileSection, Panel, FieldLabel } from './ui'
 
 interface PreferencesCardProps {
   profile: UserProfile
   onUpdate: (updates: Partial<UserProfile>) => Promise<void>
 }
+
+/**
+ * Discovery preferences: where you are, what you like, what language you read.
+ *
+ * Before: the "default location" summary was `border border-brand-100` — a
+ * near-white teal hairline around an unfilled box — and all three selects were
+ * `border border-white/10` with no fill, no text colour and the UA's own
+ * chevron, so on a black page they were empty outlines. The category and
+ * language buttons were filled `bg-teal-600`, which spends the page's whole teal
+ * budget on "chosen"; the ladder says a chosen chip is the one pure white thing.
+ *
+ * Now: the summary is a filled read-out, the selects are filled fields with our
+ * own chevron, and language is one segmented control instead of three loose
+ * pills. Data, handlers and save-on-change behaviour are untouched.
+ */
+const SELECT =
+  'w-full appearance-none rounded-xl bg-white/[0.06] px-3.5 py-3 pr-11 text-[16px] text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-[#141414] [&>option]:text-white'
 
 export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
   const { i18n, t } = useTranslation('profile')
@@ -29,10 +47,7 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
   const subdivisions = useMemo(() => {
     return defaultCity ? getSubdivisions(defaultCity, defaultCountry) : []
   }, [defaultCity, defaultCountry])
-  
-  const subareaType = defaultCity && LOCATION_CONFIG[defaultCountry]?.cities[defaultCity]
-    ? LOCATION_CONFIG[defaultCountry].cities[defaultCity].type.toUpperCase()
-    : 'COMMUNE'
+
   const subareaLabel = defaultCity ? getLocationTypeLabel(defaultCity, defaultCountry) : 'Area'
 
   // Reset city and subarea when country changes
@@ -57,7 +72,7 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
     setDefaultSubarea('') // Reset subarea
     setIsUpdating(true)
     try {
-      await onUpdate({ 
+      await onUpdate({
         defaultCountry: country,
         defaultCity: '',
         defaultSubarea: '',
@@ -76,7 +91,7 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
     setIsUpdating(true)
     try {
       const cityConfig = LOCATION_CONFIG[defaultCountry]?.cities[city]
-      await onUpdate({ 
+      await onUpdate({
         defaultCity: city,
         defaultSubarea: '',
         subareaType: (cityConfig?.type.toUpperCase() || 'COMMUNE') as 'COMMUNE' | 'NEIGHBORHOOD'
@@ -104,7 +119,7 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
     const newCategories = favoriteCategories.includes(category)
       ? favoriteCategories.filter(c => c !== category)
       : [...favoriteCategories, category]
-    
+
     setFavoriteCategories(newCategories)
     setIsUpdating(true)
     try {
@@ -132,112 +147,115 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
   }
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-white mb-1">{t('preferences.title')}</h2>
-        <p className="text-sm text-white/65">{t('preferences.subtitle')}</p>
-      </div>
+    <ProfileSection title={t('preferences.title')} description={t('preferences.subtitle')}>
+      {/* The resolved default location, when all three parts are set: a filled
+          read-out of what the feed is actually using. */}
+      {defaultCountry && defaultCity && defaultSubarea && (
+        <Panel className="mb-4 px-4 py-4 sm:px-5">
+          <div className="flex items-start gap-3.5">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white/55">
+              <MapPin className="h-[18px] w-[18px]" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              {/* A span, not a p: `.mobile-typography p` would override
+                  .eyebrow's size and line-height on a phone. */}
+              <span className="eyebrow block text-white/40">{t('preferences.default_location')}</span>
+              <p className="mt-1 !text-[17px] font-bold !leading-snug text-white">
+                {LOCATION_CONFIG[defaultCountry]?.name} · {defaultCity} · {defaultSubarea}
+              </p>
+              <p className="mt-1 !text-[12px] text-white/40">{t('preferences.location_note')}</p>
+            </div>
+          </div>
+        </Panel>
+      )}
 
-      <div className="space-y-6">
-        {/* Default Location Pill */}
-        {defaultCountry && defaultCity && defaultSubarea && (
-          <div className="border border-brand-100 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-white/[0.03] rounded-lg flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-5 h-5 text-brand-600" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-brand-300 uppercase tracking-wide mb-1">
-                  {t('preferences.default_location')}
-                </p>
-                <p className="text-lg font-bold text-white">
-                  {LOCATION_CONFIG[defaultCountry]?.name} • {defaultCity} • {defaultSubarea}
-                </p>
-                <p className="text-xs text-brand-600 mt-1">
-                  {t('preferences.location_note')}
-                </p>
-              </div>
+      <div className="space-y-5">
+        {/* Country */}
+        <div>
+          <FieldLabel htmlFor="pref-country" icon={Globe} className="mb-2">
+            {t('preferences.default_country', { defaultValue: 'Country' })}
+          </FieldLabel>
+          <div className="relative">
+            <select
+              id="pref-country"
+              value={defaultCountry}
+              onChange={(e) => handleCountryChange(e.target.value)}
+              disabled={isUpdating}
+              className={SELECT}
+            >
+              {Object.values(LOCATION_CONFIG).map(country => (
+                <option key={country.code} value={country.code}>{country.name}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" aria-hidden />
+          </div>
+        </div>
+
+        {/* City */}
+        <div>
+          <FieldLabel htmlFor="pref-city" icon={MapPin} className="mb-2">
+            {t('preferences.default_city')}
+          </FieldLabel>
+          <div className="relative">
+            <select
+              id="pref-city"
+              value={defaultCity}
+              onChange={(e) => handleCityChange(e.target.value)}
+              disabled={isUpdating}
+              className={SELECT}
+            >
+              <option value="">{t('preferences.select_city')}</option>
+              {cities.map(city => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" aria-hidden />
+          </div>
+        </div>
+
+        {/* Subarea — only where the selected city has subdivisions */}
+        {defaultCity && subdivisions.length > 0 && (
+          <div>
+            <FieldLabel htmlFor="pref-subarea" icon={MapPin} className="mb-2">
+              {subareaLabel}
+            </FieldLabel>
+            <div className="relative">
+              <select
+                id="pref-subarea"
+                value={defaultSubarea}
+                onChange={(e) => handleSubareaChange(e.target.value)}
+                disabled={isUpdating}
+                className={SELECT}
+              >
+                <option value="">{t('preferences.select_area', { type: subareaLabel.toLowerCase() })}</option>
+                {subdivisions.map(subarea => (
+                  <option key={subarea} value={subarea}>{subarea}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" aria-hidden />
             </div>
           </div>
         )}
 
-        {/* Country Selector */}
+        {/* Favorite categories — chosen chip is the one white thing */}
         <div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-white/70 mb-2">
-            <Globe className="w-4 h-4" />
-            {t('preferences.default_country', { defaultValue: 'Country' })}
-          </label>
-          <select
-            value={defaultCountry}
-            onChange={(e) => handleCountryChange(e.target.value)}
-            disabled={isUpdating}
-            className="w-full px-4 py-3 border border-white/10 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {Object.values(LOCATION_CONFIG).map(country => (
-              <option key={country.code} value={country.code}>{country.name}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* City Selector */}
-        <div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-white/70 mb-2">
-            <MapPin className="w-4 h-4" />
-            {t('preferences.default_city')}
-          </label>
-          <select
-            value={defaultCity}
-            onChange={(e) => handleCityChange(e.target.value)}
-            disabled={isUpdating}
-            className="w-full px-4 py-3 border border-white/10 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <option value="">{t('preferences.select_city')}</option>
-            {cities.map(city => (
-              <option key={city} value={city}>{city}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Subarea Selector */}
-        {defaultCity && subdivisions.length > 0 && (
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-white/70 mb-2">
-              <MapPin className="w-4 h-4" />
-              {subareaLabel}
-            </label>
-            <select
-              value={defaultSubarea}
-              onChange={(e) => handleSubareaChange(e.target.value)}
-              disabled={isUpdating}
-              className="w-full px-4 py-3 border border-white/10 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="">{t('preferences.select_area', { type: subareaLabel.toLowerCase() })}</option>
-              {subdivisions.map(subarea => (
-                <option key={subarea} value={subarea}>{subarea}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Favorite Categories */}
-        <div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-white/70 mb-3">
-            <Tag className="w-4 h-4" />
+          <FieldLabel icon={Tag} className="mb-2.5">
             {t('preferences.favorite_categories')}
-          </label>
+          </FieldLabel>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map(category => {
               const isSelected = favoriteCategories.includes(category)
               return (
                 <button
                   key={category}
+                  type="button"
+                  aria-pressed={isSelected}
                   onClick={() => handleCategoryToggle(category)}
                   disabled={isUpdating}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all disabled:opacity-50 ${
+                  className={`rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors disabled:opacity-50 ${
                     isSelected
-                      ? 'bg-teal-600 text-white shadow-sm'
-                      : 'bg-white/[0.04] text-white/70 hover:bg-white/[0.06]'
+                      ? 'bg-white text-black'
+                      : 'bg-white/[0.055] text-white/70 hover:bg-white/[0.12] hover:text-white'
                   }`}
                 >
                   {category}
@@ -245,18 +263,15 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
               )
             })}
           </div>
-          <p className="text-xs text-white/50 mt-2">
-            {t('preferences.categories_note')}
-          </p>
+          <p className="mt-2.5 !text-[12px] text-white/35">{t('preferences.categories_note')}</p>
         </div>
 
-        {/* Language Selector */}
+        {/* Language — one segmented control, not three loose pills */}
         <div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-white/70 mb-2">
-            <Globe className="w-4 h-4" />
+          <FieldLabel icon={Globe} className="mb-2">
             {t('preferences.language')}
-          </label>
-          <div className="grid grid-cols-3 gap-3">
+          </FieldLabel>
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-white/[0.055] p-1">
             {[
               { code: 'en' as const, label: t('preferences.language_en') },
               { code: 'fr' as const, label: t('preferences.language_fr') },
@@ -264,12 +279,14 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
             ].map(({ code, label }) => (
               <button
                 key={code}
+                type="button"
+                aria-pressed={language === code}
                 onClick={() => handleLanguageChange(code)}
                 disabled={isUpdating}
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all disabled:opacity-50 ${
+                className={`rounded-lg py-2.5 text-[13px] font-semibold transition-colors disabled:opacity-50 ${
                   language === code
-                    ? 'bg-teal-600 text-white shadow-sm'
-                    : 'bg-white/[0.04] text-white/70 hover:bg-white/[0.06] border border-white/10'
+                    ? 'bg-white text-black'
+                    : 'text-white/60 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 {label}
@@ -278,6 +295,6 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </ProfileSection>
   )
 }

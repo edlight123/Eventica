@@ -1,26 +1,41 @@
 'use client'
 
 import { useState } from 'react'
-import { Instagram, Music2, Twitter, Facebook, Edit2, Check, X, AtSign } from 'lucide-react'
+import { Instagram, Music2, Twitter, Facebook, Check, X, Pencil } from 'lucide-react'
 import type { UserProfile } from '@/lib/firestore/user-profile'
 import type { SocialLinks } from '@/types/social'
+import { FIELD, GHOST_BTN, WHITE_BTN, ProfileSection, Panel, PanelRows, FieldLabel } from './ui'
 
 interface SocialLinksCardProps {
   profile: UserProfile
   onUpdate: (updates: Partial<UserProfile>) => Promise<void>
 }
 
+/**
+ * Bio + the four handles.
+ *
+ * Before: a bordered card opening with a `bg-pink-50` icon tile (a near-white
+ * pink square on black), four platform icons in their own brand colours fighting
+ * each other, a textarea and four `@`-prefixed inputs that were all borders and
+ * no fill, and an "we don't verify these" notice built as `border
+ * border-amber-200` — Tailwind's LIGHT amber, so a near-white hairline around
+ * empty space.
+ *
+ * Now: the serif section heading carries the identity, so the pink tile is gone;
+ * the icons are monochrome (they identify a row, they don't shout); bio and
+ * handles are rows of one filled panel; and the notice is an amber WASH with no
+ * border.
+ */
 const PLATFORMS: Array<{
   key: keyof SocialLinks
   label: string
   placeholder: string
   Icon: typeof Instagram
-  color: string
 }> = [
-  { key: 'instagram', label: 'Instagram', placeholder: 'yourhandle', Icon: Instagram, color: 'text-pink-600' },
-  { key: 'tiktok', label: 'TikTok', placeholder: 'yourhandle', Icon: Music2, color: 'text-white' },
-  { key: 'twitter', label: 'X (Twitter)', placeholder: 'yourhandle', Icon: Twitter, color: 'text-sky-500' },
-  { key: 'facebook', label: 'Facebook', placeholder: 'your.profile', Icon: Facebook, color: 'text-blue-600' },
+  { key: 'instagram', label: 'Instagram', placeholder: 'yourhandle', Icon: Instagram },
+  { key: 'tiktok', label: 'TikTok', placeholder: 'yourhandle', Icon: Music2 },
+  { key: 'twitter', label: 'X (Twitter)', placeholder: 'yourhandle', Icon: Twitter },
+  { key: 'facebook', label: 'Facebook', placeholder: 'your.profile', Icon: Facebook },
 ]
 
 export function SocialLinksCard({ profile, onUpdate }: SocialLinksCardProps) {
@@ -61,114 +76,102 @@ export function SocialLinksCard({ profile, onUpdate }: SocialLinksCardProps) {
   const hasAnyLink = PLATFORMS.some((p) => (profile.socialLinks?.[p.key] || '').trim())
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl shadow-sm border border-white/10 p-6">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 bg-pink-50 rounded-lg flex items-center justify-center flex-shrink-0">
-            <AtSign className="w-5 h-5 text-pink-600" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white mb-1">Social & Bio</h2>
-            <p className="text-sm text-white/65">Let people connect with you off Tikèm</p>
-          </div>
-        </div>
-        {!isEditing ? (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-brand-300 hover:bg-teal-50 rounded-lg transition-colors"
-          >
-            <Edit2 className="w-4 h-4" />
+    <ProfileSection
+      title="Social & Bio"
+      description="Let people connect with you off Tikèm"
+      actions={
+        !isEditing ? (
+          <button onClick={() => setIsEditing(true)} className={GHOST_BTN}>
+            <Pencil className="h-3.5 w-3.5" aria-hidden />
             Edit
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleCancel}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white/65 hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
-            >
-              <X className="w-4 h-4" />
-              Cancel
+            <button onClick={handleCancel} disabled={isLoading} className={GHOST_BTN}>
+              <X className="h-3.5 w-3.5" aria-hidden />
+              <span className="hidden sm:inline">Cancel</span>
             </button>
-            <button
-              onClick={handleSave}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <Check className="w-4 h-4" />
+            <button onClick={handleSave} disabled={isLoading} className={WHITE_BTN}>
+              <Check className="h-3.5 w-3.5" aria-hidden />
               {isLoading ? 'Saving...' : 'Save'}
             </button>
           </div>
-        )}
-      </div>
-
-      {/* Bio */}
-      <div className="mb-5">
-        <label className="block text-xs font-semibold text-white/50 uppercase tracking-wide mb-2">Bio</label>
-        {isEditing ? (
-          <div>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value.slice(0, 280))}
-              rows={3}
-              placeholder="Tell people a little about yourself"
-              className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
-            />
-            <p className="text-xs text-white/40 mt-1 text-right">{bio.length}/280</p>
+        )
+      }
+    >
+      <Panel>
+        <PanelRows>
+          {/* Bio */}
+          <div className="px-4 py-4 sm:px-5">
+            <FieldLabel htmlFor="profile-bio" className="mb-2">
+              Bio
+            </FieldLabel>
+            {isEditing ? (
+              <>
+                <textarea
+                  id="profile-bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value.slice(0, 280))}
+                  rows={3}
+                  placeholder="Tell people a little about yourself"
+                  className={`${FIELD} resize-none`}
+                />
+                <p className="mt-1.5 text-right !text-[12px] text-white/35">{bio.length}/280</p>
+              </>
+            ) : (
+              <p className="!text-[15px] !leading-relaxed whitespace-pre-line text-white/80">
+                {profile.bio?.trim() ? profile.bio : <span className="text-white/35">No bio yet</span>}
+              </p>
+            )}
           </div>
-        ) : (
-          <p className="text-sm text-white/70 whitespace-pre-line">
-            {profile.bio?.trim() ? profile.bio : <span className="text-white/40">No bio yet</span>}
-          </p>
-        )}
-      </div>
 
-      {/* Social handles */}
-      <div className="space-y-3">
-        {PLATFORMS.map(({ key, label, placeholder, Icon, color }) => {
-          const value = isEditing ? links[key] || '' : profile.socialLinks?.[key] || ''
-          if (!isEditing && !value) return null
-          return (
-            <div key={key} className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white/[0.03] flex items-center justify-center flex-shrink-0">
-                <Icon className={`w-5 h-5 ${color}`} />
+          {/* Handles. Read mode hides the empty ones; edit mode shows all four. */}
+          {PLATFORMS.map(({ key, label, placeholder, Icon }) => {
+            const value = isEditing ? links[key] || '' : profile.socialLinks?.[key] || ''
+            if (!isEditing && !value) return null
+            return (
+              <div key={key} className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white/55">
+                  <Icon className="h-[18px] w-[18px]" aria-hidden />
+                </span>
+                {isEditing ? (
+                  <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl bg-white/[0.06] focus-within:ring-2 focus-within:ring-inset focus-within:ring-brand-500">
+                    <span className="select-none pl-3.5 pr-1 text-[16px] text-white/35">@</span>
+                    <input
+                      type="text"
+                      value={links[key] || ''}
+                      onChange={(e) => setLinks((prev) => ({ ...prev, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="min-w-0 flex-1 bg-transparent py-3 pr-3.5 text-[16px] text-white outline-none placeholder:text-white/35"
+                      aria-label={label}
+                    />
+                  </div>
+                ) : (
+                  <div className="min-w-0 flex-1">
+                    {/* A span, not a p: `.mobile-typography p` (element+class)
+                        would override .eyebrow's size and line-height. */}
+                    <span className="eyebrow block text-white/40">{label}</span>
+                    <p className="mt-0.5 truncate !text-[15px] font-semibold text-white">@{value}</p>
+                  </div>
+                )}
               </div>
-              {isEditing ? (
-                <div className="flex-1 flex items-center rounded-lg border border-white/10 focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent overflow-hidden">
-                  <span className="pl-3 pr-1 text-white/40 select-none">@</span>
-                  <input
-                    type="text"
-                    value={links[key] || ''}
-                    onChange={(e) => setLinks((prev) => ({ ...prev, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    className="flex-1 py-2 pr-3 outline-none"
-                    aria-label={label}
-                  />
-                </div>
-              ) : (
-                <div className="flex-1">
-                  <p className="text-xs text-white/50">{label}</p>
-                  <p className="text-sm font-medium text-white">@{value}</p>
-                </div>
-              )}
-            </div>
-          )
-        })}
+            )
+          })}
 
-        {!isEditing && !hasAnyLink && (
-          <p className="text-sm text-white/40">No social accounts added yet.</p>
-        )}
-      </div>
+          {!isEditing && !hasAnyLink && (
+            <p className="px-4 py-4 !text-[14px] text-white/35 sm:px-5">No social accounts added yet.</p>
+          )}
+        </PanelRows>
+      </Panel>
 
       {isEditing && (
-        <div className="mt-5 border border-amber-200 rounded-lg p-3">
-          <p className="text-xs text-amber-300">
+        <div className="mt-3 rounded-xl bg-amber-400/[0.08] px-4 py-3">
+          <p className="!text-[12px] !leading-relaxed text-amber-200/85">
             These links are shown on your public profile exactly as you enter them. We don&apos;t verify
             account ownership.
           </p>
         </div>
       )}
-    </div>
+    </ProfileSection>
   )
 }
