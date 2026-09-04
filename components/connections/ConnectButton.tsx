@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation'
 import { UserPlus, Check, Clock, X } from 'lucide-react'
 import type { FriendshipState } from '@/types/social'
 
+/**
+ * Palette follows docs/POSH_DESIGN_BRIEF.md (2026-09-04). It used to fill the
+ * affirmative actions with teal — `bg-teal-600` on Accept and a
+ * `from-teal-600 to-teal-700` gradient on Add friend — which the brief forbids
+ * outright: teal is a semantic accent (verified / live / selected), never a
+ * button fill. Affirmative actions are now the white pill. The three quiet
+ * states were `border border-white/15` over `bg-white/[0.03]`, a hairline
+ * around a fill too faint to read; they are plain `bg-white/[0.055]` fills now,
+ * on the surface ladder, with the hover step doing the work the border was
+ * pretending to do. Geometry (rounded-xl, `pad`) is unchanged so the organizer
+ * profile hero still lines up with FollowButton beside it.
+ */
+
 interface ConnectButtonProps {
   targetUserId: string
   /** Friendship state from the viewer's perspective. */
@@ -12,6 +25,15 @@ interface ConnectButtonProps {
   /** Whether a viewer is signed in. When false, clicking routes to login. */
   isAuthenticated: boolean
   size?: 'sm' | 'md'
+  /**
+   * Render the affirmative action as a quiet fill instead of the white pill.
+   *
+   * On /connections "Add friend" IS the primary action of its row, so it earns
+   * the white pill. On an organizer profile it sits beside Follow, which is
+   * that page's primary — two white pills side by side would declare two
+   * primaries and neither would read as the main thing to do.
+   */
+  quiet?: boolean
   onChange?: (state: FriendshipState) => void
 }
 
@@ -20,6 +42,7 @@ export default function ConnectButton({
   initialState,
   isAuthenticated,
   size = 'md',
+  quiet = false,
   onChange,
 }: ConnectButtonProps) {
   const router = useRouter()
@@ -94,7 +117,7 @@ export default function ConnectButton({
       <button
         onClick={remove}
         disabled={loading}
-        className={`group inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-white/[0.03] text-white/80 hover:border-red-400/40 hover:text-red-300 transition-colors disabled:opacity-50`}
+        className={`group inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white/[0.055] text-white/80 hover:bg-white/[0.12] hover:text-red-300 transition-colors disabled:opacity-50`}
         title="Remove friend"
       >
         <Check className="w-4 h-4 group-hover:hidden" />
@@ -110,7 +133,7 @@ export default function ConnectButton({
       <button
         onClick={remove}
         disabled={loading}
-        className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-white/[0.03] text-white/50 hover:text-white/80 transition-colors disabled:opacity-50`}
+        className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white/[0.055] text-white/50 hover:bg-white/[0.12] hover:text-white/80 transition-colors disabled:opacity-50`}
         title="Cancel request"
       >
         <Clock className="w-4 h-4" />
@@ -125,7 +148,11 @@ export default function ConnectButton({
         <button
           onClick={() => respond('accept')}
           disabled={loading}
-          className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-teal-600 text-white hover:bg-teal-700 transition-colors disabled:opacity-50`}
+          className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl transition-colors disabled:opacity-50 ${
+            quiet
+              ? 'bg-white/[0.055] text-white/80 hover:bg-white/[0.12] hover:text-white'
+              : 'bg-white text-black hover:bg-white/90'
+          }`}
         >
           <Check className="w-4 h-4" />
           Accept
@@ -133,7 +160,7 @@ export default function ConnectButton({
         <button
           onClick={() => respond('decline')}
           disabled={loading}
-          className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl border border-white/15 bg-white/[0.03] text-white/70 hover:bg-white/[0.04] transition-colors disabled:opacity-50`}
+          className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white/[0.055] text-white/70 hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50`}
         >
           Decline
         </button>
@@ -146,7 +173,7 @@ export default function ConnectButton({
     <button
       onClick={sendRequest}
       disabled={loading}
-      className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 transition-colors disabled:opacity-50`}
+      className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white text-black hover:bg-white/90 transition-colors disabled:opacity-50`}
     >
       <UserPlus className="w-4 h-4" />
       Add friend

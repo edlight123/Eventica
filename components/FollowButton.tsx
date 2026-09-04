@@ -67,10 +67,21 @@ export default function FollowButton({ organizerId, userId, initialIsFollowing =
       onClick={toggleFollow}
       disabled={loading}
       aria-pressed={isFollowing}
-      className={`px-6 py-2.5 rounded-xl text-sm font-medium border transition-colors duration-200 ${
+      /* A FILL, not a hairline around nothing. Both states here were a bare
+         `border-white/10`–`/15` with NO background at all — the exact pattern
+         the house rule forbids, and on the organizer profile this is the
+         PRIMARY action, sitting immediately beside ConnectButton (which is
+         filled). Two adjacent controls, one outlined and one filled, read as
+         a mistake.
+         Follow is the primary here, so it takes the white pill and
+         ConnectButton beside it is passed `quiet`; once you already follow,
+         the action is no longer primary and drops to a quiet fill.
+         Geometry now matches ConnectButton's `md` size (px-4 py-2 text-sm,
+         rounded-xl) so the pair lines up exactly. */
+      className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 ${
         isFollowing
-          ? 'border-white/10 text-white/60 hover:border-white/20 hover:text-white/80'
-          : 'border-white/15 text-white/90 hover:border-white/30 hover:text-white'
+          ? 'bg-white/[0.055] text-white/70 hover:bg-white/[0.12] hover:text-white'
+          : 'bg-white text-black hover:bg-white/90'
       } disabled:opacity-50`}
     >
       {loading ? (

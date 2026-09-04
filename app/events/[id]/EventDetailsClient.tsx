@@ -205,7 +205,16 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   {isTrending && <span className="text-white/30"> · </span>}
                   {isTrending && <span>{t('events.trending')}</span>}
                 </p>
-                <ShareIconButton eventId={event.id} eventTitle={event.title} tone="light" className="shrink-0" />
+                {/* Save + share as one cluster, mirroring the mobile buy row.
+                    The heart previously hung in a `mt-4` block under the
+                    ticket panel, far from the only other icon action on the
+                    page and below the fold on a laptop. */}
+                <div className="flex shrink-0 items-center gap-2">
+                  {user && (
+                    <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
+                  )}
+                  <ShareIconButton eventId={event.id} eventTitle={event.title} tone="light" />
+                </div>
               </div>
 
               {/* Title */}
@@ -303,15 +312,22 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               />
             )}
           </div>
+          {/* Save and share, as a pair, ON the buy row.
+              The heart used to sit in a `mt-3` block BELOW this row — and
+              because this bar is `sticky top-0`, that orphaned row cost ~52px
+              of viewport at every scroll position, not just once. Folding it
+              in beside share reclaims that height, groups the two secondary
+              actions into one cluster, and keeps save reachable the whole way
+              down the page (on the poster it would scroll out of reach). */}
+          {user && (
+            <div className="flex-shrink-0">
+              <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
+            </div>
+          )}
           <div className="flex-shrink-0">
             <ShareIconButton eventId={event.id} eventTitle={event.title} tone="dark" />
           </div>
         </div>
-        {user && (
-          <div className="mt-3">
-            <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
-          </div>
-        )}
       </div>
 
       <MobileKeyFacts
@@ -601,11 +617,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     eventStartsAt={event.start_datetime}
                 isPasswordProtected={!!event.is_password_protected}
                   />
-                  {user ? (
-                    <div className="mt-4">
-                      <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
-                    </div>
-                  ) : (
+                  {!user && (
                     <p className="text-xs text-white/50 text-center mt-3">
                       {t('events.no_account_needed', {
                         defaultValue: 'No account needed. Your ticket is emailed to you.',

@@ -252,10 +252,14 @@ export default function OrganizerProfileClient({
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                   {userId && userId !== organizer.id && (
                     <>
+                      {/* `quiet`: Follow beside this is the page's primary
+                          action and takes the white pill, so Add friend is a
+                          quiet fill rather than a competing second primary. */}
                       <ConnectButton
                         targetUserId={organizer.id}
                         initialState={friendshipState}
                         isAuthenticated={isAuthenticated}
+                        quiet
                       />
                       <FollowButton
                         organizerId={organizer.id}

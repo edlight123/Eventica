@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '@/components/ui/Toast'
+import { Heart } from 'lucide-react'
 
 interface FavoriteButtonProps {
   eventId: string
@@ -62,32 +63,37 @@ export default function FavoriteButton({ eventId, userId, initialIsFavorite = fa
     }
   }
 
+  const label = isFavorite
+    ? t('favorites.toast.aria_remove', 'Remove from favorites')
+    : t('favorites.toast.aria_add', 'Add to favorites')
+
+  /**
+   * Geometry deliberately identical to ShareIconButton: a 40px disc with an
+   * 18px glyph. These two are the event page's only secondary actions and they
+   * now sit side by side in the sticky bar, so any difference in size or
+   * radius reads as a mistake rather than as a pair.
+   *
+   * A FILL, not a hairline: this used to be `bg-white/[0.03]` inside a
+   * `border-white/10`, which is the "border around nothing" the house rule
+   * forbids — at 3% the disc was invisible and only its outline showed. The
+   * active state carries its own red fill instead of a red border, and the
+   * old `shadow-md`/`hover:scale-110` are gone: nothing else on this page
+   * grows under the cursor, and a phone has no hover to grow with.
+   */
   return (
     <button
       onClick={toggleFavorite}
       disabled={loading}
-      className={`p-3 rounded-full transition-all duration-300 shadow-md hover:shadow-lg border ${
+      className={`grid h-10 w-10 place-items-center rounded-full transition-colors duration-200 active:scale-90 disabled:opacity-50 ${
         isFavorite
-          ? 'bg-red-500/15 text-red-400 border-red-500/30 hover:bg-red-500/25'
-          : 'bg-white/[0.03] text-white/70 border-white/10 hover:text-red-400 hover:bg-white/10'
-      } disabled:opacity-50 transform hover:scale-110`}
-      aria-label={isFavorite ? t('favorites.toast.aria_remove', 'Remove from favorites') : t('favorites.toast.aria_add', 'Add to favorites')}
+          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+          : 'bg-white/[0.06] text-white/65 hover:bg-white/[0.12] hover:text-red-400'
+      }`}
+      aria-label={label}
       aria-pressed={isFavorite}
-      title={isFavorite ? t('favorites.toast.aria_remove', 'Remove from favorites') : t('favorites.toast.aria_add', 'Add to favorites')}
+      title={label}
     >
-      <svg
-        className="w-6 h-6 transition-transform duration-300"
-        fill={isFavorite ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-        />
-      </svg>
+      <Heart className="h-[18px] w-[18px]" fill={isFavorite ? 'currentColor' : 'none'} />
     </button>
   )
 }
