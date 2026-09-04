@@ -1,9 +1,10 @@
 'use client'
 
 // Act 2 of the homepage cinema: the pinned poster chapter. A full-screen frame
-// holds (position: sticky) while ~1.5 extra viewports of scroll scrub the
-// scene — posters drift through at different speeds, and the serif caption
-// hands off mid-chapter. This is posh.vip's GSAP pin+scrub mechanic rebuilt as
+// holds (position: sticky) while the extra scroll below it scrubs the scene —
+// 1.1 viewports on a phone, 1.6 on desktop. Posters drift through at different
+// speeds, and the serif caption hands off mid-chapter. The two viewports get
+// different scroll budgets but the SAME on-screen speed; see `scrollVh`. This is posh.vip's GSAP pin+scrub mechanic rebuilt as
 // a sticky container plus one rAF-throttled scroll listener: no library, no
 // per-frame allocation, transforms only (compositor-friendly).
 //
@@ -31,6 +32,15 @@ const SLOTS = [
   { x: '38vw', speed: 1.0, w: 'w-28 sm:w-36', z: 'z-0', from: 95 },
 ] as const
 
+/**
+ * The desktop scroll budget the choreography above was tuned against:
+ * `sm:h-[260vh]` minus the one viewport the sticky frame occupies. Every
+ * poster's travel is scaled against this, so desktop keeps exactly the
+ * motion it has today and narrower viewports match its SPEED rather than
+ * cramming the same journey into less scroll.
+ */
+const SM_SCROLL_VH = 160
+
 const smooth = (p: number, a: number, b: number) => {
   const t = Math.min(1, Math.max(0, (p - a) / (b - a)))
   return t * t * (3 - 2 * t)
@@ -41,6 +51,26 @@ export default function PosterChapter({ events }: { events: ChapterEvent[] }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(0)
   const [still, setStill] = useState(false)
+  /**
+   * How many viewport-heights of scroll this chapter actually gets, measured.
+   *
+   * This is what keeps the scrub speed the same on a phone as on a desktop.
+   * Each poster travels a fixed distance in `vh` (slot.from down to -slot.from),
+   * but the SCROLL it has to spread that journey over is the container height
+   * minus one viewport: 160vh at `sm:h-[260vh]`, and — when this was
+   * `h-[150vh]` — a mere 50vh on a phone. Same journey, less than a third of
+   * the scroll, so the phone scrubbed the scene 3.2x faster per pixel and the
+   * posters appeared to shoot upward while desktop felt right.
+   *
+   * The height is now `h-[210vh]` (110vh of scrub) so the scene still has room
+   * to resolve at the corrected speed instead of the posters barely crossing
+   * the frame.
+   *
+   * Scaling the travel by `scrollVh / SM_SCROLL_VH` makes the on-screen speed
+   * (vh moved per vh scrolled) a constant: 2 * from / 160, whatever the
+   * viewport. Desktop is unchanged by construction — at 160 the factor is 1.
+   */
+  const [scrollVh, setScrollVh] = useState(SM_SCROLL_VH)
 
   const posters = (events || []).filter((e) => e?.banner_image_url).slice(0, 5)
 
@@ -62,6 +92,8 @@ export default function PosterChapter({ events }: { events: ChapterEvent[] }) {
         const scrollable = rect.height - window.innerHeight
         if (scrollable <= 0) return
         setProgress(Math.min(1, Math.max(0, -rect.top / scrollable)))
+        // In viewport-heights, because the travel below is expressed in vh.
+        setScrollVh((scrollable / window.innerHeight) * 100)
       })
     }
     onScroll()
@@ -80,12 +112,15 @@ export default function PosterChapter({ events }: { events: ChapterEvent[] }) {
   const captionB = smooth(progress, 0.54, 0.68)
 
   return (
-    <div ref={wrapRef} className="relative h-[150vh] bg-white/[0.03] sm:h-[260vh]">
+    <div ref={wrapRef} className="relative h-[210vh] bg-white/[0.03] sm:h-[260vh]">
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
         {/* Posters drifting through at different speeds. */}
         {posters.map((ev, i) => {
           const slot = SLOTS[i % SLOTS.length]
-          const y = still ? 0 : slot.from - progress * slot.from * 2 * slot.speed
+          // Travel scaled to the scroll actually available — see `scrollVh`.
+          // At the desktop budget this is `slot.from` exactly, unchanged.
+          const from = slot.from * (scrollVh / SM_SCROLL_VH)
+          const y = still ? 0 : from - progress * from * 2 * slot.speed
           const scale = 0.92 + 0.12 * smooth(progress, 0.15, 0.6)
           return (
             <Link
