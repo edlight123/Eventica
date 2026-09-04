@@ -1,5 +1,3 @@
-import { db } from '@/lib/firebase/client'
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { syncPublicProfileClient } from './public-profile-client'
 import {
   type SocialLinks,
@@ -8,6 +6,37 @@ import {
   sanitizeSocialLinks,
   sanitizePrivacy,
 } from '@/types/social'
+
+/**
+ * BUNDLE: the Firebase imports below are deferred ON PURPOSE — do not hoist
+ * them back to module scope.
+ *
+ * Seven client components import this module (the five components/profile/*
+ * cards, app/profile/ProfileClient, and components/LocationDetectionBanner —
+ * which LocationBannerWrapper renders on the MARKETING HOMEPAGE). A static
+ * `import 'firebase/firestore'` here therefore put the Firestore SDK on the
+ * first load of every page, including pages that never read a profile.
+ *
+ * Measured at the time of this change: 444KB of Firebase (three chunks —
+ * 223 + 136 + 85KB) on the first load of every route, out of ~988KB of shared
+ * JS. A route only sheds those chunks when its LAST static importer is
+ * deferred, so every export in this file must resolve Firebase lazily — one
+ * static import anywhere undoes the whole thing. (Reference point: /resources
+ * went 350KB -> 167KB once its only importer was deferred.)
+ *
+ * The module namespaces are cached as promises, so a page that calls three of
+ * these functions pays for the dynamic import once.
+ */
+let firestoreModule: Promise<typeof import('firebase/firestore')> | null = null
+let clientModule: Promise<typeof import('@/lib/firebase/client')> | null = null
+
+async function firebase() {
+  const [fs, client] = await Promise.all([
+    (firestoreModule ??= import('firebase/firestore')),
+    (clientModule ??= import('@/lib/firebase/client')),
+  ])
+  return { fs, db: client.db }
+}
 
 export interface UserProfile {
   uid: string
@@ -41,8 +70,9 @@ export interface UserProfile {
  */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   try {
-    const userDoc = await getDoc(doc(db, 'users', uid))
-    
+    const { fs, db } = await firebase()
+    const userDoc = await fs.getDoc(fs.doc(db, 'users', uid))
+
     if (!userDoc.exists()) {
       return null
     }
@@ -85,9 +115,10 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
  */
 export async function createUserProfile(uid: string, profile: Partial<UserProfile>): Promise<void> {
   try {
-    const userRef = doc(db, 'users', uid)
-    
-    await setDoc(userRef, {
+    const { fs, db } = await firebase()
+    const userRef = fs.doc(db, 'users', uid)
+
+    await fs.setDoc(userRef, {
       display_name: profile.displayName || '',
       email: profile.email || '',
       photo_url: profile.photoURL || '',
@@ -103,8 +134,8 @@ export async function createUserProfile(uid: string, profile: Partial<UserProfil
         updates: profile.notify?.updates ?? true,
         promos: profile.notify?.promos ?? false
       },
-      created_at: serverTimestamp(),
-      updated_at: serverTimestamp()
+      created_at: fs.serverTimestamp(),
+      updated_at: fs.serverTimestamp()
     })
 
     // H4: seed the cross-user-readable projection (best-effort).
@@ -123,10 +154,11 @@ export async function createUserProfile(uid: string, profile: Partial<UserProfil
  */
 export async function updateUserProfile(uid: string, updates: Partial<UserProfile>): Promise<void> {
   try {
-    const userRef = doc(db, 'users', uid)
-    
+    const { fs, db } = await firebase()
+    const userRef = fs.doc(db, 'users', uid)
+
     const updateData: any = {
-      updated_at: serverTimestamp()
+      updated_at: fs.serverTimestamp()
     }
 
     // Use full_name to match server-side convention
@@ -150,7 +182,7 @@ export async function updateUserProfile(uid: string, updates: Partial<UserProfil
     if (updates.language !== undefined) updateData.language = updates.language
     if (updates.notify !== undefined) updateData.notify = updates.notify
 
-    await updateDoc(userRef, updateData)
+    await fs.updateDoc(userRef, updateData)
 
     // H4: mirror any SAFE fields that changed into the public projection.
     await syncPublicProfileClient(uid, updateData)

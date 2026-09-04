@@ -3,9 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
-import { firebaseDb as supabase } from '@/lib/firebase-db/client'
-import { db } from '@/lib/firebase/client'
-import { doc, getDoc } from 'firebase/firestore'
 import { isDemoMode } from '@/lib/demo'
 import { normalizeCountryCode } from '@/lib/payment-provider'
 import EventbriteStyleTicketSelector from '@/components/EventbriteStyleTicketSelector'
@@ -18,6 +15,16 @@ import { paymentNavigationMode } from '@/lib/utils/in-app-browser'
 import dynamic from 'next/dynamic'
 
 const EmbeddedStripePayment = dynamic(() => import('./EmbeddedStripePayment'), { ssr: false })
+
+/**
+ * BUNDLE: no Firebase import at module scope. This button sits on EVERY event
+ * page, and a static import of the client SDK put 444KB across three chunks
+ * (223 + 136 + 85) out of ~988KB of shared JS on that route's first load — a
+ * route only sheds it once its LAST static importer goes. Its one real use is
+ * the access-grant read in the effect below, so Firestore is fetched there.
+ * (An unused `firebaseDb as supabase` import also lived here and was doing
+ * nothing but dragging the shim in.) Please don't hoist either back up.
+ */
 
 // Feature flag: Sogepay (Haiti card processing) is not live yet. While disabled, Haiti events
 // show only MonCash/NatCash (no card option). Flip to true to re-enable the Sogepay card flow.
@@ -166,6 +173,16 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
     let cancelled = false
     ;(async () => {
       try {
+        // Firestore arrives here, not at module scope — see the BUNDLE note at
+        // the top. `cancelled` already guarded the read; it now also covers the
+        // chunk fetch that precedes it, so an unmount (or StrictMode's
+        // double-invoke in dev) never writes state on a dead component. There
+        // is no listener to unsubscribe, only this one-shot read.
+        const [{ doc, getDoc }, { db }] = await Promise.all([
+          import('firebase/firestore'),
+          import('@/lib/firebase/client'),
+        ])
+        if (cancelled) return
         const snap = await getDoc(doc(db, 'events', eventId, 'access_grants', userId))
         if (!cancelled) setHasAccess(snap.exists())
       } catch {

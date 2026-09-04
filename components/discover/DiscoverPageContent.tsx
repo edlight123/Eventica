@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '@/lib/firebase/client'
 import { EmptyState } from './EmptyState'
 import { DiscoverEventCard } from './DiscoverEventCard'
 import { FriendsGoingProvider } from './FriendsGoingContext'
@@ -58,11 +56,28 @@ export function DiscoverPageContent({
   }, [filteredEvents])
 
   // Saved tab — intersect the user's favorites with the loaded events.
+  //
+  // BUNDLE: Firestore is fetched inside this effect rather than imported at
+  // module scope. A static import put the whole Firebase client — 444KB across
+  // three chunks (223 + 136 + 85) out of ~988KB of shared JS — on /discover's
+  // first load, for every visitor, even though the only read here happens after
+  // a signed-in reader taps "Saved". A route only sheds those chunks when its
+  // LAST static importer goes, so please don't hoist this back up.
+  //
+  // The `active` flag already existed to guard the setState; it now also covers
+  // the chunk fetch, so switching tabs (or React 18 StrictMode's double-invoke
+  // in dev) can't land a stale result. One-shot getDocs — no listener, nothing
+  // to unsubscribe.
   useEffect(() => {
     if (tab !== 'saved' || !userId) return
     let active = true
     ;(async () => {
       try {
+        const [{ collection, getDocs, query, where }, { db }] = await Promise.all([
+          import('firebase/firestore'),
+          import('@/lib/firebase/client'),
+        ])
+        if (!active) return
         const favs = await getDocs(
           query(collection(db, 'event_favorites'), where('user_id', '==', userId))
         )

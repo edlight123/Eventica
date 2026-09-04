@@ -1,10 +1,27 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { firebaseDb as supabase } from '@/lib/firebase-db/client'
 import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
 import FlyerLibraryPicker from '@/components/organizer/FlyerLibraryPicker'
+
+/**
+ * BUNDLE: the storage shim is fetched at the point of use, not imported at
+ * module scope. A static import pulled the whole Firebase client — 444KB over
+ * three chunks (223 + 136 + 85) out of ~988KB of shared JS — onto the first
+ * load of every route, since a route only sheds it when its LAST static
+ * importer goes. Nothing here touches Firebase during render: the only use is
+ * inside handleFileSelect, and even there only on the signed-in path (a guest
+ * uploads through `endpoint`, which never needs the SDK at all). The module is
+ * cached after the first resolve so repeat uploads don't re-await.
+ *
+ * Please do not hoist this back to the top of the file.
+ */
+let _storage: Awaited<typeof import('@/lib/firebase-db/client')>['firebaseDb']['storage'] | null = null
+async function getStorage() {
+  if (!_storage) _storage = (await import('@/lib/firebase-db/client')).firebaseDb.storage
+  return _storage
+}
 
 interface ImageUploadProps {
   currentImage?: string | null
@@ -90,7 +107,8 @@ export default function ImageUpload({
       const filePath = `event-images/${fileName}`
 
       console.log('Uploading file:', filePath)
-      const { error: uploadError, data } = await supabase.storage
+      const storage = await getStorage()
+      const { error: uploadError, data } = await storage
         .from(bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -109,7 +127,7 @@ export default function ImageUpload({
       
       if (!publicUrl) {
         console.log('Getting public URL for:', filePath)
-        const urlResult = await supabase.storage
+        const urlResult = await storage
           .from(bucket)
           .getPublicUrl(filePath)
         publicUrl = urlResult.data.publicUrl

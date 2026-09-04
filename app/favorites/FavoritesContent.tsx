@@ -9,8 +9,22 @@ import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import type { Database } from '@/types/database'
 import { Heart, TrendingUp } from 'lucide-react'
-import { db } from '@/lib/firebase/client'
-import { collection, query, where, getDocs, documentId } from 'firebase/firestore'
+// DELIBERATE LAZY FIREBASE — DO NOT MAKE THIS STATIC AGAIN.
+// The client SDK is ~444KB. This file was /favorites' last static importer, so
+// while it held a top-level `import { db }` the whole SDK sat on the route's
+// first load even though Firestore is only touched inside `loadFavorites`.
+// Note a partial deferral measured ~31KB WORSE per route than none, so if you
+// re-add a static Firebase import here, re-measure the route.
+let _fs: Promise<
+  [typeof import('firebase/firestore'), typeof import('@/lib/firebase/client')]
+> | null = null
+const getFirestore = async () => {
+  const [fs, client] = await (_fs ??= Promise.all([
+    import('firebase/firestore'),
+    import('@/lib/firebase/client'),
+  ]))
+  return { ...fs, db: client.db }
+}
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -26,19 +40,16 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
   const loadFavorites = useCallback(async () => {
     setLoading(true)
     try {
-      console.log('=== FAVORITES PAGE QUERY ===')
-      console.log('User ID:', userId)
-      
+      const { collection, query, where, getDocs, documentId, db } = await getFirestore()
+
       // First, get the event IDs from favorites
       const favoritesRef = collection(db, 'event_favorites')
       const favoritesQuery = query(favoritesRef, where('user_id', '==', userId))
       const favoritesSnapshot = await getDocs(favoritesQuery)
       
-      console.log('Favorites query result:', { count: favoritesSnapshot.size })
       
       if (!favoritesSnapshot.empty) {
         const eventIds = favoritesSnapshot.docs.map(doc => doc.data().event_id)
-        console.log('Favorite event IDs:', eventIds)
         
         if (eventIds.length === 0) {
           setFavoriteEvents([])
@@ -64,7 +75,6 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
           allEvents.push(...eventsSnapshot.docs)
         }
         
-        console.log('Events query result:', { count: allEvents.length })
         
         if (allEvents.length > 0) {
           // Batch fetch all organizers (instead of N+1 queries)
@@ -140,10 +150,8 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
             } as Event
           })
           
-          console.log('Final events with organizers:', eventsWithOrganizers.length)
           setFavoriteEvents(eventsWithOrganizers)
         } else {
-          console.log('No events found for favorite IDs')
           setFavoriteEvents([])
         }
       } else {

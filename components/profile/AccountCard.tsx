@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LogOut, Trash2, AlertTriangle, HelpCircle, Briefcase } from 'lucide-react'
-import { signOut } from 'firebase/auth'
-import { auth } from '@/lib/firebase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -20,8 +18,21 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
+  /**
+   * BUNDLE: firebase/auth is fetched in the handler, not imported at module
+   * scope. Its only use in this card is this one signOut(), yet a static import
+   * put the whole Firebase client — 444KB over three chunks (223 + 136 + 85) out
+   * of ~988KB of shared JS — on /profile's first load. A route only sheds those
+   * chunks when its LAST static importer goes, so please don't hoist it back up.
+   * Cost at runtime: the first tap on "Sign out" awaits a chunk before the
+   * session ends.
+   */
   const handleSignOut = async () => {
     try {
+      const [{ signOut }, { auth }] = await Promise.all([
+        import('firebase/auth'),
+        import('@/lib/firebase/client'),
+      ])
       await signOut(auth)
       router.push('/')
     } catch (error) {

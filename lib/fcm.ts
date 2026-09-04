@@ -1,16 +1,33 @@
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
-  getDocs,
-  query,
-  where,
-  Timestamp
-} from 'firebase/firestore'
-import { getMessaging, getToken, deleteToken, Messaging } from 'firebase/messaging'
-import { db } from './firebase/client'
 import type { FCMToken } from '@/types/notifications'
+
+/**
+ * DELIBERATE LAZY FIREBASE — DO NOT MAKE THESE IMPORTS STATIC AGAIN.
+ *
+ * EnableNotificationsPrompt (and through it PurchaseSuccessNotificationPrompt)
+ * imports this module, and a static `firebase/firestore` + `firebase/messaging`
+ * import here put the whole SDK on the FIRST LOAD of every page (measured:
+ * 444KB of Firebase across three chunks — 223 + 136 + 85KB — out of ~988KB of
+ * shared JS). A route only sheds that weight when its LAST static importer
+ * stops pulling the SDK. `./firebase/client` counts too: it runs
+ * initializeApp/getFirestore at module scope.
+ *
+ * Nothing is lost here: getting a token is already async and gated behind an
+ * explicit permission prompt, so the SDK loads exactly when the user clicks.
+ * The two synchronous exports (hasNotificationPermission /
+ * canRequestNotificationPermission) only read the browser's Notification
+ * object and never needed Firebase at all.
+ *
+ * The module-scope caches mean a page that calls several of these helpers pays
+ * for the dynamic import exactly once. Every exported signature is unchanged.
+ */
+let _fs: typeof import('firebase/firestore') | null = null
+async function fs() { return (_fs ??= await import('firebase/firestore')) }
+
+let _messagingSdk: typeof import('firebase/messaging') | null = null
+async function messagingSdk() { return (_messagingSdk ??= await import('firebase/messaging')) }
+
+let _fb: typeof import('./firebase/client') | null = null
+async function fb() { return (_fb ??= await import('./firebase/client')) }
 
 const VAPID_KEY = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
 
@@ -41,10 +58,13 @@ export async function requestNotificationPermission(userId: string): Promise<{
       return { success: false, error: 'Notification permission denied' }
     }
 
-    // Get FCM token
-    const messaging = getMessaging()
+    // Get FCM token. getMessaging() used to be safe with no argument because the
+    // static `./firebase/client` import had already run initializeApp; now that
+    // the import is lazy we pass the app explicitly so ordering can't bite us.
+    const [{ getMessaging, getToken }, { default: app }] = await Promise.all([messagingSdk(), fb()])
+    const messaging = getMessaging(app)
     const token = await getToken(messaging, { vapidKey: VAPID_KEY })
-    
+
     if (!token) {
       return { success: false, error: 'Failed to get FCM token' }
     }
@@ -63,8 +83,9 @@ export async function requestNotificationPermission(userId: string): Promise<{
  * Save FCM token to Firestore
  */
 export async function saveFCMToken(userId: string, token: string): Promise<void> {
+  const [{ doc, setDoc, Timestamp }, { db }] = await Promise.all([fs(), fb()])
   const tokenRef = doc(db, 'users', userId, 'fcmTokens', token)
-  
+
   const tokenData: Omit<FCMToken, 'token'> = {
     createdAt: Timestamp.now() as any,
     lastUsed: Timestamp.now() as any,
@@ -82,19 +103,22 @@ export async function saveFCMToken(userId: string, token: string): Promise<void>
  */
 export async function deleteFCMToken(userId: string, token?: string): Promise<void> {
   try {
-    const messaging = getMessaging()
-    
+    const [{ getMessaging, getToken, deleteToken }, { default: app }] =
+      await Promise.all([messagingSdk(), fb()])
+    const messaging = getMessaging(app)
+
     // If no token provided, delete current token
     if (!token) {
       const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY })
       token = currentToken
     }
-    
+
     if (token) {
       // Delete from FCM
       await deleteToken(messaging)
-      
+
       // Delete from Firestore
+      const [{ doc, deleteDoc }, { db }] = await Promise.all([fs(), fb()])
       const tokenRef = doc(db, 'users', userId, 'fcmTokens', token)
       await deleteDoc(tokenRef)
     }
@@ -107,9 +131,10 @@ export async function deleteFCMToken(userId: string, token?: string): Promise<vo
  * Get all FCM tokens for a user
  */
 export async function getUserFCMTokens(userId: string): Promise<string[]> {
+  const [{ collection, getDocs }, { db }] = await Promise.all([fs(), fb()])
   const tokensRef = collection(db, 'users', userId, 'fcmTokens')
   const snapshot = await getDocs(tokensRef)
-  
+
   return snapshot.docs.map(doc => doc.id)
 }
 
@@ -117,9 +142,10 @@ export async function getUserFCMTokens(userId: string): Promise<string[]> {
  * Clean up old/invalid FCM tokens
  */
 export async function cleanupOldTokens(userId: string, olderThanDays: number = 90): Promise<number> {
+  const [{ collection, getDocs, deleteDoc }, { db }] = await Promise.all([fs(), fb()])
   const tokensRef = collection(db, 'users', userId, 'fcmTokens')
   const snapshot = await getDocs(tokensRef)
-  
+
   const cutoffDate = new Date()
   cutoffDate.setDate(cutoffDate.getDate() - olderThanDays)
   

@@ -3,21 +3,31 @@
  * Handles organizer verification requests and document uploads
  */
 
-import { db, storage } from '@/lib/firebase/client'
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  serverTimestamp,
-  Timestamp 
-} from 'firebase/firestore'
-import { 
-  ref, 
-  uploadBytes, 
-  getDownloadURL, 
-  deleteObject 
-} from 'firebase/storage'
+/**
+ * DELIBERATE LAZY FIREBASE — DO NOT MAKE THESE IMPORTS STATIC AGAIN.
+ *
+ * This module is a leaf of the client module graph: the verification wizard,
+ * DocumentUploadCard and the ID/selfie forms all import it, and a static
+ * `firebase/*` import here dragged the whole SDK onto the FIRST LOAD of every
+ * page (measured: 444KB of Firebase across three chunks — 223 + 136 + 85KB —
+ * out of ~988KB of shared JS). A route only sheds that weight when its LAST
+ * static importer stops pulling the SDK, so the imports live inside the
+ * functions that need them. `@/lib/firebase/client` counts too: it calls
+ * initializeApp/getFirestore/getStorage at module scope, so importing `db` or
+ * `storage` statically re-anchors the SDK just as firmly as `firebase/firestore`.
+ *
+ * The module-scope caches mean a page that calls several of these helpers pays
+ * for the dynamic import exactly once. Every exported signature is unchanged —
+ * consumers needed no edits.
+ */
+let _fs: typeof import('firebase/firestore') | null = null
+async function fs() { return (_fs ??= await import('firebase/firestore')) }
+
+let _storageSdk: typeof import('firebase/storage') | null = null
+async function storageSdk() { return (_storageSdk ??= await import('firebase/storage')) }
+
+let _fb: typeof import('@/lib/firebase/client') | null = null
+async function fb() { return (_fb ??= await import('@/lib/firebase/client')) }
 
 // Types
 export type VerificationStatus = 
@@ -82,13 +92,14 @@ export interface VerificationRequest {
 // Helper: Get verification request for user
 export async function getVerificationRequest(userId: string): Promise<VerificationRequest | null> {
   try {
+    const [{ doc, getDoc }, { db }] = await Promise.all([fs(), fb()])
     const docRef = doc(db, 'verification_requests', userId)
     const docSnap = await getDoc(docRef)
-    
+
     if (!docSnap.exists()) {
       return null
     }
-    
+
     const data = docSnap.data()
     
     // Convert Firestore timestamps to ISO strings
@@ -159,13 +170,14 @@ export async function initializeVerificationRequest(userId: string): Promise<Ver
     updatedAt: new Date().toISOString()
   }
   
+  const [{ doc, setDoc, serverTimestamp }, { db }] = await Promise.all([fs(), fb()])
   const docRef = doc(db, 'verification_requests', userId)
   await setDoc(docRef, {
     ...initialRequest,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   })
-  
+
   return initialRequest
 }
 
@@ -176,13 +188,14 @@ export async function updateVerificationStep(
   stepData: Partial<VerificationStep>
 ): Promise<void> {
   try {
+    const [{ doc, getDoc, updateDoc, serverTimestamp }, { db }] = await Promise.all([fs(), fb()])
     const docRef = doc(db, 'verification_requests', userId)
     const docSnap = await getDoc(docRef)
-    
+
     if (!docSnap.exists()) {
       throw new Error('Verification request not found')
     }
-    
+
     const currentData = docSnap.data() as VerificationRequest
     const updatedSteps = {
       ...currentData.steps,
@@ -213,10 +226,11 @@ export async function uploadVerificationDocument(
     const extension = file.name.split('.').pop() || 'jpg'
     const fileName = `${documentType}_${timestamp}.${extension}`
     const storagePath = `verification/${userId}/${fileName}`
-    
+
+    const [{ ref, uploadBytes }, { storage }] = await Promise.all([storageSdk(), fb()])
     const storageRef = ref(storage, storagePath)
     await uploadBytes(storageRef, file)
-    
+
     // Return the storage path (not the download URL for security)
     return storagePath
   } catch (error) {
@@ -228,6 +242,7 @@ export async function uploadVerificationDocument(
 // Helper: Get document download URL (admin only in production)
 export async function getDocumentDownloadURL(storagePath: string): Promise<string> {
   try {
+    const [{ ref, getDownloadURL }, { storage }] = await Promise.all([storageSdk(), fb()])
     const storageRef = ref(storage, storagePath)
     return await getDownloadURL(storageRef)
   } catch (error) {
@@ -239,6 +254,7 @@ export async function getDocumentDownloadURL(storagePath: string): Promise<strin
 // Helper: Delete verification document
 export async function deleteVerificationDocument(storagePath: string): Promise<void> {
   try {
+    const [{ ref, deleteObject }, { storage }] = await Promise.all([storageSdk(), fb()])
     const storageRef = ref(storage, storagePath)
     await deleteObject(storageRef)
   } catch (error) {
@@ -253,13 +269,14 @@ export async function updateVerificationFiles(
   files: Partial<VerificationFiles>
 ): Promise<void> {
   try {
+    const [{ doc, getDoc, updateDoc, serverTimestamp }, { db }] = await Promise.all([fs(), fb()])
     const docRef = doc(db, 'verification_requests', userId)
     const docSnap = await getDoc(docRef)
-    
+
     if (!docSnap.exists()) {
       throw new Error('Verification request not found')
     }
-    
+
     const currentData = docSnap.data() as VerificationRequest
     const updatedFiles = {
       ...currentData.files,
@@ -279,15 +296,16 @@ export async function updateVerificationFiles(
 // Helper: Submit verification for review
 export async function submitVerificationForReview(userId: string): Promise<void> {
   try {
+    const [{ doc, getDoc, updateDoc, serverTimestamp }, { db }] = await Promise.all([fs(), fb()])
     const docRef = doc(db, 'verification_requests', userId)
     const docSnap = await getDoc(docRef)
-    
+
     if (!docSnap.exists()) {
       throw new Error('Verification request not found')
     }
-    
+
     const currentData = docSnap.data() as VerificationRequest
-    
+
     // Validate all required steps are complete
     const requiredSteps = Object.values(currentData.steps).filter(step => step.required)
     const incompleteSteps = requiredSteps.filter(step => step.status !== 'complete')
@@ -340,15 +358,16 @@ export function canSubmitForReview(request: VerificationRequest): boolean {
 // Helper: Restart rejected verification (allows resubmission)
 export async function restartVerification(userId: string): Promise<void> {
   try {
+    const [{ doc, getDoc, updateDoc, serverTimestamp }, { db }] = await Promise.all([fs(), fb()])
     const docRef = doc(db, 'verification_requests', userId)
     const docSnap = await getDoc(docRef)
-    
+
     if (!docSnap.exists()) {
       throw new Error('Verification request not found')
     }
-    
+
     const currentData = docSnap.data() as VerificationRequest
-    
+
     // Only allow restart if rejected
     if (currentData.status !== 'rejected') {
       throw new Error('Can only restart rejected verifications')

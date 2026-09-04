@@ -5,6 +5,7 @@
  * Separates client-side and server-side operations.
  */
 
+import { cache } from 'react'
 import { adminDb } from '@/lib/firebase/admin'
 import { normalizeCountryCode } from '@/lib/payment-provider'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
@@ -72,10 +73,27 @@ export interface PaginatedResult<T> {
 // ============================================================================
 
 /**
- * Get a single event by ID (server-side)
- * Cached for 60 seconds
+ * Get a single event by ID (server-side).
+ *
+ * Wrapped in React `cache()`, which dedupes by argument for the lifetime of a
+ * single request. That is not a micro-optimisation here: the event page calls
+ * this TWICE per render — once in `generateMetadata` and once in the page body
+ * — and `generateMetadata` blocks the streamed shell, so the second read was
+ * sitting directly on top of how fast anything paints, skeleton included.
+ * One request, one document read.
+ *
+ * (The old comment on this function claimed "Cached for 60 seconds". It was
+ * not cached at all. The route's own `revalidate = 300` is what gives the
+ * rendered page its TTL; this wrapper only collapses duplicate reads within
+ * one render, which is the part that was missing.)
+ *
+ * `cache` is per-request, so it cannot serve one visitor's event to another.
+ * The declaration below is a hoisted `function`, which is why it can be
+ * referenced here before it appears.
  */
-export async function getEventById(eventId: string): Promise<Event | null> {
+export const getEventById = cache(getEventByIdUncached)
+
+async function getEventByIdUncached(eventId: string): Promise<Event | null> {
     try {
       const eventDoc = await adminDb.collection('events').doc(eventId).get()
       

@@ -5,22 +5,29 @@
  * Uses Firebase Client SDK.
  */
 
-import { db } from '@/lib/firebase/client'
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  startAfter,
-  getDocs,
-  getDoc,
-  doc,
-  DocumentSnapshot,
-  QueryConstraint,
-  getCountFromServer,
-  Timestamp
-} from 'firebase/firestore'
+// Type-only: erased at compile time, so these cost nothing at runtime.
+import type { DocumentSnapshot, QueryConstraint } from 'firebase/firestore'
+
+/**
+ * DELIBERATE LAZY FIREBASE — DO NOT MAKE THESE IMPORTS STATIC AGAIN.
+ *
+ * app/organizer/events/page.tsx imports this module, and a static
+ * `firebase/firestore` import here put the whole SDK on the FIRST LOAD of every
+ * page (measured: 444KB of Firebase across three chunks — 223 + 136 + 85KB —
+ * out of ~988KB of shared JS). A route only sheds that weight when its LAST
+ * static importer stops pulling the SDK. `@/lib/firebase/client` counts too:
+ * it runs initializeApp/getFirestore at module scope, so importing `db`
+ * statically re-anchors the SDK by itself.
+ *
+ * The module-scope caches mean a page that calls several of these helpers pays
+ * for the dynamic import exactly once. Every exported signature is unchanged —
+ * all three were already async, so consumers needed no edits.
+ */
+let _fs: typeof import('firebase/firestore') | null = null
+async function fs() { return (_fs ??= await import('firebase/firestore')) }
+
+let _fb: typeof import('@/lib/firebase/client') | null = null
+async function fb() { return (_fb ??= await import('@/lib/firebase/client')) }
 
 export interface Event {
   id: string
@@ -60,6 +67,11 @@ export async function getOrganizerEventsClient(
   lastDocument?: DocumentSnapshot
 ): Promise<PaginatedResult<Event>> {
   try {
+    const [
+      { collection, query, where, orderBy, limit, startAfter, getDocs, Timestamp },
+      { db },
+    ] = await Promise.all([fs(), fb()])
+
     const constraints: QueryConstraint[] = [
       where('organizer_id', '==', organizerId),
       orderBy('created_at', 'desc'),
@@ -112,6 +124,8 @@ export async function getOrganizerEventsClient(
  */
 export async function getOrganizerEventsCountClient(organizerId: string): Promise<number> {
   try {
+    const [{ collection, query, where, getCountFromServer }, { db }] =
+      await Promise.all([fs(), fb()])
     const q = query(
       collection(db, 'events'),
       where('organizer_id', '==', organizerId)
@@ -129,8 +143,9 @@ export async function getOrganizerEventsCountClient(organizerId: string): Promis
  */
 export async function getEventByIdClient(eventId: string): Promise<Event | null> {
   try {
+    const [{ doc, getDoc, Timestamp }, { db }] = await Promise.all([fs(), fb()])
     const eventDoc = await getDoc(doc(db, 'events', eventId))
-    
+
     if (!eventDoc.exists()) {
       return null
     }

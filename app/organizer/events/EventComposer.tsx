@@ -3,12 +3,38 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { firebaseDb } from '@/lib/firebase-db/client'
-// Raw firebase SDK: the firebaseDb shim only handles top-level collections, so
-// the hashed access code is written straight to the events/{id}/private/access
-// subdoc via setDoc.
-import { db } from '@/lib/firebase/client'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+// DELIBERATE LAZY FIREBASE — DO NOT MAKE THESE IMPORTS STATIC AGAIN.
+//
+// The Firebase client SDK is ~444KB of the ~988KB shared bundle. This file is
+// the composer behind /create and /organizer/events/[id]/edit, and it only
+// touches Firestore inside the save handlers — nothing during render. Every
+// Firebase reference below is therefore behind `await import()`, so a reader
+// who opens the create form pays for the SDK when they press Save, not when
+// the page paints.
+//
+// The rule that matters: a route only gets lighter when its LAST static
+// importer of the SDK is deferred. Re-adding a static `firebase/*` or
+// `@/lib/firebase*` import here silently puts the whole 444KB back on
+// /create's first load, and a partial deferral measured ~31KB WORSE per route
+// than no deferral at all (async-chunk plumbing with none of the payoff).
+//
+// `firebaseDb` is the shim that handles top-level collections. The raw SDK is
+// here too because the shim can't reach subcollections, and the hashed access
+// code is written straight to events/{id}/private/access via setDoc.
+let _shim: typeof import('@/lib/firebase-db/client') | null = null
+const getShim = async () => (_shim ??= await import('@/lib/firebase-db/client')).firebaseDb
+
+let _fs: Promise<
+  [typeof import('firebase/firestore'), typeof import('@/lib/firebase/client')]
+> | null = null
+/** Cached as a PROMISE, so two concurrent saves share one in-flight import. */
+const getFirestore = async () => {
+  const [fs, client] = await (_fs ??= Promise.all([
+    import('firebase/firestore'),
+    import('@/lib/firebase/client'),
+  ]))
+  return { ...fs, db: client.db }
+}
 import { isDemoMode } from '@/lib/demo'
 import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
@@ -1130,7 +1156,7 @@ export default function EventComposer({
     }>,
     isRsvp: boolean
   ) => {
-    await firebaseDb.from('ticket_tiers').delete().eq('event_id', eventId)
+    await (await getShim()).from('ticket_tiers').delete().eq('event_id', eventId)
     if (!isRsvp && cleanTiers.length > 0) {
       // This REPLACES the whole tier set on every save, so any field missing
       // here is a field the next save silently erases.
@@ -1153,7 +1179,7 @@ export default function EventComposer({
         valid_until: t.valid_until,
         sort_order: i,
       }))
-      const { error } = await firebaseDb.from('ticket_tiers').insert(tiersToInsert)
+      const { error } = await (await getShim()).from('ticket_tiers').insert(tiersToInsert)
       if (error) console.error('Error saving ticket tiers:', error)
     }
   }
@@ -1301,6 +1327,7 @@ export default function EventComposer({
         const code = accessCode.trim()
         if (!code) return
         const codeHash = await sha256Hex(code)
+        const { doc, setDoc, serverTimestamp, db } = await getFirestore()
         await setDoc(doc(db, 'events', eventId, 'private', 'access'), {
           code_hash: codeHash,
           updated_at: serverTimestamp(),
@@ -1319,7 +1346,7 @@ export default function EventComposer({
           })
           return
         }
-        const { error } = await firebaseDb.from('events').update(data).eq('id', event.id)
+        const { error } = await (await getShim()).from('events').update(data).eq('id', event.id)
         if (error) throw error
         await syncTiers(event.id, cleanTiers, isRsvp)
         await writeAccessHash(event.id)
@@ -1329,7 +1356,7 @@ export default function EventComposer({
         // shared fields — and the tier set — are overwritten. Capped at 52.
         let seriesApplied = 0
         if (applyToSeries && seriesId) {
-          const { data: siblings } = await firebaseDb
+          const { data: siblings } = await (await getShim())
             .from('events')
             .select('*')
             .eq('series_id', seriesId)
@@ -1339,7 +1366,7 @@ export default function EventComposer({
           for (const sib of list) {
             if (!sib?.id || sib.id === event.id) continue
             if (seriesApplied >= MAX_RECURRENCE_COUNT) break
-            const { error: sibErr } = await firebaseDb.from('events').update(sharedData).eq('id', sib.id)
+            const { error: sibErr } = await (await getShim()).from('events').update(sharedData).eq('id', sib.id)
             if (sibErr) throw sibErr
             await syncTiers(sib.id, cleanTiers, isRsvp)
             await writeAccessHash(sib.id)
@@ -1431,7 +1458,7 @@ export default function EventComposer({
             // Only meaningful in "until" mode; null when the series is bounded by count.
             recurrence_end_date: recurrenceEndISO,
           }
-          const { data: occ, error: occErr } = await firebaseDb.from('events').insert(occData).select().single()
+          const { data: occ, error: occErr } = await (await getShim()).from('events').insert(occData).select().single()
           if (occErr) throw occErr
           if (occ?.id) {
             await syncTiers(occ.id, cleanTiers, isRsvp)
@@ -1457,7 +1484,7 @@ export default function EventComposer({
         return
       }
 
-      const { data: created, error } = await firebaseDb.from('events').insert(createData).select().single()
+      const { data: created, error } = await (await getShim()).from('events').insert(createData).select().single()
       if (error) throw error
       if (created?.id) {
         await syncTiers(created.id, cleanTiers, isRsvp)

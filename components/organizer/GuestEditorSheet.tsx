@@ -3,9 +3,24 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link2, Loader2, User, X } from 'lucide-react'
-import { firebaseDb } from '@/lib/firebase-db/client'
 import { TimePicker } from '@/components/ui/DateTimePickers'
 import type { GuestRole, LineupEntry } from '@/lib/lineup'
+
+/**
+ * BUNDLE: the storage shim is fetched at the point of use rather than imported
+ * at module scope. A static import put the whole Firebase client — 444KB over
+ * three chunks (223 + 136 + 85) out of ~988KB of shared JS — on the first load
+ * of every route, because a route only sheds it once its LAST static importer
+ * is gone. Nothing here touches Firebase during render: the sole use is the
+ * photo upload in handlePhoto, and only on the signed-in path (a guest uploads
+ * via `endpoint`). Cached after the first resolve, so a second photo doesn't
+ * re-await. Please don't hoist it back to the top.
+ */
+let _storage: Awaited<typeof import('@/lib/firebase-db/client')>['firebaseDb']['storage'] | null = null
+async function getStorage() {
+  if (!_storage) _storage = (await import('@/lib/firebase-db/client')).firebaseDb.storage
+  return _storage
+}
 
 /**
  * The lineup entry editor.
@@ -103,13 +118,14 @@ export default function GuestEditorSheet({
       } else {
         const ext = file.name.split('.').pop() || 'jpg'
         const path = `event-images/${crypto.randomUUID()}.${ext}`
-        const { error, data } = await firebaseDb.storage
+        const storage = await getStorage()
+        const { error, data } = await storage
           .from('event-images')
           .upload(path, file, { cacheControl: '3600', upsert: false })
         if (error) throw error
         let url = data?.publicUrl
         if (!url) {
-          url = (await firebaseDb.storage.from('event-images').getPublicUrl(path)).data.publicUrl
+          url = (await storage.from('event-images').getPublicUrl(path)).data.publicUrl
         }
         // Never report success without a URL, or the sheet shows a photo the
         // saved entry does not actually have.

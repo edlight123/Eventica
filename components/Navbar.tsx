@@ -2,14 +2,49 @@
 
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { firebaseDb as supabase } from '@/lib/firebase-db/client'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import { Bell } from 'lucide-react'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDemoMode, isDemoEmail } from '@/lib/demo'
 import { demoLogout } from '@/app/auth/actions'
-import { NotificationBell } from './NotificationBell'
+
+/**
+ * BUNDLE: the navbar renders on essentially every route, so anything it
+ * statically imports lands on that route's FIRST LOAD. The Firebase client is
+ * 444KB across three chunks (223 + 136 + 85) out of ~988KB of shared JS, and a
+ * route only sheds it when its LAST static importer goes — /resources measured
+ * 350KB -> 167KB once this file stopped pulling it in. Two importers lived
+ * here, and both are gone:
+ *
+ *  1. `NotificationBell` opens a live onSnapshot listener and is rendered only
+ *     for signed-in users, yet a static import shipped its Firestore code to
+ *     every reader. It is loaded at the point of RENDER now. There is nothing
+ *     to server-render in a live-updating bell, hence ssr: false; the `loading`
+ *     placeholder is the bell's own pre-mount markup, so the header's geometry
+ *     never moves while the chunk arrives.
+ *  2. The auth shim, whose only use here is one signOut() — loaded inside the
+ *     handler below.
+ *
+ * Please do not make either static again.
+ */
+const NotificationBell = dynamic(
+  () => import('./NotificationBell').then((m) => m.NotificationBell),
+  {
+    ssr: false,
+    loading: () => (
+      <Link
+        href="/notifications"
+        className="relative p-2 rounded-lg text-white/70 hover:bg-white/[0.04] transition-colors"
+        title="Notifications"
+      >
+        <Bell className="w-5 h-5" />
+      </Link>
+    ),
+  }
+)
 
 interface NavbarProps {
   user?: {
@@ -105,8 +140,13 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
       return
     }
 
-    // Regular Supabase logout
-    await supabase.auth.signOut()
+    // Regular Firebase logout. The auth shim (and with it the whole Firebase
+    // client) is fetched here rather than imported at module scope — see the
+    // BUNDLE note at the top of this file. A signed-in reader's first tap on
+    // "sign out" therefore awaits a chunk; in practice the bell above has
+    // already pulled the same chunks in for them.
+    const { firebaseDb } = await import('@/lib/firebase-db/client')
+    await firebaseDb.auth.signOut()
     router.push('/')
     router.refresh()
   }
