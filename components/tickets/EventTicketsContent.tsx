@@ -1,5 +1,20 @@
 'use client'
 
+/**
+ * The attendee's ticket(s) for ONE event — /tickets/event/[eventId].
+ *
+ * The whole page exists to get a QR under a scanner at a venue door, often in
+ * bad light, so the hierarchy is deliberately lopsided: poster → title → the
+ * facts you need on the way there → then one big inverted WHITE stub per live
+ * ticket with the QR as the largest object on the screen. Everything else
+ * (calendar, directions, wallet, transfer, used tickets) is demoted below it.
+ *
+ * Surfaces follow docs/POSH_DESIGN_BRIEF.md — a card gets a FILL, never a
+ * hairline around empty space. The only borders here are real dividers (the
+ * rule between two facts, the dashed tear-line on the stub) and the sanctioned
+ * dashed edge of the empty state.
+ */
+
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { format, isValid } from 'date-fns'
@@ -7,8 +22,14 @@ import Image from 'next/image'
 import QRCodeDisplay from '@/app/tickets/[id]/QRCodeDisplay'
 import AddToWalletButton from '@/components/AddToWalletButton'
 import { isDemoMode } from '@/lib/demo'
+import { isLiveTicketStatus } from '@/lib/tickets/status'
+import { getPosterTheme } from '@/lib/posterGradient'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { SectionHeader } from '@/components/ui/EditorialRails'
+import { EmptyState, StatusChip } from '@/components/ui/kit'
+import { TikemWordmark } from '@/components/ui/TikemLogo'
 import {
-  Calendar,
+  CalendarDays,
   MapPin,
   Ticket as TicketIcon,
   CheckCircle2,
@@ -16,12 +37,10 @@ import {
   ChevronRight,
   ChevronDown,
   ArrowRight,
-  Sparkles,
   CalendarPlus,
   Navigation,
   User as UserIcon,
 } from 'lucide-react'
-import Badge from '@/components/ui/Badge'
 
 interface EventTicketsContentProps {
   event: any
@@ -52,14 +71,25 @@ function shortReference(id: any): string {
   return raw.slice(-6).toUpperCase()
 }
 
+/** Secondary action in the dark stack: a fill that lifts on hover, no border. */
+const STACK_ACTION =
+  'flex items-center justify-center gap-2 w-full rounded-xl bg-white/[0.055] px-4 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white'
+
 export default function EventTicketsContent({ event, tickets }: EventTicketsContentProps) {
   const { t } = useTranslation('tickets')
   const [showUsed, setShowUsed] = useState(false)
 
   const cleanTitle = String(event.title || 'Event').replace(/^\[[^\]]*\]\s*/, '')
 
-  const validTickets = tickets.filter((t) => t && !t.checked_in_at && t.status === 'valid')
-  const usedTickets = tickets.filter((t) => t && t.checked_in_at)
+  /**
+   * A LIVE ticket is `valid` | `confirmed` | `active` (or an older doc with no
+   * status at all) — see lib/tickets/status.ts. This filter used to read
+   * `status === 'valid'`, which is the exact subset bug that documentation
+   * exists to stop: every MonCash / SogePay / free-claim ticket is written
+   * `confirmed`, so it showed in neither list and the buyer's QR vanished.
+   */
+  const liveTickets = tickets.filter((tk) => tk && !tk.checked_in_at && isLiveTicketStatus(tk.status))
+  const usedTickets = tickets.filter((tk) => tk && tk.checked_in_at)
 
   const locationParts = [event.venue_name, event.commune, event.city].filter(Boolean)
   const locationQuery = String(event.address || locationParts.join(', ') || '').trim()
@@ -86,123 +116,105 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
     calendarUrl = `https://calendar.google.com/calendar/render?${params.toString()}`
   }
 
+  const poster = getPosterTheme(event.id || cleanTitle, event.category)
+  const dateLine = event.start_datetime
+    ? `${safeFormat(event.start_datetime, 'EEE, MMM d, yyyy', t('event_tickets.date_tba'))} · ${
+        event.end_datetime
+          ? `${safeFormat(event.start_datetime, 'h:mm a')} – ${safeFormat(event.end_datetime, 'h:mm a')}`
+          : safeFormat(event.start_datetime, 'h:mm a')
+      }`
+    : t('event_tickets.date_tba')
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-      {/* Event Hero Card */}
-      <div className="relative bg-white/[0.03] rounded-none border border-white/10 overflow-hidden mb-6">
-        {/* Banner Image */}
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      {/* ── Poster band. The flyer is the only colour on the page; text sits below it. */}
+      <div className="relative overflow-hidden rounded-2xl">
         {event.banner_image_url ? (
-          <div className="relative h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-700 to-[#0C5E57]">
+          <div className="relative aspect-[16/9] w-full sm:aspect-[21/9]">
             <Image
               src={event.banner_image_url}
               alt={cleanTitle}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 896px"
               className="object-cover"
+              priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           </div>
         ) : (
-          <div className="h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-700 to-[#0C5E57] relative overflow-hidden flex items-center justify-center">
-            <div className="absolute top-10 right-20 w-64 h-64 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-20 w-80 h-80 rounded-full blur-3xl" />
-            <span className="relative font-display text-5xl md:text-6xl text-[#F8F5EE]">T</span>
+          /* No flyer: the generated poster template. The one sanctioned large
+             use of teal — here teal IS the poster art, not chrome. */
+          <div
+            className="relative flex aspect-[16/9] w-full items-center justify-center sm:aspect-[21/9]"
+            style={{ backgroundImage: poster.bg }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+            <TikemWordmark className="relative text-[clamp(40px,11vw,72px)] text-white/85" />
           </div>
         )}
+      </div>
 
-        {/* Event Info */}
-        <div className="p-4 md:p-6">
-          <div className="flex items-start justify-between gap-3 mb-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="success" size="md" icon={<Sparkles className="w-3.5 h-3.5" />}>
-                  {tickets.length > 1
-                    ? t('event_tickets.tickets_count_plural', { count: tickets.length })
-                    : t('event_tickets.tickets_count', { count: tickets.length })}
-                </Badge>
-                {validTickets.length > 0 && (
-                  <Badge variant="primary" size="sm">
-                    {t('event_tickets.active_badge', { count: validTickets.length })}
-                  </Badge>
-                )}
-              </div>
-              <h1 className="font-display italic text-2xl md:text-3xl lg:text-4xl text-white mb-1 line-clamp-2">
-                {cleanTitle}
-              </h1>
-              <p className="text-[13px] md:text-sm text-white/65">{t('event_tickets.ready')}</p>
+      {/* Title block. Shared editorial header, so this page speaks the same
+          voice as /tickets and the organizer surfaces. */}
+      <EditorialHeader
+        tone="dark"
+        eyebrow={
+          tickets.length > 1
+            ? t('event_tickets.tickets_count_plural', { count: tickets.length })
+            : t('event_tickets.tickets_count', { count: tickets.length })
+        }
+        title={cleanTitle}
+        subtitle={liveTickets.length > 0 ? t('event_tickets.ready') : undefined}
+        className="mt-5"
+      />
+
+      {/* ── The two facts you need on the way to the door. One filled card,
+             split by a real rule (a divider is the one honest hairline). */}
+      <div className="mt-5 grid grid-cols-1 divide-y divide-white/[0.07] overflow-hidden rounded-2xl bg-white/[0.03] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        <div className="flex items-start gap-3 p-4 sm:p-5">
+          <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-white/35" />
+          <div className="min-w-0">
+            <div className="eyebrow text-white/40">{t('event_tickets.date_time')}</div>
+            <div className="label-mono mt-1.5 text-[13.5px] leading-snug text-white">
+              {event.start_datetime
+                ? safeFormat(event.start_datetime, 'EEE, MMM d, yyyy', t('event_tickets.date_tba'))
+                : t('event_tickets.date_tba')}
+            </div>
+            <div className="label-mono mt-0.5 text-[12px] text-white/50">
+              {event.start_datetime
+                ? event.end_datetime
+                  ? `${safeFormat(event.start_datetime, 'h:mm a')} – ${safeFormat(event.end_datetime, 'h:mm a')}`
+                  : safeFormat(event.start_datetime, 'h:mm a')
+                : t('event_tickets.time_tba')}
             </div>
           </div>
+        </div>
 
-          {/* Event Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="flex items-start gap-3 p-3 md:p-4 rounded-lg border border-white/10">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="label-mono text-[10px] md:text-[11px] text-brand-300 uppercase mb-1.5">
-                  {t('event_tickets.date_time')}
-                </p>
-                {event.start_datetime ? (
-                  <>
-                    <p className="label-mono text-[13px] md:text-[14px] text-white truncate">
-                      {safeFormat(event.start_datetime, 'EEE, MMM d, yyyy', t('event_tickets.date_tba'))}
-                    </p>
-                    <p className="label-mono text-[12px] text-white/65 truncate">
-                      {event.end_datetime
-                        ? `${safeFormat(event.start_datetime, 'h:mm a')} - ${safeFormat(event.end_datetime, 'h:mm a')}`
-                        : safeFormat(event.start_datetime, 'h:mm a')}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="label-mono text-[13px] md:text-[14px] text-white uppercase">
-                      {t('event_tickets.date_tba')}
-                    </p>
-                    <p className="label-mono text-[12px] text-white/65 uppercase">
-                      {t('event_tickets.time_tba')}
-                    </p>
-                  </>
-                )}
-              </div>
+        <div className="flex items-start gap-3 p-4 sm:p-5">
+          <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-white/35" />
+          <div className="min-w-0">
+            <div className="eyebrow text-white/40">{t('event_tickets.venue')}</div>
+            <div className="label-mono mt-1.5 truncate text-[13.5px] leading-snug text-white">
+              {String(event.venue_name || t('event_tickets.venue_tba'))}
             </div>
-
-            <div className="flex items-start gap-3 p-3 md:p-4 rounded-lg border border-white/10">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="label-mono text-[10px] md:text-[11px] text-brand-300 uppercase mb-1.5">
-                  {t('event_tickets.venue')}
-                </p>
-                <p className="label-mono text-[13px] md:text-[14px] text-white truncate">
-                  {String(event.venue_name || t('event_tickets.venue_tba'))}
-                </p>
-                <p className="label-mono text-[12px] text-white/65 truncate">
-                  {String(event.commune || t('event_tickets.location_tba'))},{' '}
-                  {String(event.city || t('event_tickets.location_tba'))}
-                </p>
-              </div>
+            <div className="label-mono mt-0.5 truncate text-[12px] text-white/50">
+              {String(event.commune || t('event_tickets.location_tba'))},{' '}
+              {String(event.city || t('event_tickets.location_tba'))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Active Tickets — the hero: inverted white stubs */}
-      {validTickets.length > 0 && (
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-              <TicketIcon className="w-5 h-5 md:w-6 md:h-6 text-brand-400" />
-              {t('event_tickets.active_tickets')}
-            </h2>
-            <Badge variant="success" size="sm">
-              {t('event_tickets.ready_badge', { count: validTickets.length })}
-            </Badge>
-          </div>
+      {/* ── The hero: one inverted white stub per live ticket. */}
+      {liveTickets.length > 0 ? (
+        <section className="mt-9">
+          <SectionHeader
+            eyebrow={t('event_tickets.ready_badge', { count: liveTickets.length })}
+            title={t('event_tickets.active_tickets')}
+          />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {validTickets.map((ticket, index) => {
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {liveTickets.map((ticket, index) => {
               const qrValue = ticket.qr_code_data || ticket.id
               const qrId = `ticket-qr-${ticket.id || index}`
               const tierName = ticket.tier_name || t('event_tickets.ticket')
@@ -210,72 +222,86 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
               return (
                 <div
                   key={ticket.id || index}
-                  className="rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] shadow-xl"
+                  className="overflow-hidden rounded-2xl bg-white/[0.03] shadow-xl"
                 >
-                  {/* Inverted white physical stub */}
-                  <div className="bg-white text-black p-5 md:p-6">
-                    <div className="flex items-start justify-between gap-3 mb-4">
+                  {/* The physical object, pulled out of the black app. White is
+                      not decoration here — it is what makes the QR read under a
+                      bad venue-door light. */}
+                  <div className="bg-white p-4 text-black sm:p-6">
+                    <div className="mb-4 flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="label-mono text-[10px] uppercase tracking-wide text-black/50">
+                        <div className="label-mono text-[10px] uppercase tracking-wide text-black/45">
                           {t('event_tickets.ticket_number', { number: index + 1 })}
-                        </p>
-                        <h3 className="font-display italic text-xl md:text-2xl leading-tight text-black line-clamp-2">
+                        </div>
+                        {/* `!` beats `.mobile-typography h3` (element+class, 0,1,1),
+                            which would otherwise crush this to 16px on a phone. */}
+                        <h3 className="mt-0.5 font-display italic !text-[clamp(22px,6vw,28px)] !leading-[1.02] text-black [overflow-wrap:anywhere]">
                           {cleanTitle}
                         </h3>
+                        <div className="label-mono mt-1 text-[11.5px] text-black/55">{dateLine}</div>
                       </div>
-                      <span className="shrink-0 inline-flex items-center rounded-full bg-black px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                      <span className="shrink-0 rounded-full bg-black/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-black/70">
                         {tierName}
                       </span>
                     </div>
 
-                    {/* Holder */}
-                    {holderName && (
-                      <div className="flex items-center gap-2 mb-4 text-black/70">
-                        <UserIcon className="w-4 h-4 shrink-0" />
-                        <span className="text-[11px] uppercase tracking-wide text-black/50">
-                          {t('event_tickets.holder')}
-                        </span>
-                        <span className="text-sm font-semibold text-black truncate">{holderName}</span>
-                      </div>
-                    )}
-
-                    {/* QR — dominant, on white for reliable scanning */}
+                    {/* QR — the largest object on the page, on white, centred. */}
                     <div className="flex flex-col items-center">
                       {qrValue ? (
-                        <div className="w-[240px] max-w-full">
-                          <QRCodeDisplay value={qrValue} size={240} id={qrId} />
-                        </div>
+                        <QRCodeDisplay
+                          value={qrValue}
+                          size={320}
+                          id={qrId}
+                          className="mx-auto w-full max-w-[320px]"
+                        />
                       ) : (
-                        <div className="w-[240px] max-w-full aspect-square flex items-center justify-center rounded-lg bg-black/5">
-                          <p className="text-sm text-black/50">{t('event_tickets.qr_unavailable')}</p>
+                        <div className="mx-auto flex aspect-square w-full max-w-[320px] items-center justify-center rounded-xl bg-black/[0.06]">
+                          <span className="text-sm text-black/50">
+                            {t('event_tickets.qr_unavailable')}
+                          </span>
                         </div>
                       )}
-                      <p className="mt-3 text-[11px] uppercase tracking-wide text-black/50">
+                      <div className="mt-3 text-center text-[11px] font-medium uppercase tracking-[0.13em] text-black/45">
                         {t('event_tickets.scan_at_entrance')}
-                      </p>
+                      </div>
                     </div>
 
-                    {/* Reference */}
-                    <div className="mt-4 pt-4 border-t border-dashed border-black/15 flex items-center justify-between">
-                      <span className="label-mono text-[10px] uppercase tracking-wide text-black/50">
-                        {t('event_tickets.reference')}
-                      </span>
-                      <span className="font-mono text-sm font-semibold tracking-wider text-black">
-                        {shortReference(ticket.id)}
-                      </span>
+                    {/* Tear-line, then the small print. A dashed rule IS the
+                        meaning here — it is where a paper stub would come apart. */}
+                    <div className="mt-5 space-y-2 border-t border-dashed border-black/15 pt-4">
+                      {holderName && (
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.13em] text-black/45">
+                            <UserIcon className="h-3.5 w-3.5" />
+                            {t('event_tickets.holder')}
+                          </span>
+                          <span className="truncate text-sm font-semibold text-black">
+                            {holderName}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[10px] font-medium uppercase tracking-[0.13em] text-black/45">
+                          {t('event_tickets.reference')}
+                        </span>
+                        <span className="font-mono text-sm font-semibold tracking-wider text-black">
+                          {shortReference(ticket.id)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Dark action stack (post-purchase utilities) */}
-                  <div className="p-3 md:p-4 space-y-2">
+                  {/* Dark utility stack — everything you might want once the QR
+                      is safe. Fills only; nothing here outshouts the stub. */}
+                  <div className="space-y-2 p-3 sm:p-4">
                     {calendarUrl && (
                       <a
                         href={calendarUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] text-white/80 border border-white/10 hover:border-brand-400 text-sm font-semibold rounded-lg transition-all"
+                        className={STACK_ACTION}
                       >
-                        <CalendarPlus className="w-4 h-4" />
+                        <CalendarPlus className="h-4 w-4" />
                         {t('event_tickets.add_to_calendar')}
                       </a>
                     )}
@@ -284,109 +310,115 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                         href={directionsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] text-white/80 border border-white/10 hover:border-brand-400 text-sm font-semibold rounded-lg transition-all"
+                        className={STACK_ACTION}
                       >
-                        <Navigation className="w-4 h-4" />
+                        <Navigation className="h-4 w-4" />
                         {t('event_tickets.get_directions')}
                       </a>
                     )}
                     {!isDemoMode() && (
                       <>
                         <AddToWalletButton ticket={ticket} event={event} qrElementId={qrId} />
-                        <a
-                          href={`/tickets/${ticket.id}`}
-                          className="group/btn flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] text-white/70 border border-white/10 hover:border-brand-400 text-sm font-semibold rounded-lg transition-all"
-                        >
-                          <Share2 className="w-4 h-4" />
+                        <a href={`/tickets/${ticket.id}`} className={`group/btn ${STACK_ACTION}`}>
+                          <Share2 className="h-4 w-4" />
                           {t('event_tickets.transfer_ticket')}
-                          <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                          <ChevronRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                         </a>
                       </>
                     )}
-                    <p className="label-mono text-[10px] uppercase text-white/40 text-center pt-1">
+                    <div className="label-mono pt-1 text-center text-[10px] uppercase text-white/40">
                       {ticket.purchased_at
                         ? t('event_tickets.purchased_at', {
                             date: safeFormat(ticket.purchased_at, 'MMM d, yyyy'),
                           })
                         : t('event_tickets.ticket')}
-                    </p>
+                    </div>
                   </div>
                 </div>
               )
             })}
           </div>
-        </div>
+        </section>
+      ) : (
+        /* Every ticket for this event is already through the door (or otherwise
+           no longer live). Say so instead of leaving a hole where the QR was.
+           A dashed edge is legitimate here: the space really is empty. */
+        <EmptyState
+          className="mt-9"
+          icon={TicketIcon}
+          title={t('event_tickets.no_active_tickets')}
+        />
       )}
 
-      {/* Used Tickets — demoted, compact, collapsible, no large QR */}
+      {/* ── Used tickets: demoted, collapsed, no large QR. */}
       {usedTickets.length > 0 && (
-        <div className="mb-6">
+        <section className="mt-8">
           <button
             type="button"
             onClick={() => setShowUsed((v) => !v)}
             aria-expanded={showUsed}
-            className="w-full flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left hover:border-white/20 transition-colors"
+            className="flex w-full items-center justify-between gap-3 rounded-2xl bg-white/[0.03] px-4 py-3.5 text-left transition-colors hover:bg-white/[0.08]"
           >
-            <span className="flex items-center gap-2 text-sm md:text-base font-bold text-white">
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              {t('event_tickets.used_tickets')}
-              <span className="text-white/50 font-normal">
+            <span className="flex min-w-0 items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-white/35" />
+              <span className="truncate text-sm font-semibold text-white sm:text-[15px]">
+                {t('event_tickets.used_tickets')}
+              </span>
+              <span className="shrink-0 text-sm text-white/45">
                 {t('event_tickets.used_count', { count: usedTickets.length })}
               </span>
             </span>
-            <span className="flex items-center gap-1.5 text-[12px] uppercase tracking-wide text-white/60">
+            <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.13em] text-white/50">
               {showUsed ? t('event_tickets.hide') : t('event_tickets.show')}
               <ChevronDown
-                className={`w-4 h-4 transition-transform ${showUsed ? 'rotate-180' : ''}`}
+                className={`h-4 w-4 transition-transform ${showUsed ? 'rotate-180' : ''}`}
               />
             </span>
           </button>
 
           {showUsed && (
-            <ul className="mt-2 divide-y divide-white/5 rounded-xl border border-white/10 overflow-hidden">
+            <ul className="mt-2 divide-y divide-white/[0.06] overflow-hidden rounded-2xl bg-white/[0.03]">
               {usedTickets.map((ticket, index) => (
                 <li
                   key={ticket.id || index}
-                  className="flex items-center justify-between gap-3 px-4 py-3 bg-white/[0.03]"
+                  className="flex items-center justify-between gap-3 px-4 py-3"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white/80 truncate">
-                        {ticket.tier_name || t('event_tickets.ticket')}
-                      </p>
-                      <p className="label-mono text-[11px] text-white/45">
-                        {ticket.checked_in_at
-                          ? safeFormat(ticket.checked_in_at, 'MMM d, yyyy • h:mm a')
-                          : t('event_tickets.used')}
-                      </p>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-white/80">
+                      {ticket.tier_name || t('event_tickets.ticket')}
+                    </div>
+                    <div className="label-mono mt-0.5 text-[11px] text-white/45">
+                      {ticket.checked_in_at
+                        ? safeFormat(ticket.checked_in_at, 'MMM d, yyyy • h:mm a')
+                        : t('event_tickets.used')}
                     </div>
                   </div>
-                  <Badge variant="success" size="sm" icon={<CheckCircle2 className="w-3 h-3" />}>
+                  {/* Dot + label. A status reports; it is not a pill to press. */}
+                  <StatusChip tone="neutral" className="shrink-0">
                     {t('event_tickets.used')}
-                  </Badge>
+                  </StatusChip>
                 </li>
               ))}
             </ul>
           )}
-        </div>
+        </section>
       )}
 
-      {/* Quick Actions */}
-      <div className="mt-6 flex flex-col sm:flex-row gap-2.5">
-        <a
-          href={`/events/${event.id}`}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white/[0.03] hover:bg-white/[0.04] text-white/70 border border-white/10 hover:border-brand-400 text-sm font-semibold rounded-lg transition-all"
-        >
-          {t('event_tickets.view_event_details')}
-          <ArrowRight className="w-4 h-4" />
-        </a>
+      {/* ── One primary action per screen: the white pill. */}
+      <div className="mt-8 flex flex-col gap-2.5 sm:flex-row-reverse">
         <a
           href="/tickets"
-          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
+          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-black transition-colors hover:bg-white/90"
         >
+          <TicketIcon className="h-4 w-4" />
           {t('event_tickets.all_my_tickets')}
-          <TicketIcon className="w-4 h-4" />
+        </a>
+        <a
+          href={`/events/${event.id}`}
+          className="group/link flex flex-1 items-center justify-center gap-2 rounded-full bg-white/[0.055] px-6 py-3.5 text-sm font-semibold text-white/75 transition-colors hover:bg-white/[0.12] hover:text-white"
+        >
+          {t('event_tickets.view_event_details')}
+          <ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-0.5" />
         </a>
       </div>
     </div>

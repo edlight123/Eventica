@@ -5,7 +5,6 @@ import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import { redirect, notFound } from 'next/navigation'
 import { isDemoMode, DEMO_TICKETS, DEMO_EVENTS } from '@/lib/demo'
-import { revalidatePath } from 'next/cache'
 import EventTicketsContent from '@/components/tickets/EventTicketsContent'
 
 export const dynamic = 'force-dynamic'
@@ -42,13 +41,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ e
   if (error || !user) {
     redirect(`/auth/login?redirect=/tickets/event/${eventId}`)
   }
-  
-  // Server action for pull-to-refresh
-  async function refreshPage() {
-    'use server'
-    revalidatePath(`/tickets/event/${eventId}`)
-  }
-  
+
   // Validate eventId
   if (!eventId) {
     notFound()
@@ -100,12 +93,17 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ e
   const serializedEvent = serializeTimestamps(event)
   const serializedTickets = tickets.map(ticket => serializeTimestamps(ticket))
 
+  // `bg-[#0a0a0a]` here is the PAGE canvas, which is the one place it belongs —
+  // never as a card fill, where it renders invisible against this. Surfaces
+  // inside the content use the white/[0.0x] ladder in docs/POSH_DESIGN_BRIEF.md.
+  // `pb-mobile-nav` is conditional in CSS (body[data-mobile-nav], <768px), so it
+  // reserves nothing for a signed-out reader.
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
-      
+
       <EventTicketsContent event={serializedEvent} tickets={serializedTickets} />
-      
+
       <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
     </div>
   )
