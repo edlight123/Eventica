@@ -16,6 +16,11 @@
 
 # next.js
 /.next/
+# Isolated build dirs (NEXT_DIST_DIR=.next-something), used when several
+# builds must run at once without corrupting a shared .next. `/.next/`
+# alone does not match these, which is how a 77MB `.next-venuemap` tree
+# ended up committed.
+/.next-*/
 /out/
 
 # production
