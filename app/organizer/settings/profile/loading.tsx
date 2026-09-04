@@ -1,41 +1,71 @@
+/**
+ * Organizer → Settings → Profile loading skeleton.
+ *
+ * Renders inside app/organizer/layout.tsx (OrganizerChrome → OrganizerTopNav
+ * h-14 → `<main class="pb-mobile-nav">`), so this is the page body only — no
+ * navbar, no bottom reservation.
+ *
+ * Derived geometry (app/organizer/settings/profile/page.tsx):
+ *   root    min-h-screen bg-[#0a0a0a] py-8
+ *   inner   max-w-3xl px-4 sm:px-6 lg:px-8
+ *   back    inline text-sm link + 16px chevron, mb-6
+ *   header  PageHeader — eyebrow, h1 mt-1.5 clamp(26px,4vw,38px) leading 1.02,
+ *           subtitle mt-1.5 at 14/15px  (the eyebrow was missing here)
+ *   card    mt-8 overflow-hidden rounded-2xl bg-white/[0.03] — ProfileForm:
+ *           an avatar row then three fields and a submit
+ *   note    mt-6 p-4 rounded-lg bg-white/[0.03]
+ *
+ * `animate-pulse` and hand-set fills replaced by `.skeleton`, and the old
+ * `w-96` bars are gone: 384px inside a 370px content box overflowed
+ * horizontally at 402px.
+ */
+
+function Bar({ className = '' }: { className?: string }) {
+  return <div className={`skeleton rounded ${className}`} />
+}
+
 export default function ProfileLoading() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-8">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button Skeleton */}
-        <div className="h-6 w-32 bg-white/[0.06] rounded mb-6 animate-pulse" />
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <Bar className="mb-6 h-5 w-32" />
 
-        {/* Header Skeleton */}
-        <div className="mb-8">
-          <div className="h-9 w-64 bg-white/[0.06] rounded mb-2 animate-pulse" />
-          <div className="h-5 w-96 bg-white/[0.06] rounded animate-pulse" />
+        <div>
+          <Bar className="h-2.5 w-16" />
+          <Bar className="mt-1.5 h-8 w-56 sm:h-9 sm:w-64" />
+          <Bar className="mt-1.5 h-4 w-72 max-w-full" />
         </div>
 
-        {/* Form Skeleton */}
-        <div className="bg-white/[0.03] rounded-xl  shadow-sm p-6 space-y-6">
-          {/* Avatar */}
+        <div className="mt-8 overflow-hidden rounded-2xl bg-white/[0.03] p-6">
+          {/* Avatar row */}
           <div className="flex items-start gap-6">
-            <div className="w-24 h-24 rounded-full bg-white/[0.06] animate-pulse" />
-            <div className="flex-1">
-              <div className="h-10 w-40 bg-white/[0.06] rounded-lg mb-2 animate-pulse" />
-              <div className="h-4 w-32 bg-white/[0.06] rounded animate-pulse" />
+            <div className="skeleton h-24 w-24 shrink-0 rounded-full" />
+            <div className="min-w-0 flex-1">
+              <Bar className="h-10 w-40 rounded-lg" />
+              <Bar className="mt-2 h-4 w-32" />
             </div>
           </div>
 
-          {/* Form Fields */}
-          {[1, 2, 3].map((i) => (
-            <div key={i}>
-              <div className="h-5 w-24 bg-white/[0.06] rounded mb-2 animate-pulse" />
-              <div className="h-11 w-full bg-white/[0.06] rounded-lg animate-pulse" />
+          {/* Fields */}
+          <div className="mt-6 space-y-6">
+            {[0, 1, 2].map((i) => (
+              <div key={i}>
+                <Bar className="mb-2 h-5 w-24" />
+                <Bar className="h-11 w-full rounded-lg" />
+              </div>
+            ))}
+            <div className="flex justify-end pt-4">
+              <Bar className="h-11 w-32 rounded-lg" />
             </div>
-          ))}
-
-          {/* Button */}
-          <div className="flex justify-end pt-4">
-            <div className="h-11 w-32 bg-white/[0.06] rounded-lg animate-pulse" />
           </div>
+        </div>
+
+        {/* Info notice */}
+        <div className="mt-6 rounded-lg bg-white/[0.03] p-4">
+          <Bar className="h-4 w-full" />
+          <Bar className="mt-2 h-4 w-2/3" />
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -54,11 +54,15 @@ export default async function SecuritySettingsPage() {
           subtitle="Manage your password and monitor account activity"
         />
 
-        {/* Security Form */}
+        {/* mt-8, matching profile / organization / defaults / notifications.
+            Without it the subtitle butts straight into the first card, which
+            is why this page read as more cramped than its siblings. */}
+        <div className="mt-8">
         <SecurityForm 
           userId={user.id}
           loginHistory={loginHistory}
         />
+        </div>
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ export default async function FavoritesPage() {
 
   if (!user) {
     return (
-      <div className="surface-dark min-h-screen">
+      <div className="surface-dark min-h-screen pb-mobile-nav">
         <Navbar user={null} />
         <FavoritesSignInPrompt />
       </div>
@@ -23,7 +23,7 @@ export default async function FavoritesPage() {
   }
 
   return (
-    <div className="surface-dark min-h-screen">
+    <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
       <FavoritesContent userId={user.id} />
       <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />

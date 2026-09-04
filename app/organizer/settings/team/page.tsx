@@ -77,12 +77,13 @@ export default async function TeamSettingsPage({
         />
 
         {eventsError ? (
-          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm text-white/70">
+          <div className="mt-8 mb-6 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm text-white/70">
             We couldn&apos;t load your events right now. Some counts may be incomplete, please refresh to try again.
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+        {/* mt-8, matching the sibling settings pages. */}
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           <div className="rounded-xl bg-white/[0.03] p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg bg-brand-500/10 text-brand-300 flex items-center justify-center">

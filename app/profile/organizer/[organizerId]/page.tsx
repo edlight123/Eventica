@@ -53,87 +53,65 @@ export default async function OrganizerProfilePage({ params }: { params: Promise
 
   // Fetch organizer's events
   const now = new Date().toISOString()
-  console.log('=== ORGANIZER PROFILE QUERIES ===')
-  console.log('Organizer ID:', organizerId)
-  console.log('Current time:', now)
-  
-  // Fetch all events by this organizer, then filter in memory to avoid needing complex indexes
+
+  /**
+   * ONE read of the organizer's events, then everything derived in memory.
+   *
+   * This page used to query the `events` collection FOUR times for the same
+   * organizer: the full list, then an identical full list whose only consumer
+   * was a `console.log`, then a published-only list to count events, then a
+   * fourth to sum `tickets_sold`. Every one of them was a fan-out over the
+   * same documents, on a public page. The first query selects `*`, so the
+   * other three were already answerable from it.
+   *
+   * The debug logging went with them. It printed the organizer id, the
+   * current time, event counts and a sample of event titles and dates on
+   * every production request — noise in the logs, and user data in them.
+   */
   const { data: allOrganizerEvents, error: allEventsError } = await supabase
     .from('events')
     .select('*')
     .eq('organizer_id', organizerId)
 
-  console.log('All organizer events:', { count: allOrganizerEvents?.length, error: allEventsError })
-
-  // Filter upcoming and past events in memory
-  const upcomingEventsRaw = allOrganizerEvents?.filter((event: any) => 
-    event.is_published && event.start_datetime >= now
-  ).sort((a: any, b: any) => a.start_datetime.localeCompare(b.start_datetime))
-
-  const pastEventsRaw = allOrganizerEvents?.filter((event: any) => 
-    event.is_published && event.start_datetime < now
-  ).sort((a: any, b: any) => b.start_datetime.localeCompare(a.start_datetime)).slice(0, 6)
-
-  console.log('Upcoming events result:', { count: upcomingEventsRaw?.length })
-  if (upcomingEventsRaw?.length) {
-    console.log('First upcoming event:', upcomingEventsRaw[0])
+  if (allEventsError) {
+    console.error('[organizer-profile] events query failed', allEventsError)
   }
 
-  console.log('Past events result:', { count: pastEventsRaw?.length })
-  
-  // Also check ALL events for this organizer (no date filter)
-  const { data: allEvents } = await supabase
-    .from('events')
-    .select('*')
-    .eq('organizer_id', organizerId)
-  
-  console.log('Total events for organizer (any date):', allEvents?.length)
-  if (allEvents?.length) {
-    console.log('Sample event dates:', allEvents.slice(0, 3).map((e: any) => ({ title: e.title, start: e.start_datetime })))
-  }
+  const organizerEvents = allOrganizerEvents || []
+  const publishedEvents = organizerEvents.filter((e: any) => e.is_published)
 
-  // Add organizer info to each event
-  const upcomingEvents = upcomingEventsRaw?.map((event: any) => ({
+  const withOrganizer = (event: any) => ({
     ...event,
     users: {
       full_name: organizer.full_name,
-      is_verified: organizer.is_verified
-    }
-  }))
+      is_verified: organizer.is_verified,
+    },
+  })
 
-  const pastEvents = pastEventsRaw?.map((event: any) => ({
-    ...event,
-    users: {
-      full_name: organizer.full_name,
-      is_verified: organizer.is_verified
-    }
-  }))
+  const upcomingEvents = publishedEvents
+    .filter((e: any) => e.start_datetime >= now)
+    .sort((a: any, b: any) => a.start_datetime.localeCompare(b.start_datetime))
+    .map(withOrganizer)
 
-  // Count followers
+  const pastEvents = publishedEvents
+    .filter((e: any) => e.start_datetime < now)
+    .sort((a: any, b: any) => b.start_datetime.localeCompare(a.start_datetime))
+    .slice(0, 6)
+    .map(withOrganizer)
+
+  const totalEvents = publishedEvents.length
+  const totalTicketsSold = publishedEvents.reduce(
+    (sum: number, e: any) => sum + (e.tickets_sold || 0),
+    0
+  )
+
+  // Followers is a different collection, so it stays its own read.
   const { data: followersData } = await supabase
     .from('organizer_follows')
     .select('id')
     .eq('organizer_id', organizerId)
-  
+
   const followerCount = followersData?.length || 0
-
-  // Count total events
-  const { data: eventsCountData } = await supabase
-    .from('events')
-    .select('id')
-    .eq('organizer_id', organizerId)
-    .eq('is_published', true)
-  
-  const totalEvents = eventsCountData?.length || 0
-
-  // Count total tickets sold across all organizer's events
-  const { data: ticketStats } = await supabase
-    .from('events')
-    .select('tickets_sold')
-    .eq('organizer_id', organizerId)
-    .eq('is_published', true)
-
-  const totalTicketsSold = ticketStats?.reduce((sum: number, event: any) => sum + (event.tickets_sold || 0), 0) || 0
 
   // Check if current user is following this organizer
   let isFollowing = false
