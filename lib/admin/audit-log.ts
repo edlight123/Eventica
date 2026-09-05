@@ -138,12 +138,12 @@ function getActivityLink(
   action: string,
   resourceId?: string | null
 ): string | undefined {
-  if (action.startsWith('verification.')) return '/admin/verify'
-  if (action.startsWith('bank_verification.')) return '/admin/bank-verifications'
-  if (action.startsWith('payout.')) return '/admin/payouts'
-  if (action.startsWith('withdrawal.')) return '/admin/withdrawals'
-  if (action.startsWith('suspicious_activity.')) return '/admin/security'
-  if (action.startsWith('user.')) return resourceId ? `/admin/users/${resourceId}` : '/admin/users'
+  if (action.startsWith('verification.')) return '/admin/trust'
+  if (action.startsWith('bank_verification.')) return '/admin/trust/bank'
+  if (action.startsWith('payout.')) return '/admin/money/disbursements'
+  if (action.startsWith('withdrawal.')) return '/admin/money/withdrawals'
+  if (action.startsWith('suspicious_activity.')) return '/admin/trust/security'
+  if (action.startsWith('user.')) return resourceId ? `/admin/people/${resourceId}` : '/admin/people'
   if (action.startsWith('event.')) return resourceId ? `/events/${resourceId}` : '/admin/events'
   return undefined
 }

@@ -1,37 +1,39 @@
-import DisputesLog from './DisputesLog'
-import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
+import { redirect } from 'next/navigation'
 
+/**
+ * Redirect-only shim — the one exception to the clean-URL restructure.
+ *
+ * The chargeback screen now lives at /admin/money/disputes, and every other old
+ * money URL was deleted outright. This path cannot be: `lib/disputes.ts` sends a
+ * transactional email containing `${appUrl}/admin/disputes` whenever a dispute
+ * is opened, and those messages are already sitting in people's inboxes. The
+ * link has to keep working for as long as those emails exist. Delete this only
+ * once no live inbox can still contain one.
+ *
+ * Query strings are carried over so any filter or deep link in an old email
+ * survives the hop.
+ */
 export const metadata = {
   title: 'Chargebacks | Admin | Tikèm',
-  description: 'Card disputes filed against ticket sales',
+  description: 'Redirecting to the Money hub chargebacks log',
 }
 
-// Read live in the client component; keep the shell dynamic-safe.
-export const dynamic = 'force-dynamic'
+export default async function AdminDisputesRedirectPage({
+  searchParams,
+}: {
+  // Next 15: searchParams is a Promise.
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const params = (await searchParams) || {}
+  const query = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) {
+      for (const item of value) query.append(key, item)
+    } else if (typeof value === 'string') {
+      query.set(key, value)
+    }
+  }
 
-export default async function AdminDisputesPage() {
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-      <AdminBreadcrumbs
-        items={[
-          { label: 'Payout Operations', href: '/admin/disbursements' },
-          { label: 'Chargebacks' },
-        ]}
-      />
-
-      <header className="mb-8">
-        <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Risk</p>
-        <h1 className="label-mono mt-1 text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
-          Chargebacks
-        </h1>
-        <p className="mt-2 max-w-3xl text-[13px] text-console-mut">
-          Every card dispute filed against a ticket sale. Tikèm is the merchant of record on the Stripe rail, so each
-          of these has already been debited from the platform balance, and each one has a deadline we answer, not the
-          organizer.
-        </p>
-      </header>
-
-      <DisputesLog />
-    </div>
-  )
+  const suffix = query.toString()
+  redirect(suffix ? `/admin/money/disputes?${suffix}` : '/admin/money/disputes')
 }

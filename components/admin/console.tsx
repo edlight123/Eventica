@@ -24,6 +24,8 @@ import {
   type ReactNode,
 } from 'react'
 import { formatAge, ageTier } from '@/lib/admin/age'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 /**
  * The client clock for every age in the console. Rows often arrive
@@ -80,6 +82,64 @@ export function ConsolePage({
 /** One-line explainer under a title. Use sparingly — the screen should explain itself. */
 export function ConsoleCaption({ children }: { children: ReactNode }) {
   return <p className="-mt-2 mb-4 text-[13px] text-console-mut">{children}</p>
+}
+
+/**
+ * The tab strip for a HUB — a console section that owns several related
+ * screens (Money owns review / disbursements / withdrawals / disputes).
+ *
+ * This exists because the rail lies without it. `RAIL_GROUPS` bundles several
+ * queue sources under one entry — Verifications covers `verifications` AND
+ * `bankVerifications`, Payouts covers `payoutReview`, `disbursements` AND
+ * `withdrawals` — but each entry can only link to ONE href, so the group's
+ * other pages had no route into them from the rail at all. The rail promised a
+ * group and delivered a single page. A hub gives the group a real front door
+ * and puts its siblings one click away, which is the whole fix.
+ *
+ * `count` is the same figure the rail carries, repeated here so you can see
+ * where the work is without going back to the rail to find out.
+ *
+ * A rule with an underline on the active tab, NOT a filled track: a filled
+ * pill row reads as a set of buttons to press, and these are places you are,
+ * not actions you take. (It is also the house rule — a track's padding
+ * wrapping nothing is a border around empty space.)
+ */
+export function ConsoleTabs({
+  tabs,
+}: {
+  tabs: { href: string; label: string; count?: number | null }[]
+}) {
+  const pathname = usePathname()
+  return (
+    <div className="-mx-4 mb-5 overflow-x-auto border-b border-console-line px-4 sm:mx-0 sm:px-0">
+      <nav className="flex min-w-max gap-1" aria-label="Section">
+        {tabs.map((tab) => {
+          // Exact match, not startsWith: a hub's own index would otherwise
+          // light up for every child route beneath it.
+          const active = pathname === tab.href
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              aria-current={active ? 'page' : undefined}
+              className={`-mb-px flex items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-[13px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
+                active
+                  ? 'border-console-text font-semibold text-console-text'
+                  : 'border-transparent text-console-mut hover:text-console-text'
+              }`}
+            >
+              {tab.label}
+              {typeof tab.count === 'number' && tab.count > 0 && (
+                <span className="label-mono text-[11px] tabular-nums text-console-faint">
+                  {tab.count}
+                </span>
+              )}
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
+  )
 }
 
 /** Section label inside a page: small mono caps. */

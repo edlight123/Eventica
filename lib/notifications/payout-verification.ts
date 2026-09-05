@@ -31,7 +31,7 @@ export async function notifyAdminsOfVerificationSubmission(params: {
 
   const title = `New ${typeLabel} Verification Submitted`
   const message = `${organizerName} submitted ${typeLabel.toLowerCase()} verification for review.`
-  const actionUrl = `/admin/verify?organizerId=${organizerId}&type=${verificationType}`
+  const actionUrl = `/admin/trust?organizerId=${organizerId}&type=${verificationType}`
 
   // Send notification to each admin
   const promises = adminsSnap.docs.map((doc: FirebaseFirestore.QueryDocumentSnapshot) =>

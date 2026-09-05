@@ -234,7 +234,7 @@ export async function POST(request: NextRequest) {
                 data.email && (data.full_name || data.name)
                   ? data.email
                   : data.business_name || undefined,
-              href: `/admin/users/${doc.id}`,
+              href: `/admin/people/${doc.id}`,
               metadata: {
                 status: data.is_verified ? 'verified' : 'unverified',
               },

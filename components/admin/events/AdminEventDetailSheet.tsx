@@ -247,7 +247,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 </div>
                 {event.organizer_id ? (
                   <a
-                    href={`/admin/organizers/${event.organizer_id}`}
+                    href={`/admin/people/organizers/${event.organizer_id}`}
                     className="text-console-mut hover:text-console-text text-sm font-medium flex items-center gap-1"
                   >
                     View

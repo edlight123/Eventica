@@ -42,17 +42,17 @@ export const RAIL_GROUPS: RailGroup[] = [
   {
     key: 'verifications',
     label: 'Verifications',
-    href: '/admin/verify',
+    href: '/admin/trust',
     sources: ['verifications', 'bankVerifications'],
   },
   {
     key: 'payouts',
     label: 'Payouts',
-    href: '/admin/disbursements',
+    href: '/admin/money',
     sources: ['payoutReview', 'disbursements', 'withdrawals'],
   },
   { key: 'reported', label: 'Reported', href: '/admin/events', sources: ['reportedEvents', 'pendingEvents'] },
-  { key: 'disputes', label: 'Disputes', href: '/admin/disputes', sources: ['disputes'] },
+  { key: 'disputes', label: 'Disputes', href: '/admin/money/disputes', sources: ['disputes'] },
 ]
 
 /**

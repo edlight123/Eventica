@@ -13,7 +13,7 @@ import { consoleAgeClass, useConsoleNow } from '@/components/admin/console'
 const DEV_EMAILS = ['edward.laguerre+dev@gmail.com', 'edwardlaguerre7@gmail.com']
 
 const BROWSE = [
-  { label: 'People', href: '/admin/users' },
+  { label: 'People', href: '/admin/people' },
   { label: 'Events', href: '/admin/events' },
   { label: 'Orders', href: '/admin/orders' },
   { label: 'Analytics', href: '/admin/analytics' },
@@ -119,14 +119,14 @@ export function AdminSidebar({ userEmail }: { userEmail?: string }) {
       ))}
 
       <div className="mt-auto pt-4">
-        <RailLink href="/admin/security" label="Security" active={isActive('/admin/security')}>
+        <RailLink href="/admin/trust/security" label="Security" active={isActive('/admin/trust/security')}>
           <Lock className="h-3.5 w-3.5 shrink-0 text-console-faint" />
         </RailLink>
-        <RailLink href="/admin/settings" label="Settings" active={isActive('/admin/settings')}>
+        <RailLink href="/admin/system" label="Settings" active={isActive('/admin/system')}>
           <Settings className="h-3.5 w-3.5 shrink-0 text-console-faint" />
         </RailLink>
         {isDeveloper && (
-          <RailLink href="/admin/dev" label="Dev" active={isActive('/admin/dev')}>
+          <RailLink href="/admin/system/dev" label="Dev" active={isActive('/admin/system/dev')}>
             <Wrench className="h-3.5 w-3.5 shrink-0 text-console-faint" />
           </RailLink>
         )}

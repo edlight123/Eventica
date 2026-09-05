@@ -264,7 +264,7 @@ export async function POST(request: NextRequest) {
               <li><strong>Request ID:</strong> ${verificationRequest.id}</li>
             </ul>
             <p>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/verify" 
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/trust"
                  style="background-color: #0F766E; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
                 Review Request
               </a>

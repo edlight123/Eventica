@@ -186,7 +186,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
           {/* Alerts Badge */}
           {pendingTotal > 0 && (
             <Link
-              href="/admin/verify"
+              href="/admin/trust"
               className="relative flex items-center gap-2 px-3 py-2 text-console-amber rounded hover:bg-console-panel transition-colors"
             >
               <Bell className="w-4 h-4" />
