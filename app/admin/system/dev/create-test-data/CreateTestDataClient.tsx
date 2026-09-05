@@ -5,8 +5,25 @@ import { useRouter } from 'next/navigation'
 import { auth, db } from '@/lib/firebase/client'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { collection, query, where, getDocs, serverTimestamp, deleteDoc, doc, setDoc } from 'firebase/firestore'
-import MobileNavWrapper from '@/components/MobileNavWrapper'
+import {
+  ConsoleButton,
+  ConsoleCaption,
+  ConsolePanel,
+  ConsoleSection,
+} from '@/components/admin/console'
 
+/**
+ * Test data — seeds seven sample events (each with three ticket tiers) under
+ * the signed-in admin's own organizer account, and offers a destructive
+ * delete-then-recreate that wipes every event that account already owns.
+ *
+ * The seeding and deleting logic is untouched by the console restyle,
+ * including the window.confirm that names the exact number of events about to
+ * be destroyed — that count is the only thing standing between a slip and a
+ * wiped organizer.
+ *
+ * The page frame (container, breadcrumb trail, title) comes from DevToolShell.
+ */
 export default function CreateTestDataClient() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -370,178 +387,110 @@ export default function CreateTestDataClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto"></div>
-          <p className="mt-4 text-white/60">Loading...</p>
-        </div>
-      </div>
+      <ConsolePanel className="px-4 py-8 text-center">
+        <span className="label-mono text-[13px] text-console-mut">Loading…</span>
+      </ConsolePanel>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-white/[0.03] rounded-xl shadow-lg p-8 max-w-md w-full text-center">
-          <div className="text-6xl mb-4">🔒</div>
-          <h1 className="font-display text-2xl text-white mb-4">Authentication Required</h1>
-          <p className="text-white/60 mb-6">
-            You must be logged in to access this page.
-          </p>
-          <button
-            onClick={() => router.push('/auth/login?redirect=/admin/system/dev/create-test-data')}
-            className="w-full px-6 py-3 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
+      <ConsolePanel className="mx-auto max-w-md px-6 py-8 text-center">
+        <p className="text-sm font-semibold text-console-text">Authentication required</p>
+        <p className="mb-5 mt-1 text-[13px] text-console-mut">
+          You must be logged in to access this page.
+        </p>
+        <ConsoleButton
+          variant="primary"
+          onClick={() => router.push('/auth/login?redirect=/admin/system/dev/create-test-data')}
+        >
+          Go to Login
+        </ConsoleButton>
+      </ConsolePanel>
     )
   }
 
   return (
     <>
-      <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
-        <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
-          <div className="bg-white/[0.03] rounded-xl shadow-lg overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-brand-600 to-brand-700 px-4 sm:px-8 py-4 sm:py-6">
-              <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-1 sm:mb-2">
-                🧪 Create Test Events
-              </h1>
-              <p className="text-[13px] sm:text-base text-brand-50">
-                Generate 7 sample events with images for testing
-              </p>
-            </div>
+      <ConsoleCaption>
+        Generates {testEvents.length} sample events with images under the signed-in account. For
+        development and testing only.
+      </ConsoleCaption>
 
-            {/* Content */}
-            <div className="p-4 sm:p-8">
-              {/* User Info */}
-              <div className="border border-brand-500/30 rounded-lg p-4 mb-6">
-                <p className="text-sm text-brand-300">
-                  <span className="font-semibold">Logged in as:</span> {user.email}
-                </p>
-                <p className="text-sm text-brand-300 mt-1">
-                  Events will be created under this account
-                </p>
-              </div>
-
-              {/* Event Preview */}
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-white mb-3">
-                  Events to be created ({testEvents.length}):
-                </h2>
-                <div className="bg-white/[0.03] rounded-lg p-4 max-h-48 overflow-y-auto">
-                  <ul className="space-y-2 text-sm text-white/70">
-                    {testEvents.map((event, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-brand-300 mr-2">•</span>
-                        <div>
-                          <span className="font-medium">{event.title}</span>
-                          <span className="text-white/50 ml-2">
-                            ({event.category}, {event.price === 0 ? 'FREE' : `${event.currency} ${event.price.toLocaleString()}`})
-                          </span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  onClick={() => createTestEvents()}
-                  disabled={creating || deleting}
-                  className={`px-6 py-4 rounded-lg font-semibold text-white transition-all transform ${
-                    creating || deleting
-                      ? 'bg-white/20 cursor-not-allowed'
-                      : 'bg-brand-600 hover:bg-brand-700 hover:scale-[1.02] active:scale-[0.98]'
-                  }`}
-                >
-                  {creating ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Creating Events...
-                    </span>
-                  ) : (
-                    '🚀 Create Test Events'
-                  )}
-                </button>
-
-                <button
-                  onClick={deleteAndRecreateEvents}
-                  disabled={creating || deleting}
-                  className={`px-6 py-4 rounded-lg font-semibold text-white transition-all transform ${
-                    creating || deleting
-                      ? 'bg-white/20 cursor-not-allowed'
-                      : 'bg-brand-600 hover:bg-brand-700 hover:scale-[1.02] active:scale-[0.98]'
-                  }`}
-                >
-                  {deleting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Deleting & Recreating...
-                    </span>
-                  ) : (
-                    '🔄 Delete Old & Create Fresh'
-                  )}
-                </button>
-              </div>
-
-              {/* Results Output */}
-              {results.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-sm font-semibold text-white/70 mb-2">Output:</h3>
-                  <div className="bg-gray-900 text-white/80 rounded-lg p-4 font-mono text-sm max-h-96 overflow-y-auto">
-                    {results.map((line, index) => (
-                      <div key={index} className="mb-1">
-                        {line}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Warning */}
-              <div className="mt-6 border border-amber-500/30 rounded-lg p-4">
-                <div className="flex items-start">
-                  <span className="text-2xl mr-3">⚠️</span>
-                  <div className="text-sm text-amber-300">
-                    <p className="font-semibold mb-1">Temporary Admin Page</p>
-                    <p>This page should be deleted after testing. It&apos;s only for development purposes.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              {results.some(r => r.includes('Successfully created')) && (
-                <div className="mt-6 flex gap-4">
-                  <button
-                    onClick={() => router.push('/discover')}
-                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
-                  >
-                    View Events
-                  </button>
-                  <button
-                    onClick={() => router.push('/organizer/events')}
-                    className="flex-1 px-6 py-3 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition"
-                  >
-                    Manage Events
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+      <ConsolePanel className="px-4 py-3.5">
+        <div className="text-[13px] text-console-mut">
+          <span className="font-semibold text-console-text">Logged in as</span>{' '}
+          <span className="label-mono">{user.email}</span>
         </div>
+        <div className="mt-0.5 text-[13px] text-console-mut">
+          Events will be created under this account
+        </div>
+      </ConsolePanel>
+
+      <ConsoleSection>Events to be created ({testEvents.length})</ConsoleSection>
+      <ConsolePanel className="max-h-48 overflow-y-auto px-4 py-3">
+        <ul className="space-y-2 text-[13px] text-console-mut">
+          {testEvents.map((event, index) => (
+            <li key={index} className="flex items-start gap-2">
+              <span className="text-console-faint">•</span>
+              <div>
+                <span className="font-medium text-console-text">{event.title}</span>
+                <span className="ml-2 text-console-faint">
+                  ({event.category}, {event.price === 0 ? 'FREE' : `${event.currency} ${event.price.toLocaleString()}`})
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </ConsolePanel>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <ConsoleButton
+          variant="primary"
+          onClick={() => createTestEvents()}
+          disabled={creating || deleting}
+        >
+          {creating ? 'Creating Events...' : 'Create Test Events'}
+        </ConsoleButton>
+
+        <ConsoleButton
+          variant="danger"
+          onClick={deleteAndRecreateEvents}
+          disabled={creating || deleting}
+        >
+          {deleting ? 'Deleting & Recreating...' : 'Delete Old & Create Fresh'}
+        </ConsoleButton>
       </div>
-      <MobileNavWrapper user={null} />
+
+      {results.length > 0 && (
+        <>
+          <ConsoleSection>Output</ConsoleSection>
+          <ConsolePanel className="p-2">
+            <div className="label-mono max-h-96 overflow-y-auto rounded bg-console-ground p-4 text-[13px] text-console-mut">
+              {results.map((line, index) => (
+                <div key={index} className="mb-1">
+                  {line}
+                </div>
+              ))}
+            </div>
+          </ConsolePanel>
+        </>
+      )}
+
+      {results.some(r => r.includes('Successfully created')) && (
+        <div className="mt-4 flex flex-wrap gap-3">
+          <ConsoleButton onClick={() => router.push('/discover')}>View Events</ConsoleButton>
+          <ConsoleButton onClick={() => router.push('/organizer/events')}>
+            Manage Events
+          </ConsoleButton>
+        </div>
+      )}
+
+      <ConsoleSection>Note</ConsoleSection>
+      <p className="text-[13px] text-console-mut">
+        Temporary admin page — this should be deleted after testing. It&apos;s only for development
+        purposes.
+      </p>
     </>
   )
 }

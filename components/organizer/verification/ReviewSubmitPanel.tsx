@@ -26,7 +26,12 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
     Boolean(request.reviewedAt)
 
   return (
-    <div className="bg-white/[0.03]  rounded-lg p-6 md:p-8">
+    // No fill on this wrapper. It is the whole review SCREEN — heading, summary
+    // cards, status notes and the action row — sitting in the page's own
+    // max-w-4xl container, not a card. Tinting it 3% and then nesting 3% Card
+    // summaries inside meant the cards only read by their (now removed) border.
+    // The cards sit on the page; this div just carries the rhythm.
+    <div>
       <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
         {isReadOnly ? 'Verification Details' : 'Review & Submit'}
       </h2>
@@ -94,7 +99,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
 
       {/* Blocking Issues */}
       {!canSubmit && !isReadOnly && blockingIssues.length > 0 && (
-        <div className="mt-6 p-4 border border-amber-500/30 rounded-lg">
+        <div className="mt-6 rounded-lg bg-amber-500/10 p-4">
           <h3 className="font-semibold text-amber-300 mb-2 text-sm md:text-base">
             Complete required steps to submit:
           </h3>
@@ -108,7 +113,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
 
       {/* Submission Status */}
       {isSubmitted && (
-        <div className="mt-6 p-4 border border-brand-500/30 rounded-lg">
+        <div className="mt-6 rounded-lg bg-brand-500/10 p-4">
           <div className="flex items-start gap-3">
             <div className="rounded-full p-2 flex-shrink-0">
               <svg className="w-5 h-5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +154,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <button
             onClick={onBack}
-            className="flex-1 px-6 py-3 text-white/70 bg-white/[0.03] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all"
+            className="flex-1 rounded-lg bg-white/[0.06] px-6 py-3 font-semibold text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white"
           >
             ← Back to Steps
           </button>

@@ -1,7 +1,24 @@
 'use client'
 
 import { useState } from 'react'
+import {
+  ConsoleButton,
+  ConsoleCaption,
+  ConsolePanel,
+  ConsoleSection,
+  ConsoleState,
+} from '@/components/admin/console'
 
+/**
+ * Seed events — posts to the seed API to create 30 template events under the
+ * info@edlight.org organizer, and reads back a verify endpoint that reports
+ * whether those events are actually visible to the feed.
+ *
+ * Both requests, their payloads, the confirm() in front of the seed, and every
+ * error path are unchanged by the console restyle; only the surfaces are.
+ *
+ * The page frame (container, breadcrumb trail, title) comes from DevToolShell.
+ */
 export default function SeedEventsClient() {
   const [loading, setLoading] = useState(false)
   const [verifying, setVerifying] = useState(false)
@@ -75,113 +92,101 @@ export default function SeedEventsClient() {
   }
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <div className="bg-white/[0.03] dark:bg-gray-800 rounded-lg shadow-lg p-6">
-        <div className="mb-6">
-          <h1 className="font-display text-2xl mb-2">Seed Template Events</h1>
-          <p className="text-white/60 dark:text-white/50">
-            Create 30 template events across Haiti, USA, and Canada under the info@edlight.org organizer account.
-          </p>
+    <>
+      <ConsoleCaption>
+        Creates 30 template events across Haiti, USA, and Canada under the info@edlight.org
+        organizer account.
+      </ConsoleCaption>
+
+      <ConsoleSection>Quick diagnostics</ConsoleSection>
+      <ConsolePanel className="px-4 py-3.5">
+        <div className="text-[13px] text-console-mut">
+          Demo mode (client build):{' '}
+          <span className="label-mono text-console-text">{String(process.env.NEXT_PUBLIC_DEMO_MODE)}</span>
         </div>
-
-        <div className="mb-6 grid gap-3">
-          <div className="rounded-lg border p-3 text-sm bg-white/[0.03]">
-            <div className="font-semibold mb-1">Quick diagnostics</div>
-            <div className="text-white/70">
-              Demo mode (client build): <span className="font-mono">{String(process.env.NEXT_PUBLIC_DEMO_MODE)}</span>
-            </div>
-            <div className="text-white/70">
-              Firebase project (client):{' '}
-              <span className="font-mono">{String(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)}</span>
-            </div>
-            <div className="text-white/50 mt-1">
-              If demo mode is <span className="font-mono">true</span>, Discover/Home will show demo events instead of Firestore.
-            </div>
-          </div>
-
-          <button
-            onClick={handleVerify}
-            disabled={verifying}
-            className="w-full bg-gray-900 hover:bg-black disabled:bg-white/20 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-          >
-            {verifying ? 'Verifying…' : 'Verify seeded events visibility'}
-          </button>
-
-          {verifyResult && (
-            <div
-              className={`p-4 rounded-lg ${verifyResult.ok ? 'border border-emerald-500/30' : 'border border-red-500/30'}`}
-            >
-              <div className="font-semibold mb-2">{verifyResult.ok ? 'Verify OK' : 'Verify failed'}</div>
-              <pre className="text-xs overflow-auto whitespace-pre-wrap">{JSON.stringify(verifyResult, null, 2)}</pre>
-            </div>
-          )}
+        <div className="mt-0.5 text-[13px] text-console-mut">
+          Firebase project (client):{' '}
+          <span className="label-mono text-console-text">
+            {String(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)}
+          </span>
         </div>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h3 className="font-semibold">What will be created:</h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-white/60 dark:text-white/50">
-              <li>15 events in Haiti (50%) - Mix of USD and HTG pricing</li>
-              <li>8 events in USA (Miami, New York, Boston, etc.)</li>
-              <li>7 events in Canada (Montreal, Toronto, Vancouver, etc.)</li>
-              <li>Categories: Music, Festival, Cultural, Food, Art, Conference, Workshop</li>
-              <li>Multiple ticket tiers: Early Bird (30% off, expires 14 days before), General, VIP</li>
-              <li>Haiti events: HTG 1,000-4,500 or USD $20-$100</li>
-              <li>Event dates: 30-90 days in the future</li>
-            </ul>
-          </div>
-
-          <button
-            onClick={handleSeedEvents}
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-          >
-            {loading ? 'Creating Events...' : 'Create 30 Template Events'}
-          </button>
-
-          {result && (
-            <div
-              className={`p-4 rounded-lg ${result.success ? 'border border-emerald-500/30' : 'border border-red-500/30'}`}
-            >
-              <p className="font-semibold mb-2">{result.message}</p>
-              {result.events && result.events.length > 0 && (
-                <div className="mt-4 max-h-96 overflow-y-auto">
-                  <p className="text-sm mb-2">Created events:</p>
-                  <div className="space-y-2">
-                    {result.events.map((event, idx) => (
-                      <div key={event.id} className="text-xs bg-white/[0.03] p-2 rounded border">
-                        <div className="font-medium">
-                          {idx + 1}. {event.title}
-                        </div>
-                        <div className="text-white/60">
-                          {event.location} • {new Date(event.date).toLocaleDateString()} • {event.price}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {result?.success && (
-            <div className="flex gap-2">
-              <button
-                className="flex-1 bg-white/[0.03] hover:bg-white/[0.04] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
-                onClick={() => (window.location.href = '/discover')}
-              >
-                View Events
-              </button>
-              <button
-                className="flex-1 bg-white/[0.03] hover:bg-white/[0.04] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
-                onClick={() => (window.location.href = '/organizer/events')}
-              >
-                Manage Events
-              </button>
-            </div>
-          )}
+        <div className="mt-1.5 text-[13px] text-console-faint">
+          If demo mode is <span className="label-mono">true</span>, Discover/Home will show demo
+          events instead of Firestore.
         </div>
+      </ConsolePanel>
+
+      <div className="mt-3">
+        <ConsoleButton onClick={handleVerify} disabled={verifying}>
+          {verifying ? 'Verifying…' : 'Verify seeded events visibility'}
+        </ConsoleButton>
       </div>
-    </div>
+
+      {verifyResult && (
+        <ConsolePanel className="mt-3 px-4 py-3.5">
+          <ConsoleState tone={verifyResult.ok ? 'good' : 'bad'}>
+            {verifyResult.ok ? 'Verify OK' : 'Verify failed'}
+          </ConsoleState>
+          <pre className="label-mono mt-2 overflow-auto whitespace-pre-wrap rounded bg-console-ground p-3 text-xs text-console-mut">
+            {JSON.stringify(verifyResult, null, 2)}
+          </pre>
+        </ConsolePanel>
+      )}
+
+      <ConsoleSection>What will be created</ConsoleSection>
+      <ConsolePanel className="px-4 py-3.5">
+        <ul className="list-inside list-disc space-y-1 text-[13px] text-console-mut">
+          <li>15 events in Haiti (50%) - Mix of USD and HTG pricing</li>
+          <li>8 events in USA (Miami, New York, Boston, etc.)</li>
+          <li>7 events in Canada (Montreal, Toronto, Vancouver, etc.)</li>
+          <li>Categories: Music, Festival, Cultural, Food, Art, Conference, Workshop</li>
+          <li>Multiple ticket tiers: Early Bird (30% off, expires 14 days before), General, VIP</li>
+          <li>Haiti events: HTG 1,000-4,500 or USD $20-$100</li>
+          <li>Event dates: 30-90 days in the future</li>
+        </ul>
+      </ConsolePanel>
+
+      <div className="mt-4">
+        <ConsoleButton variant="primary" onClick={handleSeedEvents} disabled={loading}>
+          {loading ? 'Creating Events...' : 'Create 30 Template Events'}
+        </ConsoleButton>
+      </div>
+
+      {result && (
+        <ConsolePanel className="mt-4 px-4 py-3.5">
+          <ConsoleState tone={result.success ? 'good' : 'bad'}>{result.message}</ConsoleState>
+          {result.events && result.events.length > 0 && (
+            <div className="mt-3 max-h-96 overflow-y-auto">
+              <div className="label-mono mb-2 text-[10px] uppercase tracking-[0.18em] text-console-faint">
+                Created events
+              </div>
+              <div className="space-y-1.5">
+                {result.events.map((event, idx) => (
+                  <div key={event.id} className="rounded bg-console-raise px-3 py-2">
+                    <div className="text-[13px] font-medium text-console-text">
+                      {idx + 1}. {event.title}
+                    </div>
+                    <div className="label-mono mt-0.5 text-xs text-console-mut">
+                      {event.location} • {new Date(event.date).toLocaleDateString()} • {event.price}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </ConsolePanel>
+      )}
+
+      {result?.success && (
+        <div className="mt-4 flex flex-wrap gap-3">
+          <ConsoleButton onClick={() => (window.location.href = '/discover')}>
+            View Events
+          </ConsoleButton>
+          <ConsoleButton onClick={() => (window.location.href = '/organizer/events')}>
+            Manage Events
+          </ConsoleButton>
+        </div>
+      )}
+    </>
   )
 }

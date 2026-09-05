@@ -4,8 +4,24 @@ import { useState, useEffect } from 'react'
 import { auth, db } from '@/lib/firebase/client'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { collection, getDocs, query, where } from 'firebase/firestore'
-import MobileNavWrapper from '@/components/MobileNavWrapper'
+import {
+  ConsoleButton,
+  ConsoleCaption,
+  ConsolePanel,
+  ConsoleSection,
+} from '@/components/admin/console'
 
+/**
+ * Database debug — a read-only dump of the signed-in admin's own Firestore
+ * shape (their user doc, events, favorites, follows, tiers).
+ *
+ * The screen is console-styled but the query block below is untouched: the
+ * counts and samples it assembles are what someone reads this page for, and
+ * the console.log lines are part of how it is used.
+ *
+ * The page frame (container, breadcrumb trail, title) comes from DevToolShell,
+ * so nothing here renders a page wrapper or a heading of its own.
+ */
 export default function DebugDBClient() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -129,53 +145,47 @@ export default function DebugDBClient() {
     }
   }
 
+  // First paint, before Firebase has answered who is signed in.
   if (loading && !user) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto"></div>
-          <p className="mt-4 text-white/60">Loading...</p>
-        </div>
-      </div>
+      <ConsolePanel className="px-4 py-8 text-center">
+        <span className="label-mono text-[13px] text-console-mut">Loading…</span>
+      </ConsolePanel>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-white/[0.03] rounded-xl shadow-lg p-8 max-w-md w-full text-center">
-          <h1 className="font-display text-2xl text-white mb-4">Please sign in</h1>
-        </div>
-      </div>
+      <ConsolePanel className="px-4 py-8 text-center">
+        <p className="text-sm font-semibold text-console-text">Please sign in</p>
+        <p className="mt-1 text-[13px] text-console-mut">
+          This tool reads the database as the signed-in admin.
+        </p>
+      </ConsolePanel>
     )
   }
 
   return (
     <>
-      <div className="min-h-screen bg-[#0a0a0a] p-4 pb-mobile-nav">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/[0.03] rounded-xl shadow-lg p-4 sm:p-8">
-            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-4 sm:mb-6">Database Debug Tool</h1>
+      <ConsoleCaption>
+        Reads the live database and dumps counts plus sample documents for events, favorites,
+        follows and ticket tiers. Nothing here writes.
+      </ConsoleCaption>
 
-            <button
-              onClick={checkDatabase}
-              disabled={loading}
-              className="bg-brand-600 hover:bg-brand-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-[15px] sm:text-base font-semibold disabled:opacity-50 mb-4 sm:mb-6 min-h-[44px] w-full sm:w-auto"
-            >
-              {loading ? 'Checking...' : 'Check Database'}
-            </button>
+      <ConsoleButton variant="primary" onClick={checkDatabase} disabled={loading}>
+        {loading ? 'Checking...' : 'Check Database'}
+      </ConsoleButton>
 
-            {results && (
-              <div className="space-y-4">
-                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto text-xs font-mono max-h-[600px]">
-                  {JSON.stringify(results, null, 2)}
-                </pre>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      <MobileNavWrapper user={null} />
+      {results && (
+        <>
+          <ConsoleSection>Output</ConsoleSection>
+          <ConsolePanel className="p-2">
+            <pre className="label-mono max-h-[600px] overflow-auto rounded bg-console-ground p-4 text-xs text-console-mut">
+              {JSON.stringify(results, null, 2)}
+            </pre>
+          </ConsolePanel>
+        </>
+      )}
     </>
   )
 }

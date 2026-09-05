@@ -3,7 +3,20 @@ import Link from 'next/link'
 
 type IconType = React.ComponentType<{ className?: string }>
 
-/** Standard surface card — crisp corners, soft border + shadow. Use everywhere. */
+/**
+ * Standard surface card — a FILL and a radius, no hairline.
+ *
+ * It used to be `border border-white/10` over `bg-white/[0.03]`. On the
+ * `#0a0a0a` page a 3% white fill is very nearly the page colour, so the only
+ * thing that read was the outline: the wireframe look the owner has rejected
+ * five times (see "Surfaces: a fill, not a hairline around nothing" in
+ * docs/POSH_DESIGN_BRIEF.md). The same correction already shipped on /profile
+ * (`Panel` in components/profile/ui.tsx) and /connections — this matches them
+ * exactly rather than inventing a third variant.
+ *
+ * `shadow-soft` went with the border: it is `rgba(0,0,0,0.08)`, a black shadow
+ * on a black page, i.e. nothing.
+ */
 export function Card({
   className = '',
   children,
@@ -11,14 +24,16 @@ export function Card({
   className?: string
   children: React.ReactNode
 }) {
-  return (
-    <div className={`rounded-2xl border border-white/10 bg-white/[0.03] shadow-soft ${className}`}>
-      {children}
-    </div>
-  )
+  return <div className={`rounded-2xl bg-white/[0.03] ${className}`}>{children}</div>
 }
 
-/** KPI tile — brand-tinted icon chip + label + value. Value stays bold sans. */
+/**
+ * KPI tile — brand-tinted icon chip + label + value. Value stays bold sans.
+ *
+ * Same fix as `Card`: a tile sitting on the page is `bg-white/[0.03]` with no
+ * border. Stat tiles come in rows of three or four, so the old hairline version
+ * was the worst offender — a whole rank of empty outlines.
+ */
 export function StatTile({
   icon: Icon,
   label,
@@ -33,7 +48,7 @@ export function StatTile({
   className?: string
 }) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-white/[0.03] p-4 ${className}`}>
+    <div className={`rounded-2xl bg-white/[0.03] p-4 ${className}`}>
       <div className="mb-2 flex items-center gap-2">
         {Icon && (
           <span className="grid h-8 w-8 place-items-center rounded-lg text-brand-300">
@@ -48,7 +63,18 @@ export function StatTile({
   )
 }
 
-/** Filter / category chip. active = filled teal. */
+/**
+ * Filter / category chip — an interactive control, so a fill is correct here
+ * (the no-filled-pills rule is about badges that only REPORT state; see
+ * StatusChip below).
+ *
+ * Two ladder corrections. The chosen chip was `bg-brand-700`, but teal is
+ * semantic in this app — a focus ring, a selected marker, an on switch, never a
+ * surface — and the brief's ladder gives `bg-white text-black` for "a chosen
+ * chip or a primary button". The unchosen chip's `0.04` fill and `0.06` hover
+ * were both below the ladder's steps. Both now match the category chips and
+ * language segments already shipped in components/profile/PreferencesCard.tsx.
+ */
 export function Chip({
   active = false,
   href,
@@ -64,8 +90,8 @@ export function Chip({
 }) {
   const base = `inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
     active
-      ? 'bg-brand-700 text-white'
-      : 'bg-white/[0.04] text-white/60 hover:bg-white/[0.06] hover:text-white'
+      ? 'bg-white text-black'
+      : 'bg-white/[0.055] text-white/70 hover:bg-white/[0.12] hover:text-white'
   } ${className}`
   if (href) {
     return (
@@ -81,7 +107,13 @@ export function Chip({
   )
 }
 
-/** Designed empty state — serif title + optional CTA. */
+/**
+ * Designed empty state — serif title + optional CTA.
+ *
+ * KEEP the dashed border. The fill-not-hairline rule carves out exactly this
+ * case: a dashed edge around genuinely empty space, where the hairline IS the
+ * meaning. This is the one border in this file that is not a violation.
+ */
 export function EmptyState({
   icon: Icon,
   title,
