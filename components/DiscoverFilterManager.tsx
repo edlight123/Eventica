@@ -5,9 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { DiscoverTopBar } from './discover/DiscoverTopBar'
 import { DiscoverFilterChipsStrip } from './discover/DiscoverFilterChipsStrip'
 import { FiltersModal } from './FiltersModal'
-import { FilterChipsRow } from './FilterChipsRow'
 import type { EventFilters, DEFAULT_FILTERS } from '@/lib/filters/types'
-import { parseFiltersFromURL, serializeFilters, resetFilters, countActiveFilters } from '@/lib/filters/utils'
+import { parseFiltersFromURL, serializeFilters, resetFilters } from '@/lib/filters/utils'
 import { useHeaderCollapse } from '@/lib/hooks/useHeaderCollapse'
 
 interface DiscoverFilterManagerProps {
@@ -161,47 +160,6 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
     router.push('/discover', { scroll: false })
   }
   
-  const handleRemoveFilter = (key: keyof EventFilters, value?: string) => {
-    let updated = { ...appliedFilters }
-    
-    switch (key) {
-      case 'date':
-        updated.date = 'any'
-        updated.pickedDate = undefined
-        break
-      case 'city':
-        updated.city = ''
-        updated.commune = undefined
-        break
-      case 'commune':
-        updated.commune = undefined
-        break
-      case 'categories':
-        if (value) {
-          updated.categories = updated.categories.filter(c => c !== value)
-        }
-        break
-      case 'price':
-        updated.price = 'any'
-        break
-      case 'eventType':
-        updated.eventType = 'all'
-        break
-    }
-    
-    setAppliedFilters(updated)
-    setDraftFilters(updated)
-    
-    const params = serializeFilters(updated)
-    const newUrl = params.toString() ? `/discover?${params.toString()}` : '/discover'
-    router.push(newUrl, { scroll: false })
-  }
-  
-  const handleClearAll = () => {
-    handleResetFilters()
-  }
-  
-  const hasActiveFilters = countActiveFilters(appliedFilters) > 0
   
   return (
     <>
@@ -249,17 +207,15 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
         />
       </div>
       
-      {hasActiveFilters && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <FilterChipsRow
-            filters={appliedFilters}
-            onRemoveFilter={handleRemoveFilter}
-            onClearAll={handleClearAll}
-            userCountry={userCountry}
-          />
-        </div>
-      )}
-      
+      {/* The active-filters row used to sit here: a chip repeating the chosen
+          filter, plus Clear all. It restated what the pills directly above it
+          already show — tapping Today turns that pill white, and the row then
+          named Today a second time with its own remove control. Two controls
+          for one piece of state, costing ~56px of chrome above the feed.
+          Nothing is stranded by removing it: the quick pills unset themselves
+          (Any date, or tapping a chosen category again), and anything set
+          inside the modal is cleared by the modal's own Reset, still wired to
+          handleResetFilters below. */}
       <FiltersModal
         isOpen={isModalOpen}
         draftFilters={draftFilters}
