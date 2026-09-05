@@ -10,17 +10,20 @@
   "action_center": {
     "title": "Bezwen atansyon",
     "action_items": "aksyon",
-    "action_items_plural": "aksyon",
     "all_caught_up": "Tout bagay ajou! 🎉",
     "no_action_items": "Pa gen okenn aksyon ki bezwen atansyon ou kounye a.",
     "draft_events": "Evènman bwouyon",
-    "draft_events_plural": "Evènman bwouyon",
     "draft_description": "Pibliye evènman ou yo pou kòmanse vann tikè",
     "publish_events": "Pibliye evènman yo",
     "events_starting_soon": "Evènman ap kòmanse byento",
-    "events_starting_soon_plural": "Evènman ap kòmanse byento",
     "no_sales_description": "Evènman sa yo ap kòmanse nan 7 jou san okenn vant ankò",
-    "promote_events": "Pwomote evènman yo"
+    "promote_events": "Pwomote evènman yo",
+    "action_items_one": "aksyon",
+    "action_items_other": "aksyon",
+    "draft_events_one": "Evènman bwouyon",
+    "draft_events_other": "Evènman bwouyon",
+    "events_starting_soon_one": "Evènman ap kòmanse byento",
+    "events_starting_soon_other": "Evènman ap kòmanse byento"
   },
   "payouts": {
     "not_setup_title": "Peman pa konfigure",

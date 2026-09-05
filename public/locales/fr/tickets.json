@@ -67,7 +67,6 @@
     "venue_tba": "Lieu à confirmer",
     "location_tba": "À confirmer",
     "tickets_count": "{{count}} Billet",
-    "tickets_count_plural": "{{count}} Billets",
     "active_badge": "{{count}} Actif",
     "active_tickets": "Billets actifs",
     "used_tickets": "Billets utilisés",
@@ -117,7 +116,9 @@
     "used_count": "{{count}} utilisé(s)",
     "show": "Afficher",
     "hide": "Masquer",
-    "no_active_tickets": "Aucun billet actif pour cet événement."
+    "no_active_tickets": "Aucun billet actif pour cet événement.",
+    "tickets_count_one": "{{count}} Billet",
+    "tickets_count_other": "{{count}} Billets"
   },
   "purchase_success": {
     "title": "Achat réussi !",

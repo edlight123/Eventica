@@ -10,17 +10,20 @@
   "action_center": {
     "title": "Nécessite une attention",
     "action_items": "élément d'action",
-    "action_items_plural": "éléments d'action",
     "all_caught_up": "Tout est à jour! 🎉",
     "no_action_items": "Aucun élément d'action ne nécessite votre attention pour le moment.",
     "draft_events": "Événement brouillon",
-    "draft_events_plural": "Événements brouillons",
     "draft_description": "Publiez vos événements pour commencer à vendre des billets",
     "publish_events": "Publier les événements",
     "events_starting_soon": "Événement bientôt",
-    "events_starting_soon_plural": "Événements bientôt",
     "no_sales_description": "Ces événements commencent dans 7 jours sans ventes pour l'instant",
-    "promote_events": "Promouvoir les événements"
+    "promote_events": "Promouvoir les événements",
+    "action_items_one": "élément d'action",
+    "action_items_other": "éléments d'action",
+    "draft_events_one": "Événement brouillon",
+    "draft_events_other": "Événements brouillons",
+    "events_starting_soon_one": "Événement bientôt",
+    "events_starting_soon_other": "Événements bientôt"
   },
   "payouts": {
     "not_setup_title": "Paiements non configurés",

@@ -75,11 +75,12 @@
     "sold": "Sold",
     "upcoming_events": "Upcoming Events",
     "upcoming_count": "{{count}} event coming soon",
-    "upcoming_count_plural": "{{count}} events coming soon",
     "no_upcoming_title": "No Upcoming Events",
     "no_upcoming_desc": "This organizer doesn't have any upcoming events at the moment.",
     "past_events": "Past Events",
     "past_events_desc": "Previous events organized by {{name}}",
-    "since": "On Tikèm since {{date}}"
+    "since": "On Tikèm since {{date}}",
+    "upcoming_count_one": "{{count}} event coming soon",
+    "upcoming_count_other": "{{count}} events coming soon"
   }
 }

@@ -10,17 +10,20 @@
   "action_center": {
     "title": "Needs Attention",
     "action_items": "action item",
-    "action_items_plural": "action items",
     "all_caught_up": "All caught up! 🎉",
     "no_action_items": "No action items need your attention right now.",
     "draft_events": "Draft Event",
-    "draft_events_plural": "Draft Events",
     "draft_description": "Publish your events to start selling tickets",
     "publish_events": "Publish Events",
     "events_starting_soon": "Event Starting Soon",
-    "events_starting_soon_plural": "Events Starting Soon",
     "no_sales_description": "These events start within 7 days with no sales yet",
-    "promote_events": "Promote Events"
+    "promote_events": "Promote Events",
+    "action_items_one": "action item",
+    "action_items_other": "action items",
+    "draft_events_one": "Draft Event",
+    "draft_events_other": "Draft Events",
+    "events_starting_soon_one": "Event Starting Soon",
+    "events_starting_soon_other": "Events Starting Soon"
   },
   "payouts": {
     "not_setup_title": "Payouts not set up",
