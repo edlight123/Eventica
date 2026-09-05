@@ -295,7 +295,6 @@ export default function HomePageContent({
       {recentlyAddedRail.length > 0 && (
         <Reveal><section>
           <SectionHeader
-            eyebrow={t('events.eyebrow_new')}
             title={t('events.recently_added')}
             description={t('events.recently_added_desc')}
             href="/discover?sort=newest"
