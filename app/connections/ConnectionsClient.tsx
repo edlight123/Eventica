@@ -36,6 +36,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { BadgeCheck, Inbox, Loader2, Phone, Search, UserPlus, Users } from 'lucide-react'
 import ConnectButton from '@/components/connections/ConnectButton'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
@@ -110,6 +111,7 @@ function PersonRow({
   state: FriendshipState
   onChange?: (s: FriendshipState) => void
 }) {
+  const { t } = useTranslation('common')
   const href = `/profile/organizer/${user.uid}`
   // An incoming request renders two buttons (Accept + Decline). Against a name
   // on a 402px phone that leaves ~150px for the name, so the pair drops to its
@@ -131,7 +133,7 @@ function PersonRow({
           {user.isVerified && (
             <>
               <BadgeCheck className="h-4 w-4 shrink-0 text-brand-400" aria-hidden />
-              <span className="sr-only">Verified</span>
+              <span className="sr-only">{t('events.verified', { defaultValue: 'Verified' })}</span>
             </>
           )}
         </span>
@@ -151,6 +153,7 @@ function PersonRow({
 }
 
 export default function ConnectionsClient({ initialOverview }: { initialOverview: Overview }) {
+  const { t } = useTranslation('common')
   const [tab, setTab] = useState<Tab>('friends')
   const [overview, setOverview] = useState<Overview>(initialOverview)
 
@@ -170,9 +173,11 @@ export default function ConnectionsClient({ initialOverview }: { initialOverview
     <div>
       <EditorialHeader
         tone="dark"
-        eyebrow="Connections"
-        title="Friends"
-        subtitle="Connect with people and see which friends are going to events."
+        eyebrow={t('connections.eyebrow', { defaultValue: 'Connections' })}
+        title={t('connections.title', { defaultValue: 'Friends' })}
+        subtitle={t('connections.subtitle', {
+          defaultValue: 'Connect with people and see which friends are going to events.',
+        })}
       />
 
       {/* The tablist rule is a section divider — the one hairline this band earns.
@@ -180,16 +185,31 @@ export default function ConnectionsClient({ initialOverview }: { initialOverview
           future label from pushing the body sideways. */}
       <div
         role="tablist"
-        aria-label="Connections"
+        aria-label={t('connections.eyebrow', { defaultValue: 'Connections' })}
         className="-mx-4 mb-6 mt-6 flex gap-5 overflow-x-auto border-b border-white/10 px-4 sm:mx-0 sm:mb-7 sm:mt-7 sm:gap-7 sm:px-0"
       >
-        <TabButton id="friends" active={tab === 'friends'} onClick={() => setTab('friends')} label="Friends">
+        <TabButton
+          id="friends"
+          active={tab === 'friends'}
+          onClick={() => setTab('friends')}
+          label={t('connections.tab_friends', { defaultValue: 'Friends' })}
+        >
           <Count value={overview.friends.length} />
         </TabButton>
-        <TabButton id="requests" active={tab === 'requests'} onClick={() => setTab('requests')} label="Requests">
+        <TabButton
+          id="requests"
+          active={tab === 'requests'}
+          onClick={() => setTab('requests')}
+          label={t('connections.tab_requests', { defaultValue: 'Requests' })}
+        >
           <Count value={pendingCount} attention />
         </TabButton>
-        <TabButton id="find" active={tab === 'find'} onClick={() => setTab('find')} label="Find friends" />
+        <TabButton
+          id="find"
+          active={tab === 'find'}
+          onClick={() => setTab('find')}
+          label={t('connections.tab_find', { defaultValue: 'Find friends' })}
+        />
       </div>
 
       <div role="tabpanel" id="panel-friends" aria-labelledby="tab-friends" hidden={tab !== 'friends'}>
@@ -277,16 +297,19 @@ function FriendsTab({
   onChange: () => void
   onFind: () => void
 }) {
+  const { t } = useTranslation('common')
   if (overview.friends.length === 0) {
     return (
       <EmptyState
         icon={Users}
-        title="No friends yet"
-        description="Find friends from your contacts, or search for someone by name."
+        title={t('connections.empty_friends_title', { defaultValue: 'No friends yet' })}
+        description={t('connections.empty_friends_desc', {
+          defaultValue: 'Find friends from your contacts, or search for someone by name.',
+        })}
         action={
           <button type="button" onClick={onFind} className={PILL_PRIMARY}>
             <UserPlus className="h-4 w-4" />
-            Find friends
+            {t('connections.tab_find', { defaultValue: 'Find friends' })}
           </button>
         }
       />
@@ -302,13 +325,16 @@ function FriendsTab({
 }
 
 function RequestsTab({ overview, onChange }: { overview: Overview; onChange: () => void }) {
+  const { t } = useTranslation('common')
   const { incoming, outgoing } = overview
   if (incoming.length === 0 && outgoing.length === 0) {
     return (
       <EmptyState
         icon={Inbox}
-        title="No pending requests"
-        description="Friend requests you send or receive will appear here."
+        title={t('connections.empty_requests_title', { defaultValue: 'No pending requests' })}
+        description={t('connections.empty_requests_desc', {
+          defaultValue: 'Friend requests you send or receive will appear here.',
+        })}
       />
     )
   }
@@ -316,7 +342,13 @@ function RequestsTab({ overview, onChange }: { overview: Overview; onChange: () 
     <div className="space-y-8">
       {incoming.length > 0 && (
         <section>
-          <SectionHeader eyebrow={`${incoming.length} waiting`} title="received" />
+          <SectionHeader
+            eyebrow={t('connections.count_waiting', {
+              count: incoming.length,
+              defaultValue: '{{count}} waiting',
+            })}
+            title={t('connections.section_received', { defaultValue: 'received' })}
+          />
           <PeopleList>
             {incoming.map((u) => (
               <PersonRow key={u.uid} user={u} isAuthenticated state="request_received" onChange={onChange} />
@@ -326,7 +358,13 @@ function RequestsTab({ overview, onChange }: { overview: Overview; onChange: () 
       )}
       {outgoing.length > 0 && (
         <section>
-          <SectionHeader eyebrow={`${outgoing.length} sent`} title="sent" />
+          <SectionHeader
+            eyebrow={t('connections.count_sent', {
+              count: outgoing.length,
+              defaultValue: '{{count}} sent',
+            })}
+            title={t('connections.section_sent', { defaultValue: 'sent' })}
+          />
           <PeopleList>
             {outgoing.map((u) => (
               <PersonRow key={u.uid} user={u} isAuthenticated state="request_sent" onChange={onChange} />
@@ -339,6 +377,7 @@ function RequestsTab({ overview, onChange }: { overview: Overview; onChange: () 
 }
 
 function FindTab({ onChange }: { onChange: () => void }) {
+  const { t } = useTranslation('common')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
@@ -393,19 +432,27 @@ function FindTab({ onChange }: { onChange: () => void }) {
       const data = await res.json()
       setContactMatches(data.matches || [])
     } catch {
-      setContactError('Could not match contacts. Please try again.')
+      setContactError(
+        t('connections.error_match_failed', {
+          defaultValue: 'Could not match contacts. Please try again.',
+        })
+      )
       setContactMatches([])
     } finally {
       setContactLoading(false)
     }
-  }, [])
+  }, [t])
 
   const syncContacts = useCallback(async () => {
     try {
       const contacts = await (navigator as any).contacts.select(['tel'], { multiple: true })
       const phones: string[] = contacts.flatMap((c: any) => c.tel || [])
       if (phones.length === 0) {
-        setContactError('No phone numbers found in the selected contacts.')
+        setContactError(
+          t('connections.error_no_numbers', {
+            defaultValue: 'No phone numbers found in the selected contacts.',
+          })
+        )
         return
       }
       await submitPhones(phones)
@@ -413,7 +460,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
       // User cancelled or API unavailable.
       setManualOpen(true)
     }
-  }, [submitPhones])
+  }, [submitPhones, t])
 
   const submitManual = useCallback(() => {
     const phones = manualText
@@ -421,11 +468,15 @@ function FindTab({ onChange }: { onChange: () => void }) {
       .map((s) => s.trim())
       .filter(Boolean)
     if (phones.length === 0) {
-      setContactError('Please enter at least one phone number.')
+      setContactError(
+        t('connections.error_enter_number', {
+          defaultValue: 'Please enter at least one phone number.',
+        })
+      )
       return
     }
     submitPhones(phones)
-  }, [manualText, submitPhones])
+  }, [manualText, submitPhones, t])
 
   // Without the Contact Picker (every desktop browser, and iOS Safari) the
   // paste-a-list path is the only path, so its submit is the screen's one white
@@ -437,7 +488,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
     <div className="space-y-8">
       <section>
         <label htmlFor="connections-search" className="sr-only">
-          Search people by name or email
+          {t('connections.search_label', { defaultValue: 'Search people by name or email' })}
         </label>
         <div className="relative">
           <Search
@@ -449,7 +500,9 @@ function FindTab({ onChange }: { onChange: () => void }) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name or email"
+            placeholder={t('connections.search_placeholder', {
+              defaultValue: 'Search by name or email',
+            })}
             className={`${FIELD} py-3 pl-11 pr-11`}
           />
           {searching && (
@@ -467,15 +520,23 @@ function FindTab({ onChange }: { onChange: () => void }) {
           </div>
         )}
         {showsNoResults && (
-          <p className="mt-4 text-center !text-[13px] text-white/45">No people found for “{query}”.</p>
+          <p className="mt-4 text-center !text-[13px] text-white/45">
+            {t('connections.no_results', {
+              query,
+              defaultValue: 'No people found for “{{query}}”.',
+            })}
+          </p>
         )}
       </section>
 
       <section>
         <SectionHeader
-          eyebrow="Contact match"
-          title="from your contacts"
-          description="We only match numbers you already have. Your contacts are never stored."
+          eyebrow={t('connections.contact_eyebrow', { defaultValue: 'Contact match' })}
+          title={t('connections.contact_title', { defaultValue: 'from your contacts' })}
+          description={t('connections.contact_desc', {
+            defaultValue:
+              'We only match numbers you already have. Your contacts are never stored.',
+          })}
         />
 
         <div className="rounded-2xl bg-white/[0.03] p-4 sm:p-5">
@@ -487,7 +548,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
                 ) : (
                   <UserPlus className="h-4 w-4" />
                 )}
-                Import contacts
+                {t('connections.import_contacts', { defaultValue: 'Import contacts' })}
               </button>
             )}
             <button
@@ -496,7 +557,9 @@ function FindTab({ onChange }: { onChange: () => void }) {
               className={PILL_SECONDARY}
             >
               <Phone className="h-4 w-4" />
-              {supportsContactPicker ? 'Enter numbers manually' : 'Add contacts by number'}
+              {supportsContactPicker
+                ? t('connections.enter_manually', { defaultValue: 'Enter numbers manually' })
+                : t('connections.add_by_number', { defaultValue: 'Add contacts by number' })}
             </button>
           </div>
 
@@ -507,14 +570,16 @@ function FindTab({ onChange }: { onChange: () => void }) {
           {manualOpen && (
             <div className="mt-3">
               <label htmlFor="connections-phones" className="sr-only">
-                Phone numbers, one per line
+                {t('connections.phones_label', { defaultValue: 'Phone numbers, one per line' })}
               </label>
               <textarea
                 id="connections-phones"
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
                 rows={4}
-                placeholder={'One number per line\n+509 1234 5678\n...'}
+                placeholder={t('connections.phones_placeholder', {
+                  defaultValue: 'One number per line\n+509 1234 5678\n...',
+                })}
                 className={`${FIELD} resize-none px-3 py-2.5`}
               />
               <button
@@ -523,7 +588,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
                 className={`mt-2.5 ${manualIsPrimary ? PILL_PRIMARY : PILL_STRONG}`}
               >
                 {contactLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Find matches
+                {t('connections.find_matches', { defaultValue: 'Find matches' })}
               </button>
             </div>
           )}
@@ -534,12 +599,19 @@ function FindTab({ onChange }: { onChange: () => void }) {
             <div className="mt-4 border-t border-white/[0.08] pt-3">
               {contactMatches.length === 0 ? (
                 <p className="py-2 text-center !text-[13px] text-white/45">
-                  None of your contacts are on Tikèm yet, invite them!
+                  {t('connections.contacts_none_on_tikem', {
+                    defaultValue: 'None of your contacts are on Tikèm yet, invite them!',
+                  })}
                 </p>
               ) : (
                 <>
                   {/* A div, not a p: `.mobile-typography p` would drag .eyebrow back to 14px. */}
-                  <div className="eyebrow mb-1.5 text-white/40">{contactMatches.length} on Tikèm</div>
+                  <div className="eyebrow mb-1.5 text-white/40">
+                    {t('connections.on_tikem_count', {
+                      count: contactMatches.length,
+                      defaultValue: '{{count}} on Tikèm',
+                    })}
+                  </div>
                   <div className="divide-y divide-white/[0.06]">
                     {contactMatches.map((m) => (
                       <PersonRow

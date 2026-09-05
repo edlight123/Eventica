@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { UserPlus, Check, Clock, X } from 'lucide-react'
 import type { FriendshipState } from '@/types/social'
 
@@ -46,6 +47,7 @@ export default function ConnectButton({
   onChange,
 }: ConnectButtonProps) {
   const router = useRouter()
+  const { t } = useTranslation('common')
   const [state, setState] = useState<FriendshipState>(initialState)
   const [loading, setLoading] = useState(false)
 
@@ -118,12 +120,12 @@ export default function ConnectButton({
         onClick={remove}
         disabled={loading}
         className={`group inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white/[0.055] text-white/80 hover:bg-white/[0.12] hover:text-red-300 transition-colors disabled:opacity-50`}
-        title="Remove friend"
+        title={t('connections.remove_friend', { defaultValue: 'Remove friend' })}
       >
         <Check className="w-4 h-4 group-hover:hidden" />
         <X className="w-4 h-4 hidden group-hover:block" />
-        <span className="group-hover:hidden">Friends</span>
-        <span className="hidden group-hover:inline">Remove</span>
+        <span className="group-hover:hidden">{t('connections.state_friends', { defaultValue: 'Friends' })}</span>
+        <span className="hidden group-hover:inline">{t('connections.remove', { defaultValue: 'Remove' })}</span>
       </button>
     )
   }
@@ -134,10 +136,10 @@ export default function ConnectButton({
         onClick={remove}
         disabled={loading}
         className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white/[0.055] text-white/50 hover:bg-white/[0.12] hover:text-white/80 transition-colors disabled:opacity-50`}
-        title="Cancel request"
+        title={t('connections.cancel_request', { defaultValue: 'Cancel request' })}
       >
         <Clock className="w-4 h-4" />
-        Requested
+        {t('connections.requested', { defaultValue: 'Requested' })}
       </button>
     )
   }
@@ -155,14 +157,14 @@ export default function ConnectButton({
           }`}
         >
           <Check className="w-4 h-4" />
-          Accept
+          {t('connections.accept', { defaultValue: 'Accept' })}
         </button>
         <button
           onClick={() => respond('decline')}
           disabled={loading}
           className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white/[0.055] text-white/70 hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50`}
         >
-          Decline
+          {t('connections.decline', { defaultValue: 'Decline' })}
         </button>
       </div>
     )
@@ -176,7 +178,7 @@ export default function ConnectButton({
       className={`inline-flex items-center gap-1.5 ${pad} font-semibold rounded-xl bg-white text-black hover:bg-white/90 transition-colors disabled:opacity-50`}
     >
       <UserPlus className="w-4 h-4" />
-      Add friend
+      {t('connections.add_friend', { defaultValue: 'Add friend' })}
     </button>
   )
 }
