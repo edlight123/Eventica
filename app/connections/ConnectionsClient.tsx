@@ -487,7 +487,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
                 ) : (
                   <UserPlus className="h-4 w-4" />
                 )}
-                Sync contacts
+                Import contacts
               </button>
             )}
             <button
@@ -496,7 +496,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
               className={PILL_SECONDARY}
             >
               <Phone className="h-4 w-4" />
-              {supportsContactPicker ? 'Enter numbers manually' : 'Paste phone numbers'}
+              {supportsContactPicker ? 'Enter numbers manually' : 'Add contacts by number'}
             </button>
           </div>
 
@@ -514,7 +514,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
                 rows={4}
-                placeholder={'Paste phone numbers, one per line\n+509 1234 5678\n...'}
+                placeholder={'One number per line\n+509 1234 5678\n...'}
                 className={`${FIELD} resize-none px-3 py-2.5`}
               />
               <button
