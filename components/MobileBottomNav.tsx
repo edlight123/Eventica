@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, Ticket, User } from 'lucide-react'
+import { House, Search, Ticket, CircleUser } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -47,10 +47,10 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
    * churning those files buys the reader nothing.
    */
   const tabs = useMemo(() => [
-    { href: '/', label: t('nav.home'), icon: Home, show: true },
-    { href: '/discover', label: t('nav.discover'), icon: Compass, show: true },
+    { href: '/', label: t('nav.home'), icon: House, show: true },
+    { href: '/discover', label: t('nav.discover'), icon: Search, show: true },
     { href: '/tickets', label: t('nav.myTickets'), icon: Ticket, show: isLoggedIn },
-    { href: '/profile', label: t('nav.profile'), icon: User, show: isLoggedIn },
+    { href: '/profile', label: t('nav.profile'), icon: CircleUser, show: isLoggedIn },
   ].filter(tab => tab.show), [isLoggedIn, t])
 
   // Don't show if not logged in and only 2 tabs would show
@@ -96,18 +96,18 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
               aria-label={tab.label}
               className="flex flex-1 items-center justify-center min-w-0"
             >
-              {/* The active tab is now carried by a FILL behind the icon plus
-                  the teal, because with the labels removed colour alone was
-                  the only thing left saying where you are — and on these
-                  icons (Compass for Discover, Ticket for Tickets) that was
-                  too quiet to read at a glance. 0.08 is the ladder's
-                  selected step. The pill is also the 44px touch target. */}
-              <span
-                className={`grid h-11 w-11 place-items-center rounded-xl transition-colors ${
-                  active ? 'bg-white/[0.08] text-brand-400' : 'text-white/55 active:bg-white/[0.06] active:text-white'
-                }`}
-              >
-                <Icon className="h-[22px] w-[22px]" strokeWidth={active ? 2.4 : 1.9} />
+              {/* Active is the teal and nothing else — no fill behind the
+                  icon. The span stays only to hold the 44px touch target;
+                  it paints nothing. The unselected tabs sit at white/45 so
+                  the teal separates clearly on colour alone, and the active
+                  icon takes a heavier stroke as a second, quieter cue. */}
+              <span className="grid h-11 w-11 place-items-center">
+                <Icon
+                  className={`h-[23px] w-[23px] transition-colors ${
+                    active ? 'text-brand-400' : 'text-white/45'
+                  }`}
+                  strokeWidth={active ? 2.3 : 1.8}
+                />
               </span>
             </Link>
           )
