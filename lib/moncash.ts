@@ -623,39 +623,91 @@ async function getPrefundedAccessToken(): Promise<string> {
     return cachedPrefundedToken.token
   }
 
-  const clientId = (process.env.MONCASH_PREFUNDED_CLIENT_ID || '').trim()
   const secretKey = (process.env.MONCASH_PREFUNDED_SECRET_KEY || '').trim()
-  if (!clientId || !secretKey) {
+  if (!secretKey) throw new Error('MonCash prefunded credentials are not configured')
+
+  /**
+   * Which identifier is the OAuth client is genuinely ambiguous here: the
+   * portal's prefunded credential exposes an ACCOUNT, a SHORT CODE and a
+   * LOGIN NAME, and Digicel's docs do not say which of them authenticates.
+   * Rather than burn a redeploy per guess, try each configured candidate.
+   *
+   * The auth/scope matrix is the same one the collections token already needs
+   * (see getAccessToken): some MonCash environments want Basic auth, others
+   * want the credentials in the body, and the scope may be comma- or
+   * space-separated. The first prefunded implementation tried only
+   * basic + "read,write", which is one cell of that grid — and a 401 there
+   * proves nothing about the other three.
+   */
+  const candidates = [
+    process.env.MONCASH_PREFUNDED_CLIENT_ID,
+    process.env.MONCASH_PREFUNDED_USERNAME,
+    process.env.MONCASH_PREFUNDED_SHORTCODE,
+  ]
+    .map((v) => (typeof v === 'string' ? v.trim() : ''))
+    .filter((v, i, a) => v && a.indexOf(v) === i)
+
+  if (candidates.length === 0) {
     throw new Error('MonCash prefunded credentials are not configured')
   }
 
-  const params = new URLSearchParams()
-  params.set('grant_type', 'client_credentials')
-  params.set('scope', 'read,write')
+  const variants: Array<{ auth: 'basic' | 'body'; scope: string }> = [
+    { auth: 'basic', scope: 'read,write' },
+    { auth: 'basic', scope: 'read write' },
+    { auth: 'body', scope: 'read,write' },
+    { auth: 'body', scope: 'read write' },
+  ]
 
-  const response = await fetch(`${getMonCashBaseUrl()}/Api/oauth/token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Accept: 'application/json',
-      Authorization: `Basic ${Buffer.from(`${clientId}:${secretKey}`).toString('base64')}`,
-    },
-    body: params.toString(),
-  })
+  const baseUrl = getMonCashBaseUrl()
+  let lastStatus: number | null = null
+  let lastText = ''
 
-  const text = await response.text()
-  if (!response.ok) {
-    // Safe to surface: the client id is an account number and the body is
-    // Digicel's own error envelope. The secret never appears.
-    throw new Error(`MonCash prefunded auth failed (${response.status}): ${text.slice(0, 300)}`)
+  for (const clientId of candidates) {
+    for (const v of variants) {
+      const params = new URLSearchParams()
+      params.set('grant_type', 'client_credentials')
+      params.set('scope', v.scope)
+      if (v.auth === 'body') {
+        params.set('client_id', clientId)
+        params.set('client_secret', secretKey)
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      }
+      if (v.auth === 'basic') {
+        headers.Authorization = `Basic ${Buffer.from(`${clientId}:${secretKey}`).toString('base64')}`
+      }
+
+      const response = await fetch(`${baseUrl}/Api/oauth/token`, {
+        method: 'POST',
+        headers,
+        body: params.toString(),
+      })
+      const text = await response.text()
+
+      if (response.ok) {
+        const token = JSON.parse(text)?.access_token
+        if (token) {
+          // No secret in this line: the identifier is an account number or a
+          // login name. Worth logging so the working combination is knowable
+          // from production logs instead of by guesswork.
+          console.log('[MonCash] prefunded auth OK:', { clientId, auth: v.auth, scope: v.scope })
+          const expiresIn = Number(JSON.parse(text)?.expires_in) || 3600
+          cachedPrefundedToken = { token, expiresAt: Date.now() + (expiresIn - 60) * 1000 }
+          return token
+        }
+      }
+      lastStatus = response.status
+      lastText = text
+    }
   }
 
-  const token = JSON.parse(text)?.access_token
-  if (!token) throw new Error('MonCash prefunded auth returned no access_token')
-
-  const expiresIn = Number(JSON.parse(text)?.expires_in) || 3600
-  cachedPrefundedToken = { token, expiresAt: Date.now() + (expiresIn - 60) * 1000 }
-  return token
+  throw new Error(
+    `MonCash prefunded auth failed (${lastStatus}) after ${candidates.length * variants.length} attempts ` +
+      `across ${candidates.length} identifier(s): ${lastText.slice(0, 200)}`
+  )
 }
 
 async function monCashRestRequest(path: string, init: RequestInit & { method: string }): Promise<Response> {
