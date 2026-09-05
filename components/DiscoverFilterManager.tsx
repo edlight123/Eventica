@@ -25,6 +25,33 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
   const [draftFilters, setDraftFilters] = useState<EventFilters>(appliedFilters)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  /**
+   * The URL is the source of truth; this state only mirrors it.
+   *
+   * `appliedFilters` was seeded by a lazy `useState` initializer, which runs
+   * ONCE at mount and never again. Every handler in this file happens to set
+   * the state and push the URL together, so that was invisible — until you
+   * used a control that pushes the URL WITHOUT going through this component.
+   * DateChips does exactly that: tapping "Today" calls
+   * `router.push('?date=today')` directly, the server re-renders the feed with
+   * the new filter, and this state still says `any` — so the results changed
+   * while "Any date" stayed the white, selected pill. Reported as: the pill
+   * never turns white.
+   *
+   * Syncing from `searchParams` fixes that class of bug rather than that one
+   * control, and it also makes BACK and FORWARD work: those change the URL
+   * with no handler of ours involved at all, and previously left every chip
+   * showing the filters from whenever the page mounted.
+   *
+   * Idempotent for our own handlers — they push a URL that parses back to the
+   * value they just set. Depending on the STRING, not the object, because a
+   * new `URLSearchParams` identity each render would loop.
+   */
+  const searchParamsKey = searchParams?.toString() ?? ''
+  useEffect(() => {
+    setAppliedFilters(parseFiltersFromURL(new URLSearchParams(searchParamsKey)))
+  }, [searchParamsKey])
+
   // ---- Hide-on-scroll header -------------------------------------------------
   // The WHOLE header (search + filter button + quick-filter strip) retracts as
   // the reader moves down the feed and slides straight back the moment they
