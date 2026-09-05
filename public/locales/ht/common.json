@@ -334,7 +334,8 @@
     "promo_code_prompt": "Ou gen yon kòd pwomo?",
     "trailer": "videyo",
     "select_payment_description_one": "Chwazi kijan ou vle peye pou {{count}} tikè ou",
-    "select_payment_description_other": "Chwazi kijan ou vle peye pou {{count}} tikè ou yo"
+    "select_payment_description_other": "Chwazi kijan ou vle peye pou {{count}} tikè ou yo",
+    "select_payment_description_plural": "Chwazi kijan ou vle peye pou {{count}} tikè ou yo"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -377,7 +378,8 @@
       "no_action_items": "Ou pa gen okenn aksyon k ap tann. Brav !",
       "action_items": "aksyon",
       "action_items_one": "aksyon",
-      "action_items_other": "aksyon yo"
+      "action_items_other": "aksyon yo",
+      "action_items_plural": "aksyon yo"
     },
     "your_events": "Evènman ou yo",
     "tools": {
@@ -519,7 +521,9 @@
     "draft_events_one": "{{count}} evènman bouyon",
     "draft_events_other": "{{count}} Evènman Bouyon",
     "events_starting_soon_one": "{{count}} Evènman Kòmanse Byento",
-    "events_starting_soon_other": "{{count}} Evènman Kòmanse Byento"
+    "events_starting_soon_other": "{{count}} Evènman Kòmanse Byento",
+    "draft_events_plural": "{{count}} Evènman Bouyon",
+    "events_starting_soon_plural": "{{count}} Evènman Kòmanse Byento"
   },
   "next_event": {
     "no_upcoming_title": "Pa gen evènman k ap vini",
@@ -877,7 +881,11 @@
     "tickets_purchased_message_one": "{{count}} tikè achte avèk siksè",
     "tickets_purchased_message_other": "{{count}} tikè achte avèk siksè",
     "payment_successful_message_one": "Tikè ou konfime",
-    "payment_successful_message_other": "Tikè ou yo konfime"
+    "payment_successful_message_other": "Tikè ou yo konfime",
+    "tickets_added_collection_plural": "{{count}} tikè ajoute nan koleksyon ou",
+    "tickets_claimed_email_plural": "{{count}} tikè gratis. Verifye imel ou",
+    "tickets_purchased_message_plural": "{{count}} tikè achte avèk siksè",
+    "payment_successful_message_plural": "Tikè ou yo konfime"
   },
   "purchase": {
     "failed": {
@@ -1405,7 +1413,8 @@
     "claim_error_generic": "Nou pa t kapab ajoute sa nan kont ou.",
     "claim_error_network": "Nou pa t kapab kontakte Tikèm. Tanpri eseye ankò.",
     "commission_earned_one": "Komisyon ou fè · {{count}} tikè",
-    "commission_earned_other": "Komisyon ou fè · {{count}} tikè"
+    "commission_earned_other": "Komisyon ou fè · {{count}} tikè",
+    "commission_earned_plural": "Komisyon ou fè · {{count}} tikè"
   },
   "whos_going": {
     "title": "Ki moun k ap ale",
@@ -1422,7 +1431,10 @@
     "friend_going_one": "{{count}} zanmi ap ale",
     "friend_going_other": "{{count}} zanmi ap ale",
     "privacy_note_one": "{{count}} moun ap ale. Moun k ap patisipe yo kenbe patisipasyon yo prive.",
-    "privacy_note_other": "{{count}} moun ap ale. Moun k ap patisipe yo kenbe patisipasyon yo prive."
+    "privacy_note_other": "{{count}} moun ap ale. Moun k ap patisipe yo kenbe patisipasyon yo prive.",
+    "person_plural": "{{count}} moun",
+    "friend_going_plural": "{{count}} zanmi ap ale",
+    "privacy_note_plural": "{{count}} moun ap ale. Moun k ap patisipe yo kenbe patisipasyon yo prive."
   },
   "follow": {
     "loading": "Chajman...",

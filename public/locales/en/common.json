@@ -334,7 +334,8 @@
     "promo_code_prompt": "Have a promo code?",
     "trailer": "trailer",
     "select_payment_description_one": "Select how you'd like to pay for your {{count}} ticket",
-    "select_payment_description_other": "Select how you'd like to pay for your {{count}} tickets"
+    "select_payment_description_other": "Select how you'd like to pay for your {{count}} tickets",
+    "select_payment_description_plural": "Select how you'd like to pay for your {{count}} tickets"
   },
   "favorites": {
     "title": "My Favorites",
@@ -377,7 +378,8 @@
       "no_action_items": "You have no pending action items. Great job!",
       "action_items": "action item",
       "action_items_one": "action item",
-      "action_items_other": "action items"
+      "action_items_other": "action items",
+      "action_items_plural": "action items"
     },
     "your_events": "Your Events",
     "tools": {
@@ -519,7 +521,9 @@
     "draft_events_one": "{{count}} Draft Event",
     "draft_events_other": "{{count}} Draft Events",
     "events_starting_soon_one": "{{count}} Event Starting Soon",
-    "events_starting_soon_other": "{{count}} Events Starting Soon"
+    "events_starting_soon_other": "{{count}} Events Starting Soon",
+    "draft_events_plural": "{{count}} Draft Events",
+    "events_starting_soon_plural": "{{count}} Events Starting Soon"
   },
   "next_event": {
     "no_upcoming_title": "No Upcoming Events",
@@ -877,7 +881,11 @@
     "tickets_purchased_message_one": "{{count}} ticket successfully purchased",
     "tickets_purchased_message_other": "{{count}} tickets successfully purchased",
     "payment_successful_message_one": "Your ticket has been confirmed",
-    "payment_successful_message_other": "Your tickets have been confirmed"
+    "payment_successful_message_other": "Your tickets have been confirmed",
+    "tickets_added_collection_plural": "{{count}} tickets added to your collection",
+    "tickets_claimed_email_plural": "{{count}} free tickets. Check your email",
+    "tickets_purchased_message_plural": "{{count}} tickets successfully purchased",
+    "payment_successful_message_plural": "Your tickets have been confirmed"
   },
   "purchase": {
     "failed": {
@@ -1405,7 +1413,8 @@
     "claim_error_generic": "Could not add this to your account.",
     "claim_error_network": "Could not reach Tikèm. Please try again.",
     "commission_earned_one": "Commission earned · {{count}} ticket",
-    "commission_earned_other": "Commission earned · {{count}} tickets"
+    "commission_earned_other": "Commission earned · {{count}} tickets",
+    "commission_earned_plural": "Commission earned · {{count}} tickets"
   },
   "whos_going": {
     "title": "Who's going",
@@ -1422,7 +1431,10 @@
     "friend_going_one": "{{count}} friend going",
     "friend_going_other": "{{count}} friends going",
     "privacy_note_one": "{{count}} person is going. Attendees keep their attendance private.",
-    "privacy_note_other": "{{count}} people are going. Attendees keep their attendance private."
+    "privacy_note_other": "{{count}} people are going. Attendees keep their attendance private.",
+    "person_plural": "{{count}} people",
+    "friend_going_plural": "{{count}} friends going",
+    "privacy_note_plural": "{{count}} people are going. Attendees keep their attendance private."
   },
   "follow": {
     "loading": "Loading...",

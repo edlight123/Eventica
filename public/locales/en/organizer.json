@@ -23,7 +23,10 @@
     "draft_events_one": "Draft Event",
     "draft_events_other": "Draft Events",
     "events_starting_soon_one": "Event Starting Soon",
-    "events_starting_soon_other": "Events Starting Soon"
+    "events_starting_soon_other": "Events Starting Soon",
+    "action_items_plural": "action items",
+    "draft_events_plural": "Draft Events",
+    "events_starting_soon_plural": "Events Starting Soon"
   },
   "payouts": {
     "not_setup_title": "Payouts not set up",
@@ -368,7 +371,8 @@
     "error_update_setting": "Failed to update setting",
     "error_update_prefunding": "Failed to update prefunding preference",
     "earnings_moved": "Looking for what you’ve earned and what’s been paid out?",
-    "go_to_finance": "Go to Finance"
+    "go_to_finance": "Go to Finance",
+    "bank_plural": "Other (add my bank)"
   },
   "settings": {
     "back_to_events": "← Back to Events",

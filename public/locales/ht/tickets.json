@@ -118,7 +118,8 @@
     "hide": "Kache",
     "no_active_tickets": "Pa gen tikè aktif pou evènman sa a.",
     "tickets_count_one": "{{count}} Tikè",
-    "tickets_count_other": "{{count}} Tikè"
+    "tickets_count_other": "{{count}} Tikè",
+    "tickets_count_plural": "{{count}} Tikè"
   },
   "purchase_success": {
     "title": "Acha a reyisi!",

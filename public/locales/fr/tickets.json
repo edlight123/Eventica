@@ -118,7 +118,8 @@
     "hide": "Masquer",
     "no_active_tickets": "Aucun billet actif pour cet événement.",
     "tickets_count_one": "{{count}} Billet",
-    "tickets_count_other": "{{count}} Billets"
+    "tickets_count_other": "{{count}} Billets",
+    "tickets_count_plural": "{{count}} Billets"
   },
   "purchase_success": {
     "title": "Achat réussi !",

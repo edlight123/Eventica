@@ -127,31 +127,41 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      {/* ── Poster band. The flyer is the only colour on the page; text sits below it. */}
-      <div className="relative overflow-hidden rounded-2xl">
-        {event.banner_image_url ? (
-          <div className="relative aspect-[16/9] w-full sm:aspect-[21/9]">
+      {/* ── The flyer, in the house 4:5 portrait shape.
+             This was a full-width `aspect-[16/9] sm:aspect-[21/9]` band, and
+             Tikèm posters are 4:5 — so object-cover cropped every flyer to a
+             horizontal strip through its middle, losing the title and the
+             composition. Same defect the event page hero had.
+             It is also deliberately SMALL. On this page the QR is the object
+             that matters (it is read at a venue door, in bad light), and a
+             full-bleed poster pushed it below the fold. ~200px gives the event
+             enough presence to confirm you are looking at the right ticket
+             without competing with the thing you came for.
+             `rounded`, matching components/ui/PosterCard — the radius every
+             other poster in the app uses. */}
+      <div className="mx-auto w-[min(200px,52vw)] sm:w-[220px]">
+        <div className="relative aspect-[4/5] overflow-hidden rounded bg-white/[0.04]">
+          {event.banner_image_url ? (
             <Image
               src={event.banner_image_url}
               alt={cleanTitle}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 896px"
+              sizes="220px"
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-          </div>
-        ) : (
-          /* No flyer: the generated poster template. The one sanctioned large
-             use of teal — here teal IS the poster art, not chrome. */
-          <div
-            className="relative flex aspect-[16/9] w-full items-center justify-center sm:aspect-[21/9]"
-            style={{ backgroundImage: poster.bg }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
-            <TikemWordmark className="relative text-[clamp(40px,11vw,72px)] text-white/85" />
-          </div>
-        )}
+          ) : (
+            /* No flyer: the generated poster template. The one sanctioned large
+               use of teal — here teal IS the poster art, not chrome. */
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ backgroundImage: poster.bg }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+              <TikemWordmark className="relative text-[clamp(28px,9vw,40px)] text-white/85" />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Title block. Shared editorial header, so this page speaks the same

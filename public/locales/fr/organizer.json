@@ -23,7 +23,10 @@
     "draft_events_one": "Événement brouillon",
     "draft_events_other": "Événements brouillons",
     "events_starting_soon_one": "Événement bientôt",
-    "events_starting_soon_other": "Événements bientôt"
+    "events_starting_soon_other": "Événements bientôt",
+    "action_items_plural": "éléments d'action",
+    "draft_events_plural": "Événements brouillons",
+    "events_starting_soon_plural": "Événements bientôt"
   },
   "payouts": {
     "not_setup_title": "Paiements non configurés",
@@ -368,7 +371,8 @@
     "error_update_setting": "Impossible de mettre à jour le paramètre",
     "error_update_prefunding": "Impossible de mettre à jour la préférence de préfinancement",
     "earnings_moved": "Vous cherchez vos revenus et vos versements ?",
-    "go_to_finance": "Aller à Finance"
+    "go_to_finance": "Aller à Finance",
+    "bank_plural": "Autre (ajouter ma banque)"
   },
   "settings": {
     "back_to_events": "← Retour aux événements",

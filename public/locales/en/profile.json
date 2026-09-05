@@ -81,6 +81,7 @@
     "past_events_desc": "Previous events organized by {{name}}",
     "since": "On Tikèm since {{date}}",
     "upcoming_count_one": "{{count}} event coming soon",
-    "upcoming_count_other": "{{count}} events coming soon"
+    "upcoming_count_other": "{{count}} events coming soon",
+    "upcoming_count_plural": "{{count}} events coming soon"
   }
 }

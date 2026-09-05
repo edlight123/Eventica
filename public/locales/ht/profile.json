@@ -81,6 +81,7 @@
     "past_events_desc": "Evènman anvan yo òganize pa {{name}}",
     "since": "Sou Tikèm depi {{date}}",
     "upcoming_count_one": "{{count}} evènman k ap vini",
-    "upcoming_count_other": "{{count}} evènman k ap vini"
+    "upcoming_count_other": "{{count}} evènman k ap vini",
+    "upcoming_count_plural": "{{count}} evènman k ap vini"
   }
 }
