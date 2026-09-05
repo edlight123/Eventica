@@ -590,12 +590,82 @@ export interface MonCashPrefundedStatusResult {
   raw: any
 }
 
+/**
+ * Prefunded (disbursement) is a SEPARATE MonCash account from collections.
+ * ---------------------------------------------------------------------
+ * The payment Button and the prefunded rail share a hostname and nothing else.
+ * Digicel resolves the prefunded organization from whichever OAuth client
+ * authenticated, so calling /v1/PrefundedBalance with the COLLECTIONS client
+ * returns 403 "the receiver organization queried by the organization entity ID
+ * or short code does not exist" — measured repeatedly against production.
+ *
+ * No request parameter fixes that. 85 live attempts (15 query-param names x
+ * the account number, the short code and the username, then the same values as
+ * request headers) produced a byte-identical response every time: the
+ * identifier is never sent, it is inferred from the caller. And the prefunded
+ * names used as an OAuth client_id with the collections secret return 401, not
+ * 403 — the API confirming a second login exists and that this is not its
+ * password.
+ *
+ * So the prefunded calls authenticate as their own account when it is
+ * configured. Without these vars everything falls back to the collections
+ * token and behaviour is exactly as before, so this is inert until the
+ * credentials are set.
+ */
+let cachedPrefundedToken: { token: string; expiresAt: number } | null = null
+
+function hasPrefundedCredentials(): boolean {
+  return Boolean(process.env.MONCASH_PREFUNDED_CLIENT_ID && process.env.MONCASH_PREFUNDED_SECRET_KEY)
+}
+
+async function getPrefundedAccessToken(): Promise<string> {
+  if (cachedPrefundedToken && cachedPrefundedToken.expiresAt > Date.now()) {
+    return cachedPrefundedToken.token
+  }
+
+  const clientId = (process.env.MONCASH_PREFUNDED_CLIENT_ID || '').trim()
+  const secretKey = (process.env.MONCASH_PREFUNDED_SECRET_KEY || '').trim()
+  if (!clientId || !secretKey) {
+    throw new Error('MonCash prefunded credentials are not configured')
+  }
+
+  const params = new URLSearchParams()
+  params.set('grant_type', 'client_credentials')
+  params.set('scope', 'read,write')
+
+  const response = await fetch(`${getMonCashBaseUrl()}/Api/oauth/token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Accept: 'application/json',
+      Authorization: `Basic ${Buffer.from(`${clientId}:${secretKey}`).toString('base64')}`,
+    },
+    body: params.toString(),
+  })
+
+  const text = await response.text()
+  if (!response.ok) {
+    // Safe to surface: the client id is an account number and the body is
+    // Digicel's own error envelope. The secret never appears.
+    throw new Error(`MonCash prefunded auth failed (${response.status}): ${text.slice(0, 300)}`)
+  }
+
+  const token = JSON.parse(text)?.access_token
+  if (!token) throw new Error('MonCash prefunded auth returned no access_token')
+
+  const expiresIn = Number(JSON.parse(text)?.expires_in) || 3600
+  cachedPrefundedToken = { token, expiresAt: Date.now() + (expiresIn - 60) * 1000 }
+  return token
+}
+
 async function monCashRestRequest(path: string, init: RequestInit & { method: string }): Promise<Response> {
   const baseUrl = getMonCashRestApiBaseUrl()
   const url = `${baseUrl}${path}`
 
+  const usePrefunded = hasPrefundedCredentials()
+
   const doRequest = async (): Promise<Response> => {
-    const token = await getAccessToken()
+    const token = usePrefunded ? await getPrefundedAccessToken() : await getAccessToken()
     return fetch(url, {
       ...init,
       headers: {
@@ -610,7 +680,9 @@ async function monCashRestRequest(path: string, init: RequestInit & { method: st
   if (!response.ok) {
     const text = await response.text()
     if (shouldRetryWithFreshToken(response.status, text)) {
-      cachedToken = null
+      // Clear whichever cache produced the rejected token.
+      if (usePrefunded) cachedPrefundedToken = null
+      else cachedToken = null
       response = await doRequest()
       if (!response.ok) {
         const text2 = await response.text()
