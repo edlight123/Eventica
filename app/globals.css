@@ -140,9 +140,9 @@ select:-webkit-autofill {
 
 /* Mobile bottom nav spacing.
    Conditional, and it has to be: MobileBottomNav returns null for a signed-out
-   visitor (only two tabs would show), but the 80px strip reserved for it was
+   visitor (only two tabs would show), but the strip reserved for it was
    unconditional on all 48 pages that ask for it. Every signed-out reader — the
-   majority on an event page — got 80px of dead black above the footer with
+   majority on an event page — got a band of dead black above the footer with
    nothing floating over it. The nav now stamps `data-mobile-nav` on <body> when
    it actually renders, and the strip follows the nav instead of assuming it.
    Kept as a variable so the footer can add its own padding on top of it. */
@@ -166,7 +166,20 @@ select:-webkit-autofill {
 }
 @media (max-width: 768px) {
   body[data-mobile-nav] {
-    --mobile-nav-h: 80px;
+    /* 56px of bar (12px padding + a 44px touch target) now that the nav is
+       icon-only. It was 80px when each tab stacked a 24px icon over an 11px
+       label; leaving it there would have reserved 24px of dead space above
+       the footer on every page that opts in.
+       
+       The `env()` term is a fix for a bug that predates the icon-only change:
+       the nav carries `.safe-area-inset-bottom`, which adds
+       `env(safe-area-inset-bottom)` ON TOP of its height, so on an iPhone with
+       a home indicator the bar is ~34px taller than its minHeight while the
+       reservation was a flat number that ignored it — content sat under the
+       nav by that difference. Reserving the same expression the bar grows by
+       keeps them equal on every device, and env() resolves to 0 where there
+       is no inset. */
+    --mobile-nav-h: calc(60px + env(safe-area-inset-bottom));
   }
 }
 .pb-mobile-nav {

@@ -22,14 +22,19 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
   }
 
   /**
-   * FOUR tabs, deliberately — and the labels stay.
+   * FOUR tabs, icon-only.
    *
    * This used to build up to six (Friends, and Organizer/Admin, on top of
-   * these four). Six tabs across a 402px phone is ~67px each, and the 11px
-   * labels are `truncate`d, so "My Tickets" and "Événements" were rendering as
-   * clipped fragments: the labels were already broken rather than helping.
-   * Four tabs gives ~100px each, which fits the longest label in all three
-   * locales ("Événements" measures ~60px), so nothing truncates.
+   * these four) WITH labels. Six tabs across a 402px phone is ~67px each, and
+   * the 11px labels were `truncate`d, so "My Tickets" and "Événements"
+   * rendered as clipped fragments — the labels were breaking, not helping.
+   * The set came down to four, and then the labels came off entirely: at four
+   * tabs the icons have room to breathe, and a label that only ever fits in
+   * some locales is worse than no label plus a proper `aria-label`.
+   *
+   * The tab set is FIXED at four now, so keep it that way. The moment a fifth
+   * is added the icons start competing again, and without labels there is
+   * nothing to disambiguate them.
    *
    * Nothing is orphaned by the cut. Both the desktop dropdown and the mobile
    * hamburger in components/Navbar already link /connections, /organizer,
@@ -72,8 +77,8 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
   }
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-white/10 z-50 safe-area-inset-bottom will-change-contents" style={{ minHeight: '65px' }}>
-      <div className="flex items-center justify-around px-1 py-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-white/10 z-50 safe-area-inset-bottom will-change-contents" style={{ minHeight: '56px' }}>
+      <div className="flex items-center justify-around px-1 py-1.5">
         {tabs.map((tab) => {
           const Icon = tab.icon
           const active = isActive(tab.href)
@@ -83,15 +88,26 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
               key={tab.href}
               href={tab.href}
               prefetch={true}
-              className={`flex flex-1 flex-col items-center justify-center min-w-0 py-2 px-1 rounded-xl transition-colors will-change-auto ${
-                active
-                  ? 'text-brand-400'
-                  : 'text-white/60 active:text-white active:bg-white/5'
-              }`}
+              aria-current={active ? 'page' : undefined}
+              /* The label is gone from view but NOT from the accessibility
+                 tree: without it every tab would announce as a bare link with
+                 no name, which is the usual way an icon-only bar breaks for
+                 screen readers. */
+              aria-label={tab.label}
+              className="flex flex-1 items-center justify-center min-w-0"
             >
-              <Icon className={`w-6 h-6 mb-1 ${active ? 'scale-110' : ''}`} strokeWidth={active ? 2.5 : 2} />
-              <span className={`text-[11px] font-medium truncate max-w-full ${active ? 'text-brand-400' : ''}`}>
-                {tab.label}
+              {/* The active tab is now carried by a FILL behind the icon plus
+                  the teal, because with the labels removed colour alone was
+                  the only thing left saying where you are — and on these
+                  icons (Compass for Discover, Ticket for Tickets) that was
+                  too quiet to read at a glance. 0.08 is the ladder's
+                  selected step. The pill is also the 44px touch target. */}
+              <span
+                className={`grid h-11 w-11 place-items-center rounded-xl transition-colors ${
+                  active ? 'bg-white/[0.08] text-brand-400' : 'text-white/55 active:bg-white/[0.06] active:text-white'
+                }`}
+              >
+                <Icon className="h-[22px] w-[22px]" strokeWidth={active ? 2.4 : 1.9} />
               </span>
             </Link>
           )
