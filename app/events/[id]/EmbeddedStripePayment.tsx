@@ -185,7 +185,7 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, co
       </div>
 
       {error && (
-        <div className="border border-red-200 rounded-lg p-4">
+        <div className="rounded-lg bg-error-500/10 p-4">
           <p className="text-sm text-red-300">{error}</p>
         </div>
       )}
@@ -376,7 +376,7 @@ export default function EmbeddedStripePayment({
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
             </div>
           ) : error ? (
-            <div className="border border-red-200 rounded-lg p-6 text-center">
+            <div className="rounded-lg bg-error-500/10 p-6 text-center">
               <p className="text-red-300 mb-4">{error}</p>
               <button
                 onClick={onClose}

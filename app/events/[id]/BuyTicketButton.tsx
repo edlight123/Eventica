@@ -1068,7 +1068,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             />
 
             {codeError && (
-              <div className="border border-red-200 text-red-300 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-error-500/10 text-red-300 px-4 py-3 rounded-lg text-sm">
                 {codeError}
               </div>
             )}
@@ -1182,7 +1182,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       )}
 
       {error && !showModal && (
-        <div className="mt-3 border border-red-200 text-red-300 px-4 py-3 rounded-lg text-sm">
+        <div className="mt-3 bg-error-500/10 text-red-300 px-4 py-3 rounded-lg text-sm">
           {error}
         </div>
       )}
@@ -1337,7 +1337,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             </div>
 
             {error && (
-              <div className="border border-red-200 text-red-300 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-error-500/10 text-red-300 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}

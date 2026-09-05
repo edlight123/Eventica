@@ -139,7 +139,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
               </button>
 
               {showCityDropdown && (
-                <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl  py-1 min-w-[180px] z-20">
+                <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl py-1 min-w-[180px] z-20">
                   <button
                     onClick={() => handleCitySelect('')}
                     className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"
@@ -176,7 +176,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                 </button>
 
                 {showSubareaDropdown && (
-                  <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl  py-1 min-w-[180px] z-20">
+                  <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl py-1 min-w-[180px] z-20">
                     <button
                       onClick={() => handleSubareaSelect('')}
                       className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"

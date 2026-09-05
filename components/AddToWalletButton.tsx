@@ -380,8 +380,8 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
             onClick={handleDownloadPDF}
             className="w-full flex items-center gap-3 px-6 py-4 hover:bg-white/[0.03] transition-colors text-left border-b border-white/10"
           >
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <Download className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 bg-white/[0.06] rounded-lg flex items-center justify-center">
+              <Download className="w-5 h-5 text-white/90" />
             </div>
             <div>
               <div className="font-bold text-white">Download PDF</div>
@@ -395,7 +395,7 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
               disabled={isAddingToWallet !== null}
               className="w-full flex items-center gap-3 px-6 py-4 hover:bg-white/[0.03] transition-colors text-left border-b border-white/10 disabled:opacity-50"
             >
-              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-white/[0.06] rounded-lg flex items-center justify-center">
                 <Wallet className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -413,8 +413,8 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
               disabled={isAddingToWallet !== null}
               className="w-full flex items-center gap-3 px-6 py-4 hover:bg-white/[0.03] transition-colors text-left disabled:opacity-50"
             >
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Smartphone className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-white/[0.06] rounded-lg flex items-center justify-center">
+                <Smartphone className="w-5 h-5 text-white/90" />
               </div>
               <div>
                 <div className="font-bold text-white">Google Wallet</div>

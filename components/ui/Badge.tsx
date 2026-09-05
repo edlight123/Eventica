@@ -13,16 +13,26 @@ interface BadgeProps {
 
 // One accent only: brand teal. Variants stay distinguishable via fill vs. soft
 // treatment (and semantic tokens for success/warning/error), not extra hues.
+//
+// These were the light theme's last holdout: `bg-*-50` is a near-white tint
+// (#F0FDF4 / #FFFBEB / #FEF2F2) and `text-*-700` is near-black type — a white
+// chip on a black page. `secondary` and `trending` were worse still, carrying a
+// pale `border-*-100/200` with no fill at all after a bulk find/replace ate the
+// `bg-*`. kit.tsx's ChipTone was corrected for exactly this; Badge was missed.
+//
+// The dark equivalent of a "soft" chip is a low-alpha tint of the semantic hue
+// with the BRIGHT end of that hue as the type — and no border, because the fill
+// is what makes it a surface (docs/POSH_DESIGN_BRIEF.md).
 const variantStyles: Record<BadgeVariant, string> = {
   primary: 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm',
-  secondary: 'text-brand-300 border border-brand-100',
-  success: 'bg-success-50 text-success-700 border border-success-200',
-  warning: 'bg-warning-50 text-warning-700 border border-warning-200',
-  error: 'bg-error-50 text-error-700 border border-error-200',
-  neutral: 'bg-white/[0.04] text-white/70 border border-white/10',
+  secondary: 'bg-brand-500/15 text-brand-300',
+  success: 'bg-success-500/15 text-success-500',
+  warning: 'bg-warning-500/15 text-warning-500',
+  error: 'bg-error-500/15 text-error-500',
+  neutral: 'bg-white/[0.06] text-white/70',
   vip: 'bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-md',
-  trending: 'text-brand-300 border border-brand-200 shadow-sm',
-  new: 'bg-success-50 text-success-700 border border-success-200',
+  trending: 'bg-brand-500/15 text-brand-300',
+  new: 'bg-success-500/15 text-success-500',
 };
 
 const sizeStyles: Record<BadgeSize, string> = {
