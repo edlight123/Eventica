@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { House, Sparkles, TicketCheck, CircleUser } from 'lucide-react'
+import { House, LayoutGrid, Tickets, CircleUser } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -36,12 +36,16 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
    * is added the icons start competing again, and without labels there is
    * nothing to disambiguate them.
    *
-   * Icon choices, since they carry the whole meaning here: Sparkles for
-   * Discover rather than a Compass (which reads as maps and navigation) or a
-   * magnifier (which promises a search box, not a feed) — this is "what's
-   * on", and it suits a nightlife product. TicketCheck rather than a bare
-   * Ticket because this tab is the tickets you HOLD, and the plain glyph is
-   * already used elsewhere for an event's tickets in general.
+   * Icon choices, since with no labels they carry the entire meaning — and
+   * these were arrived at by rejection, so the rejected ones are recorded
+   * to stop them being proposed again: Discover is NOT a Compass (reads as
+   * maps), NOT a magnifier (promises a search box, not a feed) and NOT
+   * Sparkles (owner disliked it outright). LayoutGrid is what the page
+   * literally is — a grid of posters to browse.
+   *
+   * Tickets (the stack) rather than a single Ticket or TicketCheck: this
+   * tab holds the several tickets a person owns, and the single glyph is
+   * already the app's mark for an event's tickets in general.
    *
    * Nothing is orphaned by the cut. Both the desktop dropdown and the mobile
    * hamburger in components/Navbar already link /connections, /organizer,
@@ -55,8 +59,8 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
    */
   const tabs = useMemo(() => [
     { href: '/', label: t('nav.home'), icon: House, show: true },
-    { href: '/discover', label: t('nav.discover'), icon: Sparkles, show: true },
-    { href: '/tickets', label: t('nav.myTickets'), icon: TicketCheck, show: isLoggedIn },
+    { href: '/discover', label: t('nav.discover'), icon: LayoutGrid, show: true },
+    { href: '/tickets', label: t('nav.myTickets'), icon: Tickets, show: isLoggedIn },
     { href: '/profile', label: t('nav.profile'), icon: CircleUser, show: isLoggedIn },
   ].filter(tab => tab.show), [isLoggedIn, t])
 
