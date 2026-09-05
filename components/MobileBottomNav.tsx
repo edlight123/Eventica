@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { House, Search, Ticket, CircleUser } from 'lucide-react'
+import { House, Sparkles, TicketCheck, CircleUser } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -36,6 +36,13 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
    * is added the icons start competing again, and without labels there is
    * nothing to disambiguate them.
    *
+   * Icon choices, since they carry the whole meaning here: Sparkles for
+   * Discover rather than a Compass (which reads as maps and navigation) or a
+   * magnifier (which promises a search box, not a feed) — this is "what's
+   * on", and it suits a nightlife product. TicketCheck rather than a bare
+   * Ticket because this tab is the tickets you HOLD, and the plain glyph is
+   * already used elsewhere for an event's tickets in general.
+   *
    * Nothing is orphaned by the cut. Both the desktop dropdown and the mobile
    * hamburger in components/Navbar already link /connections, /organizer,
    * /promoter, /admin and /favorites, so the two dropped destinations keep a
@@ -48,8 +55,8 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
    */
   const tabs = useMemo(() => [
     { href: '/', label: t('nav.home'), icon: House, show: true },
-    { href: '/discover', label: t('nav.discover'), icon: Search, show: true },
-    { href: '/tickets', label: t('nav.myTickets'), icon: Ticket, show: isLoggedIn },
+    { href: '/discover', label: t('nav.discover'), icon: Sparkles, show: true },
+    { href: '/tickets', label: t('nav.myTickets'), icon: TicketCheck, show: isLoggedIn },
     { href: '/profile', label: t('nav.profile'), icon: CircleUser, show: isLoggedIn },
   ].filter(tab => tab.show), [isLoggedIn, t])
 
