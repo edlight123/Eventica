@@ -160,7 +160,14 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
               {/* A span, not a p: `.mobile-typography p` would override
                   .eyebrow's size and line-height on a phone. */}
               <span className="eyebrow block text-white/40">{t('preferences.default_location')}</span>
-              <p className="mt-1 !text-[17px] font-bold !leading-snug text-white">
+              {/* 15px, not 17px. This line is one fact — "country · city · area"
+                  — and at 17px it needed 286px in the 284px this column has
+                  once the 40px tile and its gap are taken out, so on a phone it
+                  broke mid-place-name ("… · Pétion-" / "Ville"). 15px brings it
+                  to 252px, one line down to a 375px viewport, and it is still
+                  the loudest line in the panel because it is the only bold one.
+                  Only the phone is constrained, so 17px comes back at sm. */}
+              <p className="mt-1 !text-[15px] font-bold !leading-snug text-white sm:!text-[17px]">
                 {LOCATION_CONFIG[defaultCountry]?.name} · {defaultCity} · {defaultSubarea}
               </p>
               <p className="mt-1 !text-[12px] text-white/40">{t('preferences.location_note')}</p>

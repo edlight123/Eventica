@@ -23,7 +23,7 @@
   "preferences": {
     "title": "Preferans",
     "subtitle": "Pèsonalize fason ou dekouvri evènman",
-    "default_location": "Kote default (Dekouvri ap itilize)",
+    "default_location": "Kote default",
     "location_note": "Evènman toupre kote sa a ap pran priyorite nan fil ou",
     "default_city": "Vil default",
     "select_city": "Chwazi yon vil...",

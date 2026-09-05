@@ -23,7 +23,7 @@
   "preferences": {
     "title": "Préférences",
     "subtitle": "Personnalisez votre découverte d'événements",
-    "default_location": "Emplacement par défaut (utilisé par Découvrir)",
+    "default_location": "Emplacement par défaut",
     "location_note": "Les événements près de cet emplacement seront priorisés dans votre fil",
     "default_city": "Ville par défaut",
     "select_city": "Sélectionnez une ville...",

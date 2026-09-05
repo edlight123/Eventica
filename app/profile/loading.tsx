@@ -62,11 +62,18 @@ export default function Loading() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 md:py-10 lg:px-8">
-        {/* Editorial page header */}
+        {/* Editorial page header. Measured, not guessed: at 402px the real
+            header is 82.5px tall (mt-1.5 6 + a 28px h1 on 28.6 + a 14px
+            subtitle that takes TWO lines at 21 each); at 1280 it is 72.8 (6 +
+            40.8 + a one-line 15px subtitle). Hence the mt-1.5 wrapper, the
+            28/40 title bar, and a second subtitle bar that exists only on the
+            phone — without it the skeleton was 24px short and the page jumped
+            down the moment it landed. */}
         <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <Bar className="h-8 w-48 sm:h-10 sm:w-64" />
-            <Bar className="mt-2.5 h-4 w-56 max-w-full sm:w-72" />
+          <div className="mt-1.5 min-w-0">
+            <Bar className="h-7 w-48 sm:h-10 sm:w-64" />
+            <Bar className="mt-2 h-4 w-56 max-w-full sm:w-72" />
+            <Bar className="mt-2 h-4 w-40 sm:hidden" />
           </div>
           <Bar className="h-10 w-10 shrink-0 rounded-xl sm:w-40" />
         </div>
@@ -76,17 +83,26 @@ export default function Loading() {
           <div>
             <div className="flex items-start gap-4 sm:gap-5">
               <div className="skeleton h-[72px] w-[72px] shrink-0 rounded-full sm:h-24 sm:w-24" />
+              {/* The name bar tracks the name: 22px on 1.15 (a 25.3px line box)
+                  on a phone, 32px on 1.15 (36.8) from sm up — h-6 / sm:h-9. It
+                  was h-7 when the name was 26px. */}
               <div className="min-w-0 flex-1">
-                <Bar className="h-7 w-3/4 sm:h-9" />
-                <Bar className="mt-3 h-3.5 w-40" />
+                <Bar className="h-6 w-2/3 sm:h-9 sm:w-1/2" />
+                <Bar className="mt-2 h-3.5 w-40" />
               </div>
               <Bar className="h-8 w-16 shrink-0 rounded-lg" />
             </div>
-            <div className="mt-5 space-y-5 rounded-2xl bg-white/[0.03] p-4 sm:mt-6 sm:p-5">
+            {/* The real read-out panel is 148.2px at EVERY width (two rows of
+                py-3.5 + an 11.2px eyebrow + mt-2 + a 15px value on 22.5). These
+                paddings and gaps add up to exactly that at both px-4/py-5 and
+                sm:p-5; at p-4/space-y-5 it was 124 and the panel grew 24px on
+                arrival. `space-y-7`, not space-y-6 — .mobile-typography rewrites
+                space-y-8/6/4 under 640px. */}
+            <div className="mt-5 space-y-7 rounded-2xl bg-white/[0.03] px-4 py-5 sm:mt-6 sm:p-5">
               {[0, 1].map((r) => (
                 <div key={r}>
                   <Bar className="h-3 w-16" />
-                  <Bar className="mt-2 h-4 w-2/3" />
+                  <Bar className="mt-3 h-4 w-2/3" />
                 </div>
               ))}
             </div>

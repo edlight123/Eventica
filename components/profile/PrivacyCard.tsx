@@ -81,6 +81,12 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
       <div className="space-y-2" role="radiogroup" aria-label="Who can see events I'm going to">
         {ATTENDANCE_OPTIONS.map(({ value, label, description, Icon }) => {
           const active = privacy.attendance_visibility === value
+          // gap-2.5 / p-3 below, not gap-3 / p-3.5: the description column was
+          // 266px on a 402px phone and "No one can see the events you're
+          // attending" needs 266.7px, so the FIRST of three otherwise identical
+          // options dropped its last word to a second line and stood a row
+          // taller than its siblings. Eight pixels back gives all three one
+          // line without touching the type, the 36px tile or the marker.
           return (
             <button
               key={value}
@@ -89,7 +95,7 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
               aria-checked={active}
               onClick={() => setAttendance(value)}
               disabled={isUpdating}
-              className={`flex w-full items-start gap-3 rounded-2xl p-3.5 text-left transition-colors disabled:opacity-60 ${
+              className={`flex w-full items-start gap-2.5 rounded-2xl p-3 text-left transition-colors disabled:opacity-60 ${
                 active
                   ? 'bg-white/[0.08] ring-1 ring-inset ring-brand-400/50'
                   : 'bg-white/[0.055] hover:bg-white/[0.12]'

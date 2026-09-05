@@ -23,7 +23,7 @@
   "preferences": {
     "title": "Preferences",
     "subtitle": "Customize your event discovery experience",
-    "default_location": "Default Location (Used by Discover)",
+    "default_location": "Default Location",
     "location_note": "Events near this location will be prioritized in your feed",
     "default_city": "Default City",
     "select_city": "Select a city...",

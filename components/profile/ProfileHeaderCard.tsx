@@ -101,12 +101,21 @@ export function ProfileHeaderCard({ profile, onUpdate }: ProfileHeaderCardProps)
             </div>
           ) : (
             /* `!` on size and leading: `.mobile-typography h2` would otherwise
-               shrink the reader's own name to 18px on a phone. */
-            <h2 className="!text-[26px] !leading-[1.1] font-bold tracking-[-0.02em] text-white sm:!text-[32px]">
+               shrink the reader's own name to 18px on a phone — and it sets
+               line-height too, so the leading has to be pinned alongside the
+               size or the name lifts onto a leading it was never designed for.
+               22px, not 26px: on a 402px phone this column is only 198px wide
+               (72px avatar + the Edit button take 172 of the 370px of content),
+               so 26px made a two-word name wrap and read LOUDER than the 28px
+               serif page title above it. 22px keeps the name the headline of
+               its block without outshouting the page. `break-words` because a
+               single unbroken 20-character name would otherwise overflow a
+               198px column rather than wrap. */
+            <h2 className="!text-[22px] !leading-[1.15] break-words font-bold tracking-[-0.02em] text-white sm:!text-[32px]">
               {profile.displayName || t('header.phone_not_set')}
             </h2>
           )}
-          <p className="mt-2 !text-[13px] text-white/40">
+          <p className="mt-1.5 !text-[13px] text-white/40">
             {t('header.member_since')} {memberSince}
           </p>
         </div>
