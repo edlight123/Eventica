@@ -4,6 +4,26 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Share2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { isLiveTicketStatus } from '@/lib/tickets/status'
+
+/**
+ * Surface pass. Nothing about the transfer flow changed — only what it looks
+ * like.
+ *
+ * The defects: the dialog was a 3% white fill with a white/10 hairline drawn
+ * around it, behind a black scrim, so a sheet meant to float above the page read as
+ * an outline of one; every field and secondary button repeated the same 3%
+ * fill + hairline; and the three status banners plus the expiry reminder had a
+ * coloured border with NO fill at all, which is the exact "box outlined around
+ * nothing" the owner has rejected (docs/POSH_DESIGN_BRIEF.md). Fills now carry
+ * all of it, stepping up the ladder for anything sitting on the sheet.
+ */
+
+/** A field or a secondary button on the dialog sheet. */
+const SHEET_FIELD = 'rounded-lg bg-white/[0.06] text-white'
+/** The one primary action inside the dialog. */
+const PRIMARY_BTN =
+  'rounded-lg bg-white font-bold text-black transition-colors hover:bg-white/90 disabled:opacity-50'
 
 interface TicketActionsProps {
   ticketId: string
@@ -99,25 +119,35 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
     }
   }
 
-  const canTransfer = (ticketStatus === 'active' || ticketStatus === 'valid') && !checkedIn
+  // The API at /api/tickets/transfer/request accepts valid | confirmed |
+  // active, but this test omitted `confirmed` — so a holder the server
+  // would happily let transfer never saw the button. `confirmed` is not
+  // hypothetical: fulfillment and the MonCash callback both record having
+  // written it. Routed through the canonical helper so the UI and the
+  // permission cannot drift apart again.
+  const canTransfer = isLiveTicketStatus(ticketStatus) && !checkedIn
 
   return (
     <div className="space-y-3">
+      {/* A banner is a surface: it gets a tinted FILL, not a coloured outline
+          around empty space. */}
       {message && (
         <div className={`p-3 rounded-lg text-sm ${
           message.type === 'success'
-            ? 'border border-green-500/30 text-emerald-300'
-            : 'border border-red-500/30 text-red-300'
+            ? 'bg-emerald-500/10 text-emerald-300'
+            : 'bg-red-500/10 text-red-300'
         }`}>
           {message.text}
         </div>
       )}
 
-      {/* Transfer Button */}
+      {/* Transfer Button. Secondary by design: Add to Wallet is the primary
+          action of this stack, and teal is semantic in this app, never a button
+          surface — so this is the grey pill, not a teal one. */}
       {canTransfer && (
         <button
           onClick={() => setShowTransferModal(true)}
-          className="w-full px-4 py-3 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
+          className="w-full px-4 py-3 bg-white/[0.08] text-white font-semibold rounded-lg hover:bg-white/[0.14] transition-colors flex items-center justify-center gap-2"
         >
           <Share2 className="w-4 h-4" />
           {t('detail.transfer_ticket')}
@@ -135,9 +165,19 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
             aria-modal="true"
             aria-labelledby="transfer-modal-title"
             onClick={(e) => e.stopPropagation()}
-            className="bg-white/[0.03] border border-white/10 rounded-2xl max-w-md w-full p-6"
+            // A sheet floating over a black scrim needs to be an ELEVATED
+            // surface, not a 3% wash of the page: #1c1c1c is the brief's
+            // surface-2 (the sheet rung).
+            className="bg-[#1c1c1c] rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
           >
-            <h2 id="transfer-modal-title" className="text-2xl font-bold text-white mb-4">{t('detail.transfer_title')}</h2>
+            {/* Serif lowercase, the house voice — and `!text-2xl` because
+                `.mobile-typography h2` (0,1,1) collapsed it to 18px on a phone. */}
+            <h2
+              id="transfer-modal-title"
+              className="font-display lowercase !text-2xl !leading-[1.04] text-white mb-4"
+            >
+              {t('detail.transfer_title')}
+            </h2>
             
             {!showTransferLink ? (
               <>
@@ -159,7 +199,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       value={transferEmail}
                       onChange={(e) => setTransferEmail(e.target.value)}
                       placeholder="friend@example.com"
-                      className="w-full px-4 py-2 bg-white/[0.03] border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className={`${SHEET_FIELD} w-full px-4 py-2.5 text-[16px] placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500`}
                       required
                     />
                   </div>
@@ -172,7 +212,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       value={transferMessage}
                       onChange={(e) => setTransferMessage(e.target.value)}
                       placeholder={t('detail.transfer_message_placeholder')}
-                      className="w-full px-4 py-2 bg-white/[0.03] border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className={`${SHEET_FIELD} w-full px-4 py-2.5 text-[16px] placeholder:text-white/35 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500`}
                       rows={3}
                       maxLength={500}
                     />
@@ -181,8 +221,8 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                   {message && (
                     <div className={`p-3 rounded-lg ${
                       message.type === 'success'
-                        ? 'border border-green-500/30 text-emerald-300'
-                        : 'border border-red-500/30 text-red-300'
+                        ? 'bg-emerald-500/10 text-emerald-300'
+                        : 'bg-red-500/10 text-red-300'
                     }`}>
                       {message.text}
                     </div>
@@ -193,14 +233,14 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       ref={closeButtonRef}
                       type="button"
                       onClick={closeTransferModal}
-                      className="flex-1 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-lg text-white/70 font-medium hover:bg-white/[0.06]"
+                      className="flex-1 px-4 py-2.5 rounded-lg bg-white/[0.06] text-white/70 font-medium transition-colors hover:bg-white/[0.12] hover:text-white disabled:opacity-50"
                       disabled={loading}
                     >
                       {t('detail.transfer_cancel')}
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-4 py-2 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 disabled:opacity-50"
+                      className={`${PRIMARY_BTN} flex-1 px-4 py-2.5`}
                       disabled={loading || !transferEmail}
                     >
                       {loading ? 'Sending...' : t('detail.transfer_send')}
@@ -221,7 +261,9 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       type="text"
                       value={transferLink}
                       readOnly
-                      className="flex-1 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/10 text-white text-sm"
+                      // 16px, not text-sm: iOS zooms the page when a control
+                      // under 16px takes focus, and a readonly input still can.
+                      className={`${SHEET_FIELD} min-w-0 flex-1 px-3 py-2.5 text-[16px]`}
                     />
                     <button
                       onClick={async () => {
@@ -229,7 +271,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                         setMessage({ type: 'success', text: t('detail.transfer_link_copied') })
                         setTimeout(() => setMessage(null), 2000)
                       }}
-                      className="px-4 py-2 bg-white/[0.03] border border-white/10 text-white font-medium rounded-lg hover:bg-white/[0.06] transition-colors"
+                      className="shrink-0 px-4 py-2.5 rounded-lg bg-white/[0.06] text-white font-medium transition-colors hover:bg-white/[0.12]"
                     >
                       {t('detail.transfer_copy_link')}
                     </button>
@@ -256,13 +298,15 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       const text = `I'm transferring my ticket for ${eventTitle}. Accept it here: ${transferLink}`
                       window.location.href = `sms:?&body=${encodeURIComponent(text)}`
                     }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/[0.03] border border-white/10 text-white font-medium rounded-lg hover:bg-white/[0.06] transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-white/[0.06] text-white font-medium transition-colors hover:bg-white/[0.12]"
                   >
                     Share via Text Message
                   </button>
                 </div>
 
-                <div className="border border-amber-500/30 rounded-lg p-3 mb-4">
+                {/* The reminder was an amber outline around nothing; the tint
+                    is what makes it read as a warning at a glance. */}
+                <div className="rounded-lg bg-amber-500/10 p-3 mb-4">
                   <p className="text-sm text-amber-300">
                     <strong>⏰ Reminder:</strong> This transfer link expires in 24 hours. The recipient must accept before then.
                   </p>
@@ -271,8 +315,8 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                 {message && (
                   <div className={`p-3 rounded-lg mb-4 ${
                     message.type === 'success'
-                      ? 'border border-green-500/30 text-emerald-300'
-                      : 'border border-red-500/30 text-red-300'
+                      ? 'bg-emerald-500/10 text-emerald-300'
+                      : 'bg-red-500/10 text-red-300'
                   }`}>
                     {message.text}
                   </div>
@@ -283,7 +327,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                     closeTransferModal()
                     router.refresh()
                   }}
-                  className="w-full px-4 py-2 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-colors"
+                  className={`${PRIMARY_BTN} w-full px-4 py-2.5`}
                 >
                   Done
                 </button>

@@ -211,7 +211,16 @@ export function DataTable<T>({
       className={
         isConsole
           ? `overflow-hidden rounded-lg bg-console-panel ${className}`
-          : `overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-soft ${className}`
+          : // The table is a surface, so it gets a FILL, not a hairline drawn
+            // around it. `border border-white/10` over a 3% fill on the
+            // #0a0a0a page meant only the outline read — the wireframe look
+            // the owner has rejected repeatedly (see "Surfaces: a fill, not a
+            // hairline around nothing" in docs/POSH_DESIGN_BRIEF.md). This now
+            // matches components/organizer/ui/DataTable and ui/kit's Card
+            // exactly. `shadow-soft` went with it: rgba(0,0,0,0.08) is a black
+            // shadow on a black page. The rules INSIDE the table stay — a rule
+            // between rows and under the header row is the meaning.
+            `overflow-hidden rounded-2xl bg-white/[0.03] ${className}`
       }
     >
       {toolbar && (
@@ -224,12 +233,14 @@ export function DataTable<T>({
         <div className={dividerClass}>
           {Array.from({ length: skeletonRows }).map((_, i) => (
             <div key={i} className="flex items-center gap-4 px-4 py-4 sm:px-6">
-              <div className={`h-9 w-9 animate-pulse rounded-lg ${isConsole ? 'bg-console-raise' : 'bg-white/[0.04]'}`} />
+              {/* Skeleton bars sit ON the 0.03 card, so they step UP the ladder
+                  to the inset tone; the old 0.04 on 0.03 was invisible. */}
+              <div className={`h-9 w-9 animate-pulse rounded-lg ${isConsole ? 'bg-console-raise' : 'bg-white/[0.07]'}`} />
               <div className="flex-1 space-y-2">
-                <div className={`h-3.5 w-1/3 animate-pulse rounded ${isConsole ? 'bg-console-raise' : 'bg-white/[0.04]'}`} />
-                <div className={`h-3 w-1/4 animate-pulse rounded ${isConsole ? 'bg-console-raise' : 'bg-white/[0.04]'}`} />
+                <div className={`h-3.5 w-1/3 animate-pulse rounded ${isConsole ? 'bg-console-raise' : 'bg-white/[0.07]'}`} />
+                <div className={`h-3 w-1/4 animate-pulse rounded ${isConsole ? 'bg-console-raise' : 'bg-white/[0.07]'}`} />
               </div>
-              <div className={`h-6 w-16 animate-pulse ${isConsole ? 'rounded bg-console-raise' : 'rounded-full bg-white/[0.04]'}`} />
+              <div className={`h-6 w-16 animate-pulse ${isConsole ? 'rounded bg-console-raise' : 'rounded-full bg-white/[0.07]'}`} />
             </div>
           ))}
         </div>
@@ -246,8 +257,12 @@ export function DataTable<T>({
           {/* Desktop table */}
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full">
+              {/* A sticky header needs an OPAQUE fill so rows don't ghost
+                  through it. `bg-[#0a0a0a]` was the page colour punched into
+                  the middle of the card; #141414 is the brief's surface-1 and
+                  is what components/organizer/ui/DataTable already uses. */}
               <thead
-                className={`${isConsole ? 'bg-console-panel' : 'bg-[#0a0a0a]'} ${stickyHeader ? 'sticky top-0 z-10' : ''}`}
+                className={`${isConsole ? 'bg-console-panel' : 'bg-[#141414]'} ${stickyHeader ? 'sticky top-0 z-10' : ''}`}
               >
                 <tr className={isConsole ? '' : 'border-b border-white/10'}>
                   {selection && (
@@ -299,7 +314,7 @@ export function DataTable<T>({
                     <tr
                       key={id}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
-                      className={`transition-colors ${isConsole ? 'hover:bg-console-raise' : 'hover:bg-white/[0.03]'} ${
+                      className={`transition-colors ${isConsole ? 'hover:bg-console-raise' : 'hover:bg-white/[0.07]'} ${
                         onRowClick ? 'cursor-pointer' : ''
                       }`}
                     >
@@ -404,7 +419,11 @@ export function DataTable<T>({
               className={
                 isConsole
                   ? 'inline-flex items-center gap-1 rounded bg-console-raise px-3 py-1.5 text-sm font-medium text-console-mut transition-colors hover:text-console-text disabled:cursor-not-allowed disabled:opacity-40'
-                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.03] disabled:cursor-not-allowed disabled:opacity-40'
+                  // An outlined box with a 3% hover on a 3% card: the border was
+                  // the only thing visible, and the hover was not visible at
+                  // all. It is a control sitting INSIDE the card, so it takes
+                  // the inset step of the ladder and a real hover step.
+                  : 'inline-flex items-center gap-1 rounded-lg bg-white/[0.06] px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-40'
               }
             >
               <ChevronLeft className="h-4 w-4" />
@@ -417,7 +436,7 @@ export function DataTable<T>({
               className={
                 isConsole
                   ? 'inline-flex items-center gap-1 rounded bg-console-raise px-3 py-1.5 text-sm font-medium text-console-mut transition-colors hover:text-console-text disabled:cursor-not-allowed disabled:opacity-40'
-                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.03] disabled:cursor-not-allowed disabled:opacity-40'
+                  : 'inline-flex items-center gap-1 rounded-lg bg-white/[0.06] px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-40'
               }
             >
               Next
