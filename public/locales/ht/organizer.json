@@ -1021,7 +1021,16 @@
     "top_performing_events": "Evènman ki pi byen mache",
     "total_events": "Total evènman",
     "total_revenue": "Total revni",
-    "track_performance": "Swiv pèfòmans evènman ou yo ak sa done yo montre."
+    "track_performance": "Swiv pèfòmans evènman ou yo ak sa done yo montre.",
+    "published_suffix": "pibliye",
+    "across_all_events": "Sou tout evènman yo",
+    "lifetime_earnings": "Revni depi nan konmansman",
+    "tickets_per_event": "Tikè pa evènman",
+    "last_7_days": "7 dènye jou yo",
+    "no_category_data": "Poko gen done pa kategori",
+    "leaderboard": "Klasman",
+    "create_event": "Kreye yon evènman",
+    "draft": "Bouyon"
   },
   "event_marketing": {
     "copied": "Kopye!",

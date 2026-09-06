@@ -1,3 +1,4 @@
+import AnalyticsView from './AnalyticsView'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
@@ -169,137 +170,15 @@ export default async function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <TranslatedPageHeader
-          eyebrowKey="organizer"
-          titleKey="analytics_title"
-          subtitleKey="analytics_subtitle"
-        />
-
-        {/* KPI row */}
-        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <MetricCard
-            icon={Calendar}
-            label="Total Events"
-            value={totalEvents}
-            sublabel={`${publishedEvents} published`}
-          />
-          <MetricCard
-            icon={Ticket}
-            label="Tickets Sold"
-            value={totalTicketsSold}
-            sublabel="Across all events"
-          />
-          <MetricCard
-            icon={DollarSign}
-            label="Total Revenue"
-            value={formatMoneyFromCents(totalRevenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
-            sublabel="Lifetime earnings"
-          />
-          <MetricCard
-            icon={TrendingUp}
-            label="Avg / Event"
-            value={totalEvents > 0 ? (totalTicketsSold / totalEvents).toFixed(1) : '0'}
-            sublabel="Tickets per event"
-          />
-        </div>
-
-        {/* Charts */}
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 p-6">
-            <SectionHeader eyebrow="Last 7 days" title="Sales trend" className="mb-5" />
-            <SalesChart data={salesChartData} currency={organizerCurrency} />
-            <div className="mt-4 flex justify-center gap-6">
-              <div className="flex items-center gap-2">
-                <div className="h-2.5 w-2.5 rounded-full bg-brand-700" />
-                <span className="text-xs text-white/50">Tickets Sold</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-2.5 w-2.5 rounded-full bg-brand-400" />
-                <span className="text-xs text-white/50">Revenue</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 p-6">
-            <SectionHeader title="Events by category" className="mb-5" />
-            {categoryChartData.length > 0 ? (
-              <CategoryChart data={categoryChartData} />
-            ) : (
-              <div className="flex h-[300px] items-center justify-center text-sm text-white/40">
-                No category data yet
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Top events */}
-        <div className="mt-6 rounded-2xl border border-white/10 p-6">
-          <SectionHeader eyebrow="Leaderboard" title="Top performing events" className="mb-6" />
-          {eventsWithSales.length === 0 ? (
-            <OrgEmptyState
-              icon={Calendar}
-              title="No events yet"
-              description="Create your first event to see analytics."
-              action={
-                <Link
-                  href="/organizer/events/new"
-                  className="inline-flex items-center gap-2 rounded-lg bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800 transition-colors"
-                >
-                  <Calendar className="h-5 w-5" />
-                  Create Event
-                </Link>
-              }
-            />
-          ) : (
-            <div className="space-y-3">
-              {eventsWithSales.slice(0, 10).map((event: any, index: number) => (
-                <div
-                  key={event.id}
-                  className="flex items-center gap-4 rounded-xl border border-white/10 p-4 transition-colors hover:bg-white/[0.04]"
-                >
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-700 font-mono tabular-nums font-bold text-white text-sm">
-                    {index + 1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/organizer/events/${event.id}`}
-                      className="block truncate font-display italic text-white hover:text-brand-300 transition-colors"
-                    >
-                      {event.title}
-                    </Link>
-                    <p className="font-mono tabular-nums text-xs text-white/50 mt-0.5">
-                      {new Date(event.start_datetime).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-6">
-                    <div className="text-right">
-                      <p className="label-mono text-[10px] uppercase text-white/40">Tickets</p>
-                      <p className="font-mono tabular-nums text-xl font-bold text-brand-300">{event.ticketCount}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="label-mono text-[10px] uppercase text-white/40">Revenue</p>
-                      <p className="font-mono tabular-nums text-xl font-bold text-white">
-                        {formatMoneyFromCents(event.revenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
-                      </p>
-                    </div>
-                    {!event.is_published && (
-                      <span className="rounded-full bg-white/[0.03] px-2.5 py-1 text-xs font-medium text-white/60">
-                        Draft
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <AnalyticsView
+      totalEvents={totalEvents}
+      publishedEvents={publishedEvents}
+      totalTicketsSold={totalTicketsSold}
+      totalRevenueCents={totalRevenueCents}
+      organizerCurrency={organizerCurrency}
+      salesChartData={salesChartData}
+      categoryChartData={categoryChartData}
+      eventsWithSales={eventsWithSales}
+    />
   )
 }

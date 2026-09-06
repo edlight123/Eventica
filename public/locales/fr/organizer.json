@@ -1021,7 +1021,16 @@
     "top_performing_events": "Événements les plus performants",
     "total_events": "Total des événements",
     "total_revenue": "Revenus totaux",
-    "track_performance": "Suivez la performance de vos événements et les tendances."
+    "track_performance": "Suivez la performance de vos événements et les tendances.",
+    "published_suffix": "publiés",
+    "across_all_events": "Sur l'ensemble des événements",
+    "lifetime_earnings": "Revenus cumulés",
+    "tickets_per_event": "Billets par événement",
+    "last_7_days": "7 derniers jours",
+    "no_category_data": "Aucune donnée par catégorie",
+    "leaderboard": "Classement",
+    "create_event": "Créer un événement",
+    "draft": "Brouillon"
   },
   "event_marketing": {
     "copied": "Copié !",

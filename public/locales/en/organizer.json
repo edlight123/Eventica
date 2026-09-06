@@ -1021,7 +1021,16 @@
     "top_performing_events": "Top performing events",
     "total_events": "Total Events",
     "total_revenue": "Total Revenue",
-    "track_performance": "Track your event performance and insights."
+    "track_performance": "Track your event performance and insights.",
+    "published_suffix": "published",
+    "across_all_events": "Across all events",
+    "lifetime_earnings": "Lifetime earnings",
+    "tickets_per_event": "Tickets per event",
+    "last_7_days": "Last 7 days",
+    "no_category_data": "No category data yet",
+    "leaderboard": "Leaderboard",
+    "create_event": "Create Event",
+    "draft": "Draft"
   },
   "event_marketing": {
     "copied": "Copied!",
