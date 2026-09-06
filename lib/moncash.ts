@@ -14,7 +14,7 @@ const MONCASH_SANDBOX_URL = 'https://sandbox.moncashbutton.digicelgroup.com'
 const MONCASH_PRODUCTION_URL = 'https://moncashbutton.digicelgroup.com'
 
 function getMonCashBaseUrl(): string {
-  const mode = process.env.MONCASH_MODE || 'sandbox'
+  const mode = (process.env.MONCASH_MODE || 'sandbox').trim().toLowerCase()
   return mode === 'production' ? MONCASH_PRODUCTION_URL : MONCASH_SANDBOX_URL
 }
 
@@ -60,7 +60,7 @@ async function getAccessToken(): Promise<string> {
 
   const rawClientId = process.env.MONCASH_CLIENT_ID
   const rawSecretKey = process.env.MONCASH_SECRET_KEY
-  const mode = process.env.MONCASH_MODE || 'sandbox'
+  const mode = (process.env.MONCASH_MODE || 'sandbox').trim().toLowerCase()
 
   const clientId = typeof rawClientId === 'string' ? rawClientId.trim() : rawClientId
   const secretKey = typeof rawSecretKey === 'string' ? rawSecretKey.trim() : rawSecretKey
@@ -386,7 +386,7 @@ export function getMonCashStatus(): string {
   if (!isMonCashConfigured()) {
     return 'not_configured'
   }
-  return process.env.MONCASH_MODE || 'sandbox'
+  return (process.env.MONCASH_MODE || 'sandbox').trim().toLowerCase()
 }
 
 // ============================================================================

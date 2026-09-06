@@ -72,7 +72,7 @@ echo
 if ask "Configure MonCash live payments now?"; then
   prompt_secret "MONCASH_CLIENT_ID"  "Digicel client id"
   prompt_secret "MONCASH_SECRET_KEY" "Digicel secret key"
-  set_env "MONCASH_MODE" "live"
+  set_env "MONCASH_MODE" "production"   # lib/moncash.ts tests for exactly "production"; "live" silently selects SANDBOX
   set_env "MONCASH_MERCHANT_API_ENABLED" "true"
   echo "  ℹ After redeploy, verify with: node scripts/verify-moncash.mjs"
 fi
