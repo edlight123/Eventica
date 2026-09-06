@@ -112,7 +112,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
         {/* Country */}
         <div>
           <label htmlFor="default_country" className="block text-sm font-medium text-white/70 mb-2">
-            Default Country
+            {t('defaults_form.default_country')}
           </label>
           <div className="relative">
             <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -135,7 +135,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
         {/* City */}
         <div>
           <label htmlFor="default_city" className="block text-sm font-medium text-white/70 mb-2">
-            Default City
+            {t('defaults_form.default_city')}
           </label>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -163,7 +163,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
       {/* Timezone */}
       <div>
         <label htmlFor="default_timezone" className="block text-sm font-medium text-white/70 mb-2">
-          Default Timezone
+          {t('defaults_form.default_timezone')}
         </label>
         <div className="relative">
           <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -185,7 +185,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
       {/* Currency */}
       <div>
         <label htmlFor="default_currency" className="block text-sm font-medium text-white/70 mb-2">
-          Default Currency
+          {t('defaults_form.default_currency')}
         </label>
         <div className="relative">
           <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -208,7 +208,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
       <div>
         <label className="block text-sm font-medium text-white/70 mb-3">
           <Tag className="inline w-4 h-4 mr-1" />
-          Default Categories
+          {t('defaults_form.default_categories')}
         </label>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {CATEGORIES.map((category) => (
@@ -227,7 +227,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
           ))}
         </div>
         <p className="text-xs text-white/50 mt-2">
-          Select categories that best describe the types of events you typically organize
+          {t('defaults_form.categories_help')}
         </p>
       </div>
 

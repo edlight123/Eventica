@@ -234,7 +234,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
               // Enabled is now white; disabled is a dim, obviously-inert fill.
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-gray-900 shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-white/15 disabled:text-white/40 disabled:shadow-none lg:w-auto"
             >
-              Request payout
+              {tx('actions.request_payout')}
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-2 max-w-[14rem] text-xs text-white/55 lg:text-right">
@@ -270,7 +270,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
           <span className="flex items-center gap-2 text-sm font-medium text-white">
             <Receipt className="h-4 w-4 text-brand-300" />
-            How fees are calculated
+            {tx('earnings.how_fees_calculated')}
           </span>
           <span className="flex items-center gap-3 text-sm text-white/50">
             <span className="hidden sm:inline">{tx('earnings.total_fees')}<span className="font-mono tabular-nums">{totalFeesLabel}</span></span>
@@ -405,7 +405,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
             <thead className="bg-white/[0.05]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs label-mono text-white/50 uppercase">
-                  Event
+                  {tx('actions.event')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs label-mono text-white/50 uppercase">
                   Date
@@ -420,10 +420,10 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                   {tx('earnings.available')}
                 </th>
                 <th className="px-6 py-3 text-center text-xs label-mono text-white/50 uppercase">
-                  Status
+                  {tx('actions.status')}
                 </th>
                 <th className="px-6 py-3 text-center text-xs label-mono text-white/50 uppercase">
-                  Actions
+                  {tx('actions.actions')}
                 </th>
               </tr>
             </thead>
@@ -470,7 +470,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                         href={`/organizer/events/${event.eventId}/earnings`}
                         className="text-brand-300 hover:text-brand-300 text-sm font-medium"
                       >
-                        View Details
+                        {tx('earnings.view_details')}
                       </Link>
                     </td>
                   </tr>

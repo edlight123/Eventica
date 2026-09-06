@@ -910,7 +910,11 @@
     "purchased": "Acheté",
     "refund_confirm": "Rembourser ce billet ? Cette action est irréversible.",
     "search_placeholder": "Rechercher par nom, e-mail, téléphone ou ID de billet…",
-    "ticket_id": "ID du billet"
+    "ticket_id": "ID du billet",
+    "attendee_information": "Informations sur le participant",
+    "process_refund": "Effectuer le remboursement",
+    "resend_ticket_email": "Renvoyer le billet par e-mail",
+    "ticket_information": "Informations sur le billet"
   },
   "event_staff": {
     "actions": "Actions",
@@ -943,7 +947,9 @@
     "platform_fee": "Frais de plateforme",
     "processing_fee": "Frais de traitement",
     "total_fees": "Total des frais",
-    "total_fees_paid": "Total des frais payés"
+    "total_fees_paid": "Total des frais payés",
+    "how_fees_calculated": "Comment les frais sont calculés",
+    "view_details": "Voir les détails"
   },
   "danger_zone": {
     "all_data_deleted": "Tous les événements, billets et données des participants seront supprimés",
@@ -975,7 +981,11 @@
     "select_type": "Sélectionner un type",
     "social_media": "Réseaux sociaux",
     "about_placeholder": "Présentez votre organisation...",
-    "twitter_hint": "Nom d'utilisateur ou URL Twitter/X"
+    "twitter_hint": "Nom d'utilisateur ou URL Twitter/X",
+    "organization_type": "Type d'organisation",
+    "square_logo_note": "Logo carré recommandé. 5 Mo maximum.",
+    "public_profile_note": "Ceci apparaîtra sur votre profil public d'organisateur",
+    "upload_logo": "Téléverser un logo"
   },
   "payouts_summary": {
     "active": "Actif",
@@ -1081,7 +1091,8 @@
     "no_sales_share": "Aucune vente pour l'instant, partagez votre événement pour démarrer.",
     "portrait_ratio": "Portrait 4:5",
     "recent_activity": "Activité récente",
-    "ticket_types": "Types de billets"
+    "ticket_types": "Types de billets",
+    "edit_event": "Modifier l'événement"
   },
   "guest_list": {
     "add_vip_desc": "Ajoutez des invités VIP à votre événement. Ils recevront une invitation et une place réservée.",
@@ -1127,7 +1138,13 @@
   "defaults_form": {
     "select_a_city": "Sélectionner une ville",
     "select_a_country": "Sélectionner un pays",
-    "select_country_first": "Sélectionnez d'abord un pays"
+    "select_country_first": "Sélectionnez d'abord un pays",
+    "default_categories": "Catégories par défaut",
+    "default_city": "Ville par défaut",
+    "default_country": "Pays par défaut",
+    "default_currency": "Devise par défaut",
+    "default_timezone": "Fuseau horaire par défaut",
+    "categories_help": "Sélectionnez les catégories qui décrivent le mieux les événements que vous organisez habituellement"
   },
   "notifications_form": {
     "email_notifications": "Notifications par e-mail",
@@ -1164,7 +1181,28 @@
     "used": "Utilisé",
     "event": "Événement",
     "sales": "Ventes",
-    "type": "Type"
+    "type": "Type",
+    "close": "Fermer",
+    "optional": "Facultatif",
+    "other": "Autre",
+    "status": "Statut",
+    "actions": "Actions",
+    "manage": "Gérer",
+    "analytics": "Analyses",
+    "continue": "Continuer",
+    "about": "À propos",
+    "progress": "Progression",
+    "description": "Description",
+    "website": "Site web",
+    "amount": "Montant",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "try_again": "Réessayer",
+    "create_event": "Créer un événement",
+    "no_events_yet": "Aucun événement pour l'instant",
+    "identity_verification": "Vérification d'identité",
+    "business_details": "Informations sur l'entreprise",
+    "request_payout": "Demander un versement"
   },
   "upgrade_prompt": {
     "brand_name": "Nom de la marque",
@@ -1198,5 +1236,33 @@
     "start_verification": "Commencer la vérification",
     "to_match_id_photo": "Pour correspondre à la photo de votre pièce d'identité",
     "reviewed_24_48": "Examiné généralement sous 24 à 48 heures"
+  },
+  "verification_business": {
+    "optional_registration": "Facultatif : fournissez les informations d'enregistrement de l'entreprise, le cas échéant",
+    "skip_for_now": "Passer pour l'instant"
+  },
+  "staff_hub": {
+    "create_event_to_invite": "Créez un événement pour inviter du personnel et gérer l'accès à l'enregistrement.",
+    "managing_staff_for": "Gestion du personnel pour",
+    "select_an_event": "Sélectionner un événement",
+    "staff_per_event": "L'accès du personnel est géré par événement."
+  },
+  "payout_request": {
+    "payout_requested": "Versement demandé",
+    "batched_note": "Les versements sont regroupés et payés le vendredi suivant l'approbation."
+  },
+  "document_upload": {
+    "choose_file": "Choisir un fichier",
+    "replace": "Remplacer",
+    "uploading": "Téléversement..."
+  },
+  "verification_status": {
+    "back_to_dashboard": "Retour au tableau de bord",
+    "feedback_from_team": "Retour de notre équipe :",
+    "go_to_events": "Aller aux événements"
+  },
+  "verification_selfie": {
+    "instructions": "Instructions :",
+    "take_clear_selfie": "Prenez un selfie net en tenant votre pièce d'identité à côté de votre visage"
   }
 }

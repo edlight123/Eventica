@@ -73,15 +73,15 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
     <div className="space-y-6">
       <div className="bg-white/[0.03] rounded-lg p-6 md:p-8">
         <h3 className="mb-2 font-display !text-[22px] !leading-[1.1] text-white">
-          Identity Verification
+          {t('actions.identity_verification')}
         </h3>
         <p className="text-sm md:text-base text-white/60 mb-6">
-          Take a clear selfie holding your ID next to your face
+          {t('verification_selfie.take_clear_selfie')}
         </p>
 
         {/* Instructions */}
         <div className="bg-brand-500/10 rounded-lg p-4 mb-6">
-          <h4 className="font-semibold text-brand-300 text-sm mb-2">Instructions:</h4>
+          <h4 className="font-semibold text-brand-300 text-sm mb-2">{t('verification_selfie.instructions')}</h4>
           <ul className="text-sm text-brand-300 space-y-1 list-disc list-inside">
             <li>{t('onboarding.verification.selfie_tip_hold', { defaultValue: 'Hold your ID next to your face' })}</li>
             <li>{t('onboarding.verification.selfie_tip_face', { defaultValue: 'Make sure your face is clearly visible' })}</li>
@@ -117,7 +117,7 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
           disabled={isSaving}
           className="flex-1 px-6 py-3 text-white/80 bg-white/[0.06] rounded-lg font-semibold hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50"
         >
-          Cancel
+          {t('actions.cancel')}
         </button>
         <button
           type="button"

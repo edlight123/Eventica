@@ -5,6 +5,8 @@
 
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { getDocumentDownloadURL } from '@/lib/verification'
@@ -32,6 +34,8 @@ export default function DocumentUploadCard({
   required = false,
   disabled = false
 }: Props) {
+  const { t } = useTranslation('organizer')
+
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined)
@@ -212,14 +216,14 @@ export default function DocumentUploadCard({
                 disabled={isUploading}
                 className="flex-1 px-4 py-2 text-sm font-medium text-brand-300 hover:bg-brand-500/15 rounded-lg transition-colors disabled:opacity-50"
               >
-                Replace
+                {t('document_upload.replace')}
               </button>
               <button
                 onClick={handleRemove}
                 disabled={isUploading}
                 className="flex-1 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/15 rounded-lg transition-colors disabled:opacity-50"
               >
-                Remove
+                {t('actions.remove')}
               </button>
             </div>
           )}
@@ -239,7 +243,7 @@ export default function DocumentUploadCard({
           {isUploading ? (
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-12 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-white/60">Uploading...</p>
+              <p className="text-sm text-white/60">{t('document_upload.uploading')}</p>
             </div>
           ) : (
             <>
@@ -268,7 +272,7 @@ export default function DocumentUploadCard({
                   disabled={disabled}
                   className="px-4 py-2 text-sm font-medium text-brand-300 bg-white/[0.08] rounded-lg hover:bg-white/[0.14] transition-colors disabled:opacity-50"
                 >
-                  Choose File
+                  {t('document_upload.choose_file')}
                 </button>
                 <button
                   type="button"

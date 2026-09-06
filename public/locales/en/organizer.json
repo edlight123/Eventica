@@ -910,7 +910,11 @@
     "purchased": "Purchased",
     "refund_confirm": "Refund this ticket? This cannot be undone.",
     "search_placeholder": "Search by name, email, phone, or ticket ID…",
-    "ticket_id": "Ticket ID"
+    "ticket_id": "Ticket ID",
+    "attendee_information": "Attendee Information",
+    "process_refund": "Process Refund",
+    "resend_ticket_email": "Resend Ticket Email",
+    "ticket_information": "Ticket Information"
   },
   "event_staff": {
     "actions": "Actions",
@@ -943,7 +947,9 @@
     "platform_fee": "Platform fee",
     "processing_fee": "Processing fee",
     "total_fees": "Total fees",
-    "total_fees_paid": "Total fees paid"
+    "total_fees_paid": "Total fees paid",
+    "how_fees_calculated": "How fees are calculated",
+    "view_details": "View Details"
   },
   "danger_zone": {
     "all_data_deleted": "All events, tickets, and attendee data will be deleted",
@@ -975,7 +981,11 @@
     "select_type": "Select type",
     "social_media": "Social Media",
     "about_placeholder": "Tell people about your organization...",
-    "twitter_hint": "Twitter/X username or URL"
+    "twitter_hint": "Twitter/X username or URL",
+    "organization_type": "Organization Type",
+    "square_logo_note": "Square logo recommended. Max 5MB.",
+    "public_profile_note": "This will be shown on your public organizer profile",
+    "upload_logo": "Upload Logo"
   },
   "payouts_summary": {
     "active": "Active",
@@ -1081,7 +1091,8 @@
     "no_sales_share": "No sales yet, share your event to get going.",
     "portrait_ratio": "Portrait 4:5",
     "recent_activity": "Recent activity",
-    "ticket_types": "Ticket types"
+    "ticket_types": "Ticket types",
+    "edit_event": "Edit event"
   },
   "guest_list": {
     "add_vip_desc": "Add VIP guests to your event. They'll receive an invitation and a reserved spot.",
@@ -1127,7 +1138,13 @@
   "defaults_form": {
     "select_a_city": "Select a city",
     "select_a_country": "Select a country",
-    "select_country_first": "Select a country first"
+    "select_country_first": "Select a country first",
+    "default_categories": "Default Categories",
+    "default_city": "Default City",
+    "default_country": "Default Country",
+    "default_currency": "Default Currency",
+    "default_timezone": "Default Timezone",
+    "categories_help": "Select categories that best describe the types of events you typically organize"
   },
   "notifications_form": {
     "email_notifications": "Email Notifications",
@@ -1164,7 +1181,28 @@
     "used": "Used",
     "event": "Event",
     "sales": "Sales",
-    "type": "Type"
+    "type": "Type",
+    "close": "Close",
+    "optional": "Optional",
+    "other": "Other",
+    "status": "Status",
+    "actions": "Actions",
+    "manage": "Manage",
+    "analytics": "Analytics",
+    "continue": "Continue",
+    "about": "About",
+    "progress": "Progress",
+    "description": "Description",
+    "website": "Website",
+    "amount": "Amount",
+    "email": "Email",
+    "phone": "Phone",
+    "try_again": "Try again",
+    "create_event": "Create Event",
+    "no_events_yet": "No events yet",
+    "identity_verification": "Identity Verification",
+    "business_details": "Business Details",
+    "request_payout": "Request payout"
   },
   "upgrade_prompt": {
     "brand_name": "Brand name",
@@ -1198,5 +1236,33 @@
     "start_verification": "Start Verification",
     "to_match_id_photo": "To match your ID photo",
     "reviewed_24_48": "Typically reviewed within 24-48 hours"
+  },
+  "verification_business": {
+    "optional_registration": "Optional: Provide business registration information if applicable",
+    "skip_for_now": "Skip for Now"
+  },
+  "staff_hub": {
+    "create_event_to_invite": "Create an event to invite staff and manage check-in access.",
+    "managing_staff_for": "Managing staff for",
+    "select_an_event": "Select an event",
+    "staff_per_event": "Staff access is managed per event."
+  },
+  "payout_request": {
+    "payout_requested": "Payout requested",
+    "batched_note": "Payouts are batched and paid the next Friday after approval."
+  },
+  "document_upload": {
+    "choose_file": "Choose File",
+    "replace": "Replace",
+    "uploading": "Uploading..."
+  },
+  "verification_status": {
+    "back_to_dashboard": "Back to Dashboard",
+    "feedback_from_team": "Feedback from our team:",
+    "go_to_events": "Go to Events"
+  },
+  "verification_selfie": {
+    "instructions": "Instructions:",
+    "take_clear_selfie": "Take a clear selfie holding your ID next to your face"
   }
 }

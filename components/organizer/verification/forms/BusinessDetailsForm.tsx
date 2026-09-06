@@ -51,14 +51,14 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
         <div className="flex items-start justify-between mb-6">
           <div>
             <h3 className="mb-2 font-display !text-[22px] !leading-[1.1] text-white">
-              Business Details
+              {t('actions.business_details')}
             </h3>
             <p className="text-sm md:text-base text-white/60">
-              Optional: Provide business registration information if applicable
+              {t('verification_business.optional_registration')}
             </p>
           </div>
           <span className="text-xs font-medium text-white/45">
-            Optional
+            {t('actions.optional')}
           </span>
         </div>
 
@@ -148,7 +148,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           disabled={isSaving}
           className="flex-1 px-6 py-3 text-white/80 bg-white/[0.06] rounded-lg font-semibold hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50"
         >
-          Cancel
+          {t('actions.cancel')}
         </button>
         <button
           type="button"
@@ -156,7 +156,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           disabled={isSaving}
           className="flex-1 px-6 py-3 text-white/60 bg-white/[0.06] hover:bg-white/[0.12] hover:text-white/80 rounded-lg font-semibold transition-colors disabled:opacity-50"
         >
-          Skip for Now
+          {t('verification_business.skip_for_now')}
         </button>
         <button
           type="submit"

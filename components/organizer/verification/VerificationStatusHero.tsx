@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 /**
  * VerificationStatusHero Component
  * Displays the current verification status with appropriate messaging and CTAs
@@ -30,6 +31,8 @@ export default function VerificationStatusHero({
   onRestart,
   isRestarting = false
 }: Props) {
+  const { t } = useTranslation('organizer')
+
   // Status configuration.
   //
   // Each status is a semantic TINT, not a coloured hairline around nothing.
@@ -151,7 +154,7 @@ export default function VerificationStatusHero({
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs md:text-sm font-medium text-white/70">
-                  Progress
+                  {t('actions.progress')}
                 </span>
                 <span className="text-xs md:text-sm font-semibold text-amber-300">
                   {completionPercentage}%
@@ -172,7 +175,7 @@ export default function VerificationStatusHero({
           {(status === 'changes_requested' || status === 'rejected') && reviewNotes && (
             <div className="bg-white/[0.08] rounded-lg p-4 mb-4">
               <h3 className="text-sm font-semibold text-white mb-2">
-                Feedback from our team:
+                {t('verification_status.feedback_from_team')}
               </h3>
               <p className="text-sm text-white/70 whitespace-pre-wrap">
                 {reviewNotes}
@@ -187,13 +190,13 @@ export default function VerificationStatusHero({
                 href={config.ctaHref}
                 className="bg-brand-700 hover:bg-brand-800 text-white px-6 py-3 rounded-lg font-semibold text-sm md:text-base text-center transition-all shadow-md hover:shadow-lg"
               >
-                Create Event
+                {t('actions.create_event')}
               </Link>
               <Link
                 href="/organizer"
                 className="bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white px-6 py-3 rounded-lg font-medium text-sm md:text-base text-center transition-colors"
               >
-                Back to Dashboard
+                {t('verification_status.back_to_dashboard')}
               </Link>
             </div>
           ) : null}
@@ -218,7 +221,7 @@ export default function VerificationStatusHero({
                 href="/organizer"
                 className="bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white px-6 py-3 rounded-lg font-medium text-sm md:text-base text-center transition-colors"
               >
-                Back to Dashboard
+                {t('verification_status.back_to_dashboard')}
               </Link>
             </div>
           ) : null}
@@ -230,7 +233,7 @@ export default function VerificationStatusHero({
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white"
               >
                 <Eye className="w-4 h-4" />
-                Go to Events
+                {t('verification_status.go_to_events')}
               </Link>
             </div>
           ) : null}

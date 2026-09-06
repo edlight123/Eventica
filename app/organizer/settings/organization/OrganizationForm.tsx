@@ -169,7 +169,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] text-white/70 rounded-lg cursor-pointer transition-colors"
           >
             <Upload className="w-4 h-4" />
-            Upload Logo
+            {t('organization.upload_logo')}
           </label>
           <input
             id="logo-upload"
@@ -180,7 +180,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             disabled={isUploadingLogo}
           />
           <p className="text-xs text-white/50 mt-2">
-            Square logo recommended. Max 5MB.
+            {t('organization.square_logo_note')}
           </p>
         </div>
       </div>
@@ -204,7 +204,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
       {/* Organization Type */}
       <div>
         <label htmlFor="organization_type" className="block text-sm font-medium text-white/70 mb-2">
-          Organization Type
+          {t('organization.organization_type')}
         </label>
         <select
           id="organization_type"
@@ -217,14 +217,14 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           <option value="company">{t('organization.company')}</option>
           <option value="nonprofit">{t('organization.non_profit')}</option>
           <option value="government">{t('organization.government')}</option>
-          <option value="other">Other</option>
+          <option value="other">{t('actions.other')}</option>
         </select>
       </div>
 
       {/* Description */}
       <div>
         <label htmlFor="organization_description" className="block text-sm font-medium text-white/70 mb-2">
-          Description
+          {t('actions.description')}
         </label>
         <textarea
           id="organization_description"
@@ -235,14 +235,14 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           placeholder={t('organization.about_placeholder')}
         />
         <p className="text-xs text-white/50 mt-1">
-          This will be shown on your public organizer profile
+          {t('organization.public_profile_note')}
         </p>
       </div>
 
       {/* Website */}
       <div>
         <label htmlFor="website" className="block text-sm font-medium text-white/70 mb-2">
-          Website
+          {t('actions.website')}
         </label>
         <div className="relative">
           <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />

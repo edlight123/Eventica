@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -29,6 +31,8 @@ export default function EventStaffHub({
   events: OrganizerEvent[]
   initialEventId?: string
 }) {
+  const { t } = useTranslation('organizer')
+
   const router = useRouter()
 
   const defaultEventId = useMemo(() => {
@@ -56,13 +60,13 @@ export default function EventStaffHub({
     return (
       <div className="bg-white/[0.03] rounded-xl  p-10 text-center">
         <CalendarDays className="w-14 h-14 text-white/50 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-white mb-2">No events yet</h3>
-        <p className="text-white/60 mb-6">Create an event to invite staff and manage check-in access.</p>
+        <h3 className="text-lg font-semibold text-white mb-2">{t('actions.no_events_yet')}</h3>
+        <p className="text-white/60 mb-6">{t('staff_hub.create_event_to_invite')}</p>
         <Link
           href="/organizer/events/new"
           className="inline-flex items-center gap-2 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg transition-colors"
         >
-          Create Event
+          {t('actions.create_event')}
         </Link>
       </div>
     )
@@ -78,8 +82,8 @@ export default function EventStaffHub({
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-white">Select an event</h2>
-                <p className="text-sm text-white/60">Staff access is managed per event.</p>
+                <h2 className="text-lg font-semibold text-white">{t('staff_hub.select_an_event')}</h2>
+                <p className="text-sm text-white/60">{t('staff_hub.staff_per_event')}</p>
               </div>
               <div className="min-w-0">
                 <select
@@ -113,7 +117,7 @@ export default function EventStaffHub({
       {selectedEventId ? (
         <div className="space-y-6">
           <div className="bg-white/[0.03]  rounded-xl p-5">
-            <h3 className="text-base font-semibold text-white">Managing staff for</h3>
+            <h3 className="text-base font-semibold text-white">{t('staff_hub.managing_staff_for')}</h3>
             <p className="text-sm text-white/60 mt-1">{selectedEvent ? formatEventLabel(selectedEvent) : selectedEventId}</p>
           </div>
           <EventStaffManager eventId={selectedEventId} />

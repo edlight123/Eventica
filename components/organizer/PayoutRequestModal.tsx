@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState } from 'react'
 import { X, Loader2, CheckCircle2, AlertCircle, Wallet, CalendarClock } from 'lucide-react'
 
@@ -19,6 +21,8 @@ interface PayoutRequestModalProps {
  * which matches the actual money logic. Reuses the existing endpoint as-is.
  */
 export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel }: PayoutRequestModalProps) {
+  const { t } = useTranslation('organizer')
+
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
   const [scheduledDate, setScheduledDate] = useState<string | null>(null)
@@ -57,8 +61,8 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
       <div className="absolute inset-0 bg-black/50" onClick={close} />
       <div className="relative w-full max-w-md rounded-2xl bg-[#111] shadow-xl">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h3 className="font-display text-xl text-white">Request payout</h3>
-          <button onClick={close} disabled={status === 'loading'} aria-label="Close" className="text-white/40 transition-colors hover:text-white/60 disabled:opacity-50">
+          <h3 className="font-display text-xl text-white">{t('actions.request_payout')}</h3>
+          <button onClick={close} disabled={status === 'loading'} aria-label={t('actions.close')} className="text-white/40 transition-colors hover:text-white/60 disabled:opacity-50">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -68,7 +72,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
             <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full text-emerald-300">
               <CheckCircle2 className="h-6 w-6" />
             </div>
-            <h4 className="font-display text-lg text-white">Payout requested</h4>
+            <h4 className="font-display text-lg text-white">{t('payout_request.payout_requested')}</h4>
             <p className="mx-auto mt-1 max-w-xs text-sm text-white/60">
               {scheduledDate
                 ? `Your funds are scheduled for ${new Date(scheduledDate).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}.`
@@ -82,7 +86,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
           <div className="space-y-4 px-5 py-5">
             <div className="rounded-xl border border-white/10 p-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/50">
-                <Wallet className="h-4 w-4 text-brand-300" /> Amount
+                <Wallet className="h-4 w-4 text-brand-300" /> {t('actions.amount')}
               </div>
               <p className="mt-1 text-2xl font-bold text-white">{availableLabel}</p>
               <p className="text-xs text-white/50">
@@ -93,7 +97,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
             <ul className="space-y-2 text-sm text-white/60">
               <li className="flex items-start gap-2">
                 <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
-                Payouts are batched and paid the next Friday after approval.
+                {t('payout_request.batched_note')}
               </li>
               <li className="flex items-start gap-2">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
@@ -107,7 +111,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
 
             <div className="flex gap-3 pt-1">
               <button onClick={close} disabled={status === 'loading'} className="flex-1 rounded-lg border border-white/15 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] disabled:opacity-50">
-                Cancel
+                {t('actions.cancel')}
               </button>
               <button onClick={submit} disabled={status === 'loading'} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-60">
                 {status === 'loading' ? (

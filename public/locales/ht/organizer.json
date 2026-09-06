@@ -910,7 +910,11 @@
     "purchased": "Achte",
     "refund_confirm": "Ranbouse tikè sa a? Ou p ap ka defè sa.",
     "search_placeholder": "Chèche pa non, imel, telefòn oswa ID tikè…",
-    "ticket_id": "ID tikè"
+    "ticket_id": "ID tikè",
+    "attendee_information": "Enfòmasyon sou patisipan an",
+    "process_refund": "Fè ranbousman an",
+    "resend_ticket_email": "Voye tikè a pa imel ankò",
+    "ticket_information": "Enfòmasyon sou tikè a"
   },
   "event_staff": {
     "actions": "Aksyon",
@@ -943,7 +947,9 @@
     "platform_fee": "Frè platfòm",
     "processing_fee": "Frè tretman",
     "total_fees": "Total frè",
-    "total_fees_paid": "Total frè peye"
+    "total_fees_paid": "Total frè peye",
+    "how_fees_calculated": "Kijan yo kalkile frè yo",
+    "view_details": "Gade detay yo"
   },
   "danger_zone": {
     "all_data_deleted": "Tout evènman, tikè ak done patisipan yo ap efase",
@@ -975,7 +981,11 @@
     "select_type": "Chwazi yon tip",
     "social_media": "Rezo sosyal",
     "about_placeholder": "Pale moun yo sou òganizasyon ou an...",
-    "twitter_hint": "Non itilizatè oswa URL Twitter/X"
+    "twitter_hint": "Non itilizatè oswa URL Twitter/X",
+    "organization_type": "Tip òganizasyon",
+    "square_logo_note": "Logo kare rekòmande. 5MB maksimòm.",
+    "public_profile_note": "Sa ap parèt sou pwofil piblik òganizatè ou",
+    "upload_logo": "Voye yon logo"
   },
   "payouts_summary": {
     "active": "Aktif",
@@ -1081,7 +1091,8 @@
     "no_sales_share": "Poko gen vant, pataje evènman ou an pou w kòmanse.",
     "portrait_ratio": "Pòtrè 4:5",
     "recent_activity": "Aktivite resan",
-    "ticket_types": "Tip tikè"
+    "ticket_types": "Tip tikè",
+    "edit_event": "Modifye evènman an"
   },
   "guest_list": {
     "add_vip_desc": "Ajoute envite VIP nan evènman ou an. Y ap resevwa yon envitasyon ak yon plas rezève.",
@@ -1127,7 +1138,13 @@
   "defaults_form": {
     "select_a_city": "Chwazi yon vil",
     "select_a_country": "Chwazi yon peyi",
-    "select_country_first": "Chwazi yon peyi anvan"
+    "select_country_first": "Chwazi yon peyi anvan",
+    "default_categories": "Kategori pa default",
+    "default_city": "Vil pa default",
+    "default_country": "Peyi pa default",
+    "default_currency": "Lajan pa default",
+    "default_timezone": "Zòn orè pa default",
+    "categories_help": "Chwazi kategori ki dekri pi byen kalite evènman ou konn òganize"
   },
   "notifications_form": {
     "email_notifications": "Notifikasyon pa imel",
@@ -1164,7 +1181,28 @@
     "used": "Itilize",
     "event": "Evènman",
     "sales": "Vant",
-    "type": "Tip"
+    "type": "Tip",
+    "close": "Fèmen",
+    "optional": "Opsyonèl",
+    "other": "Lòt",
+    "status": "Estati",
+    "actions": "Aksyon",
+    "manage": "Jere",
+    "analytics": "Analiz",
+    "continue": "Kontinye",
+    "about": "Konsènan",
+    "progress": "Pwogrè",
+    "description": "Deskripsyon",
+    "website": "Sit entènèt",
+    "amount": "Montan",
+    "email": "Imel",
+    "phone": "Telefòn",
+    "try_again": "Eseye ankò",
+    "create_event": "Kreye yon evènman",
+    "no_events_yet": "Poko gen evènman",
+    "identity_verification": "Verifikasyon idantite",
+    "business_details": "Enfòmasyon sou biznis la",
+    "request_payout": "Mande yon peman"
   },
   "upgrade_prompt": {
     "brand_name": "Non mak la",
@@ -1198,5 +1236,33 @@
     "start_verification": "Kòmanse verifikasyon an",
     "to_match_id_photo": "Pou l matche ak foto kat idantite ou",
     "reviewed_24_48": "Anjeneral yo egzamine l nan 24-48 èdtan"
+  },
+  "verification_business": {
+    "optional_registration": "Opsyonèl: bay enfòmasyon anrejistreman biznis la si sa aplikab",
+    "skip_for_now": "Sote sa pou kounye a"
+  },
+  "staff_hub": {
+    "create_event_to_invite": "Kreye yon evènman pou w envite anplwaye epi jere aksè anrejistreman.",
+    "managing_staff_for": "Jesyon anplwaye pou",
+    "select_an_event": "Chwazi yon evènman",
+    "staff_per_event": "Aksè anplwaye jere pa evènman."
+  },
+  "payout_request": {
+    "payout_requested": "Peman mande",
+    "batched_note": "Peman yo gwoupe epi yo peye yo vandredi ki vin apre apwobasyon an."
+  },
+  "document_upload": {
+    "choose_file": "Chwazi yon fichye",
+    "replace": "Ranplase",
+    "uploading": "Ap voye..."
+  },
+  "verification_status": {
+    "back_to_dashboard": "Retounen nan tablodbò a",
+    "feedback_from_team": "Kòmantè ekip nou an:",
+    "go_to_events": "Ale nan evènman yo"
+  },
+  "verification_selfie": {
+    "instructions": "Enstriksyon:",
+    "take_clear_selfie": "Pran yon selfie ki klè avèk kat idantite ou bò figi ou"
   }
 }

@@ -106,7 +106,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
             href={`/organizer/events/${event.id}/edit`}
             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-300 hover:text-brand-200"
           >
-            Continue <ArrowUpRight className="h-3.5 w-3.5" />
+            {tx('actions.continue')}<ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       )}
@@ -131,10 +131,10 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           <section className="rounded-lg bg-white/[0.03] p-4">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-display text-[16px] lowercase italic leading-none text-white">
-                Sales <span className="ml-1 font-normal font-mono tabular-nums text-white/40">· {soldInWindow} in {TREND_DAYS}d</span>
+                {tx('actions.sales')}<span className="ml-1 font-normal font-mono tabular-nums text-white/40">· {soldInWindow} in {TREND_DAYS}d</span>
               </h3>
               <Link href={`/organizer/events/${event.id}/analytics`} className="inline-flex items-center gap-1 text-xs font-medium text-brand-300 hover:text-brand-200">
-                Analytics <ArrowUpRight className="h-3 w-3" />
+                {tx('actions.analytics')}<ArrowUpRight className="h-3 w-3" />
               </Link>
             </div>
             {soldInWindow > 0 ? (
@@ -165,7 +165,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-display text-[16px] lowercase italic leading-none text-white">{tx('command_center.ticket_types')}</h3>
               <Link href={`/organizer/events/${event.id}/tickets`} className="inline-flex items-center gap-1 text-xs font-medium text-brand-300 hover:text-brand-200">
-                Manage <ArrowUpRight className="h-3 w-3" />
+                {tx('actions.manage')}<ArrowUpRight className="h-3 w-3" />
               </Link>
             </div>
             {tiers.length > 0 ? (
@@ -264,12 +264,12 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
             href={`/organizer/events/${event.id}/edit`}
             className="flex h-11 w-full items-center justify-center rounded-[10px] bg-white/[0.08] text-center text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.14] hover:text-white"
           >
-            Edit event
+            {tx('command_center.edit_event')}
           </Link>
 
           {event.description && (
             <div className="border-t border-white/10 pt-3">
-              <h4 className="label-mono mb-1.5 uppercase text-xs text-white/40">About</h4>
+              <h4 className="label-mono mb-1.5 uppercase text-xs text-white/40">{tx('actions.about')}</h4>
               <p className="line-clamp-5 whitespace-pre-wrap text-sm leading-relaxed text-white/55">
                 {event.description}
               </p>

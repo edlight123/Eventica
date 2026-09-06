@@ -241,7 +241,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
                 onClick={() => router.refresh()}
                 className="font-semibold text-brand-300 underline underline-offset-2 hover:text-brand-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
-                Try again
+                {tx('actions.try_again')}
               </button>
             </p>
           </div>
@@ -351,13 +351,13 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
       {/* Attendee info */}
       <section>
         <p className="label-mono uppercase mb-3 text-white/70">
-          Attendee Information
+          {tx('attendees.attendee_information')}
         </p>
         <div className="space-y-3">
           <InfoRow icon={<User className="h-4 w-4" />} label="Name">
             {ticket.attendee?.full_name || ', '}
           </InfoRow>
-          <InfoRow icon={<Mail className="h-4 w-4" />} label="Email">
+          <InfoRow icon={<Mail className="h-4 w-4" />} label={tx('actions.email')}>
             {ticket.attendee?.email || ', '}
           </InfoRow>
           <InfoRow
@@ -366,7 +366,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
             }
-            label="Phone"
+            label={tx('actions.phone')}
           >
             {ticket.attendee?.phone_number || ', '}
           </InfoRow>
@@ -376,7 +376,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
       {/* Ticket info */}
       <section>
         <p className="label-mono uppercase mb-3 text-white/70">
-          Ticket Information
+          {tx('attendees.ticket_information')}
         </p>
         <div className="space-y-3">
           <InfoRow icon={<QrCode className="h-4 w-4" />} label={tx('attendees.ticket_id')}>
@@ -488,7 +488,7 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
         className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
       >
         <Mail className="h-4 w-4" />
-        Resend Ticket Email
+        {tx('attendees.resend_ticket_email')}
       </button>
 
       {confirmingRefund ? (
@@ -501,7 +501,7 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
               disabled={loading}
               className="h-11 flex-1 rounded-[10px] bg-white/[0.10] text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.16] hover:text-white disabled:opacity-50"
             >
-              Cancel
+              {tx('actions.cancel')}
             </button>
             <button
               type="button"
@@ -521,7 +521,7 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
         >
           <CreditCard className="h-4 w-4" />
-          Process Refund
+          {tx('attendees.process_refund')}
         </button>
       )}
     </div>
