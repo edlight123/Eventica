@@ -1,3 +1,4 @@
+import { T } from '@/components/organizer/ui/TranslatedText'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -47,14 +48,12 @@ export default async function CheckInPage({ params }: PageProps) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center px-4 py-16">
         <div className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-          <h2 className="font-display text-2xl text-white mb-3">Unauthorized</h2>
+          <h2 className="font-display text-2xl text-white mb-3"><T k="server_bits.unauthorized" /></h2>
           <p className="text-sm text-white/70">You don&apos;t have permission to run check-in for this event.</p>
           <Link
             href="/organizer/events"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            Back to events
-          </Link>
+          ><T k="server_bits.back_to_events" /></Link>
         </div>
       </div>
     )

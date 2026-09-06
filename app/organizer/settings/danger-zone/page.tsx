@@ -1,3 +1,4 @@
+import { T } from '@/components/organizer/ui/TranslatedText'
 import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import DangerZone from './DangerZone';
@@ -27,10 +28,8 @@ export default async function DangerZoneSettingsPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-red-300 mb-1">Proceed with Caution</h3>
-              <p className="text-sm text-red-300">
-                The actions below are irreversible or have significant consequences. Please read each option carefully before proceeding.
-              </p>
+              <h3 className="font-semibold text-red-300 mb-1"><T k="server_bits.proceed_with_caution" /></h3>
+              <p className="text-sm text-red-300"><T k="server_bits.danger_intro" /></p>
             </div>
           </div>
         </div>

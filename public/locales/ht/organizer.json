@@ -1442,7 +1442,11 @@
     "total_codes": "Total kòd",
     "active": "Aktif",
     "inactive": "Inaktif",
-    "total_uses": "Total itilizasyon"
+    "total_uses": "Total itilizasyon",
+    "unauthorized": "Aksè pa otorize",
+    "proceed_with_caution": "Fè atansyon",
+    "danger_intro": "Aksyon ki anba yo pa ka defèt oswa yo gen gwo konsekans. Li chak opsyon byen anvan w kontinye.",
+    "something_went_wrong": "Yon bagay pa mache"
   },
   "event_analytics": {
     "no_sales_data_yet": "Poko gen done vant",

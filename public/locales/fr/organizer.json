@@ -1442,7 +1442,11 @@
     "total_codes": "Total des codes",
     "active": "Actifs",
     "inactive": "Inactifs",
-    "total_uses": "Utilisations totales"
+    "total_uses": "Utilisations totales",
+    "unauthorized": "Accès non autorisé",
+    "proceed_with_caution": "Procédez avec prudence",
+    "danger_intro": "Les actions ci-dessous sont irréversibles ou lourdes de conséquences. Lisez attentivement chaque option avant de continuer.",
+    "something_went_wrong": "Une erreur est survenue"
   },
   "event_analytics": {
     "no_sales_data_yet": "Aucune donnée de vente",

@@ -1,4 +1,5 @@
 import React from 'react'
+import { T } from '@/components/organizer/ui/TranslatedText'
 import { AlertCircle } from 'lucide-react'
 
 type IconType = React.ComponentType<{ className?: string }>
@@ -46,7 +47,7 @@ export function OrgEmptyState({
  * Use when a data fetch fails or a permission is denied.
  */
 export function OrgErrorState({
-  title = 'Something went wrong',
+  title,
   description,
   action,
   className = '',
@@ -65,7 +66,7 @@ export function OrgErrorState({
       <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl text-red-400">
         <AlertCircle className="h-7 w-7" />
       </div>
-      <h3 className="font-display text-xl text-white">{title}</h3>
+      <h3 className="font-display text-xl text-white">{title ?? <T k="server_bits.something_went_wrong" />}</h3>
       {description && (
         <p className="mx-auto mt-2 max-w-sm text-sm text-white/50">{description}</p>
       )}
