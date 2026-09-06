@@ -43,3 +43,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Build artifacts — 34MB each, and they inflated both the EAS upload and any
+# local vercel deploy before being ignored.
+*.ipa
+*.app
