@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 /**
  * VerificationStepper Component
  * Step-by-step checklist for verification process
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export default function VerificationStepper({ request, onEditStep, isReadOnly = false }: Props) {
+  const { t } = useTranslation('organizer')
+
   // Fixed order of steps to prevent random ordering
   const stepOrder: (keyof VerificationRequest['steps'])[] = [
     'organizerInfo',
@@ -26,7 +29,7 @@ export default function VerificationStepper({ request, onEditStep, isReadOnly = 
 
   return (
     <div className="space-y-4">
-      <SectionHeader title="Verification steps" className="mb-4" />
+      <SectionHeader title={t('verification_stepper.verification_steps')} className="mb-4" />
 
       <div className="space-y-3">
         {steps.map(([stepId, step], index) => (
@@ -54,6 +57,8 @@ interface StepCardProps {
 }
 
 function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: StepCardProps) {
+  const { t } = useTranslation('organizer')
+
   // Status styling.
   //
   // Every state is a FILL, never a hairline around an empty box (see
@@ -135,7 +140,7 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
               <h3 className="font-semibold text-white text-sm md:text-base mb-1">
                 {step.title}
                 {step.required && (
-                  <span className="text-red-500 ml-1" aria-label="Required">
+                  <span className="text-red-500 ml-1" aria-label={t('actions.required')}>
                     *
                   </span>
                 )}
@@ -154,7 +159,7 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
           {/* Missing fields / Error message */}
           {step.status !== 'complete' && step.missingFields && step.missingFields.length > 0 && (
             <div className="mt-2 mb-3">
-              <p className="text-xs text-white/60 mb-1">Missing:</p>
+              <p className="text-xs text-white/60 mb-1">{t('verification_stepper.missing')}</p>
               <ul className="list-disc list-inside text-xs text-white/70 space-y-0.5">
                 {step.missingFields.map((field) => (
                   <li key={field}>
@@ -194,7 +199,7 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                <span>View Details</span>
+                <span>{t('actions.view_details')}</span>
               </button>
             </div>
           )}

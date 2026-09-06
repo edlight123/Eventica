@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import Badge from '@/components/ui/Badge'
 import { Eye, Save, Rocket, AlertCircle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -29,6 +31,8 @@ export function EditEventHeader({
   onPublish,
   isSaving
 }: EditEventHeaderProps) {
+  const { t } = useTranslation('organizer')
+
   return (
     <div className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-white/10 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -46,7 +50,7 @@ export function EditEventHeader({
                 {hasUnsavedChanges && (
                   <span className="text-sm text-amber-300 font-medium flex items-center gap-1">
                     <span className="w-2 h-2 bg-amber-600 rounded-full animate-pulse"></span>
-                    Unsaved
+                    {t('edit_event_header.unsaved')}
                   </span>
                 )}
               </div>
@@ -81,12 +85,12 @@ export function EditEventHeader({
                 {canPublish ? (
                   <div className="hidden md:flex items-center gap-1.5 text-emerald-300 text-sm font-medium">
                     <CheckCircle className="w-4 h-4" />
-                    <span>Ready to publish</span>
+                    <span>{t('edit_event_header.ready_to_publish')}</span>
                   </div>
                 ) : (
                   <div className="hidden md:flex items-center gap-1.5 text-amber-300 text-sm font-medium">
                     <AlertCircle className="w-4 h-4" />
-                    <span>Complete required fields</span>
+                    <span>{t('edit_event_header.complete_required_fields')}</span>
                   </div>
                 )}
               </div>
@@ -120,7 +124,7 @@ export function EditEventHeader({
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-white/[0.03] text-white/70 hover:bg-white/[0.04] border-2 border-white/15 transition-all"
               >
                 <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">Preview</span>
+                <span className="hidden sm:inline">{t('actions.preview')}</span>
               </Link>
             )}
 
@@ -151,7 +155,7 @@ export function EditEventHeader({
           {canPublish ? (
             <div className="flex items-center gap-1.5 text-emerald-300 text-sm font-medium">
               <CheckCircle className="w-4 h-4" />
-              <span>Ready to publish</span>
+              <span>{t('edit_event_header.ready_to_publish')}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 text-amber-300 text-sm font-medium">

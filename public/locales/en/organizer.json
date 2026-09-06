@@ -1000,7 +1000,11 @@
     "payout_history": "Payout history",
     "payout_methods": "Payout methods",
     "pending": "Pending",
-    "schedule_limits": "Schedule & limits"
+    "schedule_limits": "Schedule & limits",
+    "add_another": "Add another",
+    "set_up_payout_method": "Set up a payout method to receive earnings from your ticket sales.",
+    "set_up_payouts": "Set up payouts",
+    "set_up_payouts_title": "Set Up Payouts"
   },
   "analytics": {
     "analytics": "Analytics",
@@ -1027,7 +1031,11 @@
     "promoters": "Promoters",
     "share_on": "Share on",
     "share_your_event": "Share your event",
-    "sms_campaigns": "SMS campaigns"
+    "sms_campaigns": "SMS campaigns",
+    "copy_link": "Copy link",
+    "create_code": "Create code",
+    "create_promo_code": "Create promo code",
+    "manage_promoters": "Manage promoters"
   },
   "tracking_links": {
     "build_tracking_link": "Build tracking link",
@@ -1039,7 +1047,11 @@
     "no_tracking_links": "No tracking links",
     "preview": "Preview",
     "source": "Source",
-    "tracking_links": "Tracking links"
+    "tracking_links": "Tracking links",
+    "create_link": "Create link",
+    "generate_utm": "Generate UTM-tagged links to track traffic from different sources.",
+    "new_link": "New link",
+    "new_tracking_link": "New tracking link"
   },
   "comps": {
     "complimentary_tickets": "Complimentary tickets",
@@ -1202,7 +1214,18 @@
     "no_events_yet": "No events yet",
     "identity_verification": "Identity Verification",
     "business_details": "Business Details",
-    "request_payout": "Request payout"
+    "request_payout": "Request payout",
+    "settings": "Settings",
+    "preview": "Preview",
+    "view_details": "View Details",
+    "coming_soon": "Coming soon",
+    "label": "Label",
+    "required": "Required",
+    "account": "Account",
+    "finance": "Finance",
+    "organizer": "Organizer",
+    "payouts": "Payouts",
+    "messages": "Messages"
   },
   "upgrade_prompt": {
     "brand_name": "Brand name",
@@ -1264,5 +1287,29 @@
   "verification_selfie": {
     "instructions": "Instructions:",
     "take_clear_selfie": "Take a clear selfie holding your ID next to your face"
+  },
+  "edit_event_header": {
+    "complete_required_fields": "Complete required fields",
+    "ready_to_publish": "Ready to publish",
+    "unsaved": "Unsaved"
+  },
+  "payouts_wrapper": {
+    "advanced_payout_settings": "Advanced payout settings",
+    "manage_earnings": "Manage how you receive earnings from your events."
+  },
+  "save_bar": {
+    "discard_changes_q": "Discard changes?",
+    "unsaved_changes": "Unsaved changes",
+    "unsaved_leave_warning": "You have unsaved changes that will be lost if you leave this page.",
+    "unsaved_short": "You have unsaved changes."
+  },
+  "verification_stepper": {
+    "missing": "Missing:",
+    "verification_steps": "Verification steps"
+  },
+  "messages": {
+    "no_messages_yet": "No messages yet",
+    "reply_privacy_note": "They see your reply in the app and by email. Your email address stays private.",
+    "your_reply": "Your reply"
   }
 }

@@ -204,7 +204,7 @@ export default function PayoutsSummaryDashboard({
               className="inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-brand-800"
             >
               <Plus className="h-4 w-4" />
-              Set up payouts
+              {t('payouts_summary.set_up_payouts')}
             </button>
           )}
         </div>
@@ -221,7 +221,7 @@ export default function PayoutsSummaryDashboard({
               className="inline-flex items-center gap-1 text-sm font-medium text-brand-300 hover:text-brand-300"
             >
               <Plus className="h-4 w-4" />
-              Add another
+              {t('payouts_summary.add_another')}
             </button>
           )}
         </div>
@@ -238,14 +238,14 @@ export default function PayoutsSummaryDashboard({
             </div>
             <h3 className="font-semibold text-white mb-2">{t('payouts_summary.no_payout_methods')}</h3>
             <p className="text-white/60 mb-4 max-w-sm mx-auto">
-              Set up a payout method to receive earnings from your ticket sales.
+              {t('payouts_summary.set_up_payout_method')}
             </p>
             <button
               type="button"
               onClick={onSetupNew}
               className="px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
             >
-              Set Up Payouts
+              {t('payouts_summary.set_up_payouts_title')}
             </button>
           </div>
         )}

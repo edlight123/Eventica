@@ -98,7 +98,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
         <div>
           <h1 className="text-xl font-semibold text-white">{t('tracking_links.tracking_links')}</h1>
           <p className="mt-0.5 text-sm text-white/70">
-            Generate UTM-tagged links to track traffic from different sources.
+            {t('tracking_links.generate_utm')}
           </p>
         </div>
         {!showForm && (
@@ -108,7 +108,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
             className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Plus className="h-4 w-4" />
-            New link
+            {t('tracking_links.new_link')}
           </button>
         )}
       </div>
@@ -118,7 +118,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
         <div className="rounded-2xl border border-white/10 p-5">
           <h2 className="mb-4 font-semibold text-white">{t('tracking_links.build_tracking_link')}</h2>
           <div className="space-y-4">
-            <FormField label="Label" htmlFor="tl-label" required>
+            <FormField label={t('actions.label')} htmlFor="tl-label" required>
               <input
                 id="tl-label"
                 type="text"
@@ -174,7 +174,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
               onClick={reset}
               className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
             <button
               type="button"
@@ -183,7 +183,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
               className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <Plus className="h-4 w-4" />
-              Create link
+              {t('tracking_links.create_link')}
             </button>
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
               className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <Plus className="h-4 w-4" />
-              New tracking link
+              {t('tracking_links.new_tracking_link')}
             </button>
           }
         />

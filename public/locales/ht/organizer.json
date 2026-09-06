@@ -1000,7 +1000,11 @@
     "payout_history": "Istorik peman",
     "payout_methods": "Metòd peman",
     "pending": "Annatant",
-    "schedule_limits": "Orè ak limit"
+    "schedule_limits": "Orè ak limit",
+    "add_another": "Ajoute yon lòt",
+    "set_up_payout_method": "Konfigire yon metòd peman pou w resevwa revni vant tikè ou yo.",
+    "set_up_payouts": "Konfigire peman yo",
+    "set_up_payouts_title": "Konfigire peman yo"
   },
   "analytics": {
     "analytics": "Analiz",
@@ -1027,7 +1031,11 @@
     "promoters": "Pwomotè",
     "share_on": "Pataje sou",
     "share_your_event": "Pataje evènman ou an",
-    "sms_campaigns": "Kanpay SMS"
+    "sms_campaigns": "Kanpay SMS",
+    "copy_link": "Kopye lyen an",
+    "create_code": "Kreye yon kòd",
+    "create_promo_code": "Kreye yon kòd pwomo",
+    "manage_promoters": "Jere pwomotè yo"
   },
   "tracking_links": {
     "build_tracking_link": "Kreye yon lyen swivi",
@@ -1039,7 +1047,11 @@
     "no_tracking_links": "Pa gen lyen swivi",
     "preview": "Apèsi",
     "source": "Sous",
-    "tracking_links": "Lyen swivi"
+    "tracking_links": "Lyen swivi",
+    "create_link": "Kreye lyen an",
+    "generate_utm": "Jenere lyen ak tag UTM pou swiv trafik ki soti nan divès sous.",
+    "new_link": "Nouvo lyen",
+    "new_tracking_link": "Nouvo lyen swivi"
   },
   "comps": {
     "complimentary_tickets": "Tikè gratis",
@@ -1202,7 +1214,18 @@
     "no_events_yet": "Poko gen evènman",
     "identity_verification": "Verifikasyon idantite",
     "business_details": "Enfòmasyon sou biznis la",
-    "request_payout": "Mande yon peman"
+    "request_payout": "Mande yon peman",
+    "settings": "Paramèt",
+    "preview": "Apèsi",
+    "view_details": "Gade detay yo",
+    "coming_soon": "Talè konsa",
+    "label": "Etikèt",
+    "required": "Obligatwa",
+    "account": "Kont",
+    "finance": "Finans",
+    "organizer": "Òganizatè",
+    "payouts": "Peman",
+    "messages": "Mesaj"
   },
   "upgrade_prompt": {
     "brand_name": "Non mak la",
@@ -1264,5 +1287,29 @@
   "verification_selfie": {
     "instructions": "Enstriksyon:",
     "take_clear_selfie": "Pran yon selfie ki klè avèk kat idantite ou bò figi ou"
+  },
+  "edit_event_header": {
+    "complete_required_fields": "Ranpli chan obligatwa yo",
+    "ready_to_publish": "Pare pou pibliye",
+    "unsaved": "Pa anrejistre"
+  },
+  "payouts_wrapper": {
+    "advanced_payout_settings": "Paramèt peman avanse",
+    "manage_earnings": "Jere kijan ou resevwa revni evènman ou yo."
+  },
+  "save_bar": {
+    "discard_changes_q": "Jete chanjman yo?",
+    "unsaved_changes": "Chanjman ki pa anrejistre",
+    "unsaved_leave_warning": "Ou gen chanjman ki pa anrejistre; w ap pèdi yo si w kite paj sa a.",
+    "unsaved_short": "Ou gen chanjman ki pa anrejistre."
+  },
+  "verification_stepper": {
+    "missing": "Ki manke:",
+    "verification_steps": "Etap verifikasyon yo"
+  },
+  "messages": {
+    "no_messages_yet": "Poko gen mesaj",
+    "reply_privacy_note": "Yo wè repons ou an nan aplikasyon an ak pa imel. Adrès imel ou rete prive.",
+    "your_reply": "Repons ou"
   }
 }

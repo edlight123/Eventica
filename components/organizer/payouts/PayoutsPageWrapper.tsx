@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -57,6 +59,8 @@ export default function PayoutsPageWrapper({
   declaredMarkets,
   initialActiveProfile,
 }: PayoutsPageWrapperProps) {
+  const { t } = useTranslation('organizer')
+
   const router = useRouter()
   const [viewMode, setViewMode] = useState<'dashboard' | 'setup' | 'edit'>('dashboard')
   const [editingProfile, setEditingProfile] = useState<'haiti' | 'stripe_connect' | null>(null)
@@ -172,14 +176,14 @@ export default function PayoutsPageWrapper({
         <div className="mb-6">
           <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
             <Link href="/organizer/settings" className="hover:text-white">
-              Settings
+              {t('actions.settings')}
             </Link>
             <span className="text-white/40">/</span>
-            <span className="text-white font-medium">Payouts</span>
+            <span className="text-white font-medium">{t('actions.payouts')}</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Payouts</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">{t('actions.payouts')}</h1>
           <p className="text-white/60 mt-1">
-            Manage how you receive earnings from your events.
+            {t('payouts_wrapper.manage_earnings')}
           </p>
         </div>
 
@@ -209,7 +213,7 @@ export default function PayoutsPageWrapper({
               href="/organizer/settings/payouts?view=advanced"
               className="inline-flex items-center gap-1 text-sm font-medium text-white/50 hover:text-white/70"
             >
-              Advanced payout settings
+              {t('payouts_wrapper.advanced_payout_settings')}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

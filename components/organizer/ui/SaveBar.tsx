@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import React, { useEffect } from 'react'
 import { ConfirmationDialog } from './ConfirmationDialog'
 
@@ -24,17 +26,19 @@ export function SaveBar({
   saveLabel = 'Save changes',
   discardLabel = 'Discard',
 }: SaveBarProps) {
+  const { t } = useTranslation('organizer')
+
   if (!dirty) return null
 
   return (
     <div
       role="region"
-      aria-label="Unsaved changes"
+      aria-label={t('save_bar.unsaved_changes')}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0a0a0a]/95 px-4 py-3 backdrop-blur-md sm:px-6"
       style={{ animation: 'slideUp 0.2s ease-out' }}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-        <p className="text-sm text-white/60">You have unsaved changes.</p>
+        <p className="text-sm text-white/60">{t('save_bar.unsaved_short')}</p>
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -80,6 +84,8 @@ export function UnsavedChangesPrompt({
   onStay,
   onLeave,
 }: UnsavedChangesPromptProps) {
+  const { t } = useTranslation('organizer')
+
   // Warn on browser tab close / refresh
   useEffect(() => {
     if (!dirty) return
@@ -96,8 +102,8 @@ export function UnsavedChangesPrompt({
       open={dirty}
       onClose={onStay}
       onConfirm={onLeave}
-      title="Discard changes?"
-      description="You have unsaved changes that will be lost if you leave this page."
+      title={t('save_bar.discard_changes_q')}
+      description={t('save_bar.unsaved_leave_warning')}
       confirmLabel="Discard & leave"
       cancelLabel="Stay on page"
       variant="danger"

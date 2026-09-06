@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DollarSign, Settings } from 'lucide-react'
@@ -23,6 +25,8 @@ interface Tab {
  * the global site navbar inside /organizer so there's only one bar.
  */
 export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0, accountInitial = 'U' }: OrganizerTopNavProps) {
+  const { t } = useTranslation('organizer')
+
   const pathname = usePathname()
 
   const tabs: Tab[] = [
@@ -48,7 +52,7 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0, accountIn
         </Link>
 
         {/* Tabs */}
-        <nav className="scrollbar-hide flex flex-1 items-center gap-1 overflow-x-auto" aria-label="Organizer">
+        <nav className="scrollbar-hide flex flex-1 items-center gap-1 overflow-x-auto" aria-label={t('actions.organizer')}>
           {tabs.map((tab) => {
             const active = isActive(tab.href)
             return (
@@ -75,7 +79,7 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0, accountIn
         <div className="flex shrink-0 items-center gap-1">
           <Link
             href="/organizer/finance"
-            aria-label="Finance"
+            aria-label={t('actions.finance')}
             className={`relative grid h-9 w-9 place-items-center rounded-lg transition-colors ${
               financeActive ? 'bg-white/[0.12] text-white' : 'text-white/55 hover:bg-white/[0.08] hover:text-white'
             }`}
@@ -89,7 +93,7 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0, accountIn
           </Link>
           <Link
             href="/organizer/settings"
-            aria-label="Settings"
+            aria-label={t('actions.settings')}
             className={`grid h-9 w-9 place-items-center rounded-lg transition-colors ${
               settingsActive ? 'bg-white/[0.12] text-white' : 'text-white/55 hover:bg-white/[0.08] hover:text-white'
             }`}
@@ -98,7 +102,7 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0, accountIn
           </Link>
           <Link
             href="/profile"
-            aria-label="Account"
+            aria-label={t('actions.account')}
             className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 text-sm font-bold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {accountInitial}

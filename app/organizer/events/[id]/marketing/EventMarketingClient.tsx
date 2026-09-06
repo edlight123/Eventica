@@ -93,7 +93,7 @@ export default function EventMarketingClient({
             aria-label={t('event_marketing.copy_event_link')}
             className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            {copied ? <><Check className="h-4 w-4" />{t('event_marketing.copied')}</> : <><Copy className="h-4 w-4" />Copy link</>}
+            {copied ? <><Check className="h-4 w-4" />{t('event_marketing.copied')}</> : <><Copy className="h-4 w-4" />{t('event_marketing.copy_link')}</>}
           </button>
           <Link
             href={`/events/${eventId}`}
@@ -132,7 +132,7 @@ export default function EventMarketingClient({
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Tag className="h-3.5 w-3.5" />
-            Create code
+            {t('event_marketing.create_code')}
           </Link>
         </div>
 
@@ -148,7 +148,7 @@ export default function EventMarketingClient({
                   className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   <Tag className="h-4 w-4" />
-                  Create promo code
+                  {t('event_marketing.create_promo_code')}
                 </Link>
               }
             />
@@ -191,7 +191,7 @@ export default function EventMarketingClient({
             href={`/organizer/events/${eventId}/promoters`}
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            Manage promoters
+            {t('event_marketing.manage_promoters')}
           </Link>
         </div>
       </div>
@@ -208,7 +208,7 @@ export default function EventMarketingClient({
             This feature is in development and will be available soon.
           </p>
           <span className="mt-4 inline-block rounded-full px-3 py-1 text-xs font-semibold text-brand-400">
-            Coming soon
+            {t('actions.coming_soon')}
           </span>
         </div>
       </div>

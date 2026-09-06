@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { MessageSquare, Send } from 'lucide-react'
 import { OrgEmptyState } from '@/components/organizer/ui'
@@ -38,6 +40,8 @@ export default function MessagesClient({
   threads: initialThreads,
   maxReplyLength,
 }: MessagesClientProps) {
+  const { t: tx } = useTranslation('organizer')
+
   const [threads, setThreads] = useState(initialThreads)
   const [selectedId, setSelectedId] = useState<string | null>(initialThreads[0]?.id ?? null)
   const [reply, setReply] = useState('')
@@ -129,7 +133,7 @@ export default function MessagesClient({
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-white">Messages</h1>
+        <h1 className="text-xl font-semibold text-white">{tx('actions.messages')}</h1>
         <p className="mt-0.5 text-sm text-white/50">
           {threads.length === 0
             ? 'Questions attendees send about this event land here'
@@ -142,7 +146,7 @@ export default function MessagesClient({
       {threads.length === 0 ? (
         <OrgEmptyState
           icon={MessageSquare}
-          title="No messages yet"
+          title={tx('messages.no_messages_yet')}
           description={
             eventTitle
               ? `When someone asks a question about ${eventTitle} before buying, you can answer it here. A fast reply is often what turns a browser into a buyer.`
@@ -223,7 +227,7 @@ export default function MessagesClient({
 
               <div className="border-t border-white/10 pt-5">
                 <label htmlFor="organizer-reply" className="sr-only">
-                  Your reply
+                  {tx('messages.your_reply')}
                 </label>
                 <textarea
                   id="organizer-reply"
@@ -237,7 +241,7 @@ export default function MessagesClient({
                 />
                 <div className="mt-3 flex items-center justify-between gap-4">
                   <p className="text-[11px] text-white/35">
-                    They see your reply in the app and by email. Your email address stays private.
+                    {tx('messages.reply_privacy_note')}
                   </p>
                   <div className="flex shrink-0 items-center gap-3">
                     <span className="font-mono text-[11px] tabular-nums text-white/35">

@@ -1000,7 +1000,11 @@
     "payout_history": "Historique des versements",
     "payout_methods": "Modes de versement",
     "pending": "En attente",
-    "schedule_limits": "Calendrier et limites"
+    "schedule_limits": "Calendrier et limites",
+    "add_another": "En ajouter un autre",
+    "set_up_payout_method": "Configurez un mode de versement pour recevoir les revenus de vos ventes de billets.",
+    "set_up_payouts": "Configurer les versements",
+    "set_up_payouts_title": "Configurer les versements"
   },
   "analytics": {
     "analytics": "Analyses",
@@ -1027,7 +1031,11 @@
     "promoters": "Promoteurs",
     "share_on": "Partager sur",
     "share_your_event": "Partagez votre événement",
-    "sms_campaigns": "Campagnes SMS"
+    "sms_campaigns": "Campagnes SMS",
+    "copy_link": "Copier le lien",
+    "create_code": "Créer un code",
+    "create_promo_code": "Créer un code promo",
+    "manage_promoters": "Gérer les promoteurs"
   },
   "tracking_links": {
     "build_tracking_link": "Créer un lien de suivi",
@@ -1039,7 +1047,11 @@
     "no_tracking_links": "Aucun lien de suivi",
     "preview": "Aperçu",
     "source": "Source",
-    "tracking_links": "Liens de suivi"
+    "tracking_links": "Liens de suivi",
+    "create_link": "Créer le lien",
+    "generate_utm": "Générez des liens balisés UTM pour suivre le trafic de différentes sources.",
+    "new_link": "Nouveau lien",
+    "new_tracking_link": "Nouveau lien de suivi"
   },
   "comps": {
     "complimentary_tickets": "Billets gratuits",
@@ -1202,7 +1214,18 @@
     "no_events_yet": "Aucun événement pour l'instant",
     "identity_verification": "Vérification d'identité",
     "business_details": "Informations sur l'entreprise",
-    "request_payout": "Demander un versement"
+    "request_payout": "Demander un versement",
+    "settings": "Paramètres",
+    "preview": "Aperçu",
+    "view_details": "Voir les détails",
+    "coming_soon": "Bientôt disponible",
+    "label": "Libellé",
+    "required": "Obligatoire",
+    "account": "Compte",
+    "finance": "Finances",
+    "organizer": "Organisateur",
+    "payouts": "Versements",
+    "messages": "Messages"
   },
   "upgrade_prompt": {
     "brand_name": "Nom de la marque",
@@ -1264,5 +1287,29 @@
   "verification_selfie": {
     "instructions": "Instructions :",
     "take_clear_selfie": "Prenez un selfie net en tenant votre pièce d'identité à côté de votre visage"
+  },
+  "edit_event_header": {
+    "complete_required_fields": "Complétez les champs obligatoires",
+    "ready_to_publish": "Prêt à publier",
+    "unsaved": "Non enregistré"
+  },
+  "payouts_wrapper": {
+    "advanced_payout_settings": "Paramètres de versement avancés",
+    "manage_earnings": "Gérez la façon dont vous recevez les revenus de vos événements."
+  },
+  "save_bar": {
+    "discard_changes_q": "Annuler les modifications ?",
+    "unsaved_changes": "Modifications non enregistrées",
+    "unsaved_leave_warning": "Vous avez des modifications non enregistrées qui seront perdues si vous quittez cette page.",
+    "unsaved_short": "Vous avez des modifications non enregistrées."
+  },
+  "verification_stepper": {
+    "missing": "Manquant :",
+    "verification_steps": "Étapes de vérification"
+  },
+  "messages": {
+    "no_messages_yet": "Aucun message pour l'instant",
+    "reply_privacy_note": "Ils voient votre réponse dans l'application et par e-mail. Votre adresse e-mail reste privée.",
+    "your_reply": "Votre réponse"
   }
 }
