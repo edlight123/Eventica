@@ -1034,5 +1034,28 @@
     "no_recent_activity": "Aucune activité récente à afficher",
     "recent_login_activity": "Activité de connexion récente",
     "two_factor_auth": "Authentification à deux facteurs"
+  },
+  "command_center": {
+    "add_a_flyer": "Ajouter une affiche",
+    "add_one": "En ajouter un",
+    "finish_setup": "Terminer la configuration",
+    "no_sales_in_window": "Aucune vente sur cette période",
+    "no_sales_share": "Aucune vente pour l'instant, partagez votre événement pour démarrer.",
+    "portrait_ratio": "Portrait 4:5",
+    "recent_activity": "Activité récente",
+    "ticket_types": "Types de billets"
+  },
+  "guest_list": {
+    "add_vip_desc": "Ajoutez des invités VIP à votre événement. Ils recevront une invitation et une place réservée.",
+    "allow_plus_one": "Autoriser +1",
+    "allow_plus_one_desc": "Autoriser cet invité à venir accompagné d'une personne",
+    "checked_in": "Enregistré",
+    "email_address": "Adresse e-mail",
+    "full_name": "Nom complet",
+    "guest_details": "Détails de l'invité",
+    "guest_list": "Liste des invités",
+    "invite_guest": "Inviter un invité",
+    "no_guests_yet": "Aucun invité pour l'instant",
+    "not_checked_in": "Non enregistré"
   }
 }

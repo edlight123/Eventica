@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { format, formatDistanceToNow, isValid } from 'date-fns'
@@ -27,6 +29,8 @@ interface EventCommandCenterProps {
 const TREND_DAYS = 14
 
 export function EventCommandCenter({ event, stats, tickets, tiers }: EventCommandCenterProps) {
+  const { t: tx } = useTranslation('organizer')
+
   const currency = normalizeCurrency(event?.currency, stats?.currency || 'HTG')
   const liveTickets = tickets.filter((t: any) => (t.status || '').toLowerCase() !== 'cancelled')
 
@@ -88,7 +92,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
       {incomplete.length > 0 && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-500/[0.09] px-3.5 py-2.5">
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm">
-            <span className="font-medium text-white">Finish setup</span>
+            <span className="font-medium text-white">{tx('command_center.finish_setup')}</span>
             <span className="text-white/40">·</span>
             {incomplete.map((s, i) => (
               <span key={s.id} className="flex items-center gap-1.5 text-white/55">
@@ -152,14 +156,14 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                 ))}
               </div>
             ) : (
-              <p className="py-6 text-center text-sm text-white/35">No sales yet in this window</p>
+              <p className="py-6 text-center text-sm text-white/35">{tx('command_center.no_sales_in_window')}</p>
             )}
           </section>
 
           {/* Ticket tiers */}
           <section className="rounded-lg bg-white/[0.03] p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-display text-[16px] lowercase italic leading-none text-white">Ticket types</h3>
+              <h3 className="font-display text-[16px] lowercase italic leading-none text-white">{tx('command_center.ticket_types')}</h3>
               <Link href={`/organizer/events/${event.id}/tickets`} className="inline-flex items-center gap-1 text-xs font-medium text-brand-300 hover:text-brand-200">
                 Manage <ArrowUpRight className="h-3 w-3" />
               </Link>
@@ -186,14 +190,14 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
             ) : (
               <p className="py-4 text-sm text-white/45">
                 No ticket types yet.{' '}
-                <Link href={`/organizer/events/${event.id}/edit#tickets`} className="font-semibold text-brand-300 hover:text-brand-200">Add one</Link>
+                <Link href={`/organizer/events/${event.id}/edit#tickets`} className="font-semibold text-brand-300 hover:text-brand-200">{tx('command_center.add_one')}</Link>
               </p>
             )}
           </section>
 
           {/* Recent activity */}
           <section className="rounded-lg bg-white/[0.03] p-4">
-            <h3 className="mb-2 font-display text-[16px] lowercase italic leading-none text-white">Recent activity</h3>
+            <h3 className="mb-2 font-display text-[16px] lowercase italic leading-none text-white">{tx('command_center.recent_activity')}</h3>
             {recent.length > 0 ? (
               <ul className="divide-y divide-white/5">
                 {recent.map((t: any) => {
@@ -214,7 +218,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                 })}
               </ul>
             ) : (
-              <p className="py-4 text-sm text-white/45">No sales yet, share your event to get going.</p>
+              <p className="py-4 text-sm text-white/45">{tx('command_center.no_sales_share')}</p>
             )}
           </section>
         </div>
@@ -231,8 +235,8 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
               className="flex aspect-[4/5] w-full flex-col items-center justify-center rounded-lg bg-white/[0.055] text-center text-white/45 transition-colors hover:bg-white/[0.09] hover:text-white/70"
             >
               <ImageIcon className="mb-2 h-8 w-8" />
-              <span className="text-sm font-medium">Add a flyer</span>
-              <span className="mt-0.5 text-xs text-white/35">Portrait 4:5</span>
+              <span className="text-sm font-medium">{tx('command_center.add_a_flyer')}</span>
+              <span className="mt-0.5 text-xs text-white/35">{tx('command_center.portrait_ratio')}</span>
             </Link>
           )}
           <div className="space-y-2.5 text-sm">

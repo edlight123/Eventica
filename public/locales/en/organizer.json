@@ -1034,5 +1034,28 @@
     "no_recent_activity": "No recent activity to display",
     "recent_login_activity": "Recent Login Activity",
     "two_factor_auth": "Two-Factor Authentication"
+  },
+  "command_center": {
+    "add_a_flyer": "Add a flyer",
+    "add_one": "Add one",
+    "finish_setup": "Finish setup",
+    "no_sales_in_window": "No sales yet in this window",
+    "no_sales_share": "No sales yet, share your event to get going.",
+    "portrait_ratio": "Portrait 4:5",
+    "recent_activity": "Recent activity",
+    "ticket_types": "Ticket types"
+  },
+  "guest_list": {
+    "add_vip_desc": "Add VIP guests to your event. They'll receive an invitation and a reserved spot.",
+    "allow_plus_one": "Allow +1",
+    "allow_plus_one_desc": "Allow this guest to bring one additional person",
+    "checked_in": "Checked in",
+    "email_address": "Email address",
+    "full_name": "Full name",
+    "guest_details": "Guest details",
+    "guest_list": "Guest list",
+    "invite_guest": "Invite guest",
+    "no_guests_yet": "No guests yet",
+    "not_checked_in": "Not checked in"
   }
 }

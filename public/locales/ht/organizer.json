@@ -1034,5 +1034,28 @@
     "no_recent_activity": "Pa gen aktivite resan pou montre",
     "recent_login_activity": "Aktivite koneksyon resan",
     "two_factor_auth": "Otantifikasyon ak de faktè"
+  },
+  "command_center": {
+    "add_a_flyer": "Ajoute yon flyer",
+    "add_one": "Ajoute youn",
+    "finish_setup": "Fini konfigirasyon an",
+    "no_sales_in_window": "Poko gen vant nan peryòd sa a",
+    "no_sales_share": "Poko gen vant, pataje evènman ou an pou w kòmanse.",
+    "portrait_ratio": "Pòtrè 4:5",
+    "recent_activity": "Aktivite resan",
+    "ticket_types": "Tip tikè"
+  },
+  "guest_list": {
+    "add_vip_desc": "Ajoute envite VIP nan evènman ou an. Y ap resevwa yon envitasyon ak yon plas rezève.",
+    "allow_plus_one": "Otorize +1",
+    "allow_plus_one_desc": "Otorize envite sa a vini ak yon lòt moun",
+    "checked_in": "Anrejistre",
+    "email_address": "Adrès imel",
+    "full_name": "Non konplè",
+    "guest_details": "Detay envite a",
+    "guest_list": "Lis envite",
+    "invite_guest": "Envite yon moun",
+    "no_guests_yet": "Poko gen envite",
+    "not_checked_in": "Poko anrejistre"
   }
 }

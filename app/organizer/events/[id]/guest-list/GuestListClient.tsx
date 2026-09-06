@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { UserPlus, Users, CheckCircle2, Clock, Mail } from 'lucide-react'
@@ -35,7 +37,9 @@ function statusTone(status: string): 'success' | 'warning' | 'neutral' {
   return 'neutral'
 }
 
-const columns: OrgColumn<Guest>[] = [
+// Built per render: two cells are translated, and a module-level constant has
+// no hook to read them from.
+const buildColumns = (t: (k: string) => string): OrgColumn<Guest>[] => [
   {
     key: 'name',
     header: 'Guest',
@@ -68,14 +72,16 @@ const columns: OrgColumn<Guest>[] = [
     header: 'Checked in',
     render: (g) =>
       g.checked_in ? (
-        <CheckCircle2 className="h-4 w-4 text-emerald-400" role="img" aria-label="Checked in" />
+        <CheckCircle2 className="h-4 w-4 text-emerald-400" role="img" aria-label={t('guest_list.checked_in')} />
       ) : (
-        <Clock className="h-4 w-4 text-white/40" role="img" aria-label="Not checked in" />
+        <Clock className="h-4 w-4 text-white/40" role="img" aria-label={t('guest_list.not_checked_in')} />
       ),
   },
 ]
 
 export default function GuestListClient({ eventId, eventTitle, guests }: GuestListClientProps) {
+  const { t } = useTranslation('organizer')
+
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -120,7 +126,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
     <>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-white">Guest list</h1>
+          <h1 className="text-xl font-semibold text-white">{t('guest_list.guest_list')}</h1>
           <p className="mt-0.5 text-sm text-white/50">
             {guests.length > 0
               ? `${guests.length} guest${guests.length !== 1 ? 's' : ''} invited`
@@ -133,15 +139,15 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
           className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <UserPlus className="h-4 w-4" />
-          Invite guest
+          {t('guest_list.invite_guest')}
         </button>
       </div>
 
       {guests.length === 0 ? (
         <OrgEmptyState
           icon={Users}
-          title="No guests yet"
-          description="Add VIP guests to your event. They'll receive an invitation and a reserved spot."
+          title={t('guest_list.no_guests_yet')}
+          description={t('guest_list.add_vip_desc')}
           action={
             <button
               type="button"
@@ -149,14 +155,14 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
               className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <UserPlus className="h-4 w-4" />
-              Invite guest
+              {t('guest_list.invite_guest')}
             </button>
           }
         />
       ) : (
         <OrgDataTable
           rows={guests}
-          columns={columns}
+          columns={buildColumns(t)}
           rowKey={(g) => g.id}
         />
       )}
@@ -164,7 +170,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
       <Drawer
         open={open}
         onClose={() => { setOpen(false); reset() }}
-        title="Invite guest"
+        title={t('guest_list.invite_guest')}
         size="sm"
         footer={
           <div className="flex justify-end gap-3">
@@ -187,8 +193,8 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
           </div>
         }
       >
-        <FormSection title="Guest details">
-          <FormField label="Full name" required>
+        <FormSection title={t('guest_list.guest_details')}>
+          <FormField label={t('guest_list.full_name')} required>
             <input
               type="text"
               value={name}
@@ -197,7 +203,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
               className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
-          <FormField label="Email address" required>
+          <FormField label={t('guest_list.email_address')} required>
             <input
               type="email"
               value={email}
@@ -206,7 +212,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
               className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
-          <FormField label="Allow +1">
+          <FormField label={t('guest_list.allow_plus_one')}>
             <label className="flex cursor-pointer items-center gap-3">
               <input
                 type="checkbox"
@@ -214,7 +220,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
                 onChange={(e) => setPlusOne(e.target.checked)}
                 className="h-4 w-4 rounded border-white/20 bg-white/10 text-brand-600 accent-brand-600 focus:ring-brand-500"
               />
-              <span className="text-sm text-white/70">Allow this guest to bring one additional person</span>
+              <span className="text-sm text-white/70">{t('guest_list.allow_plus_one_desc')}</span>
             </label>
           </FormField>
           {error && (
