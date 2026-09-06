@@ -148,7 +148,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
           className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Gift className="h-4 w-4" />
-          Issue comp
+          {tx('comps.issue_comp')}
         </button>
       </div>
 
@@ -184,7 +184,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               onClick={() => { setOpen(false); reset() }}
               className="rounded-xl  px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              Cancel
+              {tx('actions.cancel')}
             </button>
             <button
               type="button"

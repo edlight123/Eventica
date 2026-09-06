@@ -844,7 +844,16 @@
     "routing_number_optional": "Nimewo routing (Opsyonèl)",
     "for_international_transfers": "Pou transfè entènasyonal",
     "swift_code_optional": "Kòd SWIFT (Opsyonèl)",
-    "email_verification": "Verifikasyon imel"
+    "email_verification": "Verifikasyon imel",
+    "new_bank_needs_verification_long": "Pou ajoute yon nouvo kont bankè, ou dwe verifye imel ou. Non moun ki gen kont lan dwe menm ak non òganizatè ou.",
+    "available_for_withdrawal": "Disponib pou retire:",
+    "download_audit_csv": "Telechaje odit la (CSV)",
+    "moncash_phone_number": "Nimewo telefòn MonCash",
+    "save_second_bank": "Sove sa a kòm yon dezyèm kont bankè",
+    "prefunding_instant_note": "Retrè sa a ap voye touswit gras ak prefinansman platfòm nan.",
+    "new_bank_needs_verification": "Pou w sèvi ak yon nouvo kont bankè, ou dwe verifye imel ou.",
+    "bank_deposit_note": "Retrè ou a ap depoze nan kont bankè ou nan 3-5 jou ouvrab.",
+    "moncash_note": "Retrè ou a ap voye sou kont MonCash ou (anjeneral nan 24 èdtan)."
   },
   "events_filters": {
     "alphabetical": "Alfabetik",
@@ -1033,7 +1042,8 @@
     "quantity": "Kantite",
     "recipient": "Moun k ap resevwa",
     "ticket": "Tikè",
-    "ticket_type": "Tip tikè"
+    "ticket_type": "Tip tikè",
+    "issue_comp": "Bay yon tikè gratis"
   },
   "promoters": {
     "commission": "Komisyon",
@@ -1141,5 +1151,14 @@
     "event": "Evènman",
     "sales": "Vant",
     "type": "Tip"
+  },
+  "upgrade_prompt": {
+    "brand_name": "Non mak la",
+    "browse_events_instead": "Gade evènman yo pito",
+    "create_your_organization": "Kreye òganizasyon ou",
+    "drafts_free_note": "Bouyon yo gratis. Pou pibliye evènman peyan, ou dwe verifye.",
+    "setup_once_note": "Konfigire òganizasyon ou yon sèl fwa, apre sa kreye evènman, vann tikè, epi resevwa lajan.",
+    "brand_visible_note": "Se mak sa a patisipan yo ap wè. Ou ka chanje l nenpòt lè nan paramèt yo.",
+    "what_is_org_called": "Kijan òganizasyon ou rele?"
   }
 }

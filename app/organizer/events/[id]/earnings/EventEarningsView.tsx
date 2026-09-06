@@ -433,7 +433,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               href={`/api/organizer/events/${event.id}/earnings/audit?format=csv`}
               className="text-sm text-brand-300 hover:underline"
             >
-              Download audit (CSV)
+              {t('event_earnings.download_audit_csv')}
             </a>
           </div>
         </div>
@@ -485,7 +485,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               </p>
               {settlementDate && (
                 <p className="text-amber-300 text-sm font-medium">
-                  Available for withdrawal: <span className="font-mono tabular-nums">{settlementDate.toLocaleDateString('en-US', {
+                  {t('event_earnings.available_for_withdrawal')}<span className="font-mono tabular-nums">{settlementDate.toLocaleDateString('en-US', {
                     month: 'long',
                     day: 'numeric',
                     year: 'numeric'
@@ -603,7 +603,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-white/70 mb-2">
-                      MonCash Phone Number
+                      {t('event_earnings.moncash_phone_number')}
                     </label>
                     <input
                       type="tel"
@@ -674,7 +674,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     <div className="border border-brand-500/30 rounded-lg p-3">
                       <p className="text-sm font-medium text-brand-300">{t('event_earnings.instant_moncash_prefunding')}</p>
                       <p className="text-xs text-brand-300 mt-1">
-                        This withdrawal will be sent instantly using platform prefunding.
+                        {t('event_earnings.prefunding_instant_note')}
                       </p>
                       <div className="mt-2 text-xs text-brand-300 space-y-1">
                         <div className="flex justify-between">
@@ -689,7 +689,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     </div>
                   ) : (
                     <p className="text-sm text-white/60">
-                      Your withdrawal will be sent to your MonCash account (typically within 24 hours).
+                      {t('event_earnings.moncash_note')}
                     </p>
                   )}
                 </div>
@@ -748,7 +748,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       <span>
                         <span className="font-semibold">{t('event_earnings.use_new_bank')}</span>
                         <span className="block text-xs text-white/70">
-                          Using a new bank account requires email verification.
+                          {t('event_earnings.new_bank_needs_verification')}
                         </span>
                       </span>
                     </label>
@@ -791,7 +791,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       <div className="rounded-lg bg-white/[0.06] p-3">
                         <p className="text-sm text-white font-medium">{t('event_earnings.verification_required')}</p>
                         <p className="text-xs text-white/60 mt-1">
-                          Adding a new bank account requires email verification. The account holder name should match your organizer name.
+                          {t('event_earnings.new_bank_needs_verification_long')}
                         </p>
                       </div>
 
@@ -802,7 +802,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           onChange={(e) => setSaveNewBankDestination(e.target.checked)}
                           className="w-4 h-4"
                         />
-                        Save this as a second bank account
+                        {t('event_earnings.save_second_bank')}
                       </label>
 
                       <div>
@@ -866,7 +866,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   ) : null}
 
                   <p className="text-sm text-white/60">
-                    Your withdrawal will be deposited to your bank account within 3-5 business days.
+                    {t('event_earnings.bank_deposit_note')}
                   </p>
                 </div>
               )}
@@ -957,7 +957,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                 disabled={isSubmitting}
                 className="px-4 py-3 rounded-[10px] bg-white/[0.08] text-white/80 hover:bg-white/10 transition-colors font-medium disabled:cursor-not-allowed"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
             </div>
           </div>

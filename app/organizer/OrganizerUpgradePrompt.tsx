@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { becomeOrganizer } from './actions'
@@ -13,6 +15,8 @@ function sanitizeRedirectTarget(target: string | undefined | null): string {
 }
 
 export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: string }) {
+  const { t } = useTranslation('organizer')
+
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -47,7 +51,7 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
               Create your world on tikèm.
             </h2>
             <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-white/55">
-              Set up your organization once, then create events, sell tickets, and get paid.
+              {t('upgrade_prompt.setup_once_note')}
             </p>
           </div>
         </div>
@@ -57,10 +61,10 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
       <div className="flex items-center justify-center px-5 py-12 sm:px-10">
         <div className="w-full max-w-md">
           <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.05] text-white">
-            Create your organization
+            {t('upgrade_prompt.create_your_organization')}
           </h1>
           <p className="mt-2 text-[15px] text-white/55">
-            This is the brand attendees will see. You can change it anytime in settings.
+            {t('upgrade_prompt.brand_visible_note')}
           </p>
 
           {error && (
@@ -72,13 +76,13 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
           {/* Brand name */}
           <div className="mt-7">
             <label htmlFor="org-name" className="mb-2 block text-sm font-semibold text-white/80">
-              What is your organization called?
+              {t('upgrade_prompt.what_is_org_called')}
             </label>
             <input
               id="org-name"
               value={orgName}
               onChange={(e) => setOrgName(e.target.value)}
-              placeholder="Brand name"
+              placeholder={t('upgrade_prompt.brand_name')}
               className="w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-[15px] text-white placeholder:text-white/40 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
             />
           </div>
@@ -103,14 +107,14 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
             {isPending ? 'Setting up…' : 'Continue'}
           </button>
           <p className="mt-3 text-center text-xs text-white/40">
-            Drafts are free. Publishing paid events requires verification.
+            {t('upgrade_prompt.drafts_free_note')}
           </p>
           <button
             type="button"
             onClick={() => router.push('/discover')}
             className="mt-2 w-full rounded-xl px-5 py-2.5 text-sm font-medium text-white/50 transition-colors hover:text-white"
           >
-            Browse events instead
+            {t('upgrade_prompt.browse_events_instead')}
           </button>
         </div>
       </div>
