@@ -82,7 +82,7 @@ export function CategoryRail({
   return (
     <div>
       <div className="mb-4 flex items-end justify-between gap-4">
-        <h3 className="font-display lowercase italic text-[clamp(20px,3vw,28px)] leading-tight text-white/90">
+        <h3 className="font-display lowercase italic !text-[clamp(20px,3vw,28px)] !leading-tight text-white/90">
           {label}
         </h3>
         <Link
