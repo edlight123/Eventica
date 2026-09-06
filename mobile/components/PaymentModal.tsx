@@ -29,20 +29,38 @@ const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreCl
 // Conditionally import Stripe only if not in Expo Go
 let StripeProvider: any;
 let useStripe: any;
-let CardField: any;
 
 if (!isExpoGo) {
   try {
     const stripe = require('@stripe/stripe-react-native');
     StripeProvider = stripe.StripeProvider;
     useStripe = stripe.useStripe;
-    CardField = stripe.CardField;
   } catch (error) {
     console.warn('Stripe SDK not available in Expo Go');
   }
 }
 
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
+
+/**
+ * Apple Pay merchant identifier.
+ *
+ * Must match three things or the wallet button silently never appears:
+ * the `com.apple.developer.in-app-payments` entitlement (written by the Stripe
+ * config plugin in app.json), the Merchant ID registered in the Apple Developer
+ * portal, and the merchant ID registered under Apple Pay in the Stripe Dashboard.
+ */
+const APPLE_PAY_MERCHANT_ID = 'merchant.co.tikem';
+
+/**
+ * Apple Pay's merchant country — the country of the MERCHANT OF RECORD, which is
+ * the Tikèm platform account (Canadian), NOT the buyer's country and not the
+ * event's. A US event paid in USD still declares CA here.
+ */
+const STRIPE_MERCHANT_COUNTRY = 'CA';
+
+/** Where 3DS web views hand control back to the app. Matches `scheme` in app.json. */
+const STRIPE_RETURN_URL = 'tikem://stripe-redirect';
 
 // Feature flag: Sogepay (Haiti card processing) is not live yet. While disabled, Haiti events
 // show only MonCash/NatCash. Flip to true to re-enable the Sogepay card option.
@@ -91,9 +109,11 @@ function PaymentForm({
   const navigation = useNavigation<any>();
   const { t } = useI18n();
   // Only use Stripe hooks if available
-  const stripeHooks = useStripe ? useStripe() : { confirmPayment: null, handleCardAction: null };
-  const { confirmPayment, handleCardAction } = stripeHooks;
-  
+  const stripeHooks = useStripe
+    ? useStripe()
+    : { initPaymentSheet: null, presentPaymentSheet: null, retrievePaymentIntent: null };
+  const { initPaymentSheet, presentPaymentSheet, retrievePaymentIntent } = stripeHooks;
+
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -113,7 +133,6 @@ function PaymentForm({
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'moncash' | 'natcash' | 'sogepay'>(
     isHaitiEvent ? 'moncash' : 'stripe'
   );
-  const [cardComplete, setCardComplete] = useState(false);
 
   // Stripe Payment
   const handleStripePayment = async () => {
@@ -122,7 +141,7 @@ function PaymentForm({
       return;
     }
 
-    if (!confirmPayment) {
+    if (!initPaymentSheet || !presentPaymentSheet) {
       setError(t('paymentModal.errors.stripeUnavailable'));
       return;
     }
@@ -142,23 +161,84 @@ function PaymentForm({
         }),
       });
 
-      // Step 2: Confirm payment with Stripe
-      const { error: confirmError, paymentIntent } = await confirmPayment(data.clientSecret, {
-        paymentMethodType: 'Card',
+      // Step 2: Hand the intent to Stripe's PaymentSheet. It owns the card form,
+      // Apple Pay, Link and 3DS — which is why there is no card input on this
+      // screen any more. iOS also offers "Scan card" inside the sheet, using the
+      // camera permission declared in app.json.
+      const { error: initError } = await initPaymentSheet({
+        merchantDisplayName: 'Tikèm',
+        paymentIntentClientSecret: data.clientSecret,
+        // The sheet hides the wallet button by itself on a device or account
+        // where Apple Pay is unavailable, so this is safe to pass unconditionally.
+        applePay: { merchantCountryCode: STRIPE_MERCHANT_COUNTRY },
+        // A ticket is issued as soon as the charge clears, so a method that
+        // settles days later (bank debits, Konbini) would hand out a ticket
+        // before the money exists. Cards and wallets only.
+        allowsDelayedPaymentMethods: false,
+        returnURL: STRIPE_RETURN_URL,
+        // The app has no light mode, so let the sheet match rather than follow
+        // the phone and flash white over a black screen.
+        style: 'alwaysDark',
+        appearance: {
+          colors: {
+            primary: colors.primary,
+            background: colors.background,
+            componentBackground: colors.surface,
+            componentBorder: colors.border,
+            componentDivider: colors.border,
+            primaryText: colors.text,
+            secondaryText: colors.textSecondary,
+            componentText: colors.text,
+            placeholderText: colors.textTertiary,
+            icon: colors.textSecondary,
+            error: colors.error,
+          },
+          shapes: { borderRadius: radius.md },
+        },
       });
 
-      if (confirmError) {
-        throw new Error(confirmError.message);
+      if (initError) {
+        throw new Error(initError.message);
       }
 
-      if (paymentIntent?.status === 'Succeeded') {
-        // Step 3: Create tickets (backend will handle this via webhook, but we can also confirm here)
-        // Success is announced by the caller (EventDetail.handlePaymentSuccess),
-        // which shows the single success Alert and routes to Tickets. Firing our
-        // own Alert here would double up, so we just hand off and close.
-        onSuccess('stripe', paymentIntent.id);
-        onClose();
+      // Step 3: Present it. Dismissing the sheet is a decision, not a failure —
+      // it must leave no error text behind, or a buyer who changed their mind is
+      // told something went wrong.
+      const { error: sheetError } = await presentPaymentSheet();
+      if (sheetError) {
+        if (sheetError.code === 'Canceled') {
+          setProcessing(false);
+          return;
+        }
+        throw new Error(sheetError.message);
       }
+
+      // Step 4: The sheet reports success without handing back the intent, and a
+      // ticket depends on this, so read the real status from Stripe instead of
+      // assuming it. The id is derivable from the client secret if that read fails.
+      let paymentIntentId = data.clientSecret.split('_secret')[0];
+      if (retrievePaymentIntent) {
+        const { paymentIntent, error: retrieveError } = await retrievePaymentIntent(
+          data.clientSecret
+        );
+        if (!retrieveError && paymentIntent) {
+          paymentIntentId = paymentIntent.id;
+          // 'Processing' is a pass: the webhook finishes those. Only an outright
+          // failed or abandoned intent must not produce a ticket.
+          if (
+            paymentIntent.status === 'RequiresPaymentMethod' ||
+            paymentIntent.status === 'Canceled'
+          ) {
+            throw new Error(t('paymentModal.errors.paymentFailed'));
+          }
+        }
+      }
+
+      // Success is announced by the caller (EventDetail.handlePaymentSuccess),
+      // which shows the single success Alert and routes to Tickets. Firing our
+      // own Alert here would double up, so we just hand off and close.
+      onSuccess('stripe', paymentIntentId);
+      onClose();
     } catch (err: any) {
       setError(err.message || t('paymentModal.errors.paymentFailed'));
     } finally {
@@ -457,31 +537,10 @@ function PaymentForm({
           )}
         </View>
 
-        {/* Stripe Card Input */}
-        {paymentMethod === 'stripe' && CardField && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('paymentModal.cardDetails')}</Text>
-            <CardField
-              postalCodeEnabled={false}
-              // The 4242… test number and the test-card hint below are dev-only
-              // affordances — never surface them to real card users in prod.
-              placeholder={__DEV__ ? { number: '4242 4242 4242 4242' } : undefined}
-              cardStyle={styles.cardInput}
-              style={styles.cardFieldContainer}
-              onCardChange={(cardDetails: any) => {
-                setCardComplete(cardDetails.complete);
-              }}
-            />
-            {__DEV__ && (
-              <View style={styles.testCardHint}>
-                <AlertCircle size={14} color={colors.textSecondary} />
-                <Text style={styles.testCardHintText}>
-                  {t('paymentModal.testCardHint')}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
+        {/* No card fields here on purpose: Stripe's PaymentSheet collects the
+            card, offers Apple Pay and Link, and handles 3DS once "Pay" is
+            tapped. The __DEV__ test-card hint went with it — the sheet shows
+            saved and scanned cards of its own. */}
 
         {/* Mobile Money redirect hint — quiet inline helper text, never a boxed callout */}
         {(paymentMethod === 'moncash' || paymentMethod === 'natcash') && (
@@ -552,7 +611,7 @@ function PaymentForm({
           style={styles.payButtonPill}
           label={t('paymentModal.pay')}
           loading={processing}
-          disabled={processing || (paymentMethod === 'stripe' && !cardComplete)}
+          disabled={processing}
           onPress={handlePayment}
         />
       </View>
@@ -615,7 +674,14 @@ export default function PaymentModal(props: PaymentModalProps) {
       presentationStyle="pageSheet"
       onRequestClose={props.onClose}
     >
-      <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
+      <StripeProvider
+        publishableKey={STRIPE_PUBLISHABLE_KEY}
+        // Apple Pay renders ONLY when the provider knows the merchant id; without
+        // it the sheet quietly falls back to card-only with no error anywhere.
+        merchantIdentifier={APPLE_PAY_MERCHANT_ID}
+        // Lets the SDK return from a 3DS web view without stranding the buyer.
+        urlScheme="tikem"
+      >
         <PaymentForm {...props} />
       </StripeProvider>
     </Modal>
@@ -706,26 +772,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   methodCheck: {
     width: 20,
     alignItems: 'flex-end',
-  },
-  cardFieldContainer: {
-    height: 50,
-    marginBottom: 8,
-  },
-  cardInput: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
-    borderRadius: radius.sm,
-  },
-  testCardHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 8,
-  },
-  testCardHintText: {
-    fontSize: 12,
-    color: colors.textSecondary,
   },
   infoText: {
     fontSize: 12,

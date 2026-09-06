@@ -28,6 +28,11 @@
             "CFBundleURLSchemes": [
               "com.googleusercontent.apps.71580084056-uk9npqpsmm9sfdfe03k2ot3ha7qtv9h8"
             ]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "tikem"
+            ]
           }
         ]
       }
@@ -111,7 +116,14 @@
       [
         "react-native-document-scanner-plugin",
         {
-          "cameraPermission": "Allow Tik\u00e8m to use the camera to scan your ID document. The scan is used only to verify your identity before we send you money."
+          "cameraPermission": "Allow Tik\u00e8m to use the camera to scan your payment card at checkout, or your ID document when we verify your identity before sending you money. Scans are used only for that and are never stored."
+        }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.co.tikem",
+          "enableGooglePay": false
         }
       ]
     ],
