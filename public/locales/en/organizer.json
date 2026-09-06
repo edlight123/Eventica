@@ -1358,7 +1358,8 @@
   "orders": {
     "orders": "Orders",
     "every_ticket_sold": "Every ticket sold across your events.",
-    "search_orders": "Search by event, attendee, email or order #"
+    "search_orders": "Search by event, attendee, email or order #",
+    "search_orders_tier": "Search by name, email or tier"
   },
   "scan_selector": {
     "create_first_event": "Create Your First Event",
@@ -1442,5 +1443,28 @@
     "active": "Active",
     "inactive": "Inactive",
     "total_uses": "Total Uses"
+  },
+  "event_analytics": {
+    "no_sales_data_yet": "No sales data yet",
+    "analytics_after_sales": "Analytics will appear here once tickets are sold.",
+    "tickets_sold": "Tickets sold",
+    "revenue": "Revenue",
+    "capacity": "Capacity",
+    "checked_in": "Checked in",
+    "sales_by_tier": "Sales by tier",
+    "daily_sales": "Daily sales",
+    "days_with_sales": "Last <n>{{count}}</n> days with sales",
+    "your_events": "Your Events",
+    "check_in_access": "Check-In Access",
+    "event_scoped": "Event-scoped",
+    "staff": "Staff",
+    "managed_per_event": "Managed per event",
+    "guidelines": "Guidelines",
+    "invite_staff_for_event": "Invite staff for a specific event",
+    "one_time_invite_links": "Use one-time invite links for quick onboarding",
+    "remove_access_if_lost": "Remove access immediately if a device is lost",
+    "need_help": "Need help?",
+    "support_can_help": "Our support team can help onboard large teams and set up access.",
+    "back_to_settings": "Back to Settings"
   }
 }

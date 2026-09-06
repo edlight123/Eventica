@@ -1,3 +1,4 @@
+import { T } from '@/components/organizer/ui/TranslatedText'
 import { getCurrentUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -67,9 +68,7 @@ export default async function TeamSettingsPage({
           href="/organizer/settings"
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white mb-6 transition-colors"
         >
-          <ChevronLeft className="w-4 h-4" />
-          Back to Settings
-        </Link>
+          <ChevronLeft className="w-4 h-4" /><T k="event_analytics.back_to_settings" /></Link>
 
         <TranslatedPageHeader
           eyebrowKey="settings"
@@ -91,7 +90,7 @@ export default async function TeamSettingsPage({
                 <CalendarDays className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Your Events</p>
+                <p className="text-xs font-medium text-white/50 uppercase tracking-wide"><T k="event_analytics.your_events" /></p>
                 <p className="text-2xl font-semibold text-white">{events.length}</p>
               </div>
             </div>
@@ -102,8 +101,8 @@ export default async function TeamSettingsPage({
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Check-In Access</p>
-                <p className="text-sm font-semibold text-white">Event-scoped</p>
+                <p className="text-xs font-medium text-white/50 uppercase tracking-wide"><T k="event_analytics.check_in_access" /></p>
+                <p className="text-sm font-semibold text-white"><T k="event_analytics.event_scoped" /></p>
               </div>
             </div>
           </div>
@@ -113,8 +112,8 @@ export default async function TeamSettingsPage({
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-white/50 uppercase tracking-wide">Staff</p>
-                <p className="text-sm font-semibold text-white">Managed per event</p>
+                <p className="text-xs font-medium text-white/50 uppercase tracking-wide"><T k="event_analytics.staff" /></p>
+                <p className="text-sm font-semibold text-white"><T k="event_analytics.managed_per_event" /></p>
               </div>
             </div>
           </div>
@@ -127,28 +126,20 @@ export default async function TeamSettingsPage({
 
           <div className="space-y-6">
             <div className="rounded-xl bg-white/[0.03] p-5">
-              <h3 className="text-lg font-semibold text-white mb-3">Guidelines</h3>
+              <h3 className="text-lg font-semibold text-white mb-3"><T k="event_analytics.guidelines" /></h3>
               <ul className="space-y-3 text-sm text-white/70">
                 <li className="flex gap-2">
-                  <span className="text-brand-300">•</span>
-                  Invite staff for a specific event
-                </li>
+                  <span className="text-brand-300">•</span><T k="event_analytics.invite_staff_for_event" /></li>
                 <li className="flex gap-2">
-                  <span className="text-brand-300">•</span>
-                  Use one-time invite links for quick onboarding
-                </li>
+                  <span className="text-brand-300">•</span><T k="event_analytics.one_time_invite_links" /></li>
                 <li className="flex gap-2">
-                  <span className="text-brand-300">•</span>
-                  Remove access immediately if a device is lost
-                </li>
+                  <span className="text-brand-300">•</span><T k="event_analytics.remove_access_if_lost" /></li>
               </ul>
             </div>
 
             <div className="bg-brand-500/[0.06] border border-brand-500/30 rounded-xl p-5">
-              <h3 className="text-base font-semibold text-brand-300 mb-2">Need help?</h3>
-              <p className="text-sm text-white/70 mb-4">
-                Our support team can help onboard large teams and set up access.
-              </p>
+              <h3 className="text-base font-semibold text-brand-300 mb-2"><T k="event_analytics.need_help" /></h3>
+              <p className="text-sm text-white/70 mb-4"><T k="event_analytics.support_can_help" /></p>
               <Link
                 href="mailto:support@tikem.co"
                 className="inline-flex items-center text-sm font-semibold text-brand-300 hover:text-brand-200 transition-colors"

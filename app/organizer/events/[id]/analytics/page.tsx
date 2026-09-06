@@ -1,3 +1,5 @@
+import { T } from '@/components/organizer/ui/TranslatedText'
+import { DaysWithSalesCaption } from './DaysWithSalesCaption'
 import { requireAuth } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
 import { adminDb } from '@/lib/firebase/admin'
@@ -99,8 +101,8 @@ export default async function EventAnalyticsPage({
       {ticketsSold === 0 ? (
         <OrgEmptyState
           icon={BarChart2}
-          title="No sales data yet"
-          description="Analytics will appear here once tickets are sold."
+          title={<T k="event_analytics.no_sales_data_yet" />}
+          description={<T k="event_analytics.analytics_after_sales" />}
           className="mt-2"
         />
       ) : (
@@ -109,24 +111,24 @@ export default async function EventAnalyticsPage({
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <MetricCard
               icon={Ticket}
-              label="Tickets sold"
+              label={<T k="event_analytics.tickets_sold" />}
               value={ticketsSold}
               sublabel={capacity > 0 ? `${capacityRate.toFixed(0)}% of capacity` : undefined}
             />
             <MetricCard
               icon={TrendingUp}
-              label="Revenue"
+              label={<T k="event_analytics.revenue" />}
               value={revenueLabel}
             />
             <MetricCard
               icon={Users}
-              label="Capacity"
+              label={<T k="event_analytics.capacity" />}
               value={capacity > 0 ? capacity : ', '}
               sublabel={capacity > 0 ? `${(capacity - ticketsSold)} remaining` : 'Unlimited'}
             />
             <MetricCard
               icon={CheckCircle}
-              label="Checked in"
+              label={<T k="event_analytics.checked_in" />}
               value={checkedIn}
               sublabel={ticketsSold > 0 ? `${checkInRate.toFixed(0)}% rate` : undefined}
             />
@@ -135,7 +137,7 @@ export default async function EventAnalyticsPage({
           {/* Ticket tier breakdown */}
           {tierBreakdown.length > 0 && (
             <div className="rounded-2xl border border-white/10 p-5">
-              <h2 className="mb-4 font-semibold text-white">Sales by tier</h2>
+              <h2 className="mb-4 font-semibold text-white"><T k="event_analytics.sales_by_tier" /></h2>
               <div className="space-y-3">
                 {tierBreakdown.map((tier) => {
                   const pct = ticketsSold > 0 ? (tier.sold / ticketsSold) * 100 : 0
@@ -163,7 +165,7 @@ export default async function EventAnalyticsPage({
           {/* Daily sales chart (text-based sparkline) */}
           {salesByDay.length > 1 && (
             <div className="rounded-2xl border border-white/10 p-5">
-              <h2 className="mb-4 font-semibold text-white">Daily sales</h2>
+              <h2 className="mb-4 font-semibold text-white"><T k="event_analytics.daily_sales" /></h2>
               <div className="flex items-end gap-1 overflow-x-auto pb-1">
                 {salesByDay.map(({ date, count }) => {
                   const max = Math.max(...salesByDay.map((d) => d.count), 1)
@@ -186,7 +188,7 @@ export default async function EventAnalyticsPage({
                   )
                 })}
               </div>
-              <p className="mt-2 text-xs text-white/40">Last <span className="font-mono tabular-nums">{salesByDay.length}</span> days with sales</p>
+              <DaysWithSalesCaption count={salesByDay.length} />
             </div>
           )}
         </div>

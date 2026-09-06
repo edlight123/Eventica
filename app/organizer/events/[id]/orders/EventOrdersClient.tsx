@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useMemo, useState } from 'react'
 import { format, isValid } from 'date-fns'
 import { ShoppingBag } from 'lucide-react'
@@ -81,6 +83,8 @@ const COLUMNS: OrgColumn<Order>[] = [
 ]
 
 export default function EventOrdersClient({ orders }: { orders: Order[] }) {
+  const { t } = useTranslation('organizer')
+
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -106,7 +110,7 @@ export default function EventOrdersClient({ orders }: { orders: Order[] }) {
             <SearchInput
               value={query}
               onChange={setQuery}
-              placeholder="Search by name, email or tier"
+              placeholder={t('orders.search_orders_tier')}
               className="w-full sm:max-w-xs"
             />
           </TableToolbar>

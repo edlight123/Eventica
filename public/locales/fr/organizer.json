@@ -1358,7 +1358,8 @@
   "orders": {
     "orders": "Commandes",
     "every_ticket_sold": "Tous les billets vendus pour vos événements.",
-    "search_orders": "Rechercher par événement, participant, e-mail ou n° de commande"
+    "search_orders": "Rechercher par événement, participant, e-mail ou n° de commande",
+    "search_orders_tier": "Rechercher par nom, e-mail ou palier"
   },
   "scan_selector": {
     "create_first_event": "Créez votre premier événement",
@@ -1442,5 +1443,28 @@
     "active": "Actifs",
     "inactive": "Inactifs",
     "total_uses": "Utilisations totales"
+  },
+  "event_analytics": {
+    "no_sales_data_yet": "Aucune donnée de vente",
+    "analytics_after_sales": "Les analyses apparaîtront ici dès les premières ventes.",
+    "tickets_sold": "Billets vendus",
+    "revenue": "Revenus",
+    "capacity": "Capacité",
+    "checked_in": "Enregistrés",
+    "sales_by_tier": "Ventes par palier",
+    "daily_sales": "Ventes quotidiennes",
+    "days_with_sales": "Les <n>{{count}}</n> derniers jours avec des ventes",
+    "your_events": "Vos événements",
+    "check_in_access": "Accès à l'enregistrement",
+    "event_scoped": "Limité à l'événement",
+    "staff": "Personnel",
+    "managed_per_event": "Géré par événement",
+    "guidelines": "Consignes",
+    "invite_staff_for_event": "Invitez du personnel pour un événement précis",
+    "one_time_invite_links": "Utilisez des liens d'invitation à usage unique pour un accès rapide",
+    "remove_access_if_lost": "Retirez l'accès immédiatement en cas de perte d'un appareil",
+    "need_help": "Besoin d'aide ?",
+    "support_can_help": "Notre équipe d'assistance peut aider à intégrer de grandes équipes et configurer les accès.",
+    "back_to_settings": "Retour aux paramètres"
   }
 }
