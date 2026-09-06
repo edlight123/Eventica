@@ -1,3 +1,4 @@
+import { T } from '@/components/organizer/ui/TranslatedText'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
@@ -111,10 +112,10 @@ export default async function PromoCodesPage({
 
         {/* Metrics */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <MetricCard icon={Ticket} label="Total Codes" value={totalCodes} />
-          <MetricCard icon={CheckCircle} label="Active" value={activeCodes} sublabel={`${percentActive}% active`} />
-          <MetricCard icon={Activity} label="Total Uses" value={totalUses} />
-          <MetricCard icon={XCircle} label="Inactive" value={totalCodes - activeCodes} />
+          <MetricCard icon={Ticket} label={<T k="server_bits.total_codes" />} value={totalCodes} />
+          <MetricCard icon={CheckCircle} label={<T k="server_bits.active" />} value={activeCodes} sublabel={`${percentActive}% active`} />
+          <MetricCard icon={Activity} label={<T k="server_bits.total_uses" />} value={totalUses} />
+          <MetricCard icon={XCircle} label={<T k="server_bits.inactive" />} value={totalCodes - activeCodes} />
         </div>
 
         <div className="mt-8">

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import React, { useEffect, useRef } from 'react'
 import { AlertTriangle, X } from 'lucide-react'
 
@@ -31,6 +33,8 @@ export function ConfirmationDialog({
   variant = 'default',
   loading = false,
 }: ConfirmationDialogProps) {
+  const { t } = useTranslation('organizer')
+
   const cancelRef = useRef<HTMLButtonElement>(null)
   const titleId = 'org-confirm-title'
   const descId = 'org-confirm-desc'
@@ -78,7 +82,7 @@ export function ConfirmationDialog({
       >
         <button
           type="button"
-          aria-label="Close dialog"
+          aria-label={t('actions.close_dialog')}
           onClick={onClose}
           className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-lg text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >

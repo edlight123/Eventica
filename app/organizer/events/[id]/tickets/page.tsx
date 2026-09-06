@@ -1,3 +1,4 @@
+import { T } from '@/components/organizer/ui/TranslatedText'
 import { requireAuth } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -59,7 +60,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
             className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Pencil className="h-4 w-4" />
-            Edit tickets
+            <T k="server_bits.edit_tickets" />
           </Link>
           }
         />
@@ -68,15 +69,15 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
         {tiers.length === 0 ? (
           <OrgEmptyState
             icon={Ticket}
-            title="No ticket types yet"
-            description="Add ticket types, free RSVP or paid tiers, so people can register for your event."
+            title={<T k="server_bits.no_ticket_types_yet" />}
+            description={<T k="server_bits.add_ticket_types_desc" />}
             action={
               <Link
                 href={`/organizer/events/${id}/edit`}
                 className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               >
                 <Pencil className="h-4 w-4" />
-                Add tickets
+                <T k="server_bits.add_tickets" />
               </Link>
             }
           />

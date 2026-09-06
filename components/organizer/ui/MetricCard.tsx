@@ -15,9 +15,9 @@ export function MetricCard({
   className = '',
 }: {
   icon?: IconType
-  label: string
+  label: React.ReactNode
   value: React.ReactNode
-  sublabel?: string
+  sublabel?: React.ReactNode
   /** Positive = green arrow-up, negative = red arrow-down, zero = neutral. */
   trend?: number
   className?: string

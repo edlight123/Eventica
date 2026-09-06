@@ -92,7 +92,7 @@ export function ManualLookupSheet({ isOpen, onClose, attendees, onSelect }: Manu
                         </span>
                         {attendee.checkedIn && (
                           <span className="px-2 py-0.5 bg-green-900/50 text-green-400 text-xs font-medium rounded-full">
-                            Checked In
+                            {t('actions.checked_in')}
                           </span>
                         )}
                       </div>

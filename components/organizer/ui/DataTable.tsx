@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import React, { useMemo, useState } from 'react'
 import {
   ChevronDown,
@@ -90,6 +92,7 @@ export function OrgDataTable<T>({
   stickyHeader = true,
   className = '',
 }: OrgDataTableProps<T>) {
+  const { t } = useTranslation('organizer')
   const controlledSort = typeof onSortChange === 'function'
   const [internalSortKey, setInternalSortKey] = useState<string | undefined>()
   const [internalSortDir, setInternalSortDir] = useState<SortDir>('asc')
@@ -180,7 +183,7 @@ export function OrgDataTable<T>({
       ) : rows.length === 0 ? (
         <div className="p-8">
           {empty ?? (
-            <p className="text-center text-sm text-white/40">No results found.</p>
+            <p className="text-center text-sm text-white/40">{t('actions.no_results_found')}</p>
           )}
         </div>
       ) : (

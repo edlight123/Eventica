@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { TabValidation } from '@/lib/event-validation'
 import { Check, AlertCircle, FileText, MapPin, Clock, Ticket, Tag } from 'lucide-react'
 
@@ -18,6 +20,8 @@ const TAB_ICONS: Record<string, any> = {
 }
 
 export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps) {
+  const { t } = useTranslation('organizer')
+
   return (
     <div className="bg-white/[0.03] border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -87,7 +91,7 @@ export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps)
                       {isCompleted ? (
                         <span className="text-xs text-emerald-300 font-medium flex items-center gap-1">
                           <Check className="w-3 h-3" />
-                          Complete
+                          {t('actions.complete')}
                         </span>
                       ) : tab.missingFields.length > 0 ? (
                         <span className="text-xs text-amber-300 font-medium">
@@ -154,7 +158,7 @@ export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps)
               {tabs.find(t => t.id === currentTab)?.isComplete ? (
                 <span className="flex items-center gap-1 text-emerald-300 font-medium">
                   <Check className="w-4 h-4" />
-                  Complete
+                  {t('actions.complete')}
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-amber-300 font-medium">

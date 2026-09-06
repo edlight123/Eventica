@@ -1251,7 +1251,11 @@
     "staff": "Anplwaye",
     "check_in": "Anrejistre",
     "events": "Evènman",
-    "method": "Metòd"
+    "method": "Metòd",
+    "complete": "Fini",
+    "close_dialog": "Fèmen dyalòg la",
+    "no_results_found": "Nou pa jwenn anyen.",
+    "checked_in": "Anrejistre"
   },
   "upgrade_prompt": {
     "brand_name": "Non mak la",
@@ -1425,5 +1429,18 @@
     "failed": "Echwe",
     "cancelled": "Anile",
     "paid": "Peye"
+  },
+  "server_bits": {
+    "event_not_found": "Nou pa jwenn evènman an",
+    "event_deleted_or_wrong_link": "Petèt yo efase evènman sa a, oswa lyen an pa bon.",
+    "back_to_events": "Retounen nan evènman yo",
+    "no_ticket_types_yet": "Poko gen tip tikè",
+    "add_ticket_types_desc": "Ajoute tip tikè — RSVP gratis oswa nivo peyan — pou moun ka enskri nan evènman ou.",
+    "add_tickets": "Ajoute tikè",
+    "edit_tickets": "Modifye tikè yo",
+    "total_codes": "Total kòd",
+    "active": "Aktif",
+    "inactive": "Inaktif",
+    "total_uses": "Total itilizasyon"
   }
 }

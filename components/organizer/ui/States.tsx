@@ -15,8 +15,8 @@ export function OrgEmptyState({
   className = '',
 }: {
   icon?: IconType
-  title: string
-  description?: string
+  title: React.ReactNode
+  description?: React.ReactNode
   action?: React.ReactNode
   className?: string
 }) {
@@ -52,7 +52,7 @@ export function OrgErrorState({
   className = '',
 }: {
   title?: string
-  description?: string
+  description?: React.ReactNode
   action?: React.ReactNode
   className?: string
 }) {

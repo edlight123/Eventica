@@ -1251,7 +1251,11 @@
     "staff": "Staff",
     "check_in": "Check In",
     "events": "Events",
-    "method": "Method"
+    "method": "Method",
+    "complete": "Complete",
+    "close_dialog": "Close dialog",
+    "no_results_found": "No results found.",
+    "checked_in": "Checked In"
   },
   "upgrade_prompt": {
     "brand_name": "Brand name",
@@ -1425,5 +1429,18 @@
     "failed": "Failed",
     "cancelled": "Cancelled",
     "paid": "Paid"
+  },
+  "server_bits": {
+    "event_not_found": "Event not found",
+    "event_deleted_or_wrong_link": "This event may have been deleted or the link is incorrect.",
+    "back_to_events": "Back to events",
+    "no_ticket_types_yet": "No ticket types yet",
+    "add_ticket_types_desc": "Add ticket types, free RSVP or paid tiers, so people can register for your event.",
+    "add_tickets": "Add tickets",
+    "edit_tickets": "Edit tickets",
+    "total_codes": "Total Codes",
+    "active": "Active",
+    "inactive": "Inactive",
+    "total_uses": "Total Uses"
   }
 }
