@@ -1240,7 +1240,9 @@
     "admin": "Administratè",
     "owner": "Pwopriyetè",
     "staff": "Anplwaye",
-    "check_in": "Anrejistre"
+    "check_in": "Anrejistre",
+    "events": "Evènman",
+    "method": "Metòd"
   },
   "upgrade_prompt": {
     "brand_name": "Non mak la",
@@ -1403,5 +1405,16 @@
   "search_input": {
     "clear_search": "Efase rechèch la",
     "search_placeholder": "Chèche…"
+  },
+  "payout_history": {
+    "payout_history": "Istorik peman",
+    "view_all_payouts": "Gade tout peman ou yo — sa ki fèt ak sa ki annatant.",
+    "no_history_yet": "Poko gen istorik peman",
+    "payouts_appear_after": "Peman ou yo ap parèt isit la apre evènman ou yo fini.",
+    "completed": "Fini",
+    "processing": "Ap trete",
+    "failed": "Echwe",
+    "cancelled": "Anile",
+    "paid": "Peye"
   }
 }

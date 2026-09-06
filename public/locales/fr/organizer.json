@@ -1240,7 +1240,9 @@
     "admin": "Administrateur",
     "owner": "Propriétaire",
     "staff": "Personnel",
-    "check_in": "Enregistrer"
+    "check_in": "Enregistrer",
+    "events": "Événements",
+    "method": "Méthode"
   },
   "upgrade_prompt": {
     "brand_name": "Nom de la marque",
@@ -1403,5 +1405,16 @@
   "search_input": {
     "clear_search": "Effacer la recherche",
     "search_placeholder": "Rechercher…"
+  },
+  "payout_history": {
+    "payout_history": "Historique des versements",
+    "view_all_payouts": "Consultez tous vos versements passés et en attente.",
+    "no_history_yet": "Aucun historique de versement",
+    "payouts_appear_after": "Vos versements apparaîtront ici après la fin de vos événements.",
+    "completed": "Terminé",
+    "processing": "En cours",
+    "failed": "Échoué",
+    "cancelled": "Annulé",
+    "paid": "Payé"
   }
 }

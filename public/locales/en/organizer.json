@@ -1240,7 +1240,9 @@
     "admin": "Admin",
     "owner": "Owner",
     "staff": "Staff",
-    "check_in": "Check In"
+    "check_in": "Check In",
+    "events": "Events",
+    "method": "Method"
   },
   "upgrade_prompt": {
     "brand_name": "Brand name",
@@ -1403,5 +1405,16 @@
   "search_input": {
     "clear_search": "Clear search",
     "search_placeholder": "Search…"
+  },
+  "payout_history": {
+    "payout_history": "Payout History",
+    "view_all_payouts": "View all your past and pending payouts.",
+    "no_history_yet": "No payout history yet",
+    "payouts_appear_after": "Your payouts will appear here after your events are completed.",
+    "completed": "Completed",
+    "processing": "Processing",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "paid": "Paid"
   }
 }
