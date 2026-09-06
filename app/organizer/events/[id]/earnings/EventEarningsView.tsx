@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -18,6 +20,7 @@ interface EventEarningsViewProps {
 }
 
 export default function EventEarningsView({ event, earnings, organizerId, tierBreakdown }: EventEarningsViewProps) {
+  const { t } = useTranslation('organizer')
   const router = useRouter()
   const { showToast } = useToast()
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
@@ -190,7 +193,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
         
         <div className="rounded-xl bg-white/[0.03] p-8 text-center">
           <span className="text-6xl mb-4 block">💰</span>
-          <h2 className="font-display text-2xl text-white mb-2">No Earnings Yet</h2>
+          <h2 className="font-display text-2xl text-white mb-2">{t('event_earnings.no_earnings_yet')}</h2>
           <p className="text-white/60 mb-6">
             This event hasn&apos;t generated any earnings yet. Earnings are recorded when attendees purchase tickets.
           </p>
@@ -198,7 +201,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
             href={`/events/${event.id}`}
             className="inline-block px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors"
           >
-            View Event Page
+            {t('event_earnings.view_event_page')}
           </Link>
         </div>
       </div>
@@ -400,19 +403,19 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <MetricCard
           icon={DollarSign}
-          label="Gross Revenue"
+          label={t('event_earnings.gross_revenue')}
           value={formatCurrency(earnings.grossSales, earnings.currency)}
           sublabel={`${earnings.ticketsSold} tickets sold`}
         />
         <MetricCard
           icon={TrendingUp}
-          label="Net Earnings"
+          label={t('event_earnings.net_earnings')}
           value={formatCurrency(earnings.netAmount, earnings.currency)}
           sublabel={earnings.withdrawnAmount > 0 ? `${formatCurrency(earnings.withdrawnAmount, earnings.currency)} withdrawn` : 'Not withdrawn yet'}
         />
         <MetricCard
           icon={Wallet}
-          label="Available to Withdraw"
+          label={t('event_earnings.available_to_withdraw')}
           value={<span className="text-emerald-300">{formatCurrency(availableToWithdraw, earnings.currency)}</span>}
           sublabel={earnings.settlementStatus === 'ready' ? 'Ready now' : 'After settlement'}
         />
@@ -423,7 +426,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-display text-xl text-white">🎟️ Ticket Tier Breakdown</h2>
-            <p className="text-sm text-white/60">Totals use the tier’s listed price at the time of purchase (no FX, no spread).</p>
+            <p className="text-sm text-white/60">{t('event_earnings.totals_note')}</p>
           </div>
           <div className="flex items-center gap-3">
             <a
@@ -436,16 +439,16 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
         </div>
 
         {!tierBreakdown || tierBreakdown.length === 0 ? (
-          <div className="text-white/60 text-sm">No ticket sales yet.</div>
+          <div className="text-white/60 text-sm">{t('event_earnings.no_ticket_sales_yet')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-white/70 border-b">
                   <th className="py-2 pr-4 font-medium">Tier</th>
-                  <th className="py-2 pr-4 font-medium">Listed Unit Price</th>
-                  <th className="py-2 pr-4 font-medium">Tickets Sold</th>
-                  <th className="py-2 font-medium">Gross (Listed)</th>
+                  <th className="py-2 pr-4 font-medium">{t('event_earnings.listed_unit_price')}</th>
+                  <th className="py-2 pr-4 font-medium">{t('event_earnings.tickets_sold')}</th>
+                  <th className="py-2 font-medium">{t('event_earnings.gross_listed')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -500,7 +503,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-display text-xl text-white">💸 Request Withdrawal</h2>
-              <p className="text-white/60 text-sm">Available: <span className="font-mono tabular-nums">{formatCurrency(availableToWithdraw, earnings.currency)}</span></p>
+              <p className="text-white/60 text-sm">{t('event_earnings.available_label')}<span className="font-mono tabular-nums">{formatCurrency(availableToWithdraw, earnings.currency)}</span></p>
             </div>
           </div>
 
@@ -515,11 +518,11 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     <span className="text-2xl">📱</span>
                   </div>
                   <div>
-                    <div className="font-bold text-white">MonCash</div>
-                    <div className="text-sm text-white/70">Instant transfer</div>
+                    <div className="font-bold text-white">{t('event_earnings.moncash')}</div>
+                    <div className="text-sm text-white/70">{t('event_earnings.instant_transfer')}</div>
                   </div>
                 </div>
-                <div className="text-xs text-white/70">Processed within 24 hours</div>
+                <div className="text-xs text-white/70">{t('event_earnings.processed_24h')}</div>
               </button>
 
               <button
@@ -531,11 +534,11 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     <span className="text-2xl">🏦</span>
                   </div>
                   <div>
-                    <div className="font-bold text-white">Bank Transfer</div>
-                    <div className="text-sm text-white/70">Direct deposit</div>
+                    <div className="font-bold text-white">{t('event_earnings.bank_transfer')}</div>
+                    <div className="text-sm text-white/70">{t('event_earnings.direct_deposit')}</div>
                   </div>
                 </div>
-                <div className="text-xs text-white/70">Processed within 3-5 business days</div>
+                <div className="text-xs text-white/70">{t('event_earnings.processed_3_5_days')}</div>
               </button>
             </div>
           ) : (
@@ -555,15 +558,15 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           <div className="space-y-3">
             <div className="flex justify-between items-center py-3 border-b border-white/10">
               <div>
-                <div className="font-medium text-white">Total Withdrawn</div>
-                <div className="text-sm text-white/70">From this event</div>
+                <div className="font-medium text-white">{t('event_earnings.total_withdrawn')}</div>
+                <div className="text-sm text-white/70">{t('event_earnings.from_this_event')}</div>
               </div>
               <span className="font-mono tabular-nums font-bold text-white">{formatCurrency(earnings.withdrawnAmount, earnings.currency)}</span>
             </div>
             {earnings.netAmount - earnings.withdrawnAmount > 0 && (
               <div className="flex justify-between items-center py-3">
                 <div>
-                  <div className="font-medium text-white">Remaining Balance</div>
+                  <div className="font-medium text-white">{t('event_earnings.remaining_balance')}</div>
                   <div className="text-sm text-white/70">Available {earnings.settlementStatus === 'ready' ? 'now' : 'after settlement'}</div>
                 </div>
                 <span className="font-mono tabular-nums font-bold text-brand-300">{formatCurrency(earnings.netAmount - earnings.withdrawnAmount, earnings.currency)}</span>
@@ -584,11 +587,11 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
             <div className="mb-6">
               <div className="rounded-lg bg-white/[0.06] p-4 mb-4">
                 <div className="flex justify-between mb-2">
-                  <span className="text-white/60">Amount:</span>
+                  <span className="text-white/60">{t('event_earnings.amount_label')}</span>
                   <span className="font-mono tabular-nums font-bold text-white">{formatCurrency(availableToWithdraw, earnings.currency)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Method:</span>
+                  <span className="text-white/60">{t('event_earnings.method_label')}</span>
                   <span className="font-medium text-white">
                     {withdrawMethod === 'moncash' ? '📱 MonCash' : '🏦 Bank Transfer'}
                   </span>
@@ -652,7 +655,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           <span className="font-mono tabular-nums">-{formatCurrency(moncashQuote.feeCents, moncashQuote.currency)}</span>
                         </div>
                         <div className="flex justify-between font-semibold">
-                          <span>You receive</span>
+                          <span>{t('event_earnings.you_receive')}</span>
                           <span className="font-mono tabular-nums">
                             {moncashQuote.payoutCurrency === 'HTG' && typeof moncashQuote.payoutAmountHtgCents === 'number'
                               ? formatCurrency(moncashQuote.payoutAmountHtgCents, 'HTG')
@@ -669,17 +672,17 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     </div>
                   ) : isInstantPrefundingAvailable ? (
                     <div className="border border-brand-500/30 rounded-lg p-3">
-                      <p className="text-sm font-medium text-brand-300">Instant MonCash (prefunding)</p>
+                      <p className="text-sm font-medium text-brand-300">{t('event_earnings.instant_moncash_prefunding')}</p>
                       <p className="text-xs text-brand-300 mt-1">
                         This withdrawal will be sent instantly using platform prefunding.
                       </p>
                       <div className="mt-2 text-xs text-brand-300 space-y-1">
                         <div className="flex justify-between">
-                          <span>Prefunding fee (3%)</span>
+                          <span>{t('event_earnings.prefunding_fee')}</span>
                           <span className="font-mono tabular-nums">-{formatCurrency(prefundingFeeCents, earnings.currency)}</span>
                         </div>
                         <div className="flex justify-between font-semibold">
-                          <span>You receive</span>
+                          <span>{t('event_earnings.you_receive')}</span>
                           <span className="font-mono tabular-nums">{formatCurrency(prefundingPayoutCents, earnings.currency)}</span>
                         </div>
                       </div>
@@ -711,7 +714,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                         className="mt-1"
                       />
                       <span>
-                        <span className="font-semibold">Use bank on file</span>
+                        <span className="font-semibold">{t('event_earnings.use_bank_on_file')}</span>
                         <span className="block text-xs text-white/70">
                           {bankDestinations?.some((d) => d.isPrimary)
                             ? 'Uses your primary bank from payout settings.'
@@ -729,8 +732,8 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           className="mt-1"
                         />
                         <span>
-                          <span className="font-semibold">Use a saved bank account</span>
-                          <span className="block text-xs text-white/70">Choose from your saved accounts.</span>
+                          <span className="font-semibold">{t('event_earnings.use_saved_bank')}</span>
+                          <span className="block text-xs text-white/70">{t('event_earnings.choose_saved_accounts')}</span>
                         </span>
                       </label>
                     ) : null}
@@ -743,7 +746,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                         className="mt-1"
                       />
                       <span>
-                        <span className="font-semibold">Use a new bank account (add second account)</span>
+                        <span className="font-semibold">{t('event_earnings.use_new_bank')}</span>
                         <span className="block text-xs text-white/70">
                           Using a new bank account requires email verification.
                         </span>
@@ -755,7 +758,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     <div className="rounded-lg bg-white/[0.06] p-3">
                       {bankMode === 'saved' ? (
                         <div className="mb-2">
-                          <label className="block text-xs font-medium text-white/60 mb-1">Select account</label>
+                          <label className="block text-xs font-medium text-white/60 mb-1">{t('event_earnings.select_account')}</label>
                           <select
                             value={selectedBankDestinationId}
                             onChange={(e) => setSelectedBankDestinationId(e.target.value)}
@@ -778,7 +781,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           </div>
                         </div>
                       ) : (
-                        <div className="text-sm text-white/60">Select a bank account.</div>
+                        <div className="text-sm text-white/60">{t('event_earnings.select_a_bank_account')}</div>
                       )}
                     </div>
                   ) : null}
@@ -786,7 +789,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   {bankMode === 'new' ? (
                     <div className="space-y-3">
                       <div className="rounded-lg bg-white/[0.06] p-3">
-                        <p className="text-sm text-white font-medium">Verification required</p>
+                        <p className="text-sm text-white font-medium">{t('event_earnings.verification_required')}</p>
                         <p className="text-xs text-white/60 mt-1">
                           Adding a new bank account requires email verification. The account holder name should match your organizer name.
                         </p>
@@ -803,19 +806,19 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       </label>
 
                       <div>
-                        <label className="block text-sm font-medium text-white/70 mb-2">Account Holder Name</label>
+                        <label className="block text-sm font-medium text-white/70 mb-2">{t('event_earnings.account_holder_name')}</label>
                         <input
                           type="text"
                           value={bankDetails.accountHolder}
                           onChange={(e) => setBankDetails({ ...bankDetails, accountHolder: e.target.value })}
-                          placeholder="Full name on account"
+                          placeholder={t('event_earnings.full_name_on_account')}
                           className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-white/70 mb-2">Bank Name</label>
+                        <label className="block text-sm font-medium text-white/70 mb-2">{t('event_earnings.bank_name')}</label>
                         <input
                           type="text"
                           value={bankDetails.bankName}
@@ -827,35 +830,35 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-white/70 mb-2">Account Number</label>
+                        <label className="block text-sm font-medium text-white/70 mb-2">{t('event_earnings.account_number')}</label>
                         <input
                           type="text"
                           value={bankDetails.accountNumber}
                           onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
-                          placeholder="Account number"
+                          placeholder={t('event_earnings.account_number_placeholder')}
                           className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-white/70 mb-2">Routing Number (Optional)</label>
+                        <label className="block text-sm font-medium text-white/70 mb-2">{t('event_earnings.routing_number_optional')}</label>
                         <input
                           type="text"
                           value={bankDetails.routingNumber}
                           onChange={(e) => setBankDetails({ ...bankDetails, routingNumber: e.target.value })}
-                          placeholder="For international transfers"
+                          placeholder={t('event_earnings.for_international_transfers')}
                           className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-white/70 mb-2">SWIFT Code (Optional)</label>
+                        <label className="block text-sm font-medium text-white/70 mb-2">{t('event_earnings.swift_code_optional')}</label>
                         <input
                           type="text"
                           value={bankDetails.swiftCode}
                           onChange={(e) => setBankDetails({ ...bankDetails, swiftCode: e.target.value })}
-                          placeholder="For international transfers"
+                          placeholder={t('event_earnings.for_international_transfers')}
                           className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.08] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
                         />
                       </div>
@@ -870,7 +873,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
               {payoutChangeVerificationRequired ? (
                 <div className="mt-4 border border-brand-500/30 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-brand-300">Email verification</p>
+                  <p className="text-sm font-semibold text-brand-300">{t('event_earnings.email_verification')}</p>
                   <p className="text-xs text-brand-300 mt-1">
                     {verificationMessage || 'For your security, confirm this change with the code we email you.'}
                   </p>
