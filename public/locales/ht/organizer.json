@@ -1085,5 +1085,31 @@
     "member_details": "Detay manm nan",
     "no_team_members": "Poko gen manm ekip",
     "optional": "Opsyonèl"
+  },
+  "defaults_form": {
+    "select_a_city": "Chwazi yon vil",
+    "select_a_country": "Chwazi yon peyi",
+    "select_country_first": "Chwazi yon peyi anvan"
+  },
+  "notifications_form": {
+    "email_notifications": "Notifikasyon pa imel",
+    "event_reminders": "Rapèl evènman",
+    "marketing_updates": "Maketing ak nouvèl",
+    "new_reviews": "Nouvo avi",
+    "payout_updates": "Nouvèl sou peman",
+    "push_notifications": "Notifikasyon push",
+    "sms_notifications": "Notifikasyon SMS",
+    "ticket_sales": "Vant tikè"
+  },
+  "profile_form": {
+    "enter_full_name": "Antre non konplè ou",
+    "profile_photo": "Foto pwofil"
+  },
+  "live_preview": {
+    "general_admission": "Antre jeneral",
+    "location_tbd": "Kote a poko konfime",
+    "no_banner_image": "Pa gen imaj banyè",
+    "online_event": "Evènman an liy",
+    "ticket_options": "Opsyon tikè"
   }
 }

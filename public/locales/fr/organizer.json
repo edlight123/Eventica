@@ -1085,5 +1085,31 @@
     "member_details": "Détails du membre",
     "no_team_members": "Aucun membre d'équipe pour l'instant",
     "optional": "Facultatif"
+  },
+  "defaults_form": {
+    "select_a_city": "Sélectionner une ville",
+    "select_a_country": "Sélectionner un pays",
+    "select_country_first": "Sélectionnez d'abord un pays"
+  },
+  "notifications_form": {
+    "email_notifications": "Notifications par e-mail",
+    "event_reminders": "Rappels d'événement",
+    "marketing_updates": "Marketing et actualités",
+    "new_reviews": "Nouveaux avis",
+    "payout_updates": "Mises à jour des versements",
+    "push_notifications": "Notifications push",
+    "sms_notifications": "Notifications SMS",
+    "ticket_sales": "Ventes de billets"
+  },
+  "profile_form": {
+    "enter_full_name": "Saisissez votre nom complet",
+    "profile_photo": "Photo de profil"
+  },
+  "live_preview": {
+    "general_admission": "Admission générale",
+    "location_tbd": "Lieu à confirmer",
+    "no_banner_image": "Aucune image de bannière",
+    "online_event": "Événement en ligne",
+    "ticket_options": "Options de billets"
   }
 }

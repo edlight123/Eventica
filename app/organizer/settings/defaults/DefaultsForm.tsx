@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useMemo } from 'react';
 import { MapPin, Globe, Clock, DollarSign, Tag, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
@@ -35,6 +37,8 @@ const CURRENCIES = [
 ];
 
 export default function DefaultsForm({ userId, initialData }: DefaultsFormProps) {
+  const { t } = useTranslation('organizer')
+
   const [formData, setFormData] = useState(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
@@ -118,7 +122,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               onChange={(e) => handleCountryChange(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 appearance-none bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
             >
-              <option value="">Select a country</option>
+              <option value="">{t('defaults_form.select_a_country')}</option>
               {countries.map((country) => (
                 <option key={country.code} value={country.code}>
                   {country.name}
@@ -142,7 +146,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 appearance-none bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
               disabled={!formData.default_country}
             >
-              <option value="">Select a city</option>
+              <option value="">{t('defaults_form.select_a_city')}</option>
               {cities.map((city) => (
                 <option key={city} value={city}>
                   {city}
@@ -151,7 +155,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
             </select>
           </div>
           {!formData.default_country && (
-            <p className="text-xs text-white/50 mt-1">Select a country first</p>
+            <p className="text-xs text-white/50 mt-1">{t('defaults_form.select_country_first')}</p>
           )}
         </div>
       </div>

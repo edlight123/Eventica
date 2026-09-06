@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { EventFormData, TicketTier } from '@/lib/event-validation'
 import { Calendar, MapPin, DollarSign, Users, Tag, Clock, Globe } from 'lucide-react'
 import Image from 'next/image'
@@ -10,6 +12,8 @@ interface EventLivePreviewProps {
 }
 
 export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
+  const { t } = useTranslation('organizer')
+
   const formattedPrice = () => {
     if (!data.ticket_price || data.ticket_price === '0' || data.ticket_price === 0) {
       return 'Free'
@@ -82,7 +86,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                 <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <p className="text-sm font-medium">No banner image</p>
+                <p className="text-sm font-medium">{t('live_preview.no_banner_image')}</p>
               </div>
             </div>
           )}
@@ -140,7 +144,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                 <>
                   <Globe className="w-5 h-5 text-brand-300 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-white">Online Event</p>
+                    <p className="text-sm font-semibold text-white">{t('live_preview.online_event')}</p>
                     {data.join_url ? (
                       <p className="text-xs text-white/60 mt-0.5 truncate">
                         {data.join_url}
@@ -171,7 +175,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                         )}
                       </>
                     ) : (
-                      <p className="text-sm text-white/40">Location TBD</p>
+                      <p className="text-sm text-white/40">{t('live_preview.location_tbd')}</p>
                     )}
                   </div>
                 </>
@@ -207,14 +211,14 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
           {/* Ticket Tiers */}
           {tiers && tiers.length > 0 && (
             <div className="pt-4 border-t border-white/10 mt-4">
-              <h3 className="text-sm font-bold text-white mb-3">Ticket Options</h3>
+              <h3 className="text-sm font-bold text-white mb-3">{t('live_preview.ticket_options')}</h3>
               <div className="space-y-2">
                 {/* Base Ticket */}
                 {data.total_tickets && parseInt(data.total_tickets.toString()) > 0 && (
                   <div className="bg-white/[0.03]  rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold text-sm text-white">General Admission</p>
+                        <p className="font-semibold text-sm text-white">{t('live_preview.general_admission')}</p>
                         <p className="text-xs text-white/60">{data.total_tickets} available</p>
                       </div>
                       <p className="font-bold text-white">{formattedPrice()}</p>

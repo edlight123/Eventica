@@ -1085,5 +1085,31 @@
     "member_details": "Member details",
     "no_team_members": "No team members yet",
     "optional": "Optional"
+  },
+  "defaults_form": {
+    "select_a_city": "Select a city",
+    "select_a_country": "Select a country",
+    "select_country_first": "Select a country first"
+  },
+  "notifications_form": {
+    "email_notifications": "Email Notifications",
+    "event_reminders": "Event Reminders",
+    "marketing_updates": "Marketing & Updates",
+    "new_reviews": "New Reviews",
+    "payout_updates": "Payout Updates",
+    "push_notifications": "Push Notifications",
+    "sms_notifications": "SMS Notifications",
+    "ticket_sales": "Ticket Sales"
+  },
+  "profile_form": {
+    "enter_full_name": "Enter your full name",
+    "profile_photo": "Profile photo"
+  },
+  "live_preview": {
+    "general_admission": "General Admission",
+    "location_tbd": "Location TBD",
+    "no_banner_image": "No banner image",
+    "online_event": "Online Event",
+    "ticket_options": "Ticket Options"
   }
 }

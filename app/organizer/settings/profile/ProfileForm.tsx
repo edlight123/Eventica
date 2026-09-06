@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useEffect, useRef } from 'react';
 import { User, Phone, Mail, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
@@ -17,6 +19,8 @@ interface ProfileFormProps {
 }
 
 export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
+  const { t } = useTranslation('organizer')
+
   const [formData, setFormData] = useState(initialData);
   const [savedData, setSavedData] = useState(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,7 +146,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             {formData.photo_url ? (
               <Image
                 src={formData.photo_url}
-                alt="Profile photo"
+                alt={t('profile_form.profile_photo')}
                 width={96}
                 height={96}
                 className="w-full h-full object-cover"
@@ -194,7 +198,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             value={formData.full_name}
             onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
             className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-            placeholder="Enter your full name"
+            placeholder={t('profile_form.enter_full_name')}
             required
           />
         </div>

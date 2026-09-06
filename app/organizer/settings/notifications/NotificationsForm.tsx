@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from 'react-i18next'
+
 import { useState } from 'react';
 import { Bell, Mail, MessageSquare, Smartphone, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
@@ -20,6 +22,8 @@ interface NotificationsFormProps {
 }
 
 export default function NotificationsForm({ userId, initialData }: NotificationsFormProps) {
+  const { t } = useTranslation('organizer')
+
   const [formData, setFormData] = useState(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
@@ -66,35 +70,35 @@ export default function NotificationsForm({ userId, initialData }: Notifications
       <div>
         <div className="flex items-center gap-2 mb-4">
           <Mail className="w-5 h-5 text-brand-300" />
-          <h3 className="text-lg font-semibold text-white">Email Notifications</h3>
+          <h3 className="text-lg font-semibold text-white">{t('notifications_form.email_notifications')}</h3>
         </div>
         <div className="space-y-4">
           <ToggleItem
-            label="Ticket Sales"
+            label={t('notifications_form.ticket_sales')}
             message="Get notified when someone purchases a ticket"
             checked={formData.email_ticket_sales}
             onChange={() => handleToggle('email_ticket_sales')}
           />
           <ToggleItem
-            label="New Reviews"
+            label={t('notifications_form.new_reviews')}
             message="Get notified when your event receives a review"
             checked={formData.email_new_reviews}
             onChange={() => handleToggle('email_new_reviews')}
           />
           <ToggleItem
-            label="Payout Updates"
+            label={t('notifications_form.payout_updates')}
             message="Get notified about payout status changes"
             checked={formData.email_payout_updates}
             onChange={() => handleToggle('email_payout_updates')}
           />
           <ToggleItem
-            label="Event Reminders"
+            label={t('notifications_form.event_reminders')}
             message="Get reminders before your events start"
             checked={formData.email_event_reminders}
             onChange={() => handleToggle('email_event_reminders')}
           />
           <ToggleItem
-            label="Marketing & Updates"
+            label={t('notifications_form.marketing_updates')}
             message="Receive tips, feature updates, and promotional content"
             checked={formData.email_marketing}
             onChange={() => handleToggle('email_marketing')}
@@ -106,17 +110,17 @@ export default function NotificationsForm({ userId, initialData }: Notifications
       <div className="pt-6 border-t border-white/10">
         <div className="flex items-center gap-2 mb-4">
           <MessageSquare className="w-5 h-5 text-brand-300" />
-          <h3 className="text-lg font-semibold text-white">SMS Notifications</h3>
+          <h3 className="text-lg font-semibold text-white">{t('notifications_form.sms_notifications')}</h3>
         </div>
         <div className="space-y-4">
           <ToggleItem
-            label="Ticket Sales"
+            label={t('notifications_form.ticket_sales')}
             message="Receive SMS when someone purchases a ticket"
             checked={formData.sms_ticket_sales}
             onChange={() => handleToggle('sms_ticket_sales')}
           />
           <ToggleItem
-            label="Event Reminders"
+            label={t('notifications_form.event_reminders')}
             message="Receive SMS reminders before your events"
             checked={formData.sms_event_reminders}
             onChange={() => handleToggle('sms_event_reminders')}
@@ -131,17 +135,17 @@ export default function NotificationsForm({ userId, initialData }: Notifications
       <div className="pt-6 border-t border-white/10">
         <div className="flex items-center gap-2 mb-4">
           <Smartphone className="w-5 h-5 text-brand-300" />
-          <h3 className="text-lg font-semibold text-white">Push Notifications</h3>
+          <h3 className="text-lg font-semibold text-white">{t('notifications_form.push_notifications')}</h3>
         </div>
         <div className="space-y-4">
           <ToggleItem
-            label="Ticket Sales"
+            label={t('notifications_form.ticket_sales')}
             message="Get instant push notifications for ticket sales"
             checked={formData.push_ticket_sales}
             onChange={() => handleToggle('push_ticket_sales')}
           />
           <ToggleItem
-            label="New Reviews"
+            label={t('notifications_form.new_reviews')}
             message="Get instant push notifications for new reviews"
             checked={formData.push_new_reviews}
             onChange={() => handleToggle('push_new_reviews')}
