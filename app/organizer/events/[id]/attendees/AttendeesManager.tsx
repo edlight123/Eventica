@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Download, Mail, User, CreditCard, Calendar, Check, AlertCircle, QrCode, AlertTriangle } from 'lucide-react'
@@ -53,7 +55,9 @@ const STATUS_FILTERS: { value: FilterStatus; label: string }[] = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-const COLUMNS: OrgColumn<Ticket>[] = [
+// Built per render rather than defined once: the status cells are translated,
+// and a module-level constant has no hook to read them from.
+const buildColumns = (tx: (k: string) => string): OrgColumn<Ticket>[] => [
   {
     key: 'attendee',
     header: 'Attendee',
@@ -89,15 +93,15 @@ const COLUMNS: OrgColumn<Ticket>[] = [
       if (t.checked_in_at) {
         return (
           <div>
-            <StatusChip tone="success">Checked In</StatusChip>
+            <StatusChip tone="success">{tx('attendees.checked_in')}</StatusChip>
             <p className="mt-0.5 font-mono tabular-nums text-xs text-white/70">
               {format(new Date(t.checked_in_at), 'MMM d, h:mm a')}
             </p>
           </div>
         )
       }
-      if (t.status === 'cancelled') return <StatusChip tone="danger">Cancelled</StatusChip>
-      return <StatusChip tone="warning">Pending</StatusChip>
+      if (t.status === 'cancelled') return <StatusChip tone="danger">{tx('attendees.cancelled')}</StatusChip>
+      return <StatusChip tone="warning">{tx('attendees.pending')}</StatusChip>
     },
   },
   {
@@ -116,6 +120,8 @@ const COLUMNS: OrgColumn<Ticket>[] = [
 ]
 
 export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = false }: AttendeesManagerProps) {
+  const { t: tx } = useTranslation('organizer')
+
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
@@ -213,9 +219,9 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
         {t.checked_in_at ? (
           <StatusChip tone="success">In</StatusChip>
         ) : t.status === 'cancelled' ? (
-          <StatusChip tone="danger">Cancelled</StatusChip>
+          <StatusChip tone="danger">{tx('attendees.cancelled')}</StatusChip>
         ) : (
-          <StatusChip tone="warning">Pending</StatusChip>
+          <StatusChip tone="warning">{tx('attendees.pending')}</StatusChip>
         )}
       </div>
     </button>
@@ -262,7 +268,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search by name, email, phone, or ticket ID…"
+          placeholder={tx('attendees.search_placeholder')}
           className="flex-1"
         />
         <div className="flex shrink-0 gap-2">
@@ -272,7 +278,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
             className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-white/[0.08] px-4 text-sm font-medium text-white/80 transition-colors hover:bg-white/[0.14] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">Export CSV</span>
+            <span className="hidden sm:inline">{tx('attendees.export_csv')}</span>
           </button>
           <button
             type="button"
@@ -280,7 +286,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
             className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-brand-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Mail className="h-4 w-4" />
-            <span className="hidden sm:inline">Email All</span>
+            <span className="hidden sm:inline">{tx('attendees.email_all')}</span>
           </button>
         </div>
       </div>
@@ -301,7 +307,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
 
       {/* Table */}
       <OrgDataTable<Ticket>
-        columns={COLUMNS}
+        columns={buildColumns(tx)}
         rows={filteredTickets}
         rowKey={(t) => t.id}
         onRowClick={(t) => setSelectedTicket(t)}
@@ -323,7 +329,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
       <Drawer
         open={selectedTicket !== null}
         onClose={() => setSelectedTicket(null)}
-        title="Attendee Details"
+        title={tx('attendees.attendee_details')}
         size="md"
         footer={
           selectedTicket && selectedTicket.status !== 'cancelled' ? (
@@ -338,6 +344,8 @@ export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = 
 }
 
 function AttendeeDetail({ ticket }: { ticket: Ticket }) {
+  const { t: tx } = useTranslation('organizer')
+
   return (
     <div className="space-y-6 p-6">
       {/* Attendee info */}
@@ -371,10 +379,10 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
           Ticket Information
         </p>
         <div className="space-y-3">
-          <InfoRow icon={<QrCode className="h-4 w-4" />} label="Ticket ID">
+          <InfoRow icon={<QrCode className="h-4 w-4" />} label={tx('attendees.ticket_id')}>
             <span className="font-mono text-sm">{ticket.id}</span>
           </InfoRow>
-          <InfoRow icon={<Calendar className="h-4 w-4" />} label="Purchased">
+          <InfoRow icon={<Calendar className="h-4 w-4" />} label={tx('attendees.purchased')}>
             <span className="font-mono tabular-nums">{format(new Date(ticket.purchased_at), 'MMMM d, yyyy h:mm a')}</span>
           </InfoRow>
           <InfoRow
@@ -385,17 +393,17 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
                 <AlertCircle className="h-4 w-4 text-amber-300" />
               )
             }
-            label="Check-In"
+            label={tx('attendees.check_in')}
           >
             {ticket.checked_in_at ? (
               <span className="font-mono tabular-nums text-emerald-300">
                 {format(new Date(ticket.checked_in_at), 'MMM d, h:mm a')}
               </span>
             ) : (
-              <span className="text-amber-300">Not checked in</span>
+              <span className="text-amber-300">{tx('attendees.not_checked_in')}</span>
             )}
           </InfoRow>
-          <InfoRow icon={<CreditCard className="h-4 w-4" />} label="Price Paid">
+          <InfoRow icon={<CreditCard className="h-4 w-4" />} label={tx('attendees.price_paid')}>
             <span className="font-mono tabular-nums text-brand-300">{formatMoneyFromCents(
               Math.round(Number(ticket.price_paid || 0) * 100),
               normalizeCurrency(ticket.currency, 'HTG')
@@ -428,6 +436,8 @@ function InfoRow({
 }
 
 function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string }) {
+  const { t: tx } = useTranslation('organizer')
+
   const router = useRouter()
   const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
@@ -483,7 +493,7 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
 
       {confirmingRefund ? (
         <div className="rounded-xl bg-red-500/[0.14] p-3">
-          <p className="text-sm text-white">Refund this ticket? This cannot be undone.</p>
+          <p className="text-sm text-white">{tx('attendees.refund_confirm')}</p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState } from 'react'
 import { X, Calendar, MapPin, Tag, DollarSign, ArrowUpDown } from 'lucide-react'
 
@@ -32,6 +34,7 @@ export default function OrganizerEventsFiltersModal({
   availableCities,
   availableCategories
 }: OrganizerEventsFiltersModalProps) {
+  const { t } = useTranslation('organizer')
   const [localFilters, setLocalFilters] = useState<EventFilters>(filters)
 
   if (!isOpen) return null
@@ -100,7 +103,7 @@ export default function OrganizerEventsFiltersModal({
           <button
             onClick={onClose}
             className="grid h-11 w-11 place-items-center rounded-[10px] bg-white/[0.06] transition-colors hover:bg-white/[0.12]"
-            aria-label="Close filters"
+            aria-label={t('events_filters.close_filters')}
           >
             <X className="w-6 h-6" />
           </button>
@@ -112,11 +115,11 @@ export default function OrganizerEventsFiltersModal({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Calendar className="w-5 h-5 text-brand-300" />
-              <label className="text-sm font-semibold text-white">Date Range</label>
+              <label className="text-sm font-semibold text-white">{t('events_filters.date_range')}</label>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label-mono uppercase block text-xs text-white/60 mb-1">Start Date</label>
+                <label className="label-mono uppercase block text-xs text-white/60 mb-1">{t('events_filters.start_date')}</label>
                 <input
                   type="date"
                   value={localFilters.dateRange?.start || ''}
@@ -133,7 +136,7 @@ export default function OrganizerEventsFiltersModal({
                 />
               </div>
               <div>
-                <label className="label-mono uppercase block text-xs text-white/60 mb-1">End Date</label>
+                <label className="label-mono uppercase block text-xs text-white/60 mb-1">{t('events_filters.end_date')}</label>
                 <input
                   type="date"
                   value={localFilters.dateRange?.end || ''}
@@ -164,7 +167,7 @@ export default function OrganizerEventsFiltersModal({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="w-5 h-5 text-brand-300" />
-              <label className="text-sm font-semibold text-white">Cities</label>
+              <label className="text-sm font-semibold text-white">{t('events_filters.cities')}</label>
             </div>
             <div className="flex flex-wrap gap-2">
               {availableCities.map((city) => {
@@ -190,7 +193,7 @@ export default function OrganizerEventsFiltersModal({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Tag className="w-5 h-5 text-brand-300" />
-              <label className="text-sm font-semibold text-white">Categories</label>
+              <label className="text-sm font-semibold text-white">{t('events_filters.categories')}</label>
             </div>
             <div className="flex flex-wrap gap-2">
               {availableCategories.map((category) => {
@@ -216,7 +219,7 @@ export default function OrganizerEventsFiltersModal({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <DollarSign className="w-5 h-5 text-brand-300" />
-              <label className="text-sm font-semibold text-white">Sales Status</label>
+              <label className="text-sm font-semibold text-white">{t('events_filters.sales_status')}</label>
             </div>
             <div className="flex gap-2">
               <button
@@ -256,7 +259,7 @@ export default function OrganizerEventsFiltersModal({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <ArrowUpDown className="w-5 h-5 text-brand-300" />
-              <label className="text-sm font-semibold text-white">Sort By</label>
+              <label className="text-sm font-semibold text-white">{t('events_filters.sort_by')}</label>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <select
@@ -269,10 +272,10 @@ export default function OrganizerEventsFiltersModal({
                 }
                 className="h-11 rounded-[10px] bg-white/[0.06] px-3 text-[16px] font-medium text-white focus:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500/40"
               >
-                <option value="date">Event Date</option>
-                <option value="sales">Ticket Sales</option>
-                <option value="created">Date Created</option>
-                <option value="alphabetical">Alphabetical</option>
+                <option value="date">{t('events_filters.event_date')}</option>
+                <option value="sales">{t('events_filters.ticket_sales')}</option>
+                <option value="created">{t('events_filters.date_created')}</option>
+                <option value="alphabetical">{t('events_filters.alphabetical')}</option>
               </select>
               <select
                 value={localFilters.sortOrder}
@@ -284,8 +287,8 @@ export default function OrganizerEventsFiltersModal({
                 }
                 className="h-11 rounded-[10px] bg-white/[0.06] px-3 text-[16px] font-medium text-white focus:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500/40"
               >
-                <option value="desc">Descending</option>
-                <option value="asc">Ascending</option>
+                <option value="desc">{t('events_filters.descending')}</option>
+                <option value="asc">{t('events_filters.ascending')}</option>
               </select>
             </div>
           </div>

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState } from 'react'
 import {
   OrgEmptyState,
@@ -41,6 +43,7 @@ export default function PromoCodeManager({
   promoCodes: PromoCode[]
   organizerId: string
 }) {
+  const { t } = useTranslation('organizer')
   const [promoCodes, setPromoCodes] = useState(initialPromoCodes)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -169,7 +172,7 @@ export default function PromoCodeManager({
       <button
         onClick={() => setDeleteTarget(promo.id)}
         className="p-1.5 md:p-2 text-red-300 hover:bg-red-500/10 rounded-lg transition"
-        aria-label="Delete promo code"
+        aria-label={t('promo_codes.delete_promo_code')}
       >
         <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
       </button>
@@ -255,7 +258,7 @@ export default function PromoCodeManager({
           Used <span className="font-mono tabular-nums">{p.uses_count}{p.max_uses ? ` / ${p.max_uses}` : ''}</span>
         </p>
         {p.expires_at && (
-          <p className="text-xs text-white/50">Expires <span className="font-mono tabular-nums">{new Date(p.expires_at).toLocaleDateString()}</span></p>
+          <p className="text-xs text-white/50">{t('promo_codes.expires')}<span className="font-mono tabular-nums">{new Date(p.expires_at).toLocaleDateString()}</span></p>
         )}
         <div className="pt-1">{actionButtons(p)}</div>
       </div>
@@ -266,7 +269,7 @@ export default function PromoCodeManager({
     <div className="space-y-5 pb-24 relative">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-display text-xl text-white">Your promo codes</h2>
+        <h2 className="font-display text-xl text-white">{t('promo_codes.your_promo_codes')}</h2>
         <button
           onClick={() => setShowForm(true)}
           className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold text-sm hover:bg-brand-800 transition"
@@ -297,14 +300,14 @@ export default function PromoCodeManager({
         empty={
           <OrgEmptyState
             icon={Ticket}
-            title="No promo codes yet"
-            description="Create a discount code to drive ticket sales."
+            title={t('promo_codes.no_promo_codes_yet')}
+            description={t('promo_codes.create_discount_cta')}
           />
         }
       />
 
       {/* Create Drawer */}
-      <Drawer open={showForm} onClose={() => setShowForm(false)} title="New promo code" size="lg">
+      <Drawer open={showForm} onClose={() => setShowForm(false)} title={t('promo_codes.new_promo_code')} size="lg">
         <form onSubmit={handleCreate} className="space-y-4 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -331,7 +334,7 @@ export default function PromoCodeManager({
                 onChange={(e) => setEventId(e.target.value)}
                 className="w-full rounded-lg border border-white/15 bg-white/[0.03] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               >
-                <option value="">Select event</option>
+                <option value="">{t('promo_codes.select_event')}</option>
                 {events.map((event) => (
                   <option key={event.id} value={event.id}>{event.title}</option>
                 ))}
@@ -347,8 +350,8 @@ export default function PromoCodeManager({
                 onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
                 className="w-full rounded-lg border border-white/15 bg-white/[0.03] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               >
-                <option value="percentage">Percentage (%)</option>
-                <option value="fixed">Fixed Amount</option>
+                <option value="percentage">{t('promo_codes.percentage')}</option>
+                <option value="fixed">{t('promo_codes.fixed_amount')}</option>
               </select>
             </div>
 
@@ -378,7 +381,7 @@ export default function PromoCodeManager({
                 value={maxUses}
                 onChange={(e) => setMaxUses(e.target.value)}
                 className="w-full rounded-lg border border-white/15 bg-transparent px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
-                placeholder="Unlimited"
+                placeholder={t('promo_codes.unlimited')}
               />
               {/* The cap counts TICKETS, not orders: fulfillment increments
                   uses_count by the order quantity. Saying so here stops an
@@ -425,8 +428,8 @@ export default function PromoCodeManager({
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
-        title="Delete promo code?"
-        description="This promo code will be permanently deleted and can no longer be used by attendees."
+        title={t('promo_codes.delete_promo_code_q')}
+        description={t('promo_codes.delete_warning')}
         confirmLabel="Delete"
         variant="danger"
         loading={deleteLoading}

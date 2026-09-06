@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase/client'
@@ -33,6 +35,8 @@ type MemberProfile = {
 }
 
 export default function EventStaffManager({ eventId }: { eventId: string }) {
+  const { t: tx } = useTranslation('organizer')
+
   const { showToast } = useToast()
   const { firebaseUser, loading: authLoading } = useOrganizerClientGuard({
     loginRedirectPath: `/auth/login?redirect=/organizer/events/${eventId}/staff`,
@@ -349,25 +353,25 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
           onClick={() => setShowInviteModal(true)}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg transition-colors"
         >
-          Invite Staff
+          {tx('event_staff.invite_staff')}
         </button>
       </div>
 
       <div className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
-          <h3 className="text-lg font-bold text-white">Staff Members</h3>
-          <p className="text-sm text-white/70">Event-scoped access for check-in</p>
+          <h3 className="text-lg font-bold text-white">{tx('event_staff.staff_members')}</h3>
+          <p className="text-sm text-white/70">{tx('event_staff.event_scoped_access')}</p>
         </div>
         {members.length === 0 ? (
-          <div className="px-6 py-8 text-sm text-white/70">No staff members yet.</div>
+          <div className="px-6 py-8 text-sm text-white/70">{tx('event_staff.no_staff_yet')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-white/[0.03] border-b border-white/10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Permissions</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">{tx('event_staff.permissions')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">{tx('event_staff.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -387,19 +391,19 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                       </td>
                       <td className="px-6 py-4 text-sm text-white/70">
                         <div className="space-y-2">
-                          <div className="text-white/70">Can check in</div>
+                          <div className="text-white/70">{tx('event_staff.can_check_in')}</div>
                           {m.role === 'owner' ? (
                             <div className="text-white/70">
                               Can view attendee list: {m.permissions?.viewAttendees ? 'Yes' : 'No'}
                             </div>
                           ) : (
                             <div className="flex items-center gap-3">
-                              <span className="text-white/70">Can view attendee list</span>
+                              <span className="text-white/70">{tx('event_staff.can_view_attendee_list')}</span>
                               <button
                                 type="button"
                                 role="switch"
                                 aria-checked={Boolean(m.permissions?.viewAttendees)}
-                                aria-label="Can view attendee list"
+                                aria-label={tx('event_staff.can_view_attendee_list')}
                                 disabled={Boolean(permBusy[m.id])}
                                 onClick={() => handleToggleViewAttendees(m.id, !m.permissions?.viewAttendees)}
                                 className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50 ${
@@ -443,20 +447,20 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
 
       <div className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
-          <h3 className="text-lg font-bold text-white">Invites</h3>
-          <p className="text-sm text-white/70">Invite links are one-time use. Create a new one if lost.</p>
+          <h3 className="text-lg font-bold text-white">{tx('event_staff.invites')}</h3>
+          <p className="text-sm text-white/70">{tx('event_staff.invite_links_one_time')}</p>
         </div>
         {invites.length === 0 ? (
-          <div className="px-6 py-8 text-sm text-white/70">No invites yet.</div>
+          <div className="px-6 py-8 text-sm text-white/70">{tx('event_staff.no_invites_yet')}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-white/[0.03] border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Method</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Target</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">{tx('event_staff.method')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">{tx('event_staff.target')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">{tx('event_staff.status')}</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">{tx('event_staff.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -515,11 +519,11 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
             onClick={(e) => e.stopPropagation()}
             className="bg-[#141414] border border-white/10 rounded-xl max-w-md w-full p-6"
           >
-            <h3 id="invite-staff-title" className="font-display text-xl text-white mb-4">Invite Staff</h3>
+            <h3 id="invite-staff-title" className="font-display text-xl text-white mb-4">{tx('event_staff.invite_staff')}</h3>
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="invite-method" className="block text-sm font-medium text-white/70 mb-2">Method</label>
+                <label htmlFor="invite-method" className="block text-sm font-medium text-white/70 mb-2">{tx('event_staff.method')}</label>
                 <select
                   id="invite-method"
                   ref={inviteMethodRef}
@@ -563,14 +567,14 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
 
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-white">Allow viewing attendee details</p>
-                  <p className="text-xs text-white/70">Let this staff member see attendee names and contacts.</p>
+                  <p className="text-sm font-medium text-white">{tx('event_staff.allow_viewing_attendee_details')}</p>
+                  <p className="text-xs text-white/70">{tx('event_staff.let_staff_see_contacts')}</p>
                 </div>
                 <button
                   type="button"
                   role="switch"
                   aria-checked={viewAttendees}
-                  aria-label="Allow viewing attendee details"
+                  aria-label={tx('event_staff.allow_viewing_attendee_details')}
                   onClick={() => setViewAttendees((v) => !v)}
                   className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                     viewAttendees ? 'bg-brand-700' : 'bg-white/15'
