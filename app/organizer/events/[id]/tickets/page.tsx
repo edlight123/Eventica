@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { adminDb } from '@/lib/firebase/admin'
 import { Pencil, Ticket } from 'lucide-react'
 import { PageHeader, OrgEmptyState } from '@/components/organizer/ui'
+import { TranslatedPageHeader } from '@/components/organizer/ui/TranslatedPageHeader'
 import { StatusChip } from '@/components/ui/kit'
 
 export const dynamic = 'force-dynamic'
@@ -48,11 +49,11 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 md:py-10">
-      <PageHeader
-        eyebrow="Event"
-        title="Tickets"
-        subtitle="Ticket types, pricing and inventory for this event."
-        actions={
+      <TranslatedPageHeader
+          eyebrowKey="event"
+          titleKey="tickets_title"
+          subtitleKey="tickets_subtitle"
+          actions={
           <Link
             href={`/organizer/events/${id}/edit`}
             className="inline-flex h-11 items-center gap-2 rounded-[10px] bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
@@ -60,8 +61,8 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
             <Pencil className="h-4 w-4" />
             Edit tickets
           </Link>
-        }
-      />
+          }
+        />
 
       <div className="mt-8">
         {tiers.length === 0 ? (

@@ -1342,5 +1342,36 @@
     "create_first_event": "Kreye premye evènman ou",
     "happening_today": "Jodi a",
     "other_events": "Lòt evènman"
+  },
+  "settings_pages": {
+    "back_to_settings": "Retounen nan paramèt yo",
+    "eyebrow": "Paramèt",
+    "security_title": "Sekirite",
+    "security_subtitle": "Jere modpas ou epi siveye aktivite kont ou",
+    "profile_title": "Paramèt pwofil",
+    "profile_subtitle": "Jere enfòmasyon pèsonèl ou ak kontak ou",
+    "defaults_title": "Valè pa default",
+    "defaults_subtitle": "Defini preferans pa default pou nouvo evènman ou kreye",
+    "notifications_title": "Notifikasyon",
+    "notifications_subtitle": "Jere kijan ou resevwa nouvèl sou evènman ou yo",
+    "organization_title": "Òganizasyon ak mak",
+    "organization_subtitle": "Jere enfòmasyon òganizasyon ou ak imaj piblik ou",
+    "danger_zone_title": "Zòn danjere",
+    "danger_zone_subtitle": "Aksyon pèmanan ou pa ka defè fasilman"
+  },
+  "page_headers": {
+    "organizer": "Òganizatè",
+    "settings": "Paramèt",
+    "event": "Evènman",
+    "analytics_title": "Analiz",
+    "analytics_subtitle": "Swiv pèfòmans evènman ou yo ak sa done yo montre.",
+    "team_title": "Ekip ak pèmisyon",
+    "team_subtitle": "Envite anplwaye nan pòt la epi jere aksè anrejistreman pa evènman",
+    "tickets_title": "Tikè",
+    "tickets_subtitle": "Tip tikè, pri ak stòk pou evènman sa a.",
+    "promo_codes_title": "Kòd pwomo",
+    "promo_codes_subtitle": "Kreye epi jere rabè pou evènman ou yo.",
+    "finance_title": "Finans",
+    "finance_subtitle": "Swiv revni evènman ou yo epi jere peman yo."
   }
 }

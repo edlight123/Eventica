@@ -2,9 +2,7 @@ import { getCurrentUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { adminDb } from '@/lib/firebase/admin';
 import NotificationsForm from './NotificationsForm';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
-import { PageHeader } from '@/components/organizer/ui';
+import { SettingsPageChrome } from '@/components/organizer/ui/SettingsPageChrome';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,20 +33,7 @@ export default async function NotificationsSettingsPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <Link 
-          href="/organizer/settings"
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white mb-6 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to Settings
-        </Link>
-
-        <PageHeader
-          eyebrow="Settings"
-          title="Notifications"
-          subtitle="Manage how you receive updates about your events"
-        />
+        <SettingsPageChrome titleKey="notifications_title" subtitleKey="notifications_subtitle" />
 
         {/* Notifications Form */}
         <div className="mt-8 overflow-hidden rounded-2xl bg-white/[0.03]">

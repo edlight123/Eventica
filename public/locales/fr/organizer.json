@@ -1342,5 +1342,36 @@
     "create_first_event": "Créez votre premier événement",
     "happening_today": "Aujourd'hui",
     "other_events": "Autres événements"
+  },
+  "settings_pages": {
+    "back_to_settings": "Retour aux paramètres",
+    "eyebrow": "Paramètres",
+    "security_title": "Sécurité",
+    "security_subtitle": "Gérez votre mot de passe et surveillez l'activité de votre compte",
+    "profile_title": "Paramètres du profil",
+    "profile_subtitle": "Gérez vos informations personnelles et vos coordonnées",
+    "defaults_title": "Valeurs par défaut",
+    "defaults_subtitle": "Définissez les préférences par défaut pour vos nouveaux événements",
+    "notifications_title": "Notifications",
+    "notifications_subtitle": "Gérez la façon dont vous recevez les mises à jour de vos événements",
+    "organization_title": "Organisation et marque",
+    "organization_subtitle": "Gérez les informations de votre organisation et votre image publique",
+    "danger_zone_title": "Zone sensible",
+    "danger_zone_subtitle": "Actions permanentes difficilement réversibles"
+  },
+  "page_headers": {
+    "organizer": "Organisateur",
+    "settings": "Paramètres",
+    "event": "Événement",
+    "analytics_title": "Analyses",
+    "analytics_subtitle": "Suivez la performance de vos événements et les tendances.",
+    "team_title": "Équipe et autorisations",
+    "team_subtitle": "Invitez le personnel d'accueil et gérez l'accès à l'enregistrement par événement",
+    "tickets_title": "Billets",
+    "tickets_subtitle": "Types de billets, tarifs et stock pour cet événement.",
+    "promo_codes_title": "Codes promo",
+    "promo_codes_subtitle": "Créez et gérez les réductions pour vos événements.",
+    "finance_title": "Finances",
+    "finance_subtitle": "Suivez les revenus de vos événements et gérez les versements."
   }
 }

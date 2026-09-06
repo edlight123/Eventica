@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase/admin'
 import { getOrganizerEarningsSummary } from '@/lib/earnings'
 import { getOrganizerBalance } from '@/lib/firestore/payout'
 import { PageHeader } from '@/components/organizer/ui'
+import { TranslatedPageHeader } from '@/components/organizer/ui/TranslatedPageHeader'
 import EarningsView from '../earnings/EarningsView'
 import Link from 'next/link'
 
@@ -46,10 +47,10 @@ export default async function FinancePage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <PageHeader
-          eyebrow="Organizer"
-          title="Finance"
-          subtitle="Track your event revenue and manage payouts."
+        <TranslatedPageHeader
+          eyebrowKey="organizer"
+          titleKey="finance_title"
+          subtitleKey="finance_subtitle"
           actions={
             <Link
               href="/organizer/settings/payouts"
