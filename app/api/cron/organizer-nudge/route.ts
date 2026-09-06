@@ -22,6 +22,9 @@ const SLOW_SALES_RATIO = 0.2
 /** Events smaller than this are not worth nudging about. */
 const MIN_CAPACITY = 20
 
+/** Ceiling on one run's scan — see the note in city-discovery. */
+const MAX_EVENTS_SCANNED = 2000
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
@@ -34,7 +37,11 @@ export async function GET(request: Request) {
   const windowEnd = new Date(now.getTime() + WINDOW_END_HOURS * 60 * 60 * 1000)
 
   try {
-    const snap = await adminDb.collection('events').where('is_published', '==', true).get()
+    const snap = await adminDb
+      .collection('events')
+      .where('is_published', '==', true)
+      .limit(MAX_EVENTS_SCANNED)
+      .get()
 
     let notified = 0
     let considered = 0
@@ -73,7 +80,12 @@ export async function GET(request: Request) {
       if (sent) notified++
     }
 
-    return NextResponse.json({ ok: true, notified, considered })
+    return NextResponse.json({
+      ok: true,
+      notified,
+      considered,
+      ...(snap.size >= MAX_EVENTS_SCANNED ? { truncated: true } : {}),
+    })
   } catch (error: any) {
     console.error('[organizer-nudge] failed', error)
     return NextResponse.json({ error: error?.message || 'failed' }, { status: 500 })

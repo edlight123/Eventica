@@ -23,6 +23,18 @@ const HORIZON_DAYS = 14
 /** Most events named in one message. Beyond this it reads as a listing, not news. */
 const MAX_EVENTS_NAMED = 3
 
+/**
+ * Hard ceilings so one run cannot scan an unbounded collection.
+ *
+ * At the current audience these are never reached. They exist because a weekly
+ * job that reads every user and every published event is fine at 22 users and a
+ * silent 300s function timeout at 22,000 — and the failure mode is that the
+ * users late in the scan simply never hear from us, with a green cron run.
+ * BEFORE the audience outgrows these, this needs a cursor and multiple passes.
+ */
+const MAX_EVENTS_SCANNED = 2000
+const MAX_USERS_PER_RUN = 5000
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
@@ -43,6 +55,7 @@ export async function GET(request: Request) {
     const eventsSnap = await adminDb
       .collection('events')
       .where('is_published', '==', true)
+      .limit(MAX_EVENTS_SCANNED)
       .get()
 
     const upcoming = eventsSnap.docs
@@ -63,6 +76,7 @@ export async function GET(request: Request) {
     const usersSnap = await adminDb
       .collection('users')
       .where('last_seen_city', '!=', null)
+      .limit(MAX_USERS_PER_RUN)
       .get()
 
     let notified = 0
@@ -94,7 +108,16 @@ export async function GET(request: Request) {
       if (sent) notified++
     }
 
-    return NextResponse.json({ ok: true, notified, candidates: upcoming.length })
+    // Report the ceiling being hit, so a truncated run is visible rather than
+    // looking like a quiet week.
+    const truncated =
+      usersSnap.size >= MAX_USERS_PER_RUN || eventsSnap.size >= MAX_EVENTS_SCANNED
+    return NextResponse.json({
+      ok: true,
+      notified,
+      candidates: upcoming.length,
+      ...(truncated ? { truncated: true } : {}),
+    })
   } catch (error: any) {
     console.error('[city-discovery] failed', error)
     return NextResponse.json({ error: error?.message || 'failed' }, { status: 500 })

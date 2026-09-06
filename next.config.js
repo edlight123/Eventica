@@ -57,11 +57,14 @@ const nextConfig = {
     // origins: Stripe (checkout), Firebase/Google (auth, Firestore, storage,
     // FCM), self-hosted next/font fonts, and Unsplash/GCS images.
     //
-    // Shipped as Report-Only first because this is a live payments app — a
-    // slightly-off enforcing policy could break Stripe checkout or Google
-    // sign-in. Report-Only surfaces any violations in the browser console
-    // WITHOUT blocking anything. Once the console is clean in production,
-    // switch the header key below to 'Content-Security-Policy' to enforce.
+    // ENFORCING (verified live: the response header is Content-Security-Policy,
+    // not -Report-Only). It shipped as Report-Only first because a slightly-off
+    // policy on a live payments app breaks Stripe checkout or Google sign-in;
+    // it was flipped after a clean production sweep.
+    //
+    // So treat every entry below as load-bearing: removing a host here BLOCKS it
+    // in browsers rather than logging it. Anything new that checkout depends on
+    // (a Stripe domain, a wallet, an auth provider) has to be added here first.
     const contentSecurityPolicy = [
       "default-src 'self'",
       "base-uri 'self'",
