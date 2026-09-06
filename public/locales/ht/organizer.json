@@ -860,7 +860,13 @@
     "sales_status": "Estati vant",
     "sort_by": "Klase pa",
     "start_date": "Dat kòmansman",
-    "ticket_sales": "Vant tikè"
+    "ticket_sales": "Vant tikè",
+    "all_events": "Tout evènman",
+    "apply_filters": "Aplike filt yo",
+    "clear_all": "Efase tout",
+    "clear_date_range": "Efase peryòd la",
+    "has_sales": "Gen vant",
+    "no_sales": "Pa gen vant"
   },
   "promo_codes": {
     "create_discount_cta": "Kreye yon kòd rabè pou ogmante vant tikè.",
@@ -874,7 +880,13 @@
     "select_event": "Chwazi yon evènman",
     "delete_warning": "Kòd pwomo sa a ap efase nèt e patisipan yo p ap ka sèvi avè l ankò.",
     "unlimited": "San limit",
-    "your_promo_codes": "Kòd pwomo ou yo"
+    "your_promo_codes": "Kòd pwomo ou yo",
+    "counts_tickets_note": "Li konte tikè, pa kòmand: yon kòmand 10 tikè itilize 10.",
+    "create_promo_code": "Kreye yon kòd pwomo",
+    "discount_type": "Tip rabè",
+    "discount_value": "Valè rabè a",
+    "expires_at": "Ekspire nan",
+    "max_discounted_tickets": "Maksimòm tikè ak rabè"
   },
   "attendees": {
     "attendee_details": "Detay patisipan an",
@@ -934,7 +946,13 @@
     "export_your_data": "Ekspòte done ou yo",
     "pending_payouts_forfeited": "W ap pèdi peman ki annatant yo",
     "immediate_irreversible": "Aksyon sa a fèt touswit e ou p ap ka defè l",
-    "profile_removed": "Pwofil òganizatè ou a ap retire"
+    "profile_removed": "Pwofil òganizatè ou a ap retire",
+    "deactivate": "Dezaktive",
+    "delete_account": "Efase kont lan",
+    "export_desc": "Telechaje yon kopi tout done ou yo — evènman, tikè ak peman — nan fòma JSON.",
+    "delete_desc": "Efase kont ou ak tout done ki mache avè l nèt. Ou p ap ka defè aksyon sa a.",
+    "deactivate_desc": "Dezaktive kont ou pou yon ti tan. Ou ka reaktive l nan 30 jou. Evènman ou yo ap kache.",
+    "deactivate_confirm": "Kont ou ap dezaktive e evènman ou yo ap kache. Ou ka reaktive l nan 30 jou si w konekte ankò."
   },
   "organization": {
     "company": "Konpayi",
@@ -1024,7 +1042,10 @@
     "no_promoters_yet": "Poko gen pwomotè",
     "contact_hint": "Telefòn oswa imel, pou referans ou",
     "promoters": "Pwomotè",
-    "tickets": "Tikè"
+    "tickets": "Tikè",
+    "add_promoter": "Ajoute yon pwomotè",
+    "add_first_promoter": "Ajoute premye pwomotè ou",
+    "send_via_whatsapp": "Voye pa WhatsApp"
   },
   "security": {
     "change_password": "Chanje modpas",
@@ -1111,5 +1132,14 @@
     "no_banner_image": "Pa gen imaj banyè",
     "online_event": "Evènman an liy",
     "ticket_options": "Opsyon tikè"
+  },
+  "actions": {
+    "cancel": "Anile",
+    "create": "Kreye",
+    "remove": "Retire",
+    "used": "Itilize",
+    "event": "Evènman",
+    "sales": "Vant",
+    "type": "Tip"
   }
 }

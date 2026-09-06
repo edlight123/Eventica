@@ -255,7 +255,7 @@ export default function PromoCodeManager({
             {p.discount_type === 'percentage' ? `${p.discount_value}% off` : `$${p.discount_value} off`}
           </span>
           <span className="text-white/40"> · </span>
-          Used <span className="font-mono tabular-nums">{p.uses_count}{p.max_uses ? ` / ${p.max_uses}` : ''}</span>
+          {t('actions.used')}<span className="font-mono tabular-nums">{p.uses_count}{p.max_uses ? ` / ${p.max_uses}` : ''}</span>
         </p>
         {p.expires_at && (
           <p className="text-xs text-white/50">{t('promo_codes.expires')}<span className="font-mono tabular-nums">{new Date(p.expires_at).toLocaleDateString()}</span></p>
@@ -275,7 +275,7 @@ export default function PromoCodeManager({
           className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold text-sm hover:bg-brand-800 transition"
         >
           <Plus className="w-4 h-4" />
-          Create Promo Code
+          {t('promo_codes.create_promo_code')}
         </button>
       </div>
 
@@ -286,7 +286,7 @@ export default function PromoCodeManager({
           className="shadow-lg inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand-700 text-white font-semibold text-sm hover:bg-brand-800 active:scale-95 transition"
         >
           <Plus className="w-4 h-4" />
-          Create
+          {t('actions.create')}
         </button>
       </div>
 
@@ -326,7 +326,7 @@ export default function PromoCodeManager({
 
             <div>
               <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
-                Event
+                {t('actions.event')}
               </label>
               <select
                 required
@@ -343,7 +343,7 @@ export default function PromoCodeManager({
 
             <div>
               <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
-                Discount Type
+                {t('promo_codes.discount_type')}
               </label>
               <select
                 value={discountType}
@@ -357,7 +357,7 @@ export default function PromoCodeManager({
 
             <div>
               <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
-                Discount Value
+                {t('promo_codes.discount_value')}
               </label>
               <input
                 type="number"
@@ -373,7 +373,7 @@ export default function PromoCodeManager({
 
             <div>
               <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
-                Max Discounted Tickets <span className="normal-case font-normal">(optional)</span>
+                {t('promo_codes.max_discounted_tickets')}<span className="normal-case font-normal">(optional)</span>
               </label>
               <input
                 type="number"
@@ -387,13 +387,13 @@ export default function PromoCodeManager({
                   uses_count by the order quantity. Saying so here stops an
                   organizer reading "50" as "the first 50 customers". */}
               <p className="mt-1.5 text-xs text-white/40">
-                Counts tickets, not orders, a 10-ticket order uses 10.
+                {t('promo_codes.counts_tickets_note')}
               </p>
             </div>
 
             <div>
               <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
-                Expires At <span className="normal-case font-normal">(optional)</span>
+                {t('promo_codes.expires_at')}<span className="normal-case font-normal">(optional)</span>
               </label>
               <input
                 type="datetime-local"
@@ -410,7 +410,7 @@ export default function PromoCodeManager({
               onClick={() => setShowForm(false)}
               className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/[0.04] transition"
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
             <button
               type="submit"

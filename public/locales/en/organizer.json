@@ -860,7 +860,13 @@
     "sales_status": "Sales Status",
     "sort_by": "Sort By",
     "start_date": "Start Date",
-    "ticket_sales": "Ticket Sales"
+    "ticket_sales": "Ticket Sales",
+    "all_events": "All Events",
+    "apply_filters": "Apply Filters",
+    "clear_all": "Clear All",
+    "clear_date_range": "Clear date range",
+    "has_sales": "Has Sales",
+    "no_sales": "No Sales"
   },
   "promo_codes": {
     "create_discount_cta": "Create a discount code to drive ticket sales.",
@@ -874,7 +880,13 @@
     "select_event": "Select event",
     "delete_warning": "This promo code will be permanently deleted and can no longer be used by attendees.",
     "unlimited": "Unlimited",
-    "your_promo_codes": "Your promo codes"
+    "your_promo_codes": "Your promo codes",
+    "counts_tickets_note": "Counts tickets, not orders, a 10-ticket order uses 10.",
+    "create_promo_code": "Create Promo Code",
+    "discount_type": "Discount Type",
+    "discount_value": "Discount Value",
+    "expires_at": "Expires At",
+    "max_discounted_tickets": "Max Discounted Tickets"
   },
   "attendees": {
     "attendee_details": "Attendee Details",
@@ -934,7 +946,13 @@
     "export_your_data": "Export Your Data",
     "pending_payouts_forfeited": "Pending payouts will be forfeited",
     "immediate_irreversible": "This action is immediate and irreversible",
-    "profile_removed": "Your organizer profile will be removed"
+    "profile_removed": "Your organizer profile will be removed",
+    "deactivate": "Deactivate",
+    "delete_account": "Delete Account",
+    "export_desc": "Download a copy of all your data including events, tickets, and payouts in JSON format.",
+    "delete_desc": "Permanently delete your account and all associated data. This action cannot be undone.",
+    "deactivate_desc": "Temporarily disable your account. You can reactivate within 30 days. Your events will be hidden.",
+    "deactivate_confirm": "Your account will be deactivated and your events will be hidden. You can reactivate within 30 days by logging in again."
   },
   "organization": {
     "company": "Company",
@@ -1024,7 +1042,10 @@
     "no_promoters_yet": "No promoters yet",
     "contact_hint": "Phone or email, for your reference",
     "promoters": "Promoters",
-    "tickets": "Tickets"
+    "tickets": "Tickets",
+    "add_promoter": "Add promoter",
+    "add_first_promoter": "Add your first promoter",
+    "send_via_whatsapp": "Send via WhatsApp"
   },
   "security": {
     "change_password": "Change Password",
@@ -1111,5 +1132,14 @@
     "no_banner_image": "No banner image",
     "online_event": "Online Event",
     "ticket_options": "Ticket Options"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "create": "Create",
+    "remove": "Remove",
+    "used": "Used",
+    "event": "Event",
+    "sales": "Sales",
+    "type": "Type"
   }
 }

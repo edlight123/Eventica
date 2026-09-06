@@ -181,7 +181,7 @@ export default function PromotersClient({
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Plus className="h-3.5 w-3.5" />
-            Add promoter
+            {t('promoters.add_promoter')}
           </button>
         </div>
 
@@ -256,7 +256,7 @@ export default function PromotersClient({
                 onClick={() => setShowForm(false)}
                 className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
             </div>
           </div>
@@ -277,7 +277,7 @@ export default function PromotersClient({
                   className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   <Plus className="h-4 w-4" />
-                  Add your first promoter
+                  {t('promoters.add_first_promoter')}
                 </button>
               }
             />
@@ -309,7 +309,7 @@ export default function PromotersClient({
                     </div>
                     <div className="text-right">
                       <p className="text-white font-semibold">{fmtMoney(p.grossCents, p.currency)}</p>
-                      <p className="text-[11px] uppercase tracking-wider text-white/40">Sales</p>
+                      <p className="text-[11px] uppercase tracking-wider text-white/40">{t('actions.sales')}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-white font-semibold">{fmtMoney(p.commissionCents, p.currency)}</p>
@@ -344,7 +344,7 @@ export default function PromotersClient({
                     className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
-                    Send via WhatsApp
+                    {t('promoters.send_via_whatsapp')}
                   </a>
                   <span className="flex-1" />
                   <button
@@ -360,7 +360,7 @@ export default function PromotersClient({
                       onClick={() => handleDelete(p)}
                       className="rounded-lg px-3 py-1.5 text-xs font-semibold text-red-400/70 transition-colors hover:text-red-300"
                     >
-                      Remove
+                      {t('actions.remove')}
                     </button>
                   )}
                 </div>

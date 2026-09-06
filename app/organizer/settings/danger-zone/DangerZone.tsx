@@ -151,7 +151,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
               <h3 className="font-semibold text-white">{t('danger_zone.export_your_data')}</h3>
             </div>
             <p className="text-sm text-white/60">
-              Download a copy of all your data including events, tickets, and payouts in JSON format.
+              {t('danger_zone.export_desc')}
             </p>
           </div>
           <button
@@ -174,14 +174,14 @@ export default function DangerZone({ userId }: DangerZoneProps) {
               <h3 className="font-semibold text-white">{t('danger_zone.deactivate_account')}</h3>
             </div>
             <p className="text-sm text-white/60">
-              Temporarily disable your account. You can reactivate within 30 days. Your events will be hidden.
+              {t('danger_zone.deactivate_desc')}
             </p>
           </div>
           <button
             onClick={() => setShowDeactivateModal(true)}
             className="px-4 py-2 border-2 border-amber-400 hover:border-amber-500 text-amber-300 font-medium rounded-lg transition-colors"
           >
-            Deactivate
+            {t('danger_zone.deactivate')}
           </button>
         </div>
       </div>
@@ -195,7 +195,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
               <h3 className="font-semibold text-white">{t('danger_zone.delete_permanently')}</h3>
             </div>
             <p className="text-sm text-white/60 mb-3">
-              Permanently delete your account and all associated data. This action cannot be undone.
+              {t('danger_zone.delete_desc')}
             </p>
             <ul className="text-xs text-red-300 space-y-1 list-disc list-inside">
               <li>{t('danger_zone.all_data_deleted')}</li>
@@ -208,7 +208,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
             onClick={() => setShowDeleteModal(true)}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
           >
-            Delete Account
+            {t('danger_zone.delete_account')}
           </button>
         </div>
       </div>
@@ -222,14 +222,14 @@ export default function DangerZone({ userId }: DangerZoneProps) {
               <h3 className="font-display text-xl text-white">{t('danger_zone.deactivate_account_q')}</h3>
             </div>
             <p className="text-white/60 mb-6">
-              Your account will be deactivated and your events will be hidden. You can reactivate within 30 days by logging in again.
+              {t('danger_zone.deactivate_confirm')}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeactivateModal(false)}
                 className="flex-1 px-4 py-3 text-white/70 font-medium rounded-[10px] bg-white/[0.06] hover:bg-white/[0.12] text-[16px] focus:outline-none"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
               <button
                 onClick={handleDeactivate}
@@ -257,7 +257,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
             </p>
             <div className="mb-6">
               <label className="block text-sm font-medium text-white/70 mb-2">
-                Type <span className="font-mono text-red-300">{t('danger_zone.delete_confirm_phrase')}</span> to confirm
+                {t('actions.type')}<span className="font-mono text-red-300">{t('danger_zone.delete_confirm_phrase')}</span> to confirm
               </label>
               <input
                 type="text"
@@ -275,7 +275,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
                 }}
                 className="flex-1 px-4 py-3 text-white/70 font-medium rounded-[10px] bg-white/[0.06] hover:bg-white/[0.12] text-[16px] focus:outline-none"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
               <button
                 onClick={handleDelete}

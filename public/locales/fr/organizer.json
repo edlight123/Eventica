@@ -860,7 +860,13 @@
     "sales_status": "Statut des ventes",
     "sort_by": "Trier par",
     "start_date": "Date de début",
-    "ticket_sales": "Ventes de billets"
+    "ticket_sales": "Ventes de billets",
+    "all_events": "Tous les événements",
+    "apply_filters": "Appliquer les filtres",
+    "clear_all": "Tout effacer",
+    "clear_date_range": "Effacer la période",
+    "has_sales": "Avec ventes",
+    "no_sales": "Sans ventes"
   },
   "promo_codes": {
     "create_discount_cta": "Créez un code de réduction pour stimuler les ventes de billets.",
@@ -874,7 +880,13 @@
     "select_event": "Sélectionner un événement",
     "delete_warning": "Ce code promo sera définitivement supprimé et ne pourra plus être utilisé par les participants.",
     "unlimited": "Illimité",
-    "your_promo_codes": "Vos codes promo"
+    "your_promo_codes": "Vos codes promo",
+    "counts_tickets_note": "Compte les billets, pas les commandes : une commande de 10 billets en utilise 10.",
+    "create_promo_code": "Créer un code promo",
+    "discount_type": "Type de réduction",
+    "discount_value": "Valeur de la réduction",
+    "expires_at": "Expire le",
+    "max_discounted_tickets": "Billets à prix réduit (max)"
   },
   "attendees": {
     "attendee_details": "Détails du participant",
@@ -934,7 +946,13 @@
     "export_your_data": "Exporter vos données",
     "pending_payouts_forfeited": "Les versements en attente seront perdus",
     "immediate_irreversible": "Cette action est immédiate et irréversible",
-    "profile_removed": "Votre profil d'organisateur sera supprimé"
+    "profile_removed": "Votre profil d'organisateur sera supprimé",
+    "deactivate": "Désactiver",
+    "delete_account": "Supprimer le compte",
+    "export_desc": "Téléchargez une copie de toutes vos données — événements, billets et versements — au format JSON.",
+    "delete_desc": "Supprimez définitivement votre compte et toutes les données associées. Cette action est irréversible.",
+    "deactivate_desc": "Désactivez temporairement votre compte. Vous pouvez le réactiver sous 30 jours. Vos événements seront masqués.",
+    "deactivate_confirm": "Votre compte sera désactivé et vos événements masqués. Vous pouvez le réactiver sous 30 jours en vous reconnectant."
   },
   "organization": {
     "company": "Entreprise",
@@ -1024,7 +1042,10 @@
     "no_promoters_yet": "Aucun promoteur pour l'instant",
     "contact_hint": "Téléphone ou e-mail, pour votre référence",
     "promoters": "Promoteurs",
-    "tickets": "Billets"
+    "tickets": "Billets",
+    "add_promoter": "Ajouter un promoteur",
+    "add_first_promoter": "Ajoutez votre premier promoteur",
+    "send_via_whatsapp": "Envoyer via WhatsApp"
   },
   "security": {
     "change_password": "Modifier le mot de passe",
@@ -1111,5 +1132,14 @@
     "no_banner_image": "Aucune image de bannière",
     "online_event": "Événement en ligne",
     "ticket_options": "Options de billets"
+  },
+  "actions": {
+    "cancel": "Annuler",
+    "create": "Créer",
+    "remove": "Retirer",
+    "used": "Utilisé",
+    "event": "Événement",
+    "sales": "Ventes",
+    "type": "Type"
   }
 }

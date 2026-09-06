@@ -158,7 +158,7 @@ export default function OrganizerEventsFiltersModal({
                 onClick={() => setLocalFilters((prev) => ({ ...prev, dateRange: null }))}
                 className="mt-2 text-xs text-brand-300 hover:text-brand-300 font-medium"
               >
-                Clear date range
+                {t('events_filters.clear_date_range')}
               </button>
             )}
           </div>
@@ -230,7 +230,7 @@ export default function OrganizerEventsFiltersModal({
                     : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
                 }`}
               >
-                All Events
+                {t('events_filters.all_events')}
               </button>
               <button
                 onClick={() => setLocalFilters((prev) => ({ ...prev, hasSales: true }))}
@@ -240,7 +240,7 @@ export default function OrganizerEventsFiltersModal({
                     : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
                 }`}
               >
-                Has Sales
+                {t('events_filters.has_sales')}
               </button>
               <button
                 onClick={() => setLocalFilters((prev) => ({ ...prev, hasSales: false }))}
@@ -250,7 +250,7 @@ export default function OrganizerEventsFiltersModal({
                     : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.12] hover:text-white'
                 }`}
               >
-                No Sales
+                {t('events_filters.no_sales')}
               </button>
             </div>
           </div>
@@ -300,20 +300,20 @@ export default function OrganizerEventsFiltersModal({
             onClick={handleClearAll}
             className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors"
           >
-            Clear All
+            {t('events_filters.clear_all')}
           </button>
           <div className="flex gap-3">
             <button
               onClick={onClose}
               className="h-11 rounded-[10px] bg-white/[0.08] px-5 text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.14] hover:text-white"
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
             <button
               onClick={handleApply}
               className="h-11 rounded-[10px] bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-white/90"
             >
-              Apply Filters
+              {t('events_filters.apply_filters')}
             </button>
           </div>
         </div>
