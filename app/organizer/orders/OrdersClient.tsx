@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useMemo, useState } from 'react'
 import { format, isValid } from 'date-fns'
 import { ShoppingBag } from 'lucide-react'
@@ -94,6 +96,8 @@ const COLUMNS: OrgColumn<Order>[] = [
 ]
 
 export default function OrdersClient({ orders }: { orders: Order[] }) {
+  const { t } = useTranslation('organizer')
+
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -112,8 +116,8 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 md:py-10">
       <PageHeader
         eyebrow="Finance"
-        title="Orders"
-        subtitle="Every ticket sold across your events."
+        title={t('orders.orders')}
+        subtitle={t('orders.every_ticket_sold')}
         actions={
           orders.length > 0 ? (
             <span className="rounded-full border border-white/10 px-3.5 py-2 text-sm text-white/70">
@@ -133,7 +137,7 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
               <SearchInput
                 value={query}
                 onChange={setQuery}
-                placeholder="Search by event, attendee, email or order #"
+                placeholder={t('orders.search_orders')}
                 className="w-full sm:max-w-xs"
               />
             </TableToolbar>

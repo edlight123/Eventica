@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { format, isValid } from 'date-fns'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -105,6 +107,8 @@ function ScanEventCard({ event, badge }: { event: any; badge?: { label: string; 
 }
 
 export default function EventSelector({ events }: EventSelectorProps) {
+  const { t } = useTranslation('organizer')
+
   // Separate today's events from others for display
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -131,7 +135,7 @@ export default function EventSelector({ events }: EventSelectorProps) {
             href="/organizer/events/new"
             className="inline-block rounded-lg bg-brand-700 px-6 py-3 font-medium text-white hover:bg-brand-800"
           >
-            Create Your First Event
+            {t('scan_selector.create_first_event')}
           </Link>
         </div>
       </div>
@@ -145,7 +149,7 @@ export default function EventSelector({ events }: EventSelectorProps) {
         <section>
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-brand-300">
             <span>📍</span>
-            <span>Happening Today</span>
+            <span>{t('scan_selector.happening_today')}</span>
           </h3>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {todayEvents.map((event) => (
@@ -159,7 +163,7 @@ export default function EventSelector({ events }: EventSelectorProps) {
       {otherEvents.length > 0 && (
         <section>
           {todayEvents.length > 0 && (
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">Other Events</h3>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/50">{t('scan_selector.other_events')}</h3>
           )}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {otherEvents.map((event) => {

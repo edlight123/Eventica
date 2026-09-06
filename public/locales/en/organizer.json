@@ -1332,5 +1332,15 @@
   "marketing": {
     "everyone_bought_ticket": "Everyone who has bought a ticket to your events.",
     "search_name_email_phone": "Search by name, email or phone"
+  },
+  "orders": {
+    "orders": "Orders",
+    "every_ticket_sold": "Every ticket sold across your events.",
+    "search_orders": "Search by event, attendee, email or order #"
+  },
+  "scan_selector": {
+    "create_first_event": "Create Your First Event",
+    "happening_today": "Happening Today",
+    "other_events": "Other Events"
   }
 }

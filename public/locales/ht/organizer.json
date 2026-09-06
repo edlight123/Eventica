@@ -1332,5 +1332,15 @@
   "marketing": {
     "everyone_bought_ticket": "Tout moun ki achte yon tikè pou evènman ou yo.",
     "search_name_email_phone": "Chèche pa non, imel oswa telefòn"
+  },
+  "orders": {
+    "orders": "Kòmand",
+    "every_ticket_sold": "Tout tikè ki vann nan evènman ou yo.",
+    "search_orders": "Chèche pa evènman, patisipan, imel oswa nimewo kòmand"
+  },
+  "scan_selector": {
+    "create_first_event": "Kreye premye evènman ou",
+    "happening_today": "Jodi a",
+    "other_events": "Lòt evènman"
   }
 }
