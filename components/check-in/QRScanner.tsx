@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useRef, useEffect } from 'react'
 import { Camera, FlashlightOff, Flashlight, X } from 'lucide-react'
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode'
@@ -10,6 +12,8 @@ interface QRScannerProps {
 }
 
 export function QRScanner({ onScan, onClose }: QRScannerProps) {
+  const { t } = useTranslation('organizer')
+
   const [flashlightOn, setFlashlightOn] = useState(false)
   const [cameraError, setCameraError] = useState<string | null>(null)
   const scannerRef = useRef<Html5QrcodeScanner | null>(null)
@@ -80,7 +84,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
       <div className="bg-gray-900 p-4 flex items-center justify-between">
         <h2 className="text-white text-lg font-semibold flex items-center gap-2">
           <Camera className="w-5 h-5" />
-          Scan QR Code
+          {t('qr_scanner.scan_qr_code')}
         </h2>
         <div className="flex items-center gap-2">
           <button
@@ -109,7 +113,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
         {cameraError ? (
           <div className="text-center">
             <Camera className="w-16 h-16 text-white/50 mx-auto mb-4" />
-            <p className="text-white text-lg mb-2">Camera Not Available</p>
+            <p className="text-white text-lg mb-2">{t('qr_scanner.camera_not_available')}</p>
             <p className="text-white/40 text-sm">{cameraError}</p>
           </div>
         ) : (
@@ -120,7 +124,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
       {/* Instructions */}
       <div className="bg-gray-900 p-4 text-center">
         <p className="text-white/40 text-sm">
-          Position the QR code within the frame to scan
+          {t('qr_scanner.position_qr')}
         </p>
       </div>
     </div>

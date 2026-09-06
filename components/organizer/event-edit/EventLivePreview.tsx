@@ -63,10 +63,10 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
       <div className="border-2 border-brand-500/30 rounded-xl p-4">
         <h3 className="font-bold text-white mb-1 flex items-center gap-2">
           <span className="w-2 h-2 bg-brand-600 rounded-full animate-pulse"></span>
-          Live Preview
+          {t('live_preview.live_preview')}
         </h3>
         <p className="text-sm text-white/60">
-          See how your event will appear to attendees
+          {t('live_preview.see_how_appears')}
         </p>
       </div>
 
@@ -151,7 +151,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                       </p>
                     ) : (
                       <p className="text-xs text-white/40 mt-0.5">
-                        Join link will be provided
+                        {t('live_preview.join_link_provided')}
                       </p>
                     )}
                   </div>
@@ -198,7 +198,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
           {/* Description */}
           {data.description && (
             <div className="pt-4 border-t border-white/10">
-              <h3 className="text-sm font-bold text-white mb-2">About</h3>
+              <h3 className="text-sm font-bold text-white mb-2">{t('actions.about')}</h3>
               <p className="text-sm text-white/70 line-clamp-4 leading-relaxed">
                 {data.description}
               </p>

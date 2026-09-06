@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useMemo, useState } from 'react'
 import { loadConnectAndInitialize } from '@stripe/connect-js'
 import {
@@ -16,6 +18,8 @@ import {
  * authenticates the account-session fetches instead.
  */
 export default function OnboardingClient({ bearerToken }: { bearerToken: string | null }) {
+  const { t } = useTranslation('organizer')
+
   const [failed, setFailed] = useState<string | null>(null)
 
   const connectInstance = useMemo(() => {
@@ -65,7 +69,7 @@ export default function OnboardingClient({ bearerToken }: { bearerToken: string 
   if (!connectInstance) {
     return (
       <div style={wrap}>
-        <p style={muted}>Payments are not configured on this deployment.</p>
+        <p style={muted}>{t('onboarding.payments_not_configured')}</p>
       </div>
     )
   }
@@ -73,7 +77,7 @@ export default function OnboardingClient({ bearerToken }: { bearerToken: string 
   return (
     <div style={wrap}>
       <div style={inner}>
-        <h1 style={title}>Set up payouts</h1>
+        <h1 style={title}>{t('actions.set_up_payouts')}</h1>
         <p style={muted}>
           Verify your details and connect a bank account. Tikèm never sees your banking
           credentials, this step is secured by Stripe.
@@ -85,7 +89,7 @@ export default function OnboardingClient({ bearerToken }: { bearerToken: string 
             first.
           </p>
         ) : failed ? (
-          <p style={errorText}>Something went wrong starting onboarding. Pull back and retry.</p>
+          <p style={errorText}>{t('onboarding.onboarding_failed')}</p>
         ) : (
           <ConnectComponentsProvider connectInstance={connectInstance}>
             <ConnectAccountOnboarding

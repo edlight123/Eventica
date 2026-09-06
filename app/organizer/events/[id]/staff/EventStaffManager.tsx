@@ -433,7 +433,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                           }
                           className="text-sm font-medium text-red-300 transition-colors hover:text-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                         >
-                          Remove
+                          {tx('actions.remove')}
                         </button>
                       </td>
                     </tr>
@@ -492,7 +492,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                             }
                             className="text-sm font-medium text-red-300 transition-colors hover:text-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
                           >
-                            Revoke
+                            {tx('actions.revoke')}
                           </button>
                         ) : (
                           <span className="text-sm text-white/70">, </span>
@@ -532,14 +532,14 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                   className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/15 rounded-lg text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 >
                   <option value="link">Link</option>
-                  <option value="email">Email</option>
-                  <option value="phone">Phone</option>
+                  <option value="email">{tx('actions.email')}</option>
+                  <option value="phone">{tx('actions.phone')}</option>
                 </select>
               </div>
 
               {method === 'email' && (
                 <div>
-                  <label htmlFor="invite-email" className="block text-sm font-medium text-white/70 mb-2">Email</label>
+                  <label htmlFor="invite-email" className="block text-sm font-medium text-white/70 mb-2">{tx('actions.email')}</label>
                   <input
                     id="invite-email"
                     type="email"
@@ -553,7 +553,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
 
               {method === 'phone' && (
                 <div>
-                  <label htmlFor="invite-phone" className="block text-sm font-medium text-white/70 mb-2">Phone</label>
+                  <label htmlFor="invite-phone" className="block text-sm font-medium text-white/70 mb-2">{tx('actions.phone')}</label>
                   <input
                     id="invite-phone"
                     type="tel"
@@ -594,7 +594,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                   onClick={closeInviteModal}
                   className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-white/[0.04] transition-colors"
                 >
-                  Cancel
+                  {tx('actions.cancel')}
                 </button>
                 <button
                   type="button"
@@ -631,7 +631,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                 disabled={confirmBusy}
                 className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-white/[0.04] transition-colors disabled:opacity-50"
               >
-                Cancel
+                {tx('actions.cancel')}
               </button>
               <button
                 type="button"

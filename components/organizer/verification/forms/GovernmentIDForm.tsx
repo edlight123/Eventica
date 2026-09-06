@@ -113,10 +113,10 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
     <div className="space-y-6">
       <div className="bg-white/[0.03] rounded-lg p-6 md:p-8">
         <h3 className="mb-2 font-display !text-[22px] !leading-[1.1] text-white">
-          Government ID Upload
+          {t('verification_id.government_id_upload')}
         </h3>
         <p className="text-sm md:text-base text-white/60 mb-6">
-          Upload clear photos of both sides of your government-issued ID
+          {t('verification_id.upload_both_sides')}
         </p>
 
         {/* Tips */}
@@ -167,7 +167,7 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
           disabled={isSaving}
           className="flex-1 px-6 py-3 text-white/80 bg-white/[0.06] rounded-lg font-semibold hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50"
         >
-          Cancel
+          {t('actions.cancel')}
         </button>
         <button
           type="button"

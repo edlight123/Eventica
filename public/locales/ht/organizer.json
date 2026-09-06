@@ -801,7 +801,9 @@
         "provider": "Konpayi",
         "phone_number": "Nimewo telefòn"
       }
-    }
+    },
+    "payments_not_configured": "Peman yo pa konfigire sou deplwaman sa a.",
+    "onboarding_failed": "Yon bagay pa mache lè n t ap kòmanse enskripsyon an. Retounen epi eseye ankò."
   },
   "event_earnings": {
     "no_earnings_yet": "Poko gen revni",
@@ -1184,7 +1186,10 @@
     "location_tbd": "Kote a poko konfime",
     "no_banner_image": "Pa gen imaj banyè",
     "online_event": "Evènman an liy",
-    "ticket_options": "Opsyon tikè"
+    "ticket_options": "Opsyon tikè",
+    "join_link_provided": "Y ap bay lyen pou konekte a",
+    "live_preview": "Apèsi an dirèk",
+    "see_how_appears": "Gade kijan evènman ou an ap parèt pou patisipan yo"
   },
   "actions": {
     "cancel": "Anile",
@@ -1225,7 +1230,10 @@
     "finance": "Finans",
     "organizer": "Òganizatè",
     "payouts": "Peman",
-    "messages": "Mesaj"
+    "messages": "Mesaj",
+    "revoke": "Revoke",
+    "attendees": "Patisipan",
+    "set_up_payouts": "Konfigire peman yo"
   },
   "upgrade_prompt": {
     "brand_name": "Non mak la",
@@ -1311,5 +1319,18 @@
     "no_messages_yet": "Poko gen mesaj",
     "reply_privacy_note": "Yo wè repons ou an nan aplikasyon an ak pa imel. Adrès imel ou rete prive.",
     "your_reply": "Repons ou"
+  },
+  "qr_scanner": {
+    "camera_not_available": "Kamera a pa disponib",
+    "position_qr": "Mete kòd QR a nan kad la pou w eskane l",
+    "scan_qr_code": "Eskane kòd QR a"
+  },
+  "verification_id": {
+    "government_id_upload": "Voye kat idantite a",
+    "upload_both_sides": "Voye foto ki klè pou de bò kat idantite ou a"
+  },
+  "marketing": {
+    "everyone_bought_ticket": "Tout moun ki achte yon tikè pou evènman ou yo.",
+    "search_name_email_phone": "Chèche pa non, imel oswa telefòn"
   }
 }

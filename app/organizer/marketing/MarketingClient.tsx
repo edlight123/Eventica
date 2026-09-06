@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useMemo, useState } from 'react'
 import { format, isValid } from 'date-fns'
 import { Users } from 'lucide-react'
@@ -83,6 +85,8 @@ const COLUMNS: OrgColumn<Attendee>[] = [
 ]
 
 export default function MarketingClient({ attendees }: { attendees: Attendee[] }) {
+  const { t } = useTranslation('organizer')
+
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -100,8 +104,8 @@ export default function MarketingClient({ attendees }: { attendees: Attendee[] }
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 md:py-10">
       <PageHeader
         eyebrow="Marketing"
-        title="Attendees"
-        subtitle="Everyone who has bought a ticket to your events."
+        title={t('actions.attendees')}
+        subtitle={t('marketing.everyone_bought_ticket')}
         actions={
           attendees.length > 0 ? (
             <span className="rounded-full border border-white/10 px-3.5 py-2 text-sm text-white/70">
@@ -121,7 +125,7 @@ export default function MarketingClient({ attendees }: { attendees: Attendee[] }
               <SearchInput
                 value={query}
                 onChange={setQuery}
-                placeholder="Search by name, email or phone"
+                placeholder={t('marketing.search_name_email_phone')}
                 className="w-full sm:max-w-xs"
               />
             </TableToolbar>
