@@ -243,7 +243,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
           className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-xl font-semibold transition-colors"
         >
           <Search className="w-5 h-5" />
-          Manual Lookup
+          {t('check_in.manual_lookup')}
         </button>
       </div>
 
@@ -347,7 +347,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
                       <CheckCircle className="w-6 h-6 text-green-400 ml-4" />
                     ) : (
                       <div className="ml-4 px-3 py-1 bg-teal-600 rounded-lg text-sm font-semibold">
-                        Check In
+                        {t('actions.check_in')}
                       </div>
                     )}
                   </div>

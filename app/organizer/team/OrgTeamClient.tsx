@@ -176,7 +176,7 @@ export default function OrgTeamClient({
           <div>
             <div className="flex items-center gap-2">
               <p className="font-semibold text-white">{ownerName}</p>
-              <StatusChip tone="success">Owner</StatusChip>
+              <StatusChip tone="success">{t('actions.owner')}</StatusChip>
             </div>
             <p className="text-sm text-white/50">{ownerEmail}</p>
           </div>
@@ -187,7 +187,7 @@ export default function OrgTeamClient({
           className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <UserPlus className="h-4 w-4" />
-          Invite member
+          {t('org_team.invite_member')}
         </button>
       </div>
 
@@ -223,14 +223,14 @@ export default function OrgTeamClient({
           <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-4">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
             <div>
-              <p className="text-sm font-semibold text-white">Admin</p>
+              <p className="text-sm font-semibold text-white">{t('actions.admin')}</p>
               <p className="mt-0.5 text-xs text-white/50">{t('org_team.full_access')}</p>
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-4">
             <User className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
             <div>
-              <p className="text-sm font-semibold text-white">Staff</p>
+              <p className="text-sm font-semibold text-white">{t('actions.staff')}</p>
               <p className="mt-0.5 text-xs text-white/50">{t('org_team.assigned_per_event')}</p>
             </div>
           </div>
@@ -250,7 +250,7 @@ export default function OrgTeamClient({
               onClick={() => { setOpen(false); reset() }}
               className="rounded-xl  px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
             <button
               type="button"

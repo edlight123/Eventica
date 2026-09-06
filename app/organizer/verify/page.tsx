@@ -5,6 +5,8 @@
 
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -33,6 +35,8 @@ import { useOrganizerClientGuard } from '@/lib/hooks/useOrganizerClientGuard'
 type ViewMode = 'welcome' | 'wizard' | 'overview' | 'organizerInfo' | 'governmentId' | 'selfie' | 'businessDetails' | 'review'
 
 export default function VerifyOrganizerPage() {
+  const { t } = useTranslation('organizer')
+
   const searchParams = useSearchParams()
   const { firebaseUser, navbarUser: user, userProfile, loading: authLoading } = useOrganizerClientGuard({
     loginRedirectPath: '/organizer/verify',
@@ -287,13 +291,13 @@ export default function VerifyOrganizerPage() {
     return (
       <div className="bg-white/[0.03] flex items-center justify-center p-4">
         <div className="bg-white/[0.03] border border-red-500/30 rounded-lg p-6 max-w-md">
-          <h2 className="text-lg font-bold text-red-300 mb-2">Error Loading Verification</h2>
+          <h2 className="text-lg font-bold text-red-300 mb-2">{t('verification_page.error_loading')}</h2>
           <p className="text-sm text-red-300 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
           >
-            Retry
+            {t('actions.retry')}
           </button>
         </div>
       </div>
@@ -339,14 +343,14 @@ export default function VerifyOrganizerPage() {
         <div className="mb-6">
           <div className="flex items-center gap-2 text-sm text-white/60 mb-2">
             <Link href="/organizer" className="hover:text-white">
-              Organizer
+              {t('actions.organizer')}
             </Link>
             <span className="text-white/40">/</span>
-            <span className="text-white font-medium">Verification</span>
+            <span className="text-white font-medium">{t('verification_page.verification')}</span>
           </div>
           <SectionHeader
-            title="Verification"
-            description="Verify your identity to publish paid events and receive payouts."
+            title={t('verification_page.verification')}
+            description={t('verification_page.verify_to_publish')}
           />
         </div>
 
@@ -363,21 +367,21 @@ export default function VerifyOrganizerPage() {
           <div className="bg-white/[0.03] border border-emerald-500/30 rounded-xl p-4 md:p-5 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <div className="text-sm font-semibold text-white">You’re already verified</div>
-                <div className="text-sm text-white/60 mt-1">You can head to your organizer dashboard or review your verification details.</div>
+                <div className="text-sm font-semibold text-white">{t('verification_page.already_verified')}</div>
+                <div className="text-sm text-white/60 mt-1">{t('verification_page.head_to_dashboard')}</div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Link
                   href="/organizer/verify?details=1"
                   className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-white/[0.03] border border-white/15 hover:border-white/20 hover:bg-white/[0.04] transition-all text-center"
                 >
-                  View Verification Details
+                  {t('verification_page.view_verification_details')}
                 </Link>
                 <Link
                   href="/organizer"
                   className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-gray-900 hover:bg-gray-800 transition-all text-center"
                 >
-                  Go to Dashboard
+                  {t('verification_page.go_to_dashboard')}
                 </Link>
               </div>
             </div>
@@ -388,14 +392,14 @@ export default function VerifyOrganizerPage() {
           <div className="bg-white/[0.03] border border-red-500/30 rounded-lg p-4 mb-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-sm font-semibold text-red-300">Something went wrong</div>
+                <div className="text-sm font-semibold text-red-300">{t('verification_page.something_went_wrong')}</div>
                 <div className="text-sm text-red-300 mt-1">{error}</div>
               </div>
               <button
                 onClick={dismissError}
                 className="text-sm font-medium text-white/70 hover:text-white"
               >
-                Dismiss
+                {t('actions.dismiss')}
               </button>
             </div>
           </div>
@@ -416,7 +420,7 @@ export default function VerifyOrganizerPage() {
               <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 md:p-6 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-base md:text-lg font-bold text-white">Submission</h2>
+                    <h2 className="text-base md:text-lg font-bold text-white">{t('verification_page.submission')}</h2>
                     <p className="text-sm text-white/60 mt-1">
                       {statusForUI === 'approved'
                         ? 'Your verification is approved. You can view the details anytime.'
@@ -428,7 +432,7 @@ export default function VerifyOrganizerPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-white/50">Progress</div>
+                    <div className="text-xs text-white/50">{t('actions.progress')}</div>
                     <div className="text-sm font-semibold text-white">{completionPercentage}%</div>
                   </div>
                 </div>
@@ -465,7 +469,7 @@ export default function VerifyOrganizerPage() {
 
                   {!isReadOnly ? (
                     <p className="text-xs text-white/60">
-                      Submissions are typically reviewed within 24 to 48 hours.
+                      {t('verification_page.reviewed_24_48')}
                     </p>
                   ) : null}
                 </div>

@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns'
 import Link from 'next/link'
 
@@ -22,6 +24,8 @@ export default function CalendarView({
   currentMonth,
   onMonthChange
 }: CalendarViewProps) {
+  const { t } = useTranslation('organizer')
+
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(currentMonth)
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
@@ -66,7 +70,7 @@ export default function CalendarView({
         <button
           onClick={handlePreviousMonth}
           className="grid h-11 w-11 place-items-center rounded-[10px] transition-colors hover:bg-black/20"
-          aria-label="Previous month"
+          aria-label={t('calendar.previous_month')}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -80,7 +84,7 @@ export default function CalendarView({
         <button
           onClick={handleNextMonth}
           className="grid h-11 w-11 place-items-center rounded-[10px] transition-colors hover:bg-black/20"
-          aria-label="Next month"
+          aria-label={t('calendar.next_month')}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

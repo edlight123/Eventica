@@ -1147,7 +1147,8 @@
     "invite_team_member": "Envite yon manm ekip la",
     "member_details": "Detay manm nan",
     "no_team_members": "Poko gen manm ekip",
-    "optional": "Opsyonèl"
+    "optional": "Opsyonèl",
+    "invite_member": "Envite yon manm"
   },
   "defaults_form": {
     "select_a_city": "Chwazi yon vil",
@@ -1233,7 +1234,13 @@
     "messages": "Mesaj",
     "revoke": "Revoke",
     "attendees": "Patisipan",
-    "set_up_payouts": "Konfigire peman yo"
+    "set_up_payouts": "Konfigire peman yo",
+    "dismiss": "Iyore",
+    "retry": "Eseye ankò",
+    "admin": "Administratè",
+    "owner": "Pwopriyetè",
+    "staff": "Anplwaye",
+    "check_in": "Anrejistre"
   },
   "upgrade_prompt": {
     "brand_name": "Non mak la",
@@ -1373,5 +1380,28 @@
     "promo_codes_subtitle": "Kreye epi jere rabè pou evènman ou yo.",
     "finance_title": "Finans",
     "finance_subtitle": "Swiv revni evènman ou yo epi jere peman yo."
+  },
+  "verification_page": {
+    "error_loading": "Erè pandan chajman verifikasyon an",
+    "go_to_dashboard": "Ale nan tablodbò a",
+    "something_went_wrong": "Yon bagay pa mache",
+    "submission": "Soumisyon",
+    "reviewed_24_48": "Anjeneral yo egzamine soumisyon yo nan 24 a 48 èdtan.",
+    "verification": "Verifikasyon",
+    "verify_to_publish": "Verifye idantite ou pou w pibliye evènman peyan epi resevwa peman.",
+    "view_verification_details": "Gade detay verifikasyon an",
+    "head_to_dashboard": "Ou ka ale nan tablodbò òganizatè ou oswa gade detay verifikasyon ou.",
+    "already_verified": "Ou deja verifye"
+  },
+  "check_in": {
+    "manual_lookup": "Rechèch manyèl"
+  },
+  "calendar": {
+    "next_month": "Mwa pwochen",
+    "previous_month": "Mwa pase"
+  },
+  "search_input": {
+    "clear_search": "Efase rechèch la",
+    "search_placeholder": "Chèche…"
   }
 }

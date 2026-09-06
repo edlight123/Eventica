@@ -179,7 +179,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
               onClick={() => { setOpen(false); reset() }}
               className="rounded-xl  px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
             <button
               type="button"

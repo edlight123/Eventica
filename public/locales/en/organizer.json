@@ -1147,7 +1147,8 @@
     "invite_team_member": "Invite team member",
     "member_details": "Member details",
     "no_team_members": "No team members yet",
-    "optional": "Optional"
+    "optional": "Optional",
+    "invite_member": "Invite member"
   },
   "defaults_form": {
     "select_a_city": "Select a city",
@@ -1233,7 +1234,13 @@
     "messages": "Messages",
     "revoke": "Revoke",
     "attendees": "Attendees",
-    "set_up_payouts": "Set up payouts"
+    "set_up_payouts": "Set up payouts",
+    "dismiss": "Dismiss",
+    "retry": "Retry",
+    "admin": "Admin",
+    "owner": "Owner",
+    "staff": "Staff",
+    "check_in": "Check In"
   },
   "upgrade_prompt": {
     "brand_name": "Brand name",
@@ -1373,5 +1380,28 @@
     "promo_codes_subtitle": "Create and manage discounts for your events.",
     "finance_title": "Finance",
     "finance_subtitle": "Track your event revenue and manage payouts."
+  },
+  "verification_page": {
+    "error_loading": "Error Loading Verification",
+    "go_to_dashboard": "Go to Dashboard",
+    "something_went_wrong": "Something went wrong",
+    "submission": "Submission",
+    "reviewed_24_48": "Submissions are typically reviewed within 24 to 48 hours.",
+    "verification": "Verification",
+    "verify_to_publish": "Verify your identity to publish paid events and receive payouts.",
+    "view_verification_details": "View Verification Details",
+    "head_to_dashboard": "You can head to your organizer dashboard or review your verification details.",
+    "already_verified": "You’re already verified"
+  },
+  "check_in": {
+    "manual_lookup": "Manual Lookup"
+  },
+  "calendar": {
+    "next_month": "Next month",
+    "previous_month": "Previous month"
+  },
+  "search_input": {
+    "clear_search": "Clear search",
+    "search_placeholder": "Search…"
   }
 }

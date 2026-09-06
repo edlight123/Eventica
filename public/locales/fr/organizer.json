@@ -1147,7 +1147,8 @@
     "invite_team_member": "Inviter un membre de l'équipe",
     "member_details": "Détails du membre",
     "no_team_members": "Aucun membre d'équipe pour l'instant",
-    "optional": "Facultatif"
+    "optional": "Facultatif",
+    "invite_member": "Inviter un membre"
   },
   "defaults_form": {
     "select_a_city": "Sélectionner une ville",
@@ -1233,7 +1234,13 @@
     "messages": "Messages",
     "revoke": "Révoquer",
     "attendees": "Participants",
-    "set_up_payouts": "Configurer les versements"
+    "set_up_payouts": "Configurer les versements",
+    "dismiss": "Ignorer",
+    "retry": "Réessayer",
+    "admin": "Administrateur",
+    "owner": "Propriétaire",
+    "staff": "Personnel",
+    "check_in": "Enregistrer"
   },
   "upgrade_prompt": {
     "brand_name": "Nom de la marque",
@@ -1373,5 +1380,28 @@
     "promo_codes_subtitle": "Créez et gérez les réductions pour vos événements.",
     "finance_title": "Finances",
     "finance_subtitle": "Suivez les revenus de vos événements et gérez les versements."
+  },
+  "verification_page": {
+    "error_loading": "Erreur de chargement de la vérification",
+    "go_to_dashboard": "Aller au tableau de bord",
+    "something_went_wrong": "Une erreur est survenue",
+    "submission": "Soumission",
+    "reviewed_24_48": "Les soumissions sont généralement examinées sous 24 à 48 heures.",
+    "verification": "Vérification",
+    "verify_to_publish": "Vérifiez votre identité pour publier des événements payants et recevoir vos versements.",
+    "view_verification_details": "Voir les détails de la vérification",
+    "head_to_dashboard": "Vous pouvez accéder à votre tableau de bord organisateur ou consulter les détails de votre vérification.",
+    "already_verified": "Vous êtes déjà vérifié"
+  },
+  "check_in": {
+    "manual_lookup": "Recherche manuelle"
+  },
+  "calendar": {
+    "next_month": "Mois suivant",
+    "previous_month": "Mois précédent"
+  },
+  "search_input": {
+    "clear_search": "Effacer la recherche",
+    "search_placeholder": "Rechercher…"
   }
 }
