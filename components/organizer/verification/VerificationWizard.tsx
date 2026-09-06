@@ -70,10 +70,16 @@ const STEPS = [
 ]
 
 function ReviewRow({ label, value }: { label: string; value?: string }) {
+  const { t } = useTranslation('organizer')
+  const filled = Boolean(value && value.trim())
   return (
     <div>
       <dt className="text-white/50">{label}</dt>
-      <dd className="text-white">{value && value.trim() ? value : ', '}</dd>
+      {/* An empty row used to render the literal string ", " — left behind when
+          the em-dash sweep replaced this placeholder's dash with a comma. */}
+      <dd className={filled ? 'text-white' : 'text-white/40'}>
+        {filled ? value : t('onboarding.verification.review.not_provided', { defaultValue: 'Not provided' })}
+      </dd>
     </div>
   )
 }
@@ -82,7 +88,7 @@ function ReviewDoc({ ok, label }: { ok: boolean; label: string }) {
   const { t } = useTranslation('organizer')
   return (
     <li className="flex items-center gap-2">
-      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-white/[0.03] text-white/40'}`}>
+      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-white/[0.10] text-white/40'}`}>
         {ok ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
       </span>
       <span className={ok ? 'text-white' : 'text-white/50'}>{label}</span>
@@ -297,8 +303,13 @@ export default function VerificationWizard({
 
   const progressPercentage = ((currentStepIndex + 1) / STEPS.length) * 100
 
+  // No fill on this wrapper. The wizard REPLACES the page (app/organizer/verify
+  // returns it instead of the overview), so this div is the canvas, not a card
+  // — and tinting the whole viewport 3% meant the 3% step panel nested inside it
+  // was exactly the same colour and read as nothing. The panels below sit on
+  // the page's own #0a0a0a and their fills do the separating.
   return (
-    <div className="min-h-[80vh] bg-white/[0.03]">
+    <div className="min-h-[80vh]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {/* Header */}
         <div className="mb-6">
@@ -311,7 +322,7 @@ export default function VerificationWizard({
           </button>
           
           {/* Progress Bar */}
-          <div className="bg-white/[0.03] rounded-xl  p-4 md:p-5">
+          <div className="bg-white/[0.03] rounded-xl p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-white">
                 {t('onboarding.verification.step_of', {
@@ -350,8 +361,8 @@ export default function VerificationWizard({
                           : isCurrent
                             ? 'bg-brand-600 text-white ring-4 ring-brand-500/20'
                             : isPast
-                              ? 'bg-white/[0.03] text-white/60'
-                              : 'bg-white/[0.03] text-white/50'
+                              ? 'bg-white/[0.12] text-white/70'
+                              : 'bg-white/[0.055] text-white/45'
                         }
                       `}
                     >
@@ -360,7 +371,7 @@ export default function VerificationWizard({
                     {index < STEPS.length - 1 && (
                       <div
                         className={`flex-1 h-1 mx-2 rounded-full transition-colors ${
-                          isComplete || isPast ? 'bg-green-500' : 'bg-white/[0.03]'
+                          isComplete || isPast ? 'bg-green-500' : 'bg-white/[0.08]'
                         }`}
                       />
                     )}
@@ -378,13 +389,15 @@ export default function VerificationWizard({
               <currentStep.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-white">
+              {/* `!` on the size: `.mobile-typography h1` (0,1,1) beats a bare
+                  arbitrary size (0,1,0) under 640px, leading included. */}
+              <h1 className="font-display !text-[24px] !leading-[1.06] text-white md:!text-[28px]">
                 {t(`onboarding.verification.steps.${currentStep.id}.title`, { defaultValue: currentStep.title })}
               </h1>
               <p className="text-white/60">
                 {t(`onboarding.verification.steps.${currentStep.id}.description`, { defaultValue: currentStep.description })}
                 {!currentStep.required && (
-                  <span className="ml-2 text-xs font-medium text-white/50 bg-white/[0.03] px-2 py-0.5 rounded-full">
+                  <span className="ml-2 text-xs font-medium text-white/45">
                     {t('onboarding.verification.optional', { defaultValue: 'Optional' })}
                   </span>
                 )}
@@ -395,7 +408,7 @@ export default function VerificationWizard({
 
         {/* What you'll need — shown on the first step so organizers don't bail mid-flow */}
         {currentStepIndex === 0 && (
-          <div className="mb-6 border border-brand-500/30 rounded-xl p-4">
+          <div className="mb-6 bg-brand-500/10 rounded-xl p-4">
             <h4 className="text-sm font-semibold text-brand-300 mb-1.5">{t('onboarding.verification.before_you_start', { defaultValue: 'Before you start' })}</h4>
             <p className="text-sm text-brand-300/90 mb-2">
               {t('onboarding.verification.before_you_start_intro', { defaultValue: 'Have these ready. It takes about 5 minutes, and your progress saves as you go:' })}
@@ -410,7 +423,7 @@ export default function VerificationWizard({
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
+          <div className="mb-6 bg-red-500/10 rounded-xl p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-300">{t('onboarding.verification.error_label', { defaultValue: 'Error' })}</p>
@@ -420,7 +433,7 @@ export default function VerificationWizard({
         )}
 
         {/* Step Content */}
-        <div className="bg-white/[0.03] rounded-xl  shadow-sm overflow-hidden">
+        <div className="bg-white/[0.03] rounded-xl overflow-hidden">
           {currentStep.id === 'organizerInfo' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Full Name */}
@@ -436,8 +449,8 @@ export default function VerificationWizard({
                     setOrganizerForm(prev => ({ ...prev, full_name: e.target.value }))
                     if (formErrors.full_name) setFormErrors(prev => ({ ...prev, full_name: '' }))
                   }}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
-                    formErrors.full_name ? 'border-red-300 ' : 'border-white/15'
+                  className={`w-full rounded-lg px-4 py-3 text-white [color-scheme:dark] transition-colors focus:outline-none focus:ring-2 focus:ring-brand-400/50 ${
+                    formErrors.full_name ? 'bg-red-500/10 ring-1 ring-inset ring-red-500/40' : 'bg-white/[0.055] hover:bg-white/[0.08] focus:bg-white/[0.08]'
                   }`}
                   placeholder={t('onboarding.verification.field.full_name_placeholder', { defaultValue: 'Your full name as it appears on your ID' })}
                 />
@@ -458,8 +471,8 @@ export default function VerificationWizard({
                       setOrganizerForm(prev => ({ ...prev, phone: e.target.value }))
                       if (formErrors.phone) setFormErrors(prev => ({ ...prev, phone: '' }))
                     }}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
-                      formErrors.phone ? 'border-red-300 ' : 'border-white/15'
+                    className={`w-full rounded-lg px-4 py-3 text-white [color-scheme:dark] transition-colors focus:outline-none focus:ring-2 focus:ring-brand-400/50 ${
+                      formErrors.phone ? 'bg-red-500/10 ring-1 ring-inset ring-red-500/40' : 'bg-white/[0.055] hover:bg-white/[0.08] focus:bg-white/[0.08]'
                     }`}
                     placeholder={t('onboarding.verification.field.phone_placeholder', { defaultValue: '+509 1234 5678' })}
                   />
@@ -474,7 +487,7 @@ export default function VerificationWizard({
                     id="email"
                     value={organizerForm.email}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                    className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                     placeholder={t('onboarding.verification.field.email_placeholder', { defaultValue: 'email@example.com' })}
                   />
                 </div>
@@ -493,8 +506,8 @@ export default function VerificationWizard({
                     setOrganizerForm(prev => ({ ...prev, organization_name: e.target.value }))
                     if (formErrors.organization_name) setFormErrors(prev => ({ ...prev, organization_name: '' }))
                   }}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
-                    formErrors.organization_name ? 'border-red-300 ' : 'border-white/15'
+                  className={`w-full rounded-lg px-4 py-3 text-white [color-scheme:dark] transition-colors focus:outline-none focus:ring-2 focus:ring-brand-400/50 ${
+                    formErrors.organization_name ? 'bg-red-500/10 ring-1 ring-inset ring-red-500/40' : 'bg-white/[0.055] hover:bg-white/[0.08] focus:bg-white/[0.08]'
                   }`}
                   placeholder={t('onboarding.verification.field.organization_name_placeholder', { defaultValue: 'Your business or organization name' })}
                 />
@@ -510,7 +523,7 @@ export default function VerificationWizard({
                   id="organization_type"
                   value={organizerForm.organization_type}
                   onChange={(e) => setOrganizerForm(prev => ({ ...prev, organization_type: e.target.value }))}
-                  className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                  className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                 >
                   <option value="individual">{t('onboarding.verification.org_type.individual', { defaultValue: 'Individual/Sole Proprietor' })}</option>
                   <option value="company">{t('onboarding.verification.org_type.company', { defaultValue: 'Company/Corporation' })}</option>
@@ -529,7 +542,7 @@ export default function VerificationWizard({
                   id="address"
                   value={organizerForm.address}
                   onChange={(e) => setOrganizerForm(prev => ({ ...prev, address: e.target.value }))}
-                  className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                  className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                   placeholder={t('onboarding.verification.field.address_placeholder', { defaultValue: 'Street address' })}
                 />
               </div>
@@ -545,7 +558,7 @@ export default function VerificationWizard({
                     id="city"
                     value={organizerForm.city}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                    className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                     placeholder={t('onboarding.verification.field.city_placeholder', { defaultValue: 'Port-au-Prince' })}
                   />
                 </div>
@@ -557,7 +570,7 @@ export default function VerificationWizard({
                     id="country"
                     value={organizerForm.country}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, country: e.target.value }))}
-                    className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                    className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                   >
                     <option value="Haiti">{t('onboarding.verification.country.haiti', { defaultValue: 'Haiti' })}</option>
                     <option value="Dominican Republic">{t('onboarding.verification.country.dominican_republic', { defaultValue: 'Dominican Republic' })}</option>
@@ -571,7 +584,7 @@ export default function VerificationWizard({
           {currentStep.id === 'governmentId' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Tips */}
-              <div className="border border-brand-500/30 rounded-xl p-4">
+              <div className="bg-brand-500/10 rounded-xl p-4">
                 <h4 className="font-semibold text-brand-300 text-sm mb-2 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" /> {t('onboarding.verification.photo_tips', { defaultValue: 'Photo Tips' })}
                 </h4>
@@ -607,7 +620,7 @@ export default function VerificationWizard({
           {currentStep.id === 'selfie' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Instructions */}
-              <div className="border border-brand-500/30 rounded-xl p-4">
+              <div className="bg-brand-500/10 rounded-xl p-4">
                 <h4 className="font-semibold text-brand-300 text-sm mb-2">{t('onboarding.verification.selfie_how', { defaultValue: 'How to take a good selfie:' })}</h4>
                 <ul className="text-sm text-brand-300 space-y-1 ml-6 list-disc">
                   <li>{t('onboarding.verification.selfie_tip_hold', { defaultValue: 'Hold your ID next to your face' })}</li>
@@ -631,7 +644,7 @@ export default function VerificationWizard({
 
           {currentStep.id === 'businessDetails' && (
             <div className="p-5 md:p-6 space-y-5">
-              <div className="bg-white/[0.03]  rounded-xl p-4 mb-2">
+              <div className="bg-white/[0.06] rounded-xl p-4 mb-2">
                 <p className="text-sm text-white/60">
                   {t('onboarding.verification.business_optional_note', { defaultValue: 'This step is optional. Add business details if you have a registered business.' })}
                 </p>
@@ -647,7 +660,7 @@ export default function VerificationWizard({
                   id="business_registration_number"
                   value={businessForm.business_registration_number}
                   onChange={(e) => setBusinessForm(prev => ({ ...prev, business_registration_number: e.target.value }))}
-                  className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                  className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                   placeholder={t('onboarding.verification.field.business_registration_number_placeholder', { defaultValue: 'e.g., RC-12345' })}
                 />
               </div>
@@ -662,7 +675,7 @@ export default function VerificationWizard({
                   id="tax_id"
                   value={businessForm.tax_id}
                   onChange={(e) => setBusinessForm(prev => ({ ...prev, tax_id: e.target.value }))}
-                  className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                  className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                   placeholder={t('onboarding.verification.field.tax_id_placeholder', { defaultValue: 'e.g., NIF-123456789' })}
                 />
               </div>
@@ -677,7 +690,7 @@ export default function VerificationWizard({
                     id="business_type"
                     value={businessForm.business_type}
                     onChange={(e) => setBusinessForm(prev => ({ ...prev, business_type: e.target.value }))}
-                    className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                    className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                   >
                     <option value="">{t('onboarding.verification.business_type.select', { defaultValue: 'Select type' })}</option>
                     <option value="sole_proprietorship">{t('onboarding.verification.business_type.sole_proprietorship', { defaultValue: 'Sole Proprietorship' })}</option>
@@ -696,7 +709,7 @@ export default function VerificationWizard({
                     id="registration_date"
                     value={businessForm.registration_date}
                     onChange={(e) => setBusinessForm(prev => ({ ...prev, registration_date: e.target.value }))}
-                    className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
+                    className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                   />
                 </div>
               </div>
@@ -710,9 +723,9 @@ export default function VerificationWizard({
               </p>
 
               {/* Personal information */}
-              <div className="rounded-xl  p-4">
+              <div className="bg-white/[0.06] rounded-xl p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-display text-lg text-white">{t('onboarding.verification.review.personal_information', { defaultValue: 'Personal information' })}</h3>
+                  <h3 className="font-display !text-lg text-white">{t('onboarding.verification.review.personal_information', { defaultValue: 'Personal information' })}</h3>
                   <button type="button" onClick={() => setCurrentStepIndex(0)} className="text-sm font-medium text-brand-300 hover:text-brand-300">{t('onboarding.verification.review.edit', { defaultValue: 'Edit' })}</button>
                 </div>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
@@ -726,9 +739,9 @@ export default function VerificationWizard({
               </div>
 
               {/* Documents */}
-              <div className="rounded-xl  p-4">
+              <div className="bg-white/[0.06] rounded-xl p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-display text-lg text-white">{t('onboarding.verification.review.identity_documents', { defaultValue: 'Identity documents' })}</h3>
+                  <h3 className="font-display !text-lg text-white">{t('onboarding.verification.review.identity_documents', { defaultValue: 'Identity documents' })}</h3>
                   <button type="button" onClick={() => setCurrentStepIndex(1)} className="text-sm font-medium text-brand-300 hover:text-brand-300">{t('onboarding.verification.review.edit', { defaultValue: 'Edit' })}</button>
                 </div>
                 <ul className="space-y-2 text-sm">
@@ -740,9 +753,9 @@ export default function VerificationWizard({
 
               {/* Business (only if provided) */}
               {(businessForm.business_registration_number || businessForm.tax_id || businessForm.business_type) && (
-                <div className="rounded-xl  p-4">
+                <div className="bg-white/[0.06] rounded-xl p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-display text-lg text-white">{t('onboarding.verification.review.business_details', { defaultValue: 'Business details' })}</h3>
+                    <h3 className="font-display !text-lg text-white">{t('onboarding.verification.review.business_details', { defaultValue: 'Business details' })}</h3>
                     <button type="button" onClick={() => setCurrentStepIndex(3)} className="text-sm font-medium text-brand-300 hover:text-brand-300">{t('onboarding.verification.review.edit', { defaultValue: 'Edit' })}</button>
                   </div>
                   <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
@@ -753,7 +766,7 @@ export default function VerificationWizard({
                 </div>
               )}
 
-              <div className="rounded-xl border border-brand-500/30 p-4 text-sm text-brand-300">
+              <div className="rounded-xl bg-brand-500/10 p-4 text-sm text-brand-300">
                 {t('onboarding.verification.review.submit_disclaimer', { defaultValue: 'By submitting, you confirm this information is accurate. Our team typically reviews within 1 to 2 business days, and you’ll be notified once approved, which unlocks paid events.' })}
               </div>
             </div>
@@ -769,7 +782,7 @@ export default function VerificationWizard({
               flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all
               ${currentStepIndex === 0
                 ? 'text-white/40 cursor-not-allowed'
-                : 'text-white/70 hover:text-white hover:bg-white/[0.04]'
+                : 'text-white/70 hover:bg-white/[0.12] hover:text-white'
               }
             `}
           >
@@ -782,7 +795,7 @@ export default function VerificationWizard({
               <button
                 onClick={handleSkipStep}
                 disabled={saving}
-                className="px-4 py-2.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/[0.04] transition-all"
+                className="px-4 py-2.5 rounded-lg text-sm font-semibold text-white/70 hover:bg-white/[0.12] hover:text-white transition-colors"
               >
                 {t('onboarding.verification.nav.skip_for_now', { defaultValue: 'Skip for now' })}
               </button>

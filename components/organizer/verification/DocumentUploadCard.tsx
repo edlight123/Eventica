@@ -179,7 +179,7 @@ export default function DocumentUploadCard({
   }
 
   return (
-    <div className="bg-white/[0.03]  rounded-lg p-4 md:p-6">
+    <div className="bg-white/[0.06] rounded-lg p-4 md:p-6">
       {/* Header */}
       <div className="mb-4">
         <h3 className="font-semibold text-white text-sm md:text-base mb-1">
@@ -195,7 +195,7 @@ export default function DocumentUploadCard({
       {previewUrl ? (
         <div className="space-y-3">
           {/* Image Preview */}
-          <div className="relative aspect-video bg-white/[0.03] rounded-lg overflow-hidden">
+          <div className="relative aspect-video bg-white/[0.10] rounded-lg overflow-hidden">
             <Image
               src={previewUrl}
               alt={title}
@@ -231,8 +231,8 @@ export default function DocumentUploadCard({
           onDragLeave={handleDragLeave}
           className={`border-2 border-dashed rounded-lg p-6 md:p-8 text-center transition-all ${
             isDragging
-              ? 'border-brand-500 '
-              : 'border-white/15 bg-white/[0.03] hover:bg-white/[0.04]'
+              ? 'border-brand-400 bg-brand-500/15'
+              : 'border-white/15 bg-white/[0.03] hover:bg-white/[0.12]'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={disabled ? undefined : openFileDialog}
         >
@@ -266,7 +266,7 @@ export default function DocumentUploadCard({
                     openFileDialog()
                   }}
                   disabled={disabled}
-                  className="px-4 py-2 text-sm font-medium text-brand-300 bg-white/[0.03] border-2 border-brand-700 rounded-lg hover:bg-brand-500/10 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-brand-300 bg-white/[0.08] rounded-lg hover:bg-white/[0.14] transition-colors disabled:opacity-50"
                 >
                   Choose File
                 </button>
@@ -289,7 +289,7 @@ export default function DocumentUploadCard({
 
       {/* Error Message */}
       {error && (
-        <div className="mt-3 p-3 border border-red-500/30 rounded-lg">
+        <div className="mt-3 p-3 bg-red-500/10 rounded-lg">
           <p className="text-sm text-red-300">{error}</p>
         </div>
       )}

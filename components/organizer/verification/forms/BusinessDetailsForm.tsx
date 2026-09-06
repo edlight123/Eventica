@@ -47,17 +47,17 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white/[0.03]  rounded-lg p-6 md:p-8">
+      <div className="bg-white/[0.03] rounded-lg p-6 md:p-8">
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h3 className="text-lg md:text-xl font-bold text-white mb-2">
+            <h3 className="mb-2 font-display !text-[22px] !leading-[1.1] text-white">
               Business Details
             </h3>
             <p className="text-sm md:text-base text-white/60">
               Optional: Provide business registration information if applicable
             </p>
           </div>
-          <span className="bg-white/[0.03] text-white/60 px-3 py-1 rounded-full text-xs font-medium">
+          <span className="text-xs font-medium text-white/45">
             Optional
           </span>
         </div>
@@ -74,7 +74,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="business_registration_number"
               value={formData.business_registration_number}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
               placeholder="e.g., RC-12345"
             />
           </div>
@@ -90,7 +90,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="tax_id"
               value={formData.tax_id}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
               placeholder="e.g., NIF-123456789"
             />
           </div>
@@ -105,7 +105,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="business_type"
               value={formData.business_type}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
             >
               <option value="">{t('onboarding.verification.biz_select_type', { defaultValue: 'Select type' })}</option>
               <option value="sole_proprietorship">{t('onboarding.verification.biz_sole', { defaultValue: 'Sole Proprietorship' })}</option>
@@ -127,14 +127,14 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="registration_date"
               value={formData.registration_date}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
             />
           </div>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mt-4 p-3 border border-red-500/30 rounded-lg">
+          <div className="mt-4 p-3 bg-red-500/10 rounded-lg">
             <p className="text-sm text-red-300">{error}</p>
           </div>
         )}
@@ -146,7 +146,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           type="button"
           onClick={onCancel}
           disabled={isSaving}
-          className="flex-1 px-6 py-3 text-white/70 bg-white/[0.03] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all disabled:opacity-50"
+          className="flex-1 px-6 py-3 text-white/80 bg-white/[0.06] rounded-lg font-semibold hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
@@ -154,7 +154,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           type="button"
           onClick={onSkip}
           disabled={isSaving}
-          className="flex-1 px-6 py-3 text-white/60 bg-white/[0.03] hover:bg-white/[0.04] rounded-lg font-semibold transition-all disabled:opacity-50"
+          className="flex-1 px-6 py-3 text-white/60 bg-white/[0.06] hover:bg-white/[0.12] hover:text-white/80 rounded-lg font-semibold transition-colors disabled:opacity-50"
         >
           Skip for Now
         </button>

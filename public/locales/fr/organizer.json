@@ -648,6 +648,7 @@
       "review_intro": "Vérifiez que tout est correct avant de soumettre. Vous pouvez modifier n’importe quelle section.",
       "review": {
         "personal_information": "Informations personnelles",
+        "not_provided": "Non renseigné",
         "edit": "Modifier",
         "full_name": "Nom complet",
         "phone": "Téléphone",

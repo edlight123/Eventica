@@ -82,8 +82,8 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white/[0.03]  rounded-lg p-6 md:p-8">
-        <h3 className="text-lg md:text-xl font-bold text-white mb-6">
+      <div className="bg-white/[0.03] rounded-lg p-6 md:p-8">
+        <h3 className="mb-6 font-display !text-[22px] !leading-[1.1] text-white">
           {t('onboarding.verification.forms.organizer_info_title', { defaultValue: 'Organizer Information' })}
         </h3>
 
@@ -99,8 +99,8 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="full_name"
               value={formData.full_name}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
-                errors.full_name ? 'border-red-300' : 'border-white/15'
+              className={`w-full rounded-lg px-4 py-3 text-white [color-scheme:dark] transition-colors focus:outline-none focus:ring-2 focus:ring-brand-400/50 ${
+                errors.full_name ? 'bg-red-500/10 ring-1 ring-inset ring-red-500/40' : 'bg-white/[0.055] hover:bg-white/[0.08] focus:bg-white/[0.08]'
               }`}
               placeholder={t('onboarding.verification.forms.full_name_placeholder', { defaultValue: 'John Doe' })}
             />
@@ -120,8 +120,8 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
-                errors.phone ? 'border-red-300' : 'border-white/15'
+              className={`w-full rounded-lg px-4 py-3 text-white [color-scheme:dark] transition-colors focus:outline-none focus:ring-2 focus:ring-brand-400/50 ${
+                errors.phone ? 'bg-red-500/10 ring-1 ring-inset ring-red-500/40' : 'bg-white/[0.055] hover:bg-white/[0.08] focus:bg-white/[0.08]'
               }`}
               placeholder={t('onboarding.verification.field.phone_placeholder', { defaultValue: '+509 1234 5678' })}
             />
@@ -141,7 +141,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
               placeholder={t('onboarding.verification.forms.email_placeholder', { defaultValue: 'john@example.com' })}
             />
           </div>
@@ -157,8 +157,8 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="organization_name"
               value={formData.organization_name}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
-                errors.organization_name ? 'border-red-300' : 'border-white/15'
+              className={`w-full rounded-lg px-4 py-3 text-white [color-scheme:dark] transition-colors focus:outline-none focus:ring-2 focus:ring-brand-400/50 ${
+                errors.organization_name ? 'bg-red-500/10 ring-1 ring-inset ring-red-500/40' : 'bg-white/[0.055] hover:bg-white/[0.08] focus:bg-white/[0.08]'
               }`}
               placeholder={t('onboarding.verification.forms.organization_name_placeholder', { defaultValue: 'Your Company Name' })}
             />
@@ -177,7 +177,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="organization_type"
               value={formData.organization_type}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
             >
               <option value="individual">{t('onboarding.verification.org_type.individual', { defaultValue: 'Individual/Sole Proprietor' })}</option>
               <option value="company">{t('onboarding.verification.org_type.company', { defaultValue: 'Company/Corporation' })}</option>
@@ -197,7 +197,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               value={formData.address}
               onChange={handleChange}
               rows={2}
-              className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
               placeholder={t('onboarding.verification.field.address_placeholder', { defaultValue: 'Street address' })}
             />
           </div>
@@ -214,7 +214,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
                 placeholder={t('onboarding.verification.field.city_placeholder', { defaultValue: 'Port-au-Prince' })}
               />
             </div>
@@ -228,7 +228,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                className="w-full rounded-lg bg-white/[0.055] px-4 py-3 text-white [color-scheme:dark] transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-brand-400/50"
               >
                 <option value="Haiti">{t('onboarding.verification.country.haiti', { defaultValue: 'Haiti' })}</option>
                 <option value="Dominican Republic">{t('onboarding.verification.country.dominican_republic', { defaultValue: 'Dominican Republic' })}</option>
@@ -240,7 +240,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
 
         {/* Form Error */}
         {errors._form && (
-          <div className="mt-4 p-3 border border-red-500/30 rounded-lg">
+          <div className="mt-4 p-3 bg-red-500/10 rounded-lg">
             <p className="text-sm text-red-300">{errors._form}</p>
           </div>
         )}
@@ -252,7 +252,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           type="button"
           onClick={onCancel}
           disabled={isSaving}
-          className="flex-1 px-6 py-3 text-white/70 bg-white/[0.03] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all disabled:opacity-50"
+          className="flex-1 px-6 py-3 text-white/80 bg-white/[0.06] rounded-lg font-semibold hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50"
         >
           {t('onboarding.verification.nav.cancel', { defaultValue: 'Cancel' })}
         </button>

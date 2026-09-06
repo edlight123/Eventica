@@ -648,6 +648,7 @@
       "review_intro": "Please confirm everything is correct before submitting. You can edit any section.",
       "review": {
         "personal_information": "Personal information",
+        "not_provided": "Not provided",
         "edit": "Edit",
         "full_name": "Full name",
         "phone": "Phone",

@@ -6,6 +6,7 @@
 import { type VerificationRequest, canSubmitForReview, getBlockingIssues } from '@/lib/verification'
 import { Building2, Check, Fingerprint, IdCard, UserRound } from 'lucide-react'
 import { Card, StatusChip } from '@/components/ui/kit'
+import { SectionHeader } from '@/components/organizer/ui/PageHeader'
 
 interface Props {
   request: VerificationRequest
@@ -32,19 +33,20 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
     // summaries inside meant the cards only read by their (now removed) border.
     // The cards sit on the page; this div just carries the rhythm.
     <div>
-      <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
-        {isReadOnly ? 'Verification Details' : 'Review & Submit'}
-      </h2>
-      <p className="text-sm md:text-base text-white/60 mb-6">
-        {isReadOnly
-          ? 'Review your submitted verification information'
-          : 'Please review all information before submitting for verification'}
-      </p>
+      <SectionHeader
+        className="mb-6"
+        title={isReadOnly ? 'Verification details' : 'Review & submit'}
+        description={
+          isReadOnly
+            ? 'Review your submitted verification information'
+            : 'Please review all information before submitting for verification'
+        }
+      />
 
       {/* Summary Sections */}
       <div className="space-y-6">
         {!hasAnyDetails && isReadOnly ? (
-          <div className="p-4 bg-white/[0.03]  rounded-lg">
+          <div className="p-4 bg-white/[0.03] rounded-lg">
             <div className="text-sm font-semibold text-white">No verification details available</div>
             <div className="text-sm text-white/60 mt-1">
               This account is marked as verified, but no submitted verification fields/files were found.
@@ -205,7 +207,9 @@ function SummarySection({ title, icon, fields }: SummarySectionProps) {
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span aria-hidden="true">{icon}</span>
-          <h3 className="font-semibold text-white text-base md:text-lg">
+          {/* Matches the wizard's own review cards. `!` because
+              `.mobile-typography h3` (0,1,1) outranks a bare size utility. */}
+          <h3 className="font-display !text-lg !leading-[1.15] text-white">
             {title}
           </h3>
         </div>

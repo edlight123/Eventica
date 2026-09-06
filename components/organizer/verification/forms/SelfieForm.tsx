@@ -71,8 +71,8 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
 
   return (
     <div className="space-y-6">
-      <div className="bg-white/[0.03]  rounded-lg p-6 md:p-8">
-        <h3 className="text-lg md:text-xl font-bold text-white mb-2">
+      <div className="bg-white/[0.03] rounded-lg p-6 md:p-8">
+        <h3 className="mb-2 font-display !text-[22px] !leading-[1.1] text-white">
           Identity Verification
         </h3>
         <p className="text-sm md:text-base text-white/60 mb-6">
@@ -80,7 +80,7 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
         </p>
 
         {/* Instructions */}
-        <div className="border border-brand-500/30 rounded-lg p-4 mb-6">
+        <div className="bg-brand-500/10 rounded-lg p-4 mb-6">
           <h4 className="font-semibold text-brand-300 text-sm mb-2">Instructions:</h4>
           <ul className="text-sm text-brand-300 space-y-1 list-disc list-inside">
             <li>{t('onboarding.verification.selfie_tip_hold', { defaultValue: 'Hold your ID next to your face' })}</li>
@@ -103,7 +103,7 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
 
         {/* Error */}
         {error && (
-          <div className="mt-4 p-3 border border-red-500/30 rounded-lg">
+          <div className="mt-4 p-3 bg-red-500/10 rounded-lg">
             <p className="text-sm text-red-300">{error}</p>
           </div>
         )}
@@ -115,7 +115,7 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
           type="button"
           onClick={onCancel}
           disabled={isSaving}
-          className="flex-1 px-6 py-3 text-white/70 bg-white/[0.03] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all disabled:opacity-50"
+          className="flex-1 px-6 py-3 text-white/80 bg-white/[0.06] rounded-lg font-semibold hover:bg-white/[0.12] hover:text-white transition-colors disabled:opacity-50"
         >
           Cancel
         </button>

@@ -4,6 +4,8 @@
  */
 
 import { type VerificationRequest, type VerificationStep } from '@/lib/verification'
+import { StatusChip, type ChipTone } from '@/components/ui/kit'
+import { SectionHeader } from '@/components/organizer/ui/PageHeader'
 
 interface Props {
   request: VerificationRequest
@@ -24,9 +26,7 @@ export default function VerificationStepper({ request, onEditStep, isReadOnly = 
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg md:text-xl font-bold text-white mb-4">
-        Verification Steps
-      </h2>
+      <SectionHeader title="Verification steps" className="mb-4" />
 
       <div className="space-y-3">
         {steps.map(([stepId, step], index) => (
@@ -54,42 +54,51 @@ interface StepCardProps {
 }
 
 function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: StepCardProps) {
-  // Status styling
-  const statusConfig = {
+  // Status styling.
+  //
+  // Every state is a FILL, never a hairline around an empty box (see
+  // docs/POSH_DESIGN_BRIEF.md). This used to be the other way round and it read
+  // backwards: `complete` and `needs_attention` had NO surface at all while
+  // `incomplete` carried `bg-white/[0.03]`, so a finished step looked fainter
+  // than an unfinished one. Done work now sits one step UP the ladder (0.05 on
+  // the 0.03 page), unfinished work stays at the base 0.03, and the state that
+  // needs a human sits at 0.05 with a red ring — the sanctioned "fill plus an
+  // accent ring on top" pattern, not a border standing in for a surface.
+  const statusConfig: Record<
+    VerificationStep['status'],
+    { surface: string; iconBgColor: string; icon: React.ReactNode; tone: ChipTone; badgeText: string }
+  > = {
     complete: {
-      bgColor: '',
-      borderColor: 'border-emerald-500/30',
-      iconBgColor: 'bg-green-500',
+      surface: 'bg-white/[0.05]',
+      iconBgColor: 'bg-emerald-500',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
         </svg>
       ),
-      badgeColor: 'text-emerald-300',
+      tone: 'success',
       badgeText: 'Complete'
     },
     incomplete: {
-      bgColor: 'bg-white/[0.03]',
-      borderColor: 'border-white/10',
-      iconBgColor: 'bg-white/[0.03]',
+      surface: 'bg-white/[0.03]',
+      iconBgColor: 'bg-white/[0.10]',
       icon: (
         <span className="text-xs font-bold text-white/60">
           {stepNumber}
         </span>
       ),
-      badgeColor: 'bg-white/[0.03] text-white/60',
+      tone: 'neutral',
       badgeText: step.required ? 'Required' : 'Optional'
     },
     needs_attention: {
-      bgColor: '',
-      borderColor: 'border-red-500/30',
+      surface: 'bg-white/[0.05] ring-1 ring-inset ring-red-500/40',
       iconBgColor: 'bg-red-500',
       icon: (
         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      badgeColor: 'text-red-300',
+      tone: 'danger',
       badgeText: 'Needs Attention'
     }
   }
@@ -111,7 +120,7 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
   return (
     <div 
       onClick={isClickable ? handleCardClick : undefined}
-      className={`${config.bgColor} border ${config.borderColor} rounded-lg p-4 transition-all hover:shadow-md ${isClickable ? 'cursor-pointer' : ''}`}
+      className={`${config.surface} rounded-lg p-4 transition-colors ${isClickable ? 'cursor-pointer hover:bg-white/[0.12]' : ''}`}
     >
       <div className="flex items-start gap-4">
         {/* Step icon */}
@@ -136,10 +145,10 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
               </p>
             </div>
 
-            {/* Status badge */}
-            <span className={`${config.badgeColor} px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0`}>
+            {/* Status read-out: dot + label, not a filled pill. */}
+            <StatusChip tone={config.tone} className="mt-0.5 flex-shrink-0">
               {config.badgeText}
-            </span>
+            </StatusChip>
           </div>
 
           {/* Missing fields / Error message */}

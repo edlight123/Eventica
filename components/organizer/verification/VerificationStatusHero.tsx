@@ -30,11 +30,17 @@ export default function VerificationStatusHero({
   onRestart,
   isRestarting = false
 }: Props) {
-  // Status configuration
+  // Status configuration.
+  //
+  // Each status is a semantic TINT, not a coloured hairline around nothing.
+  // Every entry here used to be `bgColor: ''` + `border-<hue>-500/30`, which on
+  // the #0a0a0a page drew the hero as an empty outlined box — the wireframe
+  // look the brief rejects. The fill now carries the status (and the icon chip
+  // steps up one notch inside it), matching the notices already shipped in
+  // ReviewSubmitPanel.
   const statusConfig: Record<VerificationStatus, {
     icon: React.ComponentType<{ className?: string }>
     bgColor: string
-    borderColor: string
     iconBgColor: string
     iconColor: string
     title: string
@@ -45,27 +51,24 @@ export default function VerificationStatusHero({
   }> = {
     not_started: {
       icon: FileText,
-      bgColor: '',
-      borderColor: 'border-brand-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-brand-500/10',
+      iconBgColor: 'bg-brand-500/20',
       iconColor: 'text-brand-300',
       title: 'Start Verification',
       description: 'Complete identity verification to publish paid events and receive payouts.'
     },
     in_progress: {
       icon: Clock,
-      bgColor: '',
-      borderColor: 'border-amber-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-amber-500/10',
+      iconBgColor: 'bg-amber-500/20',
       iconColor: 'text-amber-300',
       title: 'Complete Your Verification',
       description: `You're ${completionPercentage}% complete. Finish the required steps to submit for review.`
     },
     pending_review: {
       icon: Eye,
-      bgColor: '',
-      borderColor: 'border-amber-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-amber-500/10',
+      iconBgColor: 'bg-amber-500/20',
       iconColor: 'text-amber-300',
       title: 'Verification Submitted',
       description: 'Your verification is pending review. Our team will review within 24-48 hours.',
@@ -74,9 +77,8 @@ export default function VerificationStatusHero({
     // Legacy alias (older documents used "pending")
     pending: {
       icon: Eye,
-      bgColor: '',
-      borderColor: 'border-amber-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-amber-500/10',
+      iconBgColor: 'bg-amber-500/20',
       iconColor: 'text-amber-300',
       title: 'Verification Submitted',
       description: 'Your verification is pending review. Our team will review within 24-48 hours.',
@@ -84,9 +86,8 @@ export default function VerificationStatusHero({
     },
     in_review: {
       icon: Eye,
-      bgColor: '',
-      borderColor: 'border-amber-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-amber-500/10',
+      iconBgColor: 'bg-amber-500/20',
       iconColor: 'text-amber-300',
       title: 'Under Review',
       description: 'Our team is currently reviewing your verification documents.',
@@ -94,9 +95,8 @@ export default function VerificationStatusHero({
     },
     approved: {
       icon: BadgeCheck,
-      bgColor: '',
-      borderColor: 'border-emerald-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-emerald-500/10',
+      iconBgColor: 'bg-emerald-500/20',
       iconColor: 'text-emerald-300',
       title: 'Verification Approved!',
       description: 'Your account is verified. You can now publish paid events and request payouts.',
@@ -105,18 +105,16 @@ export default function VerificationStatusHero({
     },
     changes_requested: {
       icon: TriangleAlert,
-      bgColor: '',
-      borderColor: 'border-amber-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-amber-500/10',
+      iconBgColor: 'bg-amber-500/20',
       iconColor: 'text-amber-300',
       title: 'Changes Requested',
       description: 'We need some additional information. Please review the notes below and update your submission.'
     },
     rejected: {
       icon: CircleX,
-      bgColor: '',
-      borderColor: 'border-red-500/30',
-      iconBgColor: '',
+      bgColor: 'bg-red-500/10',
+      iconBgColor: 'bg-red-500/20',
       iconColor: 'text-red-300',
       title: 'Verification Declined',
       description: 'Your verification was not approved. Click below to start a fresh application with all fields cleared.',
@@ -129,7 +127,7 @@ export default function VerificationStatusHero({
   const Icon = config.icon
 
   return (
-    <div className={`${config.bgColor} border ${config.borderColor} rounded-xl p-6 md:p-8 mb-6`}>
+    <div className={`${config.bgColor} rounded-xl p-6 md:p-8 mb-6`}>
       <div className="flex items-start gap-4">
         {/* Icon */}
         <div className={`${config.iconBgColor} rounded-full p-3 md:p-4 flex-shrink-0`}>
@@ -138,7 +136,10 @@ export default function VerificationStatusHero({
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl md:text-2xl font-bold text-white mb-2">
+          {/* `!` on the size: body carries `.mobile-typography`, whose
+              `h1` rule (0,1,1) outranks a bare arbitrary size (0,1,0) under
+              640px and would drag this back to text-xl with its own leading. */}
+          <h1 className="mb-2 font-display !text-[26px] !leading-[1.05] text-white md:!text-[32px]">
             {config.title}
           </h1>
           <p className="text-sm md:text-base text-white/70 mb-4">
@@ -156,7 +157,7 @@ export default function VerificationStatusHero({
                   {completionPercentage}%
                 </span>
               </div>
-              <div className="w-full bg-white/[0.03] rounded-full h-2">
+              <div className="w-full bg-white/[0.12] rounded-full h-2">
                 <div
                   className="bg-gradient-to-r from-amber-500 to-amber-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${completionPercentage}%` }}
@@ -165,9 +166,11 @@ export default function VerificationStatusHero({
             </div>
           )}
 
-          {/* Review notes for changes_requested or rejected */}
+          {/* Review notes for changes_requested or rejected.
+              A neutral step UP, not the hero's own tint again: the same colour
+              nested inside itself renders as nothing. */}
           {(status === 'changes_requested' || status === 'rejected') && reviewNotes && (
-            <div className={`${config.bgColor} border ${config.borderColor} rounded-lg p-4 mb-4`}>
+            <div className="bg-white/[0.08] rounded-lg p-4 mb-4">
               <h3 className="text-sm font-semibold text-white mb-2">
                 Feedback from our team:
               </h3>
@@ -188,7 +191,7 @@ export default function VerificationStatusHero({
               </Link>
               <Link
                 href="/organizer"
-                className="text-white/70 hover:text-white px-6 py-3 rounded-lg font-medium text-sm md:text-base text-center border-2 border-white/15 hover:border-white/20 transition-all"
+                className="bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white px-6 py-3 rounded-lg font-medium text-sm md:text-base text-center transition-colors"
               >
                 Back to Dashboard
               </Link>
@@ -213,7 +216,7 @@ export default function VerificationStatusHero({
               </button>
               <Link
                 href="/organizer"
-                className="text-white/70 hover:text-white px-6 py-3 rounded-lg font-medium text-sm md:text-base text-center border-2 border-white/15 hover:border-white/20 transition-all"
+                className="bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white px-6 py-3 rounded-lg font-medium text-sm md:text-base text-center transition-colors"
               >
                 Back to Dashboard
               </Link>
