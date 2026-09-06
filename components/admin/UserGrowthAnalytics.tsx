@@ -131,7 +131,13 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
               />
               <YAxis tick={{ fontSize: 11, fill: '#8B93A1' }} tickLine={false} axisLine={false} width={32} />
               <Tooltip
-                labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                // Recharts types this value as ReactNode, which includes
+                // undefined. Casting it away would just move the failure to
+                // runtime as "Invalid Date" in the tooltip.
+                labelFormatter={(value) => {
+                  const date = new Date(value as string | number)
+                  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString()
+                }}
                 contentStyle={{ background: '#20252E', border: 'none', borderRadius: 8, fontSize: 12 }}
                 labelStyle={{ color: '#8B93A1' }}
                 itemStyle={{ color: '#E8EAED' }}
