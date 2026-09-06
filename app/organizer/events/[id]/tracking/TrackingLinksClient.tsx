@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useEffect, useState } from 'react'
 import { Link2, Copy, Check, Plus, Trash2, AlertTriangle } from 'lucide-react'
 import { FormField, OrgEmptyState } from '@/components/organizer/ui'
@@ -31,6 +33,8 @@ function buildUrl(base: string, source: string, medium: string, campaign: string
 }
 
 export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLinksClientProps) {
+  const { t } = useTranslation('organizer')
+
   const [origin, setOrigin] = useState('')
   const [links, setLinks] = useState<TrackingLink[]>([])
   const [showForm, setShowForm] = useState(false)
@@ -92,7 +96,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-white">Tracking links</h1>
+          <h1 className="text-xl font-semibold text-white">{t('tracking_links.tracking_links')}</h1>
           <p className="mt-0.5 text-sm text-white/70">
             Generate UTM-tagged links to track traffic from different sources.
           </p>
@@ -112,7 +116,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
       {/* Builder form */}
       {showForm && (
         <div className="rounded-2xl border border-white/10 p-5">
-          <h2 className="mb-4 font-semibold text-white">Build tracking link</h2>
+          <h2 className="mb-4 font-semibold text-white">{t('tracking_links.build_tracking_link')}</h2>
           <div className="space-y-4">
             <FormField label="Label" htmlFor="tl-label" required>
               <input
@@ -125,7 +129,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
               />
             </FormField>
             <div className="grid gap-4 sm:grid-cols-3">
-              <FormField label="Source" htmlFor="tl-source" required>
+              <FormField label={t('tracking_links.source')} htmlFor="tl-source" required>
                 <input
                   id="tl-source"
                   type="text"
@@ -135,7 +139,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                   className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
               </FormField>
-              <FormField label="Medium" htmlFor="tl-medium">
+              <FormField label={t('tracking_links.medium')} htmlFor="tl-medium">
                 <input
                   id="tl-medium"
                   type="text"
@@ -145,7 +149,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                   className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
               </FormField>
-              <FormField label="Campaign" htmlFor="tl-campaign">
+              <FormField label={t('tracking_links.campaign')} htmlFor="tl-campaign">
                 <input
                   id="tl-campaign"
                   type="text"
@@ -160,7 +164,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
 
           {/* Live preview */}
           <div className="mt-4 rounded-xl border border-white/10 px-4 py-3">
-            <p className="label-mono uppercase mb-1 text-white/40">Preview</p>
+            <p className="label-mono uppercase mb-1 text-white/40">{t('tracking_links.preview')}</p>
             <p className="break-all font-mono text-xs text-white/70">{previewUrl}</p>
           </div>
 
@@ -189,8 +193,8 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
       {links.length === 0 && !showForm ? (
         <OrgEmptyState
           icon={Link2}
-          title="No tracking links"
-          description="Create UTM links to measure which channels drive the most ticket sales."
+          title={t('tracking_links.no_tracking_links')}
+          description={t('tracking_links.create_utm_links')}
           action={
             <button
               type="button"
@@ -207,7 +211,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
         <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
           <p className="text-sm text-white/70">
-            <span className="font-semibold text-white">Links are not saved</span>, copy them now.
+            <span className="font-semibold text-white">{t('tracking_links.links_not_saved')}</span>, copy them now.
             They&apos;ll disappear when you leave or refresh this page.
           </p>
         </div>
@@ -244,7 +248,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                   className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-xs font-semibold text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {link.copiedAt ? (
-                    <><Check className="h-3.5 w-3.5 text-emerald-400" />Copied</>
+                    <><Check className="h-3.5 w-3.5 text-emerald-400" />{t('tracking_links.copied')}</>
                   ) : (
                     <><Copy className="h-3.5 w-3.5" />Copy</>
                   )}

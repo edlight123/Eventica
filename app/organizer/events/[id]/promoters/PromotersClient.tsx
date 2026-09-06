@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 // Per-event promoter manager: create street-team / anbasadè links, watch what each
 // one sells, and see the commission owed. Counters come from the server-only
 // promoter_sales ledger; nothing here edits money.
@@ -55,6 +57,8 @@ export default function PromotersClient({
   eventTitle: string
   eventCurrency: string
 }) {
+  const { t } = useTranslation('organizer')
+
   const { showToast } = useToast()
   const [promoters, setPromoters] = useState<Promoter[]>([])
   const [loading, setLoading] = useState(true)
@@ -165,7 +169,7 @@ export default function PromotersClient({
       <div className="rounded-2xl border border-white/10">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div>
-            <h2 className="font-semibold text-white">Promoters</h2>
+            <h2 className="font-semibold text-white">{t('promoters.promoters')}</h2>
             <p className="text-sm text-white/50 mt-0.5">
               Personal links for your street team. Each sale through a link counts for
               its promoter, and Tikèm tallies the commission you owe them.
@@ -197,16 +201,16 @@ export default function PromotersClient({
                 />
               </div>
               <div>
-                <label className="label-mono text-[11px] uppercase text-white/50">Contact (optional)</label>
+                <label className="label-mono text-[11px] uppercase text-white/50">{t('promoters.contact_optional')}</label>
                 <input
                   className={`mt-1.5 ${inputClass}`}
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="Phone or email, for your reference"
+                  placeholder={t('promoters.contact_hint')}
                 />
               </div>
               <div>
-                <label className="label-mono text-[11px] uppercase text-white/50">Link code</label>
+                <label className="label-mono text-[11px] uppercase text-white/50">{t('promoters.link_code')}</label>
                 <input
                   className={`mt-1.5 ${inputClass} font-mono`}
                   value={code}
@@ -218,7 +222,7 @@ export default function PromotersClient({
                 />
               </div>
               <div>
-                <label className="label-mono text-[11px] uppercase text-white/50">Commission</label>
+                <label className="label-mono text-[11px] uppercase text-white/50">{t('promoters.commission')}</label>
                 <div className="mt-1.5 flex gap-2">
                   <input
                     className={`${inputClass} flex-1`}
@@ -264,7 +268,7 @@ export default function PromotersClient({
           <div className="p-8">
             <OrgEmptyState
               icon={Users}
-              title="No promoters yet"
+              title={t('promoters.no_promoters_yet')}
               description={`Give each person selling "${eventTitle}" their own link, and see exactly who drives which sales.`}
               action={
                 <button
@@ -301,7 +305,7 @@ export default function PromotersClient({
                   <div className="flex items-center gap-6 text-sm">
                     <div className="text-right">
                       <p className="text-white font-semibold">{p.ticketsSold}</p>
-                      <p className="text-[11px] uppercase tracking-wider text-white/40">Tickets</p>
+                      <p className="text-[11px] uppercase tracking-wider text-white/40">{t('promoters.tickets')}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-white font-semibold">{fmtMoney(p.grossCents, p.currency)}</p>

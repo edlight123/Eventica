@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from 'react-i18next'
+
 import { useState } from 'react';
 import { Lock, Key, Monitor, MapPin, Clock, Loader2, Shield } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
@@ -20,6 +22,8 @@ interface SecurityFormProps {
 }
 
 export default function SecurityForm({ userId, loginHistory }: SecurityFormProps) {
+  const { t } = useTranslation('organizer')
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -91,7 +95,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
       <div className="rounded-xl bg-white/[0.03] p-6">
         <div className="flex items-center gap-2 mb-6">
           <Key className="w-5 h-5 text-brand-300" />
-          <h3 className="font-display text-[20px] lowercase italic leading-none text-white">Change Password</h3>
+          <h3 className="font-display text-[20px] lowercase italic leading-none text-white">{t('security.change_password')}</h3>
         </div>
         <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
           <div>
@@ -106,7 +110,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-                placeholder="Enter current password"
+                placeholder={t('security.enter_current_password')}
                 required
               />
             </div>
@@ -123,7 +127,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-                placeholder="Enter new password"
+                placeholder={t('security.enter_new_password')}
                 required
                 minLength={8}
               />
@@ -141,7 +145,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-                placeholder="Confirm new password"
+                placeholder={t('security.confirm_new_password')}
                 required
               />
             </div>
@@ -166,7 +170,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-brand-300" />
             <div>
-              <h3 className="font-display text-[20px] lowercase italic leading-none text-white">Two-Factor Authentication</h3>
+              <h3 className="font-display text-[20px] lowercase italic leading-none text-white">{t('security.two_factor_auth')}</h3>
               <p className="text-sm text-white/60 mt-1">
                 Add an extra layer of security to your account
               </p>
@@ -183,7 +187,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-2">
             <Monitor className="w-5 h-5 text-brand-300" />
-            <h3 className="font-display text-[20px] lowercase italic leading-none text-white">Recent Login Activity</h3>
+            <h3 className="font-display text-[20px] lowercase italic leading-none text-white">{t('security.recent_login_activity')}</h3>
           </div>
           <p className="text-sm text-white/60 mt-1">
             Monitor recent logins to your account
@@ -192,7 +196,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
         {loginHistory.length === 0 ? (
           <div className="p-12 text-center">
             <Monitor className="w-16 h-16 text-white/50 mx-auto mb-4" />
-            <p className="text-white/60">No recent activity to display</p>
+            <p className="text-white/60">{t('security.no_recent_activity')}</p>
           </div>
         ) : (
           <div className="divide-y divide-white/10">

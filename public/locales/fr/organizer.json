@@ -991,5 +991,48 @@
     "share_on": "Partager sur",
     "share_your_event": "Partagez votre événement",
     "sms_campaigns": "Campagnes SMS"
+  },
+  "tracking_links": {
+    "build_tracking_link": "Créer un lien de suivi",
+    "campaign": "Campagne",
+    "copied": "Copié",
+    "create_utm_links": "Créez des liens UTM pour mesurer quels canaux génèrent le plus de ventes.",
+    "links_not_saved": "Les liens ne sont pas enregistrés",
+    "medium": "Support",
+    "no_tracking_links": "Aucun lien de suivi",
+    "preview": "Aperçu",
+    "source": "Source",
+    "tracking_links": "Liens de suivi"
+  },
+  "comps": {
+    "complimentary_tickets": "Billets gratuits",
+    "email_address": "Adresse e-mail",
+    "full_name": "Nom complet",
+    "internal_note": "Note interne",
+    "issue_comp_ticket": "Émettre un billet gratuit",
+    "issue_comps_desc": "Émettez des billets gratuits pour la presse, les sponsors ou les invités VIP.",
+    "no_comps_issued": "Aucun billet gratuit émis",
+    "quantity": "Quantité",
+    "recipient": "Destinataire",
+    "ticket": "Billet",
+    "ticket_type": "Type de billet"
+  },
+  "promoters": {
+    "commission": "Commission",
+    "contact_optional": "Contact (facultatif)",
+    "link_code": "Code du lien",
+    "no_promoters_yet": "Aucun promoteur pour l'instant",
+    "contact_hint": "Téléphone ou e-mail, pour votre référence",
+    "promoters": "Promoteurs",
+    "tickets": "Billets"
+  },
+  "security": {
+    "change_password": "Modifier le mot de passe",
+    "confirm_new_password": "Confirmer le nouveau mot de passe",
+    "enter_current_password": "Saisir le mot de passe actuel",
+    "enter_new_password": "Saisir le nouveau mot de passe",
+    "no_recent_activity": "Aucune activité récente à afficher",
+    "recent_login_activity": "Activité de connexion récente",
+    "two_factor_auth": "Authentification à deux facteurs"
   }
 }

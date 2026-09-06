@@ -991,5 +991,48 @@
     "share_on": "Pataje sou",
     "share_your_event": "Pataje evènman ou an",
     "sms_campaigns": "Kanpay SMS"
+  },
+  "tracking_links": {
+    "build_tracking_link": "Kreye yon lyen swivi",
+    "campaign": "Kanpay",
+    "copied": "Kopye",
+    "create_utm_links": "Kreye lyen UTM pou w wè ki kanal ki fè plis vant tikè.",
+    "links_not_saved": "Lyen yo pa anrejistre",
+    "medium": "Mwayen",
+    "no_tracking_links": "Pa gen lyen swivi",
+    "preview": "Apèsi",
+    "source": "Sous",
+    "tracking_links": "Lyen swivi"
+  },
+  "comps": {
+    "complimentary_tickets": "Tikè gratis",
+    "email_address": "Adrès imel",
+    "full_name": "Non konplè",
+    "internal_note": "Nòt entèn",
+    "issue_comp_ticket": "Bay yon tikè gratis",
+    "issue_comps_desc": "Bay tikè gratis pou près la, sponsò yo, oswa envite VIP yo.",
+    "no_comps_issued": "Pa gen tikè gratis ki bay",
+    "quantity": "Kantite",
+    "recipient": "Moun k ap resevwa",
+    "ticket": "Tikè",
+    "ticket_type": "Tip tikè"
+  },
+  "promoters": {
+    "commission": "Komisyon",
+    "contact_optional": "Kontak (opsyonèl)",
+    "link_code": "Kòd lyen an",
+    "no_promoters_yet": "Poko gen pwomotè",
+    "contact_hint": "Telefòn oswa imel, pou referans ou",
+    "promoters": "Pwomotè",
+    "tickets": "Tikè"
+  },
+  "security": {
+    "change_password": "Chanje modpas",
+    "confirm_new_password": "Konfime nouvo modpas la",
+    "enter_current_password": "Antre modpas aktyèl la",
+    "enter_new_password": "Antre nouvo modpas la",
+    "no_recent_activity": "Pa gen aktivite resan pou montre",
+    "recent_login_activity": "Aktivite koneksyon resan",
+    "two_factor_auth": "Otantifikasyon ak de faktè"
   }
 }

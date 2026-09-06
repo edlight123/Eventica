@@ -991,5 +991,48 @@
     "share_on": "Share on",
     "share_your_event": "Share your event",
     "sms_campaigns": "SMS campaigns"
+  },
+  "tracking_links": {
+    "build_tracking_link": "Build tracking link",
+    "campaign": "Campaign",
+    "copied": "Copied",
+    "create_utm_links": "Create UTM links to measure which channels drive the most ticket sales.",
+    "links_not_saved": "Links are not saved",
+    "medium": "Medium",
+    "no_tracking_links": "No tracking links",
+    "preview": "Preview",
+    "source": "Source",
+    "tracking_links": "Tracking links"
+  },
+  "comps": {
+    "complimentary_tickets": "Complimentary tickets",
+    "email_address": "Email address",
+    "full_name": "Full name",
+    "internal_note": "Internal note",
+    "issue_comp_ticket": "Issue comp ticket",
+    "issue_comps_desc": "Issue complimentary tickets to press, sponsors, or VIP guests at no charge.",
+    "no_comps_issued": "No comps issued",
+    "quantity": "Quantity",
+    "recipient": "Recipient",
+    "ticket": "Ticket",
+    "ticket_type": "Ticket type"
+  },
+  "promoters": {
+    "commission": "Commission",
+    "contact_optional": "Contact (optional)",
+    "link_code": "Link code",
+    "no_promoters_yet": "No promoters yet",
+    "contact_hint": "Phone or email, for your reference",
+    "promoters": "Promoters",
+    "tickets": "Tickets"
+  },
+  "security": {
+    "change_password": "Change Password",
+    "confirm_new_password": "Confirm new password",
+    "enter_current_password": "Enter current password",
+    "enter_new_password": "Enter new password",
+    "no_recent_activity": "No recent activity to display",
+    "recent_login_activity": "Recent Login Activity",
+    "two_factor_auth": "Two-Factor Authentication"
   }
 }

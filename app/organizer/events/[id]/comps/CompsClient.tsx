@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useTransition } from 'react'
 import { Gift, Ticket, CheckCircle2, XCircle } from 'lucide-react'
 import {
@@ -75,6 +77,8 @@ const columns: OrgColumn<Comp>[] = [
 ]
 
 export default function CompsClient({ eventId, eventTitle, comps, tiers }: CompsClientProps) {
+  const { t: tx } = useTranslation('organizer')
+
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -131,7 +135,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
     <>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-white">Complimentary tickets</h1>
+          <h1 className="text-xl font-semibold text-white">{tx('comps.complimentary_tickets')}</h1>
           <p className="mt-0.5 text-sm text-white/50">
             {comps.length > 0
               ? `${comps.reduce((s, c) => s + c.quantity, 0)} comp ticket${comps.reduce((s, c) => s + c.quantity, 0) !== 1 ? 's' : ''} issued`
@@ -151,8 +155,8 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
       {comps.length === 0 ? (
         <OrgEmptyState
           icon={Ticket}
-          title="No comps issued"
-          description="Issue complimentary tickets to press, sponsors, or VIP guests at no charge."
+          title={tx('comps.no_comps_issued')}
+          description={tx('comps.issue_comps_desc')}
           action={
             <button
               type="button"
@@ -160,7 +164,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <Gift className="h-4 w-4" />
-              Issue comp ticket
+              {tx('comps.issue_comp_ticket')}
             </button>
           }
         />
@@ -171,7 +175,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
       <Drawer
         open={open}
         onClose={() => { setOpen(false); reset() }}
-        title="Issue comp ticket"
+        title={tx('comps.issue_comp_ticket')}
         size="sm"
         footer={
           <div className="flex justify-end gap-3">
@@ -194,8 +198,8 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
           </div>
         }
       >
-        <FormSection title="Recipient">
-          <FormField label="Full name" required>
+        <FormSection title={tx('comps.recipient')}>
+          <FormField label={tx('comps.full_name')} required>
             <input
               type="text"
               value={name}
@@ -204,7 +208,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
-          <FormField label="Email address" required>
+          <FormField label={tx('comps.email_address')} required>
             <input
               type="email"
               value={email}
@@ -215,9 +219,9 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
           </FormField>
         </FormSection>
 
-        <FormSection title="Ticket">
+        <FormSection title={tx('comps.ticket')}>
           {tiers.length > 0 && (
-            <FormField label="Ticket type" htmlFor="comp-tier">
+            <FormField label={tx('comps.ticket_type')} htmlFor="comp-tier">
               <select
                 id="comp-tier"
                 value={tierId}
@@ -232,7 +236,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               </select>
             </FormField>
           )}
-          <FormField label="Quantity" htmlFor="comp-qty">
+          <FormField label={tx('comps.quantity')} htmlFor="comp-qty">
             <input
               id="comp-qty"
               type="number"
@@ -243,7 +247,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
-          <FormField label="Internal note">
+          <FormField label={tx('comps.internal_note')}>
             <input
               type="text"
               value={note}
