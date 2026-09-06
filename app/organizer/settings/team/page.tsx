@@ -5,6 +5,7 @@ import { ChevronLeft, CalendarDays, ShieldCheck, Users } from 'lucide-react'
 import { createClient } from '@/lib/firebase-db/server'
 import EventStaffHub from './EventStaffHub'
 import { PageHeader } from '@/components/organizer/ui'
+import { TranslatedPageHeader } from '@/components/organizer/ui/TranslatedPageHeader'
 
 export const revalidate = 0
 
@@ -70,10 +71,10 @@ export default async function TeamSettingsPage({
           Back to Settings
         </Link>
 
-        <PageHeader
-          eyebrow="Settings"
-          title="Team & Permissions"
-          subtitle="Invite door staff and manage check-in access per event"
+        <TranslatedPageHeader
+          eyebrowKey="settings"
+          titleKey="team_title"
+          subtitleKey="team_subtitle"
         />
 
         {eventsError ? (

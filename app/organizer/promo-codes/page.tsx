@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import PromoCodeManager from './PromoCodeManager'
 import { adminDb } from '@/lib/firebase/admin'
 import { PageHeader, MetricCard } from '@/components/organizer/ui'
+import { TranslatedPageHeader } from '@/components/organizer/ui/TranslatedPageHeader'
 import { Ticket, CheckCircle, Activity, XCircle } from 'lucide-react'
 
 export const revalidate = 0
@@ -102,10 +103,10 @@ export default async function PromoCodesPage({
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <PageHeader
-          eyebrow="Organizer"
-          title="Promo Codes"
-          subtitle="Create and manage discounts for your events."
+        <TranslatedPageHeader
+          eyebrowKey="organizer"
+          titleKey="promo_codes_title"
+          subtitleKey="promo_codes_subtitle"
         />
 
         {/* Metrics */}

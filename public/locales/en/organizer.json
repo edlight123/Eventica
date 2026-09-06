@@ -1342,5 +1342,36 @@
     "create_first_event": "Create Your First Event",
     "happening_today": "Happening Today",
     "other_events": "Other Events"
+  },
+  "settings_pages": {
+    "back_to_settings": "Back to Settings",
+    "eyebrow": "Settings",
+    "security_title": "Security",
+    "security_subtitle": "Manage your password and monitor account activity",
+    "profile_title": "Profile Settings",
+    "profile_subtitle": "Manage your personal information and contact details",
+    "defaults_title": "Event Defaults",
+    "defaults_subtitle": "Set default preferences for new events you create",
+    "notifications_title": "Notifications",
+    "notifications_subtitle": "Manage how you receive updates about your events",
+    "organization_title": "Organization & Brand",
+    "organization_subtitle": "Manage your organization details and public branding",
+    "danger_zone_title": "Danger Zone",
+    "danger_zone_subtitle": "Permanent actions that cannot be easily undone"
+  },
+  "page_headers": {
+    "organizer": "Organizer",
+    "settings": "Settings",
+    "event": "Event",
+    "analytics_title": "Analytics",
+    "analytics_subtitle": "Track your event performance and insights.",
+    "team_title": "Team & Permissions",
+    "team_subtitle": "Invite door staff and manage check-in access per event",
+    "tickets_title": "Tickets",
+    "tickets_subtitle": "Ticket types, pricing and inventory for this event.",
+    "promo_codes_title": "Promo Codes",
+    "promo_codes_subtitle": "Create and manage discounts for your events.",
+    "finance_title": "Finance",
+    "finance_subtitle": "Track your event revenue and manage payouts."
   }
 }

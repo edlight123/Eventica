@@ -8,6 +8,7 @@ import { TrendingUp, DollarSign, Ticket, Calendar } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import { formatMoneyFromCents, normalizeCurrency } from '@/lib/money'
 import { PageHeader, MetricCard, SectionHeader, OrgEmptyState } from '@/components/organizer/ui'
+import { TranslatedPageHeader } from '@/components/organizer/ui/TranslatedPageHeader'
 
 export const revalidate = 120 // Cache for 2 minutes
 
@@ -170,10 +171,10 @@ export default async function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <PageHeader
-          eyebrow="Organizer"
-          title="Analytics"
-          subtitle="Track your event performance and insights."
+        <TranslatedPageHeader
+          eyebrowKey="organizer"
+          titleKey="analytics_title"
+          subtitleKey="analytics_subtitle"
         />
 
         {/* KPI row */}
