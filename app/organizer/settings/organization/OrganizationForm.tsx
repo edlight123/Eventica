@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useEffect, useRef } from 'react';
 import { Building2, Globe, Upload, Loader2, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
@@ -22,6 +24,8 @@ interface OrganizationFormProps {
 }
 
 export default function OrganizationForm({ userId, initialData }: OrganizationFormProps) {
+  const { t } = useTranslation('organizer')
+
   const [formData, setFormData] = useState(initialData);
   const [savedData, setSavedData] = useState(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,7 +146,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             {formData.organization_logo ? (
               <Image
                 src={formData.organization_logo}
-                alt="Organization logo"
+                alt={t('organization.organization_logo')}
                 width={96}
                 height={96}
                 className="w-full h-full object-cover"
@@ -208,11 +212,11 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           onChange={(e) => setFormData({ ...formData, organization_type: e.target.value })}
           className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
         >
-          <option value="">Select type</option>
-          <option value="individual">Individual</option>
-          <option value="company">Company</option>
-          <option value="nonprofit">Non-Profit</option>
-          <option value="government">Government</option>
+          <option value="">{t('organization.select_type')}</option>
+          <option value="individual">{t('organization.individual')}</option>
+          <option value="company">{t('organization.company')}</option>
+          <option value="nonprofit">{t('organization.non_profit')}</option>
+          <option value="government">{t('organization.government')}</option>
           <option value="other">Other</option>
         </select>
       </div>
@@ -228,7 +232,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           onChange={(e) => setFormData({ ...formData, organization_description: e.target.value })}
           rows={4}
           className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 resize-none bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-          placeholder="Tell people about your organization..."
+          placeholder={t('organization.about_placeholder')}
         />
         <p className="text-xs text-white/50 mt-1">
           This will be shown on your public organizer profile
@@ -255,7 +259,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
 
       {/* Social Media */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-white/70">Social Media</h3>
+        <h3 className="text-sm font-medium text-white/70">{t('organization.social_media')}</h3>
         
         {/* Facebook */}
         <div className="relative">
@@ -265,7 +269,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             value={formData.facebook}
             onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
             className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-            placeholder="Facebook username or URL"
+            placeholder={t('organization.facebook_hint')}
           />
         </div>
 
@@ -277,7 +281,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             value={formData.instagram}
             onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
             className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-            placeholder="Instagram username or URL"
+            placeholder={t('organization.instagram_hint')}
           />
         </div>
 
@@ -289,7 +293,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             value={formData.twitter}
             onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
             className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-            placeholder="Twitter/X username or URL"
+            placeholder={t('organization.twitter_hint')}
           />
         </div>
 
@@ -301,7 +305,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             value={formData.linkedin}
             onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
             className="w-full pl-10 pr-4 py-3 rounded-[10px] focus:ring-2 focus:ring-brand-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-            placeholder="LinkedIn profile URL"
+            placeholder={t('organization.linkedin_hint')}
           />
         </div>
       </div>

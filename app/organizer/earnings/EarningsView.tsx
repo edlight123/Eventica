@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState } from 'react'
 import Link from 'next/link'
 import { FEE_CONFIG, type EarningsSummary } from '@/types/earnings'
@@ -70,6 +72,8 @@ function StatCard({
 }
 
 export default function EarningsView({ summary, organizerId, withdrawable }: EarningsViewProps) {
+  const { t: tx } = useTranslation('organizer')
+
   const [filter, setFilter] = useState<'all' | 'ready' | 'pending' | 'locked'>('all')
   const [payoutOpen, setPayoutOpen] = useState(false)
 
@@ -193,7 +197,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-white/50">
               <Wallet className="h-4 w-4 text-brand-400" />
-              <span className="eyebrow">Available to withdraw</span>
+              <span className="eyebrow">{tx('earnings.available_to_withdraw')}</span>
             </div>
 
             {/* One figure, from the authoritative balance. The old mixed-currency
@@ -246,13 +250,13 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
 
       {/* Secondary stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard icon={<DollarSign className="h-4 w-4" />} label="Gross sales" hint="All ticket revenue">
+        <StatCard icon={<DollarSign className="h-4 w-4" />} label={tx('earnings.gross_sales')} hint="All ticket revenue">
           {renderMoney((t) => t?.totalGrossSales ?? 0, summary.totalGrossSales)}
         </StatCard>
-        <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Net amount" hint="After platform & processing fees">
+        <StatCard icon={<TrendingUp className="h-4 w-4" />} label={tx('earnings.net_amount')} hint="After platform & processing fees">
           {renderMoney((t) => t?.totalNetAmount ?? 0, summary.totalNetAmount)}
         </StatCard>
-        <StatCard icon={<Receipt className="h-4 w-4" />} label="Fees paid" hint="Platform + processing">
+        <StatCard icon={<Receipt className="h-4 w-4" />} label={tx('earnings.fees_paid')} hint="Platform + processing">
           {renderMoney(
             (t) => (t?.totalPlatformFees ?? 0) + (t?.totalProcessingFees ?? 0),
             summary.totalPlatformFees + summary.totalProcessingFees,
@@ -269,21 +273,21 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
             How fees are calculated
           </span>
           <span className="flex items-center gap-3 text-sm text-white/50">
-            <span className="hidden sm:inline">Total fees <span className="font-mono tabular-nums">{totalFeesLabel}</span></span>
+            <span className="hidden sm:inline">{tx('earnings.total_fees')}<span className="font-mono tabular-nums">{totalFeesLabel}</span></span>
             <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
           </span>
         </summary>
         <div className="space-y-2 border-t border-white/10 px-5 py-4 text-sm text-white/60">
           <div className="flex justify-between">
-            <span>Platform fee</span>
+            <span>{tx('earnings.platform_fee')}</span>
             <span className="font-mono tabular-nums font-medium text-white">10% of ticket sales</span>
           </div>
           <div className="flex justify-between">
-            <span>Processing fee</span>
+            <span>{tx('earnings.processing_fee')}</span>
             <span className="font-mono tabular-nums font-medium text-white">2.9% + $0.30 per transaction</span>
           </div>
           <div className="flex justify-between border-t border-white/10 pt-2">
-            <span>Total fees paid</span>
+            <span>{tx('earnings.total_fees_paid')}</span>
             <span className="font-mono tabular-nums font-semibold text-white">{totalFeesLabel}</span>
           </div>
           {/* WHO PAYS decides whether these rates come out of the organizer's money at
@@ -309,7 +313,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="font-display text-[20px] lowercase italic leading-none text-white">events</div>
-              <div className="text-xs text-white/50">Filter by settlement status</div>
+              <div className="text-xs text-white/50">{tx('earnings.filter_by_settlement')}</div>
             </div>
 
             <div className="flex gap-2 overflow-x-auto">
@@ -342,7 +346,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>
-              <p className="mt-4 text-white/50">No events found for this filter</p>
+              <p className="mt-4 text-white/50">{tx('earnings.no_events_for_filter')}</p>
             </div>
           ) : (
             filteredEvents.map((event) => (
@@ -364,19 +368,19 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                 
                 <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
                   <div>
-                    <div className="label-mono uppercase text-white/50">Gross Sales</div>
+                    <div className="label-mono uppercase text-white/50">{tx('earnings.gross_sales_title')}</div>
                     <div className="font-mono tabular-nums font-medium">
                       {formatCurrency(event.grossSales, event.currency || undefined)}
                     </div>
                   </div>
                   <div>
-                    <div className="label-mono uppercase text-white/50">Net Amount</div>
+                    <div className="label-mono uppercase text-white/50">{tx('earnings.net_amount_title')}</div>
                     <div className="font-mono tabular-nums font-medium">
                       {formatCurrency(event.netAmount, event.currency || undefined)}
                     </div>
                   </div>
                   <div>
-                    <div className="label-mono uppercase text-white/50">Available</div>
+                    <div className="label-mono uppercase text-white/50">{tx('earnings.available')}</div>
                     <div className="font-mono tabular-nums font-semibold text-emerald-300">
                       {formatCurrency(event.availableToWithdraw, event.currency || undefined)}
                     </div>
@@ -407,13 +411,13 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                   Date
                 </th>
                 <th className="px-6 py-3 text-right text-xs label-mono text-white/50 uppercase">
-                  Gross Sales
+                  {tx('earnings.gross_sales_title')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs label-mono text-white/50 uppercase">
-                  Net Amount
+                  {tx('earnings.net_amount_title')}
                 </th>
                 <th className="px-6 py-3 text-right text-xs label-mono text-white/50 uppercase">
-                  Available
+                  {tx('earnings.available')}
                 </th>
                 <th className="px-6 py-3 text-center text-xs label-mono text-white/50 uppercase">
                   Status
@@ -435,7 +439,7 @@ export default function EarningsView({ summary, organizerId, withdrawable }: Ear
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                     </svg>
-                    <p className="mt-4 text-white/50">No events found for this filter</p>
+                    <p className="mt-4 text-white/50">{tx('earnings.no_events_for_filter')}</p>
                   </td>
                 </tr>
               ) : (

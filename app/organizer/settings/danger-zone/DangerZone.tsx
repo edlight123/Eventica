@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslation } from 'react-i18next'
+
 import { useState } from 'react';
 import { Download, XCircle, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
@@ -10,6 +12,8 @@ interface DangerZoneProps {
 }
 
 export default function DangerZone({ userId }: DangerZoneProps) {
+  const { t } = useTranslation('organizer')
+
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -144,7 +148,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Download className="w-5 h-5 text-white/70" />
-              <h3 className="font-semibold text-white">Export Your Data</h3>
+              <h3 className="font-semibold text-white">{t('danger_zone.export_your_data')}</h3>
             </div>
             <p className="text-sm text-white/60">
               Download a copy of all your data including events, tickets, and payouts in JSON format.
@@ -167,7 +171,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <XCircle className="w-5 h-5 text-amber-300" />
-              <h3 className="font-semibold text-white">Deactivate Account</h3>
+              <h3 className="font-semibold text-white">{t('danger_zone.deactivate_account')}</h3>
             </div>
             <p className="text-sm text-white/60">
               Temporarily disable your account. You can reactivate within 30 days. Your events will be hidden.
@@ -188,16 +192,16 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Trash2 className="w-5 h-5 text-red-300" />
-              <h3 className="font-semibold text-white">Delete Account Permanently</h3>
+              <h3 className="font-semibold text-white">{t('danger_zone.delete_permanently')}</h3>
             </div>
             <p className="text-sm text-white/60 mb-3">
               Permanently delete your account and all associated data. This action cannot be undone.
             </p>
             <ul className="text-xs text-red-300 space-y-1 list-disc list-inside">
-              <li>All events, tickets, and attendee data will be deleted</li>
-              <li>Pending payouts will be forfeited</li>
-              <li>Your organizer profile will be removed</li>
-              <li>This action is immediate and irreversible</li>
+              <li>{t('danger_zone.all_data_deleted')}</li>
+              <li>{t('danger_zone.pending_payouts_forfeited')}</li>
+              <li>{t('danger_zone.profile_removed')}</li>
+              <li>{t('danger_zone.immediate_irreversible')}</li>
             </ul>
           </div>
           <button
@@ -215,7 +219,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           <div className="bg-[#111] rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-amber-300" />
-              <h3 className="font-display text-xl text-white">Deactivate Account?</h3>
+              <h3 className="font-display text-xl text-white">{t('danger_zone.deactivate_account_q')}</h3>
             </div>
             <p className="text-white/60 mb-6">
               Your account will be deactivated and your events will be hidden. You can reactivate within 30 days by logging in again.
@@ -246,21 +250,21 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           <div className="bg-[#111] rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-red-300" />
-              <h3 className="font-display text-xl text-white">Delete Account Forever?</h3>
+              <h3 className="font-display text-xl text-white">{t('danger_zone.delete_forever_q')}</h3>
             </div>
             <p className="text-white/60 mb-4">
               This action is <strong>permanent and irreversible</strong>. All your data will be permanently deleted.
             </p>
             <div className="mb-6">
               <label className="block text-sm font-medium text-white/70 mb-2">
-                Type <span className="font-mono text-red-300">DELETE MY ACCOUNT</span> to confirm
+                Type <span className="font-mono text-red-300">{t('danger_zone.delete_confirm_phrase')}</span> to confirm
               </label>
               <input
                 type="text"
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 className="w-full px-4 py-3 rounded-[10px] focus:ring-2 focus:ring-red-500 bg-white/[0.06] text-[16px] text-white placeholder:text-white/35 focus:outline-none"
-                placeholder="DELETE MY ACCOUNT"
+                placeholder={t('danger_zone.delete_confirm_phrase')}
               />
             </div>
             <div className="flex gap-3">

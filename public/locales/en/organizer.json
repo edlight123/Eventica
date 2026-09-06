@@ -908,5 +908,46 @@
     "staff_members": "Staff Members",
     "status": "Status",
     "target": "Target"
+  },
+  "earnings": {
+    "available": "Available",
+    "available_to_withdraw": "Available to withdraw",
+    "fees_paid": "Fees paid",
+    "filter_by_settlement": "Filter by settlement status",
+    "gross_sales": "Gross sales",
+    "gross_sales_title": "Gross Sales",
+    "net_amount": "Net amount",
+    "net_amount_title": "Net Amount",
+    "no_events_for_filter": "No events found for this filter",
+    "platform_fee": "Platform fee",
+    "processing_fee": "Processing fee",
+    "total_fees": "Total fees",
+    "total_fees_paid": "Total fees paid"
+  },
+  "danger_zone": {
+    "all_data_deleted": "All events, tickets, and attendee data will be deleted",
+    "deactivate_account": "Deactivate Account",
+    "deactivate_account_q": "Deactivate Account?",
+    "delete_forever_q": "Delete Account Forever?",
+    "delete_permanently": "Delete Account Permanently",
+    "delete_confirm_phrase": "DELETE MY ACCOUNT",
+    "export_your_data": "Export Your Data",
+    "pending_payouts_forfeited": "Pending payouts will be forfeited",
+    "immediate_irreversible": "This action is immediate and irreversible",
+    "profile_removed": "Your organizer profile will be removed"
+  },
+  "organization": {
+    "company": "Company",
+    "facebook_hint": "Facebook username or URL",
+    "government": "Government",
+    "individual": "Individual",
+    "instagram_hint": "Instagram username or URL",
+    "linkedin_hint": "LinkedIn profile URL",
+    "non_profit": "Non-Profit",
+    "organization_logo": "Organization logo",
+    "select_type": "Select type",
+    "social_media": "Social Media",
+    "about_placeholder": "Tell people about your organization...",
+    "twitter_hint": "Twitter/X username or URL"
   }
 }

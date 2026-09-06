@@ -908,5 +908,46 @@
     "staff_members": "Anplwaye yo",
     "status": "Estati",
     "target": "Sib"
+  },
+  "earnings": {
+    "available": "Disponib",
+    "available_to_withdraw": "Disponib pou retire",
+    "fees_paid": "Frè peye",
+    "filter_by_settlement": "Filtre pa estati règleman",
+    "gross_sales": "Vant brit",
+    "gross_sales_title": "Vant brit",
+    "net_amount": "Montan nèt",
+    "net_amount_title": "Montan nèt",
+    "no_events_for_filter": "Nou pa jwenn evènman pou filt sa a",
+    "platform_fee": "Frè platfòm",
+    "processing_fee": "Frè tretman",
+    "total_fees": "Total frè",
+    "total_fees_paid": "Total frè peye"
+  },
+  "danger_zone": {
+    "all_data_deleted": "Tout evènman, tikè ak done patisipan yo ap efase",
+    "deactivate_account": "Dezaktive kont lan",
+    "deactivate_account_q": "Dezaktive kont lan?",
+    "delete_forever_q": "Efase kont lan pou tout bon?",
+    "delete_permanently": "Efase kont lan nèt",
+    "delete_confirm_phrase": "EFASE KONT MWEN",
+    "export_your_data": "Ekspòte done ou yo",
+    "pending_payouts_forfeited": "W ap pèdi peman ki annatant yo",
+    "immediate_irreversible": "Aksyon sa a fèt touswit e ou p ap ka defè l",
+    "profile_removed": "Pwofil òganizatè ou a ap retire"
+  },
+  "organization": {
+    "company": "Konpayi",
+    "facebook_hint": "Non itilizatè oswa URL Facebook",
+    "government": "Gouvènman",
+    "individual": "Moun endividyèl",
+    "instagram_hint": "Non itilizatè oswa URL Instagram",
+    "linkedin_hint": "URL pwofil LinkedIn",
+    "non_profit": "Òganizasyon san bi likratif",
+    "organization_logo": "Logo òganizasyon an",
+    "select_type": "Chwazi yon tip",
+    "social_media": "Rezo sosyal",
+    "about_placeholder": "Pale moun yo sou òganizasyon ou an...",
+    "twitter_hint": "Non itilizatè oswa URL Twitter/X"
   }
 }

@@ -908,5 +908,46 @@
     "staff_members": "Membres du personnel",
     "status": "Statut",
     "target": "Cible"
+  },
+  "earnings": {
+    "available": "Disponible",
+    "available_to_withdraw": "Disponible au retrait",
+    "fees_paid": "Frais payés",
+    "filter_by_settlement": "Filtrer par statut de règlement",
+    "gross_sales": "Ventes brutes",
+    "gross_sales_title": "Ventes brutes",
+    "net_amount": "Montant net",
+    "net_amount_title": "Montant net",
+    "no_events_for_filter": "Aucun événement pour ce filtre",
+    "platform_fee": "Frais de plateforme",
+    "processing_fee": "Frais de traitement",
+    "total_fees": "Total des frais",
+    "total_fees_paid": "Total des frais payés"
+  },
+  "danger_zone": {
+    "all_data_deleted": "Tous les événements, billets et données des participants seront supprimés",
+    "deactivate_account": "Désactiver le compte",
+    "deactivate_account_q": "Désactiver le compte ?",
+    "delete_forever_q": "Supprimer le compte définitivement ?",
+    "delete_permanently": "Supprimer le compte définitivement",
+    "delete_confirm_phrase": "SUPPRIMER MON COMPTE",
+    "export_your_data": "Exporter vos données",
+    "pending_payouts_forfeited": "Les versements en attente seront perdus",
+    "immediate_irreversible": "Cette action est immédiate et irréversible",
+    "profile_removed": "Votre profil d'organisateur sera supprimé"
+  },
+  "organization": {
+    "company": "Entreprise",
+    "facebook_hint": "Nom d'utilisateur ou URL Facebook",
+    "government": "Gouvernement",
+    "individual": "Particulier",
+    "instagram_hint": "Nom d'utilisateur ou URL Instagram",
+    "linkedin_hint": "URL du profil LinkedIn",
+    "non_profit": "Association à but non lucratif",
+    "organization_logo": "Logo de l'organisation",
+    "select_type": "Sélectionner un type",
+    "social_media": "Réseaux sociaux",
+    "about_placeholder": "Présentez votre organisation...",
+    "twitter_hint": "Nom d'utilisateur ou URL Twitter/X"
   }
 }
