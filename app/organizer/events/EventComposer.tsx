@@ -478,6 +478,7 @@ export default function EventComposer({
   guest = false,
   authed = false,
 }: EventComposerProps) {
+  const { t: tx } = useTranslation('organizer')
   const router = useRouter()
   const { showToast } = useToast()
   const { t } = useTranslation('common')
@@ -1726,7 +1727,7 @@ export default function EventComposer({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t('composer.titlePlaceholder', { defaultValue: 'My event name' })}
-            aria-label="Event name (required)"
+            aria-label={tx('event_composer.event_name_required')}
             aria-required="true"
             className="w-full bg-transparent font-display text-[clamp(34px,6vw,52px)] leading-[1.04] tracking-tight text-white placeholder:text-white/25 focus:outline-none"
           />
@@ -1743,7 +1744,7 @@ export default function EventComposer({
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
                 placeholder={t('composer.summaryPlaceholder', { defaultValue: 'Add a short summary…' })}
-                aria-label="Short summary"
+                aria-label={tx('event_composer.short_summary')}
                 rows={2}
                 autoFocus={showSummary}
                 className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-white/70 placeholder:text-white/30 focus:outline-none"
@@ -1831,7 +1832,7 @@ export default function EventComposer({
                   <span className="flex items-center gap-2 text-[15px] text-white/80">
                     <Repeat className="h-4 w-4 text-white/50" /> {t('composer.repeats', { defaultValue: 'Repeats' })}
                   </span>
-                  <div className="flex flex-wrap gap-2" role="group" aria-label="Repeats">
+                  <div className="flex flex-wrap gap-2" role="group" aria-label={tx('event_composer.repeats')}>
                     {RECURRENCE_OPTIONS.map((opt) => (
                       <button
                         key={opt.value}
@@ -1850,7 +1851,7 @@ export default function EventComposer({
                     {/* Bound the series either by a count or by an end date. */}
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <span className="text-sm text-white/70">{t('composer.ends', { defaultValue: 'Ends' })}</span>
-                      <div className="flex flex-wrap gap-2" role="group" aria-label="Series length">
+                      <div className="flex flex-wrap gap-2" role="group" aria-label={tx('event_composer.series_length')}>
                         {([
                           ['count', t('composer.forNDates', { defaultValue: 'For N dates' })],
                           ['until', t('composer.untilADate', { defaultValue: 'Until a date' })],
@@ -1915,7 +1916,7 @@ export default function EventComposer({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t('composer.descPlaceholder', { defaultValue: 'Tell people what to expect…' })}
-                  aria-label="Event description"
+                  aria-label={tx('event_composer.event_description')}
                   rows={4}
                   autoFocus={showDescription}
                   className={field}
@@ -1931,7 +1932,7 @@ export default function EventComposer({
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Globe className="h-[18px] w-[18px] text-white/50" /> {t('composer.onlineEvent', { defaultValue: 'Online event' })}
                 </span>
-                <Toggle on={isOnline} onChange={setIsOnline} label="Online event" />
+                <Toggle on={isOnline} onChange={setIsOnline} label={tx('event_composer.online_event')} />
               </div>
 
               {!isOnline && (
@@ -1951,7 +1952,7 @@ export default function EventComposer({
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder={t('composer.locationPlaceholder', { defaultValue: 'Location / address' })}
-                      aria-label="Location or address"
+                      aria-label={tx('event_composer.location_or_address')}
                       className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
                     />
                   </div>
@@ -1962,7 +1963,7 @@ export default function EventComposer({
                         value={venueName}
                         onChange={(e) => setVenueName(e.target.value)}
                         placeholder={t('composer.venuePlaceholder', { defaultValue: 'Venue name' })}
-                        aria-label="Venue name"
+                        aria-label={tx('event_composer.venue_name')}
                         className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
                       />
                     </div>
@@ -2031,7 +2032,7 @@ export default function EventComposer({
                 <span className="label-mono text-[11px] uppercase tracking-wide text-white/70">
                   {t('composer.currency', { defaultValue: 'Currency' })}
                 </span>
-                <div className="flex rounded-full bg-white/[0.06] p-0.5" role="group" aria-label="Ticket currency">
+                <div className="flex rounded-full bg-white/[0.06] p-0.5" role="group" aria-label={tx('event_composer.ticket_currency')}>
                   {allowedCurrencies.map((c) => (
                     <button
                       key={c}
@@ -2491,7 +2492,7 @@ export default function EventComposer({
                     <Toggle
                       on={passFeesToBuyer}
                       onChange={setPassFeesToBuyer}
-                      label="Pass the service fee to buyers"
+                      label={tx('event_composer.pass_service_fee')}
                     />
                   </div>
                   <p className="mt-3 border-t border-white/10 pt-3 text-xs text-white/50">
@@ -2673,7 +2674,7 @@ export default function EventComposer({
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
                 placeholder={t('composer.promoVideoPlaceholder', { defaultValue: 'Promo video link (YouTube, Vimeo…)' })}
-                aria-label="Promo video link"
+                aria-label={tx('event_composer.promo_video_link')}
                 className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
               />
             </div>
@@ -2699,14 +2700,14 @@ export default function EventComposer({
                     label now matches what an organizer can actually go and
                     look at. */}
                 <span className="text-[15px] text-white/80">{t('composer.showOnExplore', { defaultValue: 'Show on Discover' })}</span>
-                <Toggle on={showOnExplore} onChange={setShowOnExplore} label="Show on Explore" />
+                <Toggle on={showOnExplore} onChange={setShowOnExplore} label={tx('event_composer.show_on_explore')} />
               </div>
               <div className="rounded-xl bg-white/[0.03] px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[15px] text-white/80">
                     <Lock className="h-4 w-4 text-white/50" /> {t('composer.passwordProtected', { defaultValue: 'Password Protected Event' })}
                   </span>
-                  <Toggle on={passwordProtected} onChange={setPasswordProtected} label="Password protected event" />
+                  <Toggle on={passwordProtected} onChange={setPasswordProtected} label={tx('event_composer.password_protected')} />
                 </div>
                 {passwordProtected && (
                   <div className="mt-3 border-t border-white/10 pt-3">
@@ -2723,7 +2724,7 @@ export default function EventComposer({
                               defaultValue: 'Access code (min 6 characters)',
                             })
                       }
-                      aria-label="Access code"
+                      aria-label={tx('event_composer.access_code')}
                       autoComplete="off"
                       className={`${field} ${accessCodeInvalid ? 'border-red-400/60' : ''}`}
                     />
@@ -2837,7 +2838,7 @@ export default function EventComposer({
                   type="checkbox"
                   checked={applyToSeries}
                   onChange={(e) => setApplyToSeries(e.target.checked)}
-                  aria-label="Apply changes to all events in this series"
+                  aria-label={tx('event_composer.apply_to_series')}
                   className="mt-0.5 h-4 w-4 shrink-0 accent-brand-600 [color-scheme:dark]"
                 />
                 <span className="min-w-0">

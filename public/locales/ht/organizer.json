@@ -1057,5 +1057,33 @@
     "invite_guest": "Envite yon moun",
     "no_guests_yet": "Poko gen envite",
     "not_checked_in": "Poko anrejistre"
+  },
+  "event_composer": {
+    "access_code": "Kòd aksè",
+    "apply_to_series": "Aplike chanjman yo sou tout evènman nan seri sa a",
+    "event_description": "Deskripsyon evènman an",
+    "event_name_required": "Non evènman an (obligatwa)",
+    "location_or_address": "Kote oswa adrès",
+    "online_event": "Evènman an liy",
+    "pass_service_fee": "Fè achtè yo peye frè sèvis la",
+    "password_protected": "Evènman ki pwoteje ak modpas",
+    "promo_video_link": "Lyen videyo pwomo",
+    "repeats": "Repetisyon",
+    "series_length": "Longè seri a",
+    "short_summary": "Ti rezime",
+    "show_on_explore": "Montre nan Eksplore",
+    "ticket_currency": "Lajan tikè a",
+    "venue_name": "Non kote a"
+  },
+  "org_team": {
+    "access_levels": "Nivo aksè",
+    "assigned_per_event": "Asiyen pa evènman pou anrejistreman ak eskanè",
+    "email_address": "Adrès imel",
+    "full_access": "Aksè konplè sou tout evènman, kòmand ak paramèt",
+    "invite_desc": "Envite administratè pou ede jere evènman, oswa ajoute anplwaye pou anrejistreman yon evènman espesifik.",
+    "invite_team_member": "Envite yon manm ekip la",
+    "member_details": "Detay manm nan",
+    "no_team_members": "Poko gen manm ekip",
+    "optional": "Opsyonèl"
   }
 }

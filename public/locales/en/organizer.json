@@ -1057,5 +1057,33 @@
     "invite_guest": "Invite guest",
     "no_guests_yet": "No guests yet",
     "not_checked_in": "Not checked in"
+  },
+  "event_composer": {
+    "access_code": "Access code",
+    "apply_to_series": "Apply changes to all events in this series",
+    "event_description": "Event description",
+    "event_name_required": "Event name (required)",
+    "location_or_address": "Location or address",
+    "online_event": "Online event",
+    "pass_service_fee": "Pass the service fee to buyers",
+    "password_protected": "Password protected event",
+    "promo_video_link": "Promo video link",
+    "repeats": "Repeats",
+    "series_length": "Series length",
+    "short_summary": "Short summary",
+    "show_on_explore": "Show on Explore",
+    "ticket_currency": "Ticket currency",
+    "venue_name": "Venue name"
+  },
+  "org_team": {
+    "access_levels": "Access levels",
+    "assigned_per_event": "Assigned per event for check-in and scanning",
+    "email_address": "Email address",
+    "full_access": "Full access to all events, orders, and settings",
+    "invite_desc": "Invite admins to help manage events, or add staff to assign to specific event check-in.",
+    "invite_team_member": "Invite team member",
+    "member_details": "Member details",
+    "no_team_members": "No team members yet",
+    "optional": "Optional"
   }
 }

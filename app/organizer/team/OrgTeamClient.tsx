@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useState, useTransition } from 'react'
 import { UserPlus, Users, Trash2, ShieldCheck, User } from 'lucide-react'
 import {
@@ -79,6 +81,8 @@ export default function OrgTeamClient({
   ownerEmail,
   members: initialMembers,
 }: OrgTeamClientProps) {
+  const { t } = useTranslation('organizer')
+
   const [members, setMembers] = useState<Member[]>(initialMembers)
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState('')
@@ -191,8 +195,8 @@ export default function OrgTeamClient({
       {members.length === 0 ? (
         <OrgEmptyState
           icon={Users}
-          title="No team members yet"
-          description="Invite admins to help manage events, or add staff to assign to specific event check-in."
+          title={t('org_team.no_team_members')}
+          description={t('org_team.invite_desc')}
           action={
             <button
               type="button"
@@ -200,7 +204,7 @@ export default function OrgTeamClient({
               className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <UserPlus className="h-4 w-4" />
-              Invite team member
+              {t('org_team.invite_team_member')}
             </button>
           }
         />
@@ -214,20 +218,20 @@ export default function OrgTeamClient({
 
       {/* Guidelines */}
       <div className="mt-8 rounded-2xl border border-white/10 p-5">
-        <h3 className="mb-3 font-semibold text-white">Access levels</h3>
+        <h3 className="mb-3 font-semibold text-white">{t('org_team.access_levels')}</h3>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-4">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
             <div>
               <p className="text-sm font-semibold text-white">Admin</p>
-              <p className="mt-0.5 text-xs text-white/50">Full access to all events, orders, and settings</p>
+              <p className="mt-0.5 text-xs text-white/50">{t('org_team.full_access')}</p>
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-4">
             <User className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
             <div>
               <p className="text-sm font-semibold text-white">Staff</p>
-              <p className="mt-0.5 text-xs text-white/50">Assigned per event for check-in and scanning</p>
+              <p className="mt-0.5 text-xs text-white/50">{t('org_team.assigned_per_event')}</p>
             </div>
           </div>
         </div>
@@ -237,7 +241,7 @@ export default function OrgTeamClient({
       <Drawer
         open={open}
         onClose={() => { setOpen(false); reset() }}
-        title="Invite team member"
+        title={t('org_team.invite_team_member')}
         size="sm"
         footer={
           <div className="flex justify-end gap-3">
@@ -260,8 +264,8 @@ export default function OrgTeamClient({
           </div>
         }
       >
-        <FormSection title="Member details">
-          <FormField label="Email address" htmlFor="team-email" required>
+        <FormSection title={t('org_team.member_details')}>
+          <FormField label={t('org_team.email_address')} htmlFor="team-email" required>
             <input
               id="team-email"
               type="email"
@@ -277,7 +281,7 @@ export default function OrgTeamClient({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Optional"
+              placeholder={t('org_team.optional')}
               className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>

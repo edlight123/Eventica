@@ -1057,5 +1057,33 @@
     "invite_guest": "Inviter un invité",
     "no_guests_yet": "Aucun invité pour l'instant",
     "not_checked_in": "Non enregistré"
+  },
+  "event_composer": {
+    "access_code": "Code d'accès",
+    "apply_to_series": "Appliquer les modifications à tous les événements de cette série",
+    "event_description": "Description de l'événement",
+    "event_name_required": "Nom de l'événement (obligatoire)",
+    "location_or_address": "Lieu ou adresse",
+    "online_event": "Événement en ligne",
+    "pass_service_fee": "Répercuter les frais de service sur les acheteurs",
+    "password_protected": "Événement protégé par mot de passe",
+    "promo_video_link": "Lien de la vidéo promo",
+    "repeats": "Récurrence",
+    "series_length": "Durée de la série",
+    "short_summary": "Résumé court",
+    "show_on_explore": "Afficher dans Explorer",
+    "ticket_currency": "Devise des billets",
+    "venue_name": "Nom du lieu"
+  },
+  "org_team": {
+    "access_levels": "Niveaux d'accès",
+    "assigned_per_event": "Assigné par événement pour l'enregistrement et le scan",
+    "email_address": "Adresse e-mail",
+    "full_access": "Accès complet à tous les événements, commandes et paramètres",
+    "invite_desc": "Invitez des administrateurs pour gérer les événements, ou ajoutez du personnel affecté à l'enregistrement d'un événement.",
+    "invite_team_member": "Inviter un membre de l'équipe",
+    "member_details": "Détails du membre",
+    "no_team_members": "Aucun membre d'équipe pour l'instant",
+    "optional": "Facultatif"
   }
 }
