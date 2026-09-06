@@ -949,5 +949,47 @@
     "social_media": "Social Media",
     "about_placeholder": "Tell people about your organization...",
     "twitter_hint": "Twitter/X username or URL"
+  },
+  "payouts_summary": {
+    "active": "Active",
+    "balance_withdrawals": "Balance & withdrawals",
+    "earnings": "Earnings",
+    "fees_rules": "Fees & rules",
+    "fix_account": "Fix account",
+    "manage": "Manage",
+    "needs_attention": "Needs Attention",
+    "no_payout_methods": "No payout methods set up",
+    "past_transfers": "Past transfers",
+    "payout_history": "Payout history",
+    "payout_methods": "Payout methods",
+    "pending": "Pending",
+    "schedule_limits": "Schedule & limits"
+  },
+  "analytics": {
+    "analytics": "Analytics",
+    "avg_per_event": "Avg / Event",
+    "create_first_event": "Create your first event to see analytics.",
+    "events_by_category": "Events by category",
+    "no_events_yet": "No events yet",
+    "revenue": "Revenue",
+    "sales_trend": "Sales trend",
+    "tickets": "Tickets",
+    "tickets_sold": "Tickets Sold",
+    "top_performing_events": "Top performing events",
+    "total_events": "Total Events",
+    "total_revenue": "Total Revenue",
+    "track_performance": "Track your event performance and insights."
+  },
+  "event_marketing": {
+    "copied": "Copied!",
+    "copy_event_link": "Copy event link",
+    "create_discount_codes": "Create discount codes to drive ticket sales for this event.",
+    "no_promo_codes": "No promo codes",
+    "open_in_new_tab": "Open event page in new tab",
+    "promo_codes": "Promo codes",
+    "promoters": "Promoters",
+    "share_on": "Share on",
+    "share_your_event": "Share your event",
+    "sms_campaigns": "SMS campaigns"
   }
 }

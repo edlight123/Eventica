@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Copy, Check, ExternalLink, Tag, Megaphone, Share2 } from 'lucide-react'
@@ -32,6 +34,8 @@ export default function EventMarketingClient({
   eventTitle,
   promoCodes,
 }: EventMarketingClientProps) {
+  const { t } = useTranslation('organizer')
+
   const { showToast } = useToast()
   const [origin, setOrigin] = useState('')
   const [copied, setCopied] = useState(false)
@@ -74,7 +78,7 @@ export default function EventMarketingClient({
       <div className="rounded-2xl border border-white/10 p-5">
         <div className="mb-4 flex items-center gap-2">
           <Share2 className="h-4 w-4 text-brand-400" />
-          <h2 className="font-semibold text-white">Share your event</h2>
+          <h2 className="font-semibold text-white">{t('event_marketing.share_your_event')}</h2>
         </div>
 
         {/* URL row */}
@@ -86,17 +90,17 @@ export default function EventMarketingClient({
           <button
             type="button"
             onClick={copyLink}
-            aria-label="Copy event link"
+            aria-label={t('event_marketing.copy_event_link')}
             className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            {copied ? <><Check className="h-4 w-4" />Copied!</> : <><Copy className="h-4 w-4" />Copy link</>}
+            {copied ? <><Check className="h-4 w-4" />{t('event_marketing.copied')}</> : <><Copy className="h-4 w-4" />Copy link</>}
           </button>
           <Link
             href={`/events/${eventId}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            aria-label="Open event page in new tab"
+            aria-label={t('event_marketing.open_in_new_tab')}
           >
             <ExternalLink className="h-4 w-4" />
           </Link>
@@ -104,7 +108,7 @@ export default function EventMarketingClient({
 
         {/* Social share */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="label-mono uppercase text-white/70">Share on</span>
+          <span className="label-mono uppercase text-white/70">{t('event_marketing.share_on')}</span>
           {socialLinks.map((s) => (
             <a
               key={s.label}
@@ -122,7 +126,7 @@ export default function EventMarketingClient({
       {/* Promo codes */}
       <div className="rounded-2xl border border-white/10">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h2 className="font-semibold text-white">Promo codes</h2>
+          <h2 className="font-semibold text-white">{t('event_marketing.promo_codes')}</h2>
           <Link
             href={`/organizer/promo-codes?eventId=${eventId}`}
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
@@ -136,8 +140,8 @@ export default function EventMarketingClient({
           <div className="p-8">
             <OrgEmptyState
               icon={Tag}
-              title="No promo codes"
-              description="Create discount codes to drive ticket sales for this event."
+              title={t('event_marketing.no_promo_codes')}
+              description={t('event_marketing.create_discount_codes')}
               action={
                 <Link
                   href={`/organizer/promo-codes?eventId=${eventId}`}
@@ -177,7 +181,7 @@ export default function EventMarketingClient({
       <div className="rounded-2xl border border-white/10 p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="font-semibold text-white">Promoters</h2>
+            <h2 className="font-semibold text-white">{t('event_marketing.promoters')}</h2>
             <p className="mt-1 text-sm text-white/50">
               Give each street-team member their own sales link and see exactly who
               drives which tickets, commission tallied automatically.
@@ -198,7 +202,7 @@ export default function EventMarketingClient({
           <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
             <Megaphone className="h-6 w-6 text-brand-400" />
           </div>
-          <h3 className="font-semibold text-white">SMS campaigns</h3>
+          <h3 className="font-semibold text-white">{t('event_marketing.sms_campaigns')}</h3>
           <p className="mt-2 text-sm text-white/50">
             Send targeted SMS blasts to your ticket buyers directly from Tikèm.
             This feature is in development and will be available soon.

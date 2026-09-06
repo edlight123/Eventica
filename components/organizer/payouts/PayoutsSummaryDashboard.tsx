@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
+
 import {
   CheckCircle,
   Clock,
@@ -56,6 +58,8 @@ export default function PayoutsSummaryDashboard({
   onEdit,
   onSetupNew,
 }: PayoutsSummaryDashboardProps) {
+  const { t } = useTranslation('organizer')
+
   const hasAnyMethod = Boolean(haitiMethod || stripeMethod)
 
   // Overall account status, derived from the configured methods. This replaces the
@@ -104,12 +108,12 @@ export default function PayoutsSummaryDashboard({
     switch (status) {
       case 'active':
       case 'verified':
-        return <StatusChip tone="success" icon={CheckCircle}>Active</StatusChip>
+        return <StatusChip tone="success" icon={CheckCircle}>{t('payouts_summary.active')}</StatusChip>
       case 'pending':
-        return <StatusChip tone="warning" icon={Clock}>Pending</StatusChip>
+        return <StatusChip tone="warning" icon={Clock}>{t('payouts_summary.pending')}</StatusChip>
       case 'needs_attention':
       case 'failed':
-        return <StatusChip tone="danger" icon={AlertCircle}>Needs Attention</StatusChip>
+        return <StatusChip tone="danger" icon={AlertCircle}>{t('payouts_summary.needs_attention')}</StatusChip>
       default:
         return null
     }
@@ -170,9 +174,9 @@ export default function PayoutsSummaryDashboard({
           }`}
         >
           {method.status === 'needs_attention' ? (
-            <><AlertCircle className="w-4 h-4" />Fix account</>
+            <><AlertCircle className="w-4 h-4" />{t('payouts_summary.fix_account')}</>
           ) : (
-            <><Settings className="w-4 h-4" />Manage</>
+            <><Settings className="w-4 h-4" />{t('payouts_summary.manage')}</>
           )}
         </button>
       </div>
@@ -209,7 +213,7 @@ export default function PayoutsSummaryDashboard({
       {/* Payout Methods */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Payout methods</h2>
+          <h2 className="text-lg font-semibold text-white">{t('payouts_summary.payout_methods')}</h2>
           {hasAnyMethod && (
             <button
               type="button"
@@ -232,7 +236,7 @@ export default function PayoutsSummaryDashboard({
             <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-white/[0.03] flex items-center justify-center">
               <Wallet className="w-7 h-7 text-white/40" />
             </div>
-            <h3 className="font-semibold text-white mb-2">No payout methods set up</h3>
+            <h3 className="font-semibold text-white mb-2">{t('payouts_summary.no_payout_methods')}</h3>
             <p className="text-white/60 mb-4 max-w-sm mx-auto">
               Set up a payout method to receive earnings from your ticket sales.
             </p>
@@ -249,7 +253,7 @@ export default function PayoutsSummaryDashboard({
 
       {/* Quick Links */}
       <div className="bg-white/[0.03] rounded-xl  p-5">
-        <h3 className="font-semibold text-white mb-4">Manage</h3>
+        <h3 className="font-semibold text-white mb-4">{t('payouts_summary.manage')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
             href="/organizer/earnings"
@@ -259,8 +263,8 @@ export default function PayoutsSummaryDashboard({
               <TrendingUp className="w-5 h-5 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-white">Earnings</div>
-              <div className="text-sm text-white/50">Balance & withdrawals</div>
+              <div className="font-medium text-white">{t('payouts_summary.earnings')}</div>
+              <div className="text-sm text-white/50">{t('payouts_summary.balance_withdrawals')}</div>
             </div>
           </Link>
 
@@ -272,8 +276,8 @@ export default function PayoutsSummaryDashboard({
               <History className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-white">Payout history</div>
-              <div className="text-sm text-white/50">Past transfers</div>
+              <div className="font-medium text-white">{t('payouts_summary.payout_history')}</div>
+              <div className="text-sm text-white/50">{t('payouts_summary.past_transfers')}</div>
             </div>
           </Link>
 
@@ -285,8 +289,8 @@ export default function PayoutsSummaryDashboard({
               <ShieldCheck className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-white">Fees & rules</div>
-              <div className="text-sm text-white/50">Schedule & limits</div>
+              <div className="font-medium text-white">{t('payouts_summary.fees_rules')}</div>
+              <div className="text-sm text-white/50">{t('payouts_summary.schedule_limits')}</div>
             </div>
           </Link>
         </div>

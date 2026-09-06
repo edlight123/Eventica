@@ -949,5 +949,47 @@
     "social_media": "Rezo sosyal",
     "about_placeholder": "Pale moun yo sou òganizasyon ou an...",
     "twitter_hint": "Non itilizatè oswa URL Twitter/X"
+  },
+  "payouts_summary": {
+    "active": "Aktif",
+    "balance_withdrawals": "Balans ak retrè",
+    "earnings": "Revni",
+    "fees_rules": "Frè ak règ",
+    "fix_account": "Ranje kont lan",
+    "manage": "Jere",
+    "needs_attention": "Bezwen atansyon",
+    "no_payout_methods": "Pa gen metòd peman ki konfigire",
+    "past_transfers": "Transfè pase yo",
+    "payout_history": "Istorik peman",
+    "payout_methods": "Metòd peman",
+    "pending": "Annatant",
+    "schedule_limits": "Orè ak limit"
+  },
+  "analytics": {
+    "analytics": "Analiz",
+    "avg_per_event": "Mwayèn / evènman",
+    "create_first_event": "Kreye premye evènman ou pou w wè analiz yo.",
+    "events_by_category": "Evènman pa kategori",
+    "no_events_yet": "Poko gen evènman",
+    "revenue": "Revni",
+    "sales_trend": "Tandans vant",
+    "tickets": "Tikè",
+    "tickets_sold": "Tikè vandi",
+    "top_performing_events": "Evènman ki pi byen mache",
+    "total_events": "Total evènman",
+    "total_revenue": "Total revni",
+    "track_performance": "Swiv pèfòmans evènman ou yo ak sa done yo montre."
+  },
+  "event_marketing": {
+    "copied": "Kopye!",
+    "copy_event_link": "Kopye lyen evènman an",
+    "create_discount_codes": "Kreye kòd rabè pou ogmante vant tikè pou evènman sa a.",
+    "no_promo_codes": "Pa gen kòd pwomo",
+    "open_in_new_tab": "Louvri paj evènman an nan yon nouvo onglè",
+    "promo_codes": "Kòd pwomo",
+    "promoters": "Pwomotè",
+    "share_on": "Pataje sou",
+    "share_your_event": "Pataje evènman ou an",
+    "sms_campaigns": "Kanpay SMS"
   }
 }

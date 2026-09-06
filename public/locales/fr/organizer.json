@@ -949,5 +949,47 @@
     "social_media": "Réseaux sociaux",
     "about_placeholder": "Présentez votre organisation...",
     "twitter_hint": "Nom d'utilisateur ou URL Twitter/X"
+  },
+  "payouts_summary": {
+    "active": "Actif",
+    "balance_withdrawals": "Solde et retraits",
+    "earnings": "Revenus",
+    "fees_rules": "Frais et règles",
+    "fix_account": "Corriger le compte",
+    "manage": "Gérer",
+    "needs_attention": "Nécessite votre attention",
+    "no_payout_methods": "Aucun mode de versement configuré",
+    "past_transfers": "Transferts passés",
+    "payout_history": "Historique des versements",
+    "payout_methods": "Modes de versement",
+    "pending": "En attente",
+    "schedule_limits": "Calendrier et limites"
+  },
+  "analytics": {
+    "analytics": "Analyses",
+    "avg_per_event": "Moy. / événement",
+    "create_first_event": "Créez votre premier événement pour voir les analyses.",
+    "events_by_category": "Événements par catégorie",
+    "no_events_yet": "Aucun événement pour l'instant",
+    "revenue": "Revenus",
+    "sales_trend": "Tendance des ventes",
+    "tickets": "Billets",
+    "tickets_sold": "Billets vendus",
+    "top_performing_events": "Événements les plus performants",
+    "total_events": "Total des événements",
+    "total_revenue": "Revenus totaux",
+    "track_performance": "Suivez la performance de vos événements et les tendances."
+  },
+  "event_marketing": {
+    "copied": "Copié !",
+    "copy_event_link": "Copier le lien de l'événement",
+    "create_discount_codes": "Créez des codes de réduction pour stimuler les ventes de cet événement.",
+    "no_promo_codes": "Aucun code promo",
+    "open_in_new_tab": "Ouvrir la page de l'événement dans un nouvel onglet",
+    "promo_codes": "Codes promo",
+    "promoters": "Promoteurs",
+    "share_on": "Partager sur",
+    "share_your_event": "Partagez votre événement",
+    "sms_campaigns": "Campagnes SMS"
   }
 }
