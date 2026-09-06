@@ -5,6 +5,12 @@ export type TicketStatus = 'active' | 'used' | 'cancelled'
 export type ScanResult = 'valid' | 'already_used' | 'invalid'
 
 export type NotificationType = 
+  // Discretionary notifications (see lib/notifications/policy.ts) — these obey
+  // quiet hours, per-category opt-outs and once-ever caps.
+  | 'event_filling_fast'
+  | 'city_discovery'
+  | 'organizer_milestone'
+  | 'organizer_nudge'
   | 'ticket_purchased' 
   | 'ticket_transfer'
   | 'event_updated' 

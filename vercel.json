@@ -44,6 +44,14 @@
     {
       "path": "/api/cron/cleanup-guest-uploads",
       "schedule": "30 2 * * *"
+    },
+    {
+      "path": "/api/cron/city-discovery",
+      "schedule": "0 17 * * 4"
+    },
+    {
+      "path": "/api/cron/organizer-nudge",
+      "schedule": "0 14 * * *"
     }
   ]
 }

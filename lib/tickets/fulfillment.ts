@@ -20,6 +20,7 @@ import {
 import { addTicketToEarnings } from '@/lib/earnings'
 import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
+import { onSaleCompleted } from '@/lib/notifications/campaigns'
 import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
 import { recordPromoterSale } from '@/lib/promoters'
 import { guestRecipientFromOrder } from '@/lib/guest/checkout'
@@ -487,6 +488,17 @@ export async function fulfillPaidOrder(params: {
         } catch (error) {
           console.error(`${logPrefix} failed to send purchase notification`, error)
         }
+      }
+
+      // Sale-driven notifications: "filling fast" to people watching the event,
+      // and the sales milestone to the organizer. Outside the block above on
+      // purpose — these fire for GUEST purchases too, since the audience being
+      // notified is other people, not the buyer.
+      if (pendingTx.event_id) {
+        await onSaleCompleted({
+          eventId: String(pendingTx.event_id),
+          buyerId: pendingTx.user_id ? String(pendingTx.user_id) : null,
+        })
       }
 
       if (ticket.attendee && ticket.event) {

@@ -3,6 +3,9 @@ import { createClient } from '@/lib/firebase-db/server'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { sendWhatsAppMessage, getEventReminderWhatsApp } from '@/lib/whatsapp'
 import { sendEventReminder } from '@/lib/notification-triggers'
+import { claimReminder, releaseReminderClaim } from '@/lib/notifications/reminder-claim'
+import { liveTicketStatusesForQuery } from '@/lib/tickets/status'
+import { reminderWindows } from '@/lib/notifications/reminder-windows'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,30 +42,10 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const now = new Date()
     
-    // Define reminder windows with ±30min buffer
-    const reminders = [
-      { 
-        type: 'event_reminder_24h' as const, 
-        hoursAhead: 24,
-        windowStart: new Date(now.getTime() + 23.5 * 60 * 60 * 1000),
-        windowEnd: new Date(now.getTime() + 24.5 * 60 * 60 * 1000),
-        label: '24 hours'
-      },
-      { 
-        type: 'event_reminder_3h' as const, 
-        hoursAhead: 3,
-        windowStart: new Date(now.getTime() + 2.5 * 60 * 60 * 1000),
-        windowEnd: new Date(now.getTime() + 3.5 * 60 * 60 * 1000),
-        label: '3 hours'
-      },
-      { 
-        type: 'event_reminder_30min' as const, 
-        hoursAhead: 0.5,
-        windowStart: new Date(now.getTime() + 25 * 60 * 1000),
-        windowEnd: new Date(now.getTime() + 35 * 60 * 1000),
-        label: '30 minutes'
-      }
-    ]
+    // Windows come from lib/notifications/reminder-windows, which is unit-tested
+    // for the property that matters: no window may be narrower than the cron
+    // period, or events silently fall between runs.
+    const reminders = reminderWindows(now)
 
     let totalEmailsSent = 0
     let totalWhatsAppSent = 0
@@ -70,15 +53,35 @@ export async function GET(request: Request) {
     const results = []
 
     for (const reminder of reminders) {
-      // Find events starting within the reminder window
-      const { data: events, error: eventsError } = await supabase
-        .from('events')
-        .select('*')
-        .gte('start_datetime', reminder.windowStart.toISOString())
-        .lte('start_datetime', reminder.windowEnd.toISOString())
-        .eq('is_published', true)
+      // Find events starting within the reminder window.
+      //
+      // `start_datetime` is an ISO STRING from the event composer but a Firestore
+      // TIMESTAMP from the seed script and some older writes. A Firestore range
+      // never crosses value types, so a single query silently returns only one of
+      // the two populations — with no error to notice. Ask for both and merge.
+      const [asString, asTimestamp] = await Promise.all([
+        supabase
+          .from('events')
+          .select('*')
+          .gte('start_datetime', reminder.windowStart.toISOString())
+          .lte('start_datetime', reminder.windowEnd.toISOString())
+          .eq('is_published', true),
+        supabase
+          .from('events')
+          .select('*')
+          .gte('start_datetime', reminder.windowStart)
+          .lte('start_datetime', reminder.windowEnd)
+          .eq('is_published', true),
+      ])
 
-      if (eventsError || !events || events.length === 0) {
+      const eventsError = asString.error && asTimestamp.error ? asString.error : null
+      const byId = new Map<string, any>()
+      for (const row of [...(asString.data || []), ...(asTimestamp.data || [])]) {
+        if (row?.id) byId.set(row.id, row)
+      }
+      const events = Array.from(byId.values())
+
+      if (eventsError || events.length === 0) {
         results.push({ 
           type: reminder.type, 
           events: 0, 
@@ -102,12 +105,21 @@ export async function GET(request: Request) {
             attendee:users (*)
           `)
           .eq('event_id', event.id)
-          .eq('status', 'valid')
+          // A live ticket is valid|confirmed|active. Matching only 'valid' meant
+          // every MonCash and SogePay buyer — i.e. the whole Haiti market — was
+          // invisible to reminders.
+          .in('status', liveTicketStatusesForQuery())
 
         if (ticketsError || !tickets || tickets.length === 0) continue
 
         // Get unique attendee IDs for in-app/push notifications
         const attendeeIds = Array.from(new Set(tickets.map((t: any) => t.attendee_id))) as string[]
+
+        // Take the send-once claim BEFORE notifying. Windows are now a full hour
+        // wide, so the same event legitimately appears in consecutive runs; this
+        // is what stops every attendee being reminded twice.
+        const claimed = await claimReminder(event.id, reminder.type)
+        if (!claimed) continue
 
         // Send in-app and push notifications via notification-triggers
         try {
@@ -121,6 +133,11 @@ export async function GET(request: Request) {
           notificationsSent += attendeeIds.length
         } catch (error) {
           console.error(`Failed to send ${reminder.type} notifications for event ${event.id}:`, error)
+          // Hand the claim back so the next run retries rather than losing the
+          // reminder permanently to a transient failure — and skip the email and
+          // WhatsApp block below, since that retry will send those too.
+          await releaseReminderClaim(event.id, reminder.type)
+          continue
         }
 
         // Send email and WhatsApp for 24h reminder only (to avoid spam)

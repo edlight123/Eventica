@@ -9,8 +9,11 @@ import { sendExpoPushNotificationToUser } from '@/lib/push/expo'
 
 /**
  * Get user notification preferences (server-side)
+ *
+ * Exported because `lib/notifications/helpers` pushes directly rather than
+ * calling the wrappers below — see the note on `sendPushNotification`.
  */
-async function getNotificationPreferences(userId: string) {
+export async function getNotificationPreferences(userId: string) {
   try {
     const userDoc = await adminDb.collection('users').doc(userId).get()
     
@@ -96,7 +99,10 @@ export async function notifyTicketPurchase(
     'ticket_purchased',
     'Ticket Purchased Successfully!',
     `Your ticket for "${eventTitle}" has been confirmed. Show your QR code at the entrance.`,
-    `/events/${eventId}/tickets/${ticketId}`,
+    // `/events/<id>/tickets/<id>` was linked here for a long time and NO SUCH
+    // ROUTE EXISTS — every purchase notification landed on a 404. The buyer's
+    // tickets for an event live at /tickets/event/<eventId>.
+    `/tickets/event/${eventId}`,
     { eventId, ticketId }
   )
 
@@ -106,7 +112,7 @@ export async function notifyTicketPurchase(
       userId,
       'Ticket Purchased! 🎫',
       `Your ticket for "${eventTitle}" is ready`,
-      `/events/${eventId}/tickets/${ticketId}`,
+      `/tickets/event/${eventId}`,
       {
         type: 'ticket_purchased',
         ticketId,

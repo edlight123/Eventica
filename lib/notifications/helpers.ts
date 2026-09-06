@@ -58,10 +58,24 @@ export async function notifyTicketPurchase(
     { eventId, ticketCount }
   )
   
-  // Also trigger web-push notification via notification-triggers
+  // Push only. This used to call `notification-triggers.notifyTicketPurchase`,
+  // which creates its OWN in-app notification — so every purchase produced two
+  // bell entries with different wording. It also had to invent a ticketId,
+  // passing eventId in its place. Pushing directly removes both problems.
   try {
-    const { notifyTicketPurchase: sendPush } = await import('@/lib/notification-triggers')
-    await sendPush(userId, eventTitle, eventId, eventId) // last param is ticketId placeholder
+    const { sendPushNotification, getNotificationPreferences } = await import(
+      '@/lib/notification-triggers'
+    )
+    const prefs = await getNotificationPreferences(userId)
+    if (prefs.notifyTicketPurchase) {
+      await sendPushNotification(
+        userId,
+        'Ticket Purchased! 🎫',
+        `Your ticket${ticketCount > 1 ? 's' : ''} for "${eventTitle}" ${ticketCount > 1 ? 'are' : 'is'} ready`,
+        `/tickets/event/${eventId}`,
+        { type: 'ticket_purchased', eventId, ticketCount }
+      )
+    }
   } catch (error) {
     console.error('Failed to send push notification:', error)
   }
@@ -144,10 +158,22 @@ export async function notifyOrganizerTicketSale(
     { eventId, ticketCount, revenue }
   )
   
-  // Also trigger web-push notification via notification-triggers
+  // Push only — same reason as the buyer path above: the trigger wrapper would
+  // write a SECOND in-app notification on top of the one just created.
   try {
-    const { notifyOrganizerTicketSale: sendPush } = await import('@/lib/notification-triggers')
-    await sendPush(organizerId, eventTitle, eventId, ticketCount, revenue)
+    const { sendPushNotification, getNotificationPreferences } = await import(
+      '@/lib/notification-triggers'
+    )
+    const prefs = await getNotificationPreferences(organizerId)
+    if (prefs.notifyTicketPurchase) {
+      await sendPushNotification(
+        organizerId,
+        `🎫 New Sale: ${eventTitle}`,
+        `${ticketCount} ticket${ticketCount > 1 ? 's' : ''} sold — $${revenue.toFixed(2)}`,
+        `/organizer/events/${eventId}/attendees`,
+        { type: 'ticket_sale', eventId, ticketCount, revenue }
+      )
+    }
   } catch (error) {
     console.error('Failed to send push notification:', error)
   }

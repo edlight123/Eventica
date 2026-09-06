@@ -6,6 +6,7 @@ import { attachTicketsToGuestOrder, isGuestId } from '@/lib/guest/identity'
 import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
 import { recordPromoterSale } from '@/lib/promoters'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
+import { onSaleCompleted } from '@/lib/notifications/campaigns'
 import { addTicketToEarnings } from '@/lib/earnings'
 import { adminDb } from '@/lib/firebase/admin'
 import {
@@ -349,6 +350,12 @@ export async function POST(request: Request) {
             session.amount_total ? session.amount_total / 100 : 0,
             ticket.user?.full_name
           )
+          // Watchers of this event may now need to hear it is nearly gone, and
+          // the organizer may have crossed a sales milestone.
+          await onSaleCompleted({
+            eventId: String(session.metadata.eventId),
+            buyerId: ticket.user?.id ? String(ticket.user.id) : null,
+          })
         } catch (error) {
           console.error('Failed to send notification:', error)
           // Don't fail the webhook if notification fails
@@ -717,6 +724,10 @@ export async function POST(request: Request) {
               paymentIntent.amount / 100,
               attendee?.full_name
             )
+            await onSaleCompleted({
+              eventId: String(paymentIntent.metadata.eventId),
+              buyerId: attendee?.id ? String(attendee.id) : null,
+            })
           }
         } catch (error) {
           console.error('Failed to send notification:', error)

@@ -69,6 +69,15 @@ function markFor(type: string): { Icon: LucideIcon; tone: ToneKey } {
       return { Icon: Clock, tone: 'amber' }
     case 'event_cancelled':
       return { Icon: XCircle, tone: 'rose' }
+    case 'event_filling_fast':
+      // Amber, not rose: scarcity is a nudge, not an alarm.
+      return { Icon: Clock, tone: 'amber' }
+    case 'city_discovery':
+      return { Icon: Compass, tone: 'sky' }
+    case 'organizer_milestone':
+      return { Icon: Ticket, tone: 'emerald' }
+    case 'organizer_nudge':
+      return { Icon: Megaphone, tone: 'amber' }
     case 'payment_dispute':
       return { Icon: AlertTriangle, tone: 'rose' }
     case 'staff_invite':
