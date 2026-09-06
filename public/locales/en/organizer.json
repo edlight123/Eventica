@@ -1064,7 +1064,14 @@
     "enter_new_password": "Enter new password",
     "no_recent_activity": "No recent activity to display",
     "recent_login_activity": "Recent Login Activity",
-    "two_factor_auth": "Two-Factor Authentication"
+    "two_factor_auth": "Two-Factor Authentication",
+    "extra_security_layer": "Add an extra layer of security to your account",
+    "coming_soon": "Coming Soon",
+    "confirm_new_password_label": "Confirm New Password",
+    "current_password": "Current Password",
+    "monitor_logins": "Monitor recent logins to your account",
+    "new_password": "New Password",
+    "password_min_length": "Password must be at least 8 characters long"
   },
   "command_center": {
     "add_a_flyer": "Add a flyer",
@@ -1134,7 +1141,14 @@
   },
   "profile_form": {
     "enter_full_name": "Enter your full name",
-    "profile_photo": "Profile photo"
+    "profile_photo": "Profile photo",
+    "change_photo": "Change Photo",
+    "email_address": "Email Address",
+    "email_cannot_change": "Email cannot be changed. Contact support if needed.",
+    "full_name": "Full Name",
+    "photo_formats": "JPG, PNG or GIF. Max 5MB.",
+    "phone_number": "Phone Number",
+    "phone_use_note": "Used for account recovery and important notifications"
   },
   "live_preview": {
     "general_admission": "General Admission",
@@ -1160,5 +1174,29 @@
     "setup_once_note": "Set up your organization once, then create events, sell tickets, and get paid.",
     "brand_visible_note": "This is the brand attendees will see. You can change it anytime in settings.",
     "what_is_org_called": "What is your organization called?"
+  },
+  "verification_review": {
+    "business_details": "Business Details",
+    "complete": "Complete",
+    "complete_required_steps": "Complete required steps to submit:",
+    "government_id": "Government ID",
+    "identity_verification": "Identity Verification",
+    "no_verification_details": "No verification details available",
+    "organizer_information": "Organizer Information",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service",
+    "verification_submitted": "Verification Submitted"
+  },
+  "verification_welcome": {
+    "a_clear_selfie": "A clear selfie",
+    "about_5_minutes": "About 5 minutes",
+    "business_info": "Business info",
+    "complete_quick_verification": "Complete a quick verification to unlock all organizer features and start hosting amazing events.",
+    "government_issued_id": "Government-issued ID",
+    "if_registered_business": "If you have a registered business",
+    "quick_easy_process": "Quick and easy process",
+    "start_verification": "Start Verification",
+    "to_match_id_photo": "To match your ID photo",
+    "reviewed_24_48": "Typically reviewed within 24-48 hours"
   }
 }

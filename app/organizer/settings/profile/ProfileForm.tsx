@@ -169,7 +169,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] text-white/70 rounded-lg cursor-pointer transition-colors"
           >
             <Camera className="w-4 h-4" />
-            Change Photo
+            {t('profile_form.change_photo')}
           </label>
           <input
             id="photo-upload"
@@ -180,7 +180,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             disabled={isUploadingPhoto}
           />
           <p className="text-xs text-white/50 mt-2">
-            JPG, PNG or GIF. Max 5MB.
+            {t('profile_form.photo_formats')}
           </p>
         </div>
       </div>
@@ -188,7 +188,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
       {/* Full Name */}
       <div>
         <label htmlFor="full_name" className="block text-sm font-medium text-white/70 mb-2">
-          Full Name
+          {t('profile_form.full_name')}
         </label>
         <div className="relative">
           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -207,7 +207,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
       {/* Email (Read-only) */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-2">
-          Email Address
+          {t('profile_form.email_address')}
         </label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -220,14 +220,14 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
           />
         </div>
         <p className="text-xs text-white/50 mt-1">
-          Email cannot be changed. Contact support if needed.
+          {t('profile_form.email_cannot_change')}
         </p>
       </div>
 
       {/* Phone Number */}
       <div>
         <label htmlFor="phone_number" className="block text-sm font-medium text-white/70 mb-2">
-          Phone Number
+          {t('profile_form.phone_number')}
         </label>
         <div className="relative">
           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -241,7 +241,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
           />
         </div>
         <p className="text-xs text-white/50 mt-1">
-          Used for account recovery and important notifications
+          {t('profile_form.phone_use_note')}
         </p>
       </div>
 

@@ -100,7 +100,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
         <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
           <div>
             <label htmlFor="current_password" className="block text-sm font-medium text-white/70 mb-2">
-              Current Password
+              {t('security.current_password')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -117,7 +117,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
           </div>
           <div>
             <label htmlFor="new_password" className="block text-sm font-medium text-white/70 mb-2">
-              New Password
+              {t('security.new_password')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -135,7 +135,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
           </div>
           <div>
             <label htmlFor="confirm_password" className="block text-sm font-medium text-white/70 mb-2">
-              Confirm New Password
+              {t('security.confirm_new_password_label')}
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
@@ -159,7 +159,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
             {isChangingPassword ? 'Updating...' : 'Update Password'}
           </button>
           <p className="text-xs text-white/50">
-            Password must be at least 8 characters long
+            {t('security.password_min_length')}
           </p>
         </form>
       </div>
@@ -172,12 +172,12 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
             <div>
               <h3 className="font-display text-[20px] lowercase italic leading-none text-white">{t('security.two_factor_auth')}</h3>
               <p className="text-sm text-white/60 mt-1">
-                Add an extra layer of security to your account
+                {t('security.extra_security_layer')}
               </p>
             </div>
           </div>
           <span className="shrink-0 rounded-[8px] bg-white/[0.08] px-2.5 py-1 text-xs font-medium text-white/60">
-            Coming Soon
+            {t('security.coming_soon')}
           </span>
         </div>
       </div>
@@ -190,7 +190,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
             <h3 className="font-display text-[20px] lowercase italic leading-none text-white">{t('security.recent_login_activity')}</h3>
           </div>
           <p className="text-sm text-white/60 mt-1">
-            Monitor recent logins to your account
+            {t('security.monitor_logins')}
           </p>
         </div>
         {loginHistory.length === 0 ? (

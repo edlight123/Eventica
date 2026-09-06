@@ -1064,7 +1064,14 @@
     "enter_new_password": "Saisir le nouveau mot de passe",
     "no_recent_activity": "Aucune activité récente à afficher",
     "recent_login_activity": "Activité de connexion récente",
-    "two_factor_auth": "Authentification à deux facteurs"
+    "two_factor_auth": "Authentification à deux facteurs",
+    "extra_security_layer": "Ajoutez une couche de sécurité supplémentaire à votre compte",
+    "coming_soon": "Bientôt disponible",
+    "confirm_new_password_label": "Confirmer le nouveau mot de passe",
+    "current_password": "Mot de passe actuel",
+    "monitor_logins": "Surveillez les connexions récentes à votre compte",
+    "new_password": "Nouveau mot de passe",
+    "password_min_length": "Le mot de passe doit contenir au moins 8 caractères"
   },
   "command_center": {
     "add_a_flyer": "Ajouter une affiche",
@@ -1134,7 +1141,14 @@
   },
   "profile_form": {
     "enter_full_name": "Saisissez votre nom complet",
-    "profile_photo": "Photo de profil"
+    "profile_photo": "Photo de profil",
+    "change_photo": "Changer la photo",
+    "email_address": "Adresse e-mail",
+    "email_cannot_change": "L'adresse e-mail ne peut pas être modifiée. Contactez le support si nécessaire.",
+    "full_name": "Nom complet",
+    "photo_formats": "JPG, PNG ou GIF. 5 Mo maximum.",
+    "phone_number": "Numéro de téléphone",
+    "phone_use_note": "Utilisé pour récupérer votre compte et pour les notifications importantes"
   },
   "live_preview": {
     "general_admission": "Admission générale",
@@ -1160,5 +1174,29 @@
     "setup_once_note": "Configurez votre organisation une fois, puis créez des événements, vendez des billets et soyez payé.",
     "brand_visible_note": "C'est la marque que verront les participants. Vous pouvez la modifier à tout moment dans les paramètres.",
     "what_is_org_called": "Comment s'appelle votre organisation ?"
+  },
+  "verification_review": {
+    "business_details": "Informations sur l'entreprise",
+    "complete": "Terminé",
+    "complete_required_steps": "Complétez les étapes requises pour soumettre :",
+    "government_id": "Pièce d'identité officielle",
+    "identity_verification": "Vérification d'identité",
+    "no_verification_details": "Aucun détail de vérification disponible",
+    "organizer_information": "Informations sur l'organisateur",
+    "privacy_policy": "Politique de confidentialité",
+    "terms_of_service": "Conditions d'utilisation",
+    "verification_submitted": "Vérification soumise"
+  },
+  "verification_welcome": {
+    "a_clear_selfie": "Un selfie net",
+    "about_5_minutes": "Environ 5 minutes",
+    "business_info": "Infos sur l'entreprise",
+    "complete_quick_verification": "Effectuez une vérification rapide pour débloquer toutes les fonctionnalités organisateur et commencer à créer vos événements.",
+    "government_issued_id": "Pièce d'identité officielle",
+    "if_registered_business": "Si vous avez une entreprise enregistrée",
+    "quick_easy_process": "Processus simple et rapide",
+    "start_verification": "Commencer la vérification",
+    "to_match_id_photo": "Pour correspondre à la photo de votre pièce d'identité",
+    "reviewed_24_48": "Examiné généralement sous 24 à 48 heures"
   }
 }

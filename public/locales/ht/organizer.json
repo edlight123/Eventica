@@ -1064,7 +1064,14 @@
     "enter_new_password": "Antre nouvo modpas la",
     "no_recent_activity": "Pa gen aktivite resan pou montre",
     "recent_login_activity": "Aktivite koneksyon resan",
-    "two_factor_auth": "Otantifikasyon ak de faktè"
+    "two_factor_auth": "Otantifikasyon ak de faktè",
+    "extra_security_layer": "Ajoute yon kouch sekirite anplis sou kont ou",
+    "coming_soon": "Talè konsa",
+    "confirm_new_password_label": "Konfime nouvo modpas la",
+    "current_password": "Modpas aktyèl la",
+    "monitor_logins": "Siveye koneksyon resan sou kont ou",
+    "new_password": "Nouvo modpas",
+    "password_min_length": "Modpas la dwe gen omwen 8 karaktè"
   },
   "command_center": {
     "add_a_flyer": "Ajoute yon flyer",
@@ -1134,7 +1141,14 @@
   },
   "profile_form": {
     "enter_full_name": "Antre non konplè ou",
-    "profile_photo": "Foto pwofil"
+    "profile_photo": "Foto pwofil",
+    "change_photo": "Chanje foto a",
+    "email_address": "Adrès imel",
+    "email_cannot_change": "Ou pa ka chanje imel la. Kontakte sipò a si w bezwen.",
+    "full_name": "Non konplè",
+    "photo_formats": "JPG, PNG oswa GIF. 5MB maksimòm.",
+    "phone_number": "Nimewo telefòn",
+    "phone_use_note": "Yo sèvi avè l pou rekipere kont ou ak pou notifikasyon enpòtan"
   },
   "live_preview": {
     "general_admission": "Antre jeneral",
@@ -1160,5 +1174,29 @@
     "setup_once_note": "Konfigire òganizasyon ou yon sèl fwa, apre sa kreye evènman, vann tikè, epi resevwa lajan.",
     "brand_visible_note": "Se mak sa a patisipan yo ap wè. Ou ka chanje l nenpòt lè nan paramèt yo.",
     "what_is_org_called": "Kijan òganizasyon ou rele?"
+  },
+  "verification_review": {
+    "business_details": "Enfòmasyon sou biznis la",
+    "complete": "Fini",
+    "complete_required_steps": "Ranpli etap obligatwa yo pou w soumèt:",
+    "government_id": "Kat idantite gouvènman an",
+    "identity_verification": "Verifikasyon idantite",
+    "no_verification_details": "Pa gen detay verifikasyon ki disponib",
+    "organizer_information": "Enfòmasyon sou òganizatè a",
+    "privacy_policy": "Politik konfidansyalite",
+    "terms_of_service": "Kondisyon sèvis",
+    "verification_submitted": "Verifikasyon soumèt"
+  },
+  "verification_welcome": {
+    "a_clear_selfie": "Yon selfie ki klè",
+    "about_5_minutes": "Anviwon 5 minit",
+    "business_info": "Enfo sou biznis la",
+    "complete_quick_verification": "Fè yon verifikasyon rapid pou w debloke tout fonksyonalite òganizatè yo epi kòmanse fè evènman.",
+    "government_issued_id": "Kat idantite gouvènman an bay",
+    "if_registered_business": "Si w gen yon biznis ki anrejistre",
+    "quick_easy_process": "Yon pwosesis rapid e fasil",
+    "start_verification": "Kòmanse verifikasyon an",
+    "to_match_id_photo": "Pou l matche ak foto kat idantite ou",
+    "reviewed_24_48": "Anjeneral yo egzamine l nan 24-48 èdtan"
   }
 }

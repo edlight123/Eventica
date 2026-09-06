@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 /**
  * VerificationWelcome Component
  * Engaging welcome screen for new users starting verification
@@ -11,6 +12,8 @@ interface Props {
 }
 
 export default function VerificationWelcome({ onStart, userName }: Props) {
+  const { t } = useTranslation('organizer')
+
   const benefits = [
     {
       icon: BadgeCheck,
@@ -43,7 +46,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
           </h1>
           
           <p className="text-lg text-white/60 max-w-md mx-auto">
-            Complete a quick verification to unlock all organizer features and start hosting amazing events.
+            {t('verification_welcome.complete_quick_verification')}
           </p>
         </div>
 
@@ -73,7 +76,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
                 <span className="text-xs font-bold text-brand-300">1</span>
               </div>
               <div>
-                <p className="font-medium text-white text-sm">Government-issued ID</p>
+                <p className="font-medium text-white text-sm">{t('verification_welcome.government_issued_id')}</p>
                 <p className="text-xs text-white/50">Passport, driver&apos;s license, or national ID</p>
               </div>
             </div>
@@ -82,8 +85,8 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
                 <span className="text-xs font-bold text-brand-300">2</span>
               </div>
               <div>
-                <p className="font-medium text-white text-sm">A clear selfie</p>
-                <p className="text-xs text-white/50">To match your ID photo</p>
+                <p className="font-medium text-white text-sm">{t('verification_welcome.a_clear_selfie')}</p>
+                <p className="text-xs text-white/50">{t('verification_welcome.to_match_id_photo')}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -91,8 +94,8 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
                 <span className="text-xs font-bold text-white/50">3</span>
               </div>
               <div>
-                <p className="font-medium text-white text-sm">Business info <span className="text-white/40 font-normal">(optional)</span></p>
-                <p className="text-xs text-white/50">If you have a registered business</p>
+                <p className="font-medium text-white text-sm">{t('verification_welcome.business_info')}<span className="text-white/40 font-normal">(optional)</span></p>
+                <p className="text-xs text-white/50">{t('verification_welcome.if_registered_business')}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -100,8 +103,8 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
                 <span className="text-xs font-bold text-brand-300">~5</span>
               </div>
               <div>
-                <p className="font-medium text-white text-sm">About 5 minutes</p>
-                <p className="text-xs text-white/50">Quick and easy process</p>
+                <p className="font-medium text-white text-sm">{t('verification_welcome.about_5_minutes')}</p>
+                <p className="text-xs text-white/50">{t('verification_welcome.quick_easy_process')}</p>
               </div>
             </div>
           </div>
@@ -113,12 +116,12 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
             onClick={onStart}
             className="inline-flex items-center gap-2 px-8 py-4 bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all text-lg"
           >
-            Start Verification
+            {t('verification_welcome.start_verification')}
             <ArrowRight className="w-5 h-5" />
           </button>
           
           <p className="text-sm text-white/50 mt-4">
-            Typically reviewed within 24-48 hours
+            {t('verification_welcome.reviewed_24_48')}
           </p>
         </div>
       </div>

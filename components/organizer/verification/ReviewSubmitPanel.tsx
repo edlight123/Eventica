@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 /**
  * ReviewSubmitPanel Component
  * Summary of verification data before submission
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnly = false }: Props) {
+  const { t } = useTranslation('organizer')
+
   const canSubmit = canSubmitForReview(request)
   const blockingIssues = getBlockingIssues(request)
   const isSubmitted = ['pending', 'pending_review', 'in_review', 'approved'].includes(request.status)
@@ -47,7 +50,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
       <div className="space-y-6">
         {!hasAnyDetails && isReadOnly ? (
           <div className="p-4 bg-white/[0.03] rounded-lg">
-            <div className="text-sm font-semibold text-white">No verification details available</div>
+            <div className="text-sm font-semibold text-white">{t('verification_review.no_verification_details')}</div>
             <div className="text-sm text-white/60 mt-1">
               This account is marked as verified, but no submitted verification fields/files were found.
               This can happen if verification was granted manually by an admin or if the record predates the current verification flow.
@@ -58,7 +61,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
         {/* Organizer Info */}
         {request.steps.organizerInfo.status === 'complete' && (
           <SummarySection
-            title="Organizer Information"
+            title={t('verification_review.organizer_information')}
             icon={<UserRound className="w-5 h-5 text-white/70" />}
             fields={request.steps.organizerInfo.fields}
           />
@@ -67,7 +70,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
         {/* Government ID */}
         {request.steps.governmentId.status === 'complete' && (
           <SummarySection
-            title="Government ID"
+            title={t('verification_review.government_id')}
             icon={<IdCard className="w-5 h-5 text-white/70" />}
             fields={{
               ...request.steps.governmentId.fields,
@@ -80,7 +83,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
         {/* Selfie */}
         {request.steps.selfie.status === 'complete' && (
           <SummarySection
-            title="Identity Verification"
+            title={t('verification_review.identity_verification')}
             icon={<Fingerprint className="w-5 h-5 text-white/70" />}
             fields={{
               ...request.steps.selfie.fields,
@@ -92,7 +95,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
         {/* Business Details */}
         {request.steps.businessDetails.status === 'complete' && (
           <SummarySection
-            title="Business Details"
+            title={t('verification_review.business_details')}
             icon={<Building2 className="w-5 h-5 text-white/70" />}
             fields={request.steps.businessDetails.fields}
           />
@@ -103,7 +106,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
       {!canSubmit && !isReadOnly && blockingIssues.length > 0 && (
         <div className="mt-6 rounded-lg bg-amber-500/10 p-4">
           <h3 className="font-semibold text-amber-300 mb-2 text-sm md:text-base">
-            Complete required steps to submit:
+            {t('verification_review.complete_required_steps')}
           </h3>
           <ul className="list-disc list-inside text-sm text-amber-300 space-y-1">
             {blockingIssues.map((issue, index) => (
@@ -124,7 +127,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-brand-300 mb-1 text-sm md:text-base">
-                Verification Submitted
+                {t('verification_review.verification_submitted')}
               </h3>
               <p className="text-sm text-brand-300">
                 Submitted on {request.submittedAt ? new Date(request.submittedAt).toLocaleDateString('en-US', {
@@ -179,11 +182,11 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
         <div className="mt-4 text-xs md:text-sm text-white/60 text-center">
           By submitting, you agree to our{' '}
           <a href="/terms" className="text-brand-300 hover:text-brand-300 underline">
-            Terms of Service
+            {t('verification_review.terms_of_service')}
           </a>{' '}
           and{' '}
           <a href="/privacy" className="text-brand-300 hover:text-brand-300 underline">
-            Privacy Policy
+            {t('verification_review.privacy_policy')}
           </a>
         </div>
       )}
@@ -198,6 +201,8 @@ interface SummarySectionProps {
 }
 
 function SummarySection({ title, icon, fields }: SummarySectionProps) {
+  const { t } = useTranslation('organizer')
+
   const entries = Object.entries(fields).filter(([_, value]) => value !== undefined && value !== null && value !== '')
 
   if (entries.length === 0) return null
@@ -213,7 +218,7 @@ function SummarySection({ title, icon, fields }: SummarySectionProps) {
             {title}
           </h3>
         </div>
-        <StatusChip tone="success" icon={Check}>Complete</StatusChip>
+        <StatusChip tone="success" icon={Check}>{t('verification_review.complete')}</StatusChip>
       </div>
 
       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
