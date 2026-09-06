@@ -14,6 +14,7 @@ import {
 import { adminDb } from '@/lib/firebase/admin'
 import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
 import { applicationFeeFor, priceOrderCents } from '@/lib/checkout/buyer-pricing'
+import { friendlyStripeError } from '@/lib/checkout/stripe-errors'
 import { getPlatformSettings } from '@/lib/admin/platform-settings'
 import { getEventLocation } from '@/types/platform-settings'
 import { fromCents } from '@/lib/ticketPricing'
@@ -446,11 +447,16 @@ export async function POST(request: Request) {
         : {}),
     })
   } catch (error: any) {
+    // Log the real thing — it carries the account id and Stripe's own wording,
+    // which is what you need to diagnose it.
     console.error('Payment Intent creation error:', error)
-    
+
+    // Return something a buyer can act on. Passing `error.message` through is how
+    // "No such destination: 'acct_1Sfyt…'" ended up rendered in the app.
+    const friendly = friendlyStripeError(error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create payment intent' },
-      { status: 500 }
+      { error: friendly.message, code: friendly.code },
+      { status: friendly.status }
     )
   }
 }

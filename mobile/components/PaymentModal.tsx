@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -29,12 +29,14 @@ const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreCl
 // Conditionally import Stripe only if not in Expo Go
 let StripeProvider: any;
 let useStripe: any;
+let isPlatformPaySupported: (() => Promise<boolean>) | null = null;
 
 if (!isExpoGo) {
   try {
     const stripe = require('@stripe/stripe-react-native');
     StripeProvider = stripe.StripeProvider;
     useStripe = stripe.useStripe;
+    isPlatformPaySupported = stripe.isPlatformPaySupported;
   } catch (error) {
     console.warn('Stripe SDK not available in Expo Go');
   }
@@ -133,6 +135,30 @@ function PaymentForm({
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'moncash' | 'natcash' | 'sogepay'>(
     isHaitiEvent ? 'moncash' : 'stripe'
   );
+
+  // Whether to name Apple Pay on the card row.
+  //
+  // The wallet lives inside Stripe's sheet, which only opens after "Pay" — so a
+  // row reading "Visa, Mastercard, AmEx" tells a buyer with Apple Pay set up that
+  // it is not on offer, and they close the screen. A tester did exactly that.
+  // Asked of the SDK rather than assumed from Platform.OS, so the label is never
+  // promising a button that will not be there.
+  const [walletAvailable, setWalletAvailable] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    if (!isPlatformPaySupported || isHaitiEvent) return;
+    isPlatformPaySupported()
+      .then((supported) => {
+        if (!cancelled) setWalletAvailable(Boolean(supported));
+      })
+      .catch(() => {
+        // Unknown means silent: a missing mention is a smaller error than a
+        // promise the sheet cannot keep.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isHaitiEvent]);
 
   // Stripe Payment
   const handleStripePayment = async () => {
@@ -411,7 +437,9 @@ function PaymentForm({
                     paymentMethod === 'stripe' && styles.methodSubtitleActive,
                   ]}
                 >
-                  {t('paymentModal.methods.cardBrands')}
+                  {walletAvailable
+                    ? `Apple Pay · ${t('paymentModal.methods.cardBrands')}`
+                    : t('paymentModal.methods.cardBrands')}
                 </Text>
               </View>
               <View style={styles.methodCheck}>

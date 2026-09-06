@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { friendlyStripeError } from '@/lib/checkout/stripe-errors'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
@@ -335,9 +336,11 @@ export async function POST(request: Request) {
       // Ignore logging errors
     }
     
+    // Buyer-facing copy only — Stripe's own messages carry account ids.
+    const friendly = friendlyStripeError(error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create checkout session' },
-      { status: 500 }
+      { error: friendly.message, code: friendly.code },
+      { status: friendly.status }
     )
   }
 }
