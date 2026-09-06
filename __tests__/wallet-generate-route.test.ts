@@ -28,6 +28,7 @@ const state: any = {
   passFiles: null as any,
   passCerts: null as any,
   passBarcodes: [] as any[],
+  passRelevantDates: [] as any[],
   /** Force the mocked signer to blow up, like bad certificate material would. */
   signingThrows: false,
 }
@@ -76,6 +77,20 @@ jest.mock('passkit-generator', () => {
 
     setBarcodes(...barcodes: any[]) {
       state.passBarcodes = barcodes
+    }
+
+    // passkit-generator's real PKPass exposes this and the pass builder calls
+    // it. The stand-in lacked it, so every build threw
+    // "pass.setRelevantDates is not a function" and the route answered 502 —
+    // a failure of the mock, not of the signing path it was meant to prove.
+    setRelevantDates(...dates: any[]) {
+      state.passRelevantDates = dates
+    }
+
+    // The builder falls back to the older singular API when the newer one is
+    // unavailable, so the stand-in has to offer both or the fallback throws too.
+    setRelevantDate(...dates: any[]) {
+      state.passRelevantDates = dates
     }
 
     getAsBuffer() {

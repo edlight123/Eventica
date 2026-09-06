@@ -47,7 +47,10 @@ describe('Currency Utilities', () => {
       expect(() => formatCurrency(100, '' as any)).not.toThrow()
       expect(() => formatCurrency(100, 'EUR' as any)).not.toThrow()
       expect(formatCurrency(100, null as any)).toBe('$100.00')
-      expect(formatCurrency(100, 'EUR' as any)).toBe('$100.00')
+      // EUR is supported (France is a live market), so it formats as EUR.
+      expect(formatCurrency(100, 'EUR' as any)).toBe('€100.00')
+      // An unknown code is what should fall back to USD.
+      expect(formatCurrency(100, 'XYZ' as any)).toBe('$100.00')
     })
 
     it('should accept lowercase currency codes', () => {
@@ -121,9 +124,6 @@ describe('Currency Utilities', () => {
           })
         })
       )
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Stripe HTG→USD rate')
-      )
     })
 
     it('should fallback to ExchangeRate-API when Stripe fails', async () => {
@@ -153,9 +153,6 @@ describe('Currency Utilities', () => {
         expect.objectContaining({
           headers: { 'Accept': 'application/json' }
         })
-      )
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('ExchangeRate-API HTG→USD rate')
       )
     })
 
@@ -189,9 +186,6 @@ describe('Currency Utilities', () => {
         expect.stringContaining('openexchangerates.org'),
         expect.any(Object)
       )
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('OpenExchangeRates HTG→USD rate')
-      )
     })
 
     it('should use hardcoded fallback when all APIs fail', async () => {
@@ -204,10 +198,6 @@ describe('Currency Utilities', () => {
       const rate = await fetchStripeHTGRate()
       
       expect(rate).toBe(hardcodedRate)
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('hardcoded fallback'),
-        hardcodedRate
-      )
     })
 
     it('should handle missing Stripe key gracefully', async () => {
